@@ -1,0 +1,81 @@
+extends layout4
+
+block headContent
+	title Browse Nodes
+
+block breadcrumb
+	ol.breadcrumb
+		li.breadcrumb-item
+			a(href='/') Home
+		li.breadcrumb-item Network
+		li.breadcrumb-item.active All Nodes
+	
+block content
+	//h1(class="h2") Nodes
+	//hr
+
+	div.clearfix
+		div.float-left
+			h1.h3 #{fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()} 
+				if (fullNetworkDescription.nodes.sortedByLastUpdate.length == 1)
+					span Node
+				else
+					span Nodes
+
+		div.float-right
+			div.dropdown
+				button.btn.btn-primary.dropdown-toggle(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+					span Sort: 
+					span.font-weight-bold
+						if (sort == "last_update-desc")
+							| Last Update
+						else if (sort == "num_channels-desc")
+							| Channel Count
+						else if (sort == "channel_capacity-desc")
+							| Capacity
+				div.dropdown-menu.dropdown-menu-right(aria-labelledby="dropdownMenuButton")
+					a.dropdown-item(href="/nodes?sort=last_update-desc") Last Update
+					a.dropdown-item(href="/nodes?sort=num_channels-desc") Channel Count
+					a.dropdown-item(href="/nodes?sort=channel_capacity-desc") Capacity
+
+	hr
+
+	if (session.hideAllNodes)
+		// show nothing
+	else if (session.hideChannelsNetworkNote)
+		// show nothing
+	else
+		div(class="alert alert-primary alert-dismissible shadow-sm", role="alert")
+			h3.h5 Note
+			div.mb-2
+				span This shows all public nodes on that network, 
+				strong from the perspective of your node
+				span . If your node has been recently started/configured, it may take time before it has a good view of the rest of the public network.
+
+			div
+				a(href="/changeSetting?name=hideNodesNetworkNote&value=true") Don't show this note again
+				span.mx-2 |
+				a(href="/changeSetting?name=hideAllNotes&value=true") Don't show any notes again
+
+
+			a(href="/changeSetting?name=hideNodesNetworkNote&value=true", class="close", aria-label="Close", style="text-decoration: none;")
+				span(aria-hidden="true") &times;
+
+
+	- var theadClass = "table-head-with-navx";
+	include includes/node-table.pug
+
+
+	- var nodeCount = fullNetworkDescription.nodes.sortedByLastUpdate.length;
+	if (nodeCount > limit)
+		- var pageNumber = offset / limit + 1;
+		- var pageCount = Math.floor(nodeCount / limit);
+		- if (pageCount * limit < nodeCount) {
+			- pageCount++;
+		- }
+		- var paginationUrlFunction = function(x) {
+			- return paginationBaseUrl + "?limit=" + limit + "&offset=" + ((x - 1) * limit + "&sort=" + sort);
+		- }
+		
+		div.mt-4
+			include includes/pagination.pug

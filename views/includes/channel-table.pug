@@ -1,0 +1,14 @@
+div(class="table-responsive")
+	table(class=("table " + (channelTableNotBordered ? "" : "table-bordered")))
+		thead
+			tr
+				th ID
+				th Node 1
+				th Node 2
+				th Last Update
+				th(class="text-right") Capacity
+		
+		tbody
+			- var node_card_body_only = true;
+			each channel, index in channels
+				include ./channel-table-row.pug

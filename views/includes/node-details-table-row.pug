@@ -1,0 +1,34 @@
+tr(class="monospace")
+	if (showTableNumbers)
+		th #{(index + 1).toLocaleString()}
+
+	td
+		- var card_node_pubkey = node.node.pub_key;
+		include ./node-card.pug
+
+	td
+		if (node.node.addresses && node.node.addresses.length > 0)
+			if (node.node.addresses[0].addr.length > 20)
+				span(title=node.node.addresses[0].addr) -#{node.node.addresses[0].addr.substring(node.node.addresses[0].addr.length - 20, node.node.addresses[0].addr.length - 1)}
+			else
+				span #{node.node.addresses[0].addr}
+		else
+			span -
+
+	td
+		if (node.node.last_update == 0)
+			span -
+		else
+			- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(node.node.last_update) * 1000))));
+
+			//span #{moment.utc(new Date(parseInt(node.node.last_update) * 1000)).format("Y-MM-DD HH:mm:ss")}
+			span #{timeAgo.humanize()}
+
+	td(class="text-right")
+		span #{parseInt(node.num_channels).toLocaleString()}
+
+	td(class="text-right")
+		if (node.total_capacity)
+			- var currencyValue = new Decimal(node.total_capacity).dividedBy(100000000);
+			include ./value-display.pug
+			//span #{parseInt(node.total_capacity).toLocaleString()}

@@ -1,0 +1,48 @@
+extends layout
+
+block headContent
+	title Search - #{query}
+	
+block content
+
+	h1(class="h2") Search
+		small : #{query}
+	hr
+
+	
+	- var noNodes = true;
+	if (searchResults && searchResults.nodes && searchResults.nodes.length > 0)
+		- noNodes = false;
+
+		nav.navbar.navbar-expand-lg.navbar-light.mb-0.header-nav
+			span.navbar-brand
+				span Found #{searchResults.nodes.length.toLocaleString()} 
+				if (searchResults.nodes.length == 1)
+					span Node
+				else
+					span Nodes
+
+		- var nodeInfos = searchResults.nodes;
+		- var theadClass = "table-head-with-nav";
+		include includes/node-table.pug
+		
+
+
+	- var noChannels = true;
+	if (searchResults && searchResults.channels && searchResults.channels.length > 0)
+		- noChannels = false;
+
+		nav.navbar.navbar-expand-lg.navbar-light.mb-0.header-nav
+			span.navbar-brand
+				span Found #{searchResults.channels.length.toLocaleString()} 
+				if (searchResults.channels.length == 1)
+					span Channel
+				else
+					span Channels
+
+		- var channels = searchResults.channels;
+		- var theadClass = "table-head-with-nav";
+		include includes/channel-table.pug
+
+	if (noNodes && noChannels)
+		div(class="alert alert-warning shadow-sm") No results found for query: #{query}

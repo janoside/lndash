@@ -1,0 +1,187 @@
+doctype html
+html
+	head
+		meta(charset="utf-8")
+		meta(name="viewport", content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no")
+		
+		if (session.uiTheme && session.uiTheme == "dark")
+			link(rel="stylesheet", href="/css/bootstrap-dark.css")
+			link(rel="stylesheet", href="/css/dark-touchups.css")
+
+		else
+			link(rel="stylesheet", href="/css/bootstrap.min.css", integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T")
+		
+		link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Ubuntu:400,700")
+		link(rel="stylesheet", href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css")
+		
+		link(rel='stylesheet', href='/css/dashboard.css')
+		link(rel='stylesheet', href='/css/styling.css')
+
+		link(rel="icon", type="image/png", href="/img/logo/lightning.png")
+
+		block headContent
+			title #{config.siteInfo.title}
+		
+	body
+		nav(class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow")
+			//div(class="xcontainer")
+			a(class="navbar-brand col-sm-3 col-md-1 mr-0", href="/")
+				img(src="/img/logo/lightning.svg", class="header-image")
+				span #{config.siteInfo.title}
+				
+			if (client)
+				if (false)
+					ul(class="navbar-nav mr-auto")
+						if (config.headerDropdownLinks)
+							li(class="nav-item dropdown")
+								a(class="nav-link dropdown-toggle", href="javascript:void(0)", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") 
+									span  #{config.headerDropdownLinks.title}
+								div(class="dropdown-menu", aria-label=(config.headerDropdownLinks.title + " Items"))
+									each item in config.headerDropdownLinks.links
+										a(class="dropdown-item", href=item.url)
+											img(src=item.imgUrl, style="width: 24px; height: 24px; margin-right: 8px;", alt=item.name)
+											span  #{item.name}
+				
+
+				form(method="get", action="/search", class="form-inline mr-3")
+					div(class="input-group input-group-sm")
+						input(type="text", class="form-control form-control-sm", name="query", placeholder="pub key, channel id, alias, address", value=(query), style="width: 300px;")
+						div(class="input-group-append")
+							button(type="submit", class="btn btn-primary")
+								i(class="fas fa-search")
+
+				ul(class="navbar-nav")
+					li(class="nav-item dropdown")
+						a(class="nav-link dropdown-toggle", href="javascript:void(0)", id="navbarDropdown", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") 
+							i(class="fas fa-cog mr-1")
+						div(class="dropdown-menu", aria-labelledby="navbarDropdown")
+							if (coinConfig.currencyUnits)
+								span(class="dropdown-header") Currency Units
+								each item in coinConfig.currencyUnits
+									a(class="dropdown-item", href=("/changeSetting?name=currencyFormatType&value=" + item.values[0]))
+										each valueName in item.values
+											if (currencyFormatType == valueName)
+												i(class="fas fa-check")
+										span  #{item.name}
+
+							span(class="dropdown-header") Theme
+							a(class="dropdown-item", href="/changeSetting?name=uiTheme&value=light")
+								if (session.uiTheme == "light" || session.uiTheme == "")
+									i(class="fas fa-check")
+								span  Light
+							a(class="dropdown-item", href="/changeSetting?name=uiTheme&value=dark")
+								if (session.uiTheme == "dark")
+									i(class="fas fa-check")
+								span  Dark
+
+					li(class="nav-item dropdown")
+						a(class="nav-link dropdown-toggle", href="javascript:void(0)", id="navbarDropdown", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") 
+							if (session.admin)
+								i(class="fas fa-user mr-1") 
+								span  Admin
+							else
+								i(class="far fa-user mr-1") 
+								span  Guest
+
+						div(class="dropdown-menu", aria-labelledby="navbarDropdown")
+							if (session.admin)
+								a(class="dropdown-item", href="/logout")
+									span  Logout
+							else
+								a(class="dropdown-item", href="/login")
+									span  Login
+
+				
+		div(class="container-fluid")
+			div(class="row")
+				nav(class="col-md-1 d-none d-md-block bg-light sidebar")
+					div(class="sidebar-sticky")
+						ul(class="nav flex-column")
+							- var sidebarLinks = [["/", "Overview"], ["/node-status", "Node Status"], ["/local-channels", "Local Channels"], ["/payment-history", "Payment History"], ["/invoices", "Invoices"], ["/send-payment", "Send Payment"], ["/on-chain-transactions", "On-Chain Transactions"]];
+
+							each item in sidebarLinks
+								li(class="nav-item")
+									a(class="nav-link active" href=item[0])
+										span(data-feather="home")
+										span #{item[1]}
+											if (true)
+												span(class="sr-only") (current)
+
+
+				main(role="main" class="col-md-10 ml-sm-auto col-lg-11 px-4")
+					if (userMessage)
+						div(class="alert shadow-sm", class=(userMessageType ? ("alert-"  + userMessageType) : "alert-info"), role="alert")
+							span !{userMessage}
+
+					else if (session.userMessage)
+						div(class="alert shadow-sm", class=(session.userMessageType ? ("alert-"  + session.userMessageType) : "alert-info"), role="alert")
+							span !{session.userMessage}
+					
+					block content
+
+			footer(class="footer bg-dark text-light pt-3 pb-1 px-3 mr-n4", style="margin-top: 50px;")
+				div(class="container")
+					div(class="row")
+						div(class="col-md-6")
+							dl
+								dt Source
+								dd
+									a(href=config.siteInfo.sourceUrl) #{config.siteInfo.sourceUrl.substring("https://".length)}
+
+								dt Running Version
+								dd
+									a(href=(config.siteInfo.sourceUrl + "/commit/" + sourcecodeVersion)) #{sourcecodeVersion}
+									span(style="color: #ccc;")  (#{sourcecodeDate})
+
+								if (config.demoSite)
+									dt Public Demo
+									dd
+										a(href=config.siteInfo.demoSiteUrl) #{config.siteInfo.demoSiteUrl}
+										
+										div(class="mt-2")
+											- var demoSiteCoins = ["BTC", "LTC"];
+											each demoSiteCoin in demoSiteCoins
+												a(href=coinConfigs[demoSiteCoin].demoSiteUrl, class="mr-2")
+													img(src=("/img/logo/" + demoSiteCoin.toLowerCase() + ".svg"))
+
+											a(href=config.siteInfo.demoSiteUrl, class="mr-2")
+													img(src=("/img/logo/lightning.svg"), style="width: 32px; height: 32px;")
+
+						div(class="col-md-6 text-md-right")
+							dl
+								dt Support Development of #{config.siteInfo.title}
+								dd
+									div
+										each coin, index in config.donationAddresses.coins
+											div(style="display: inline-block;", class="text-center mb-3", class=(index > 0 ? "ml-md-3" : false))
+												img(src=donationAddressQrCodeUrls[coin], alt=config.donationAddresses[coin].address, style="border: solid 1px #ccc;")
+												br
+												if (config.donationAddresses[coin].urlPrefix)
+													span #{coin}: 
+													a(href=(config.donationAddresses[coin].urlPrefix + config.donationAddresses[coin].address)) #{config.donationAddresses[coin].address.substring(0, 10)}...
+												else
+													span #{coin}
+				
+		
+		script(src="https://code.jquery.com/jquery-3.3.1.min.js", integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=", crossorigin="anonymous")
+		script(src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js", integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ", crossorigin="anonymous")
+		script(src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js", integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb", crossorigin="anonymous")
+		script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js", integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm", crossorigin="anonymous")
+		script(defer, src="https://use.fontawesome.com/releases/v5.2.0/js/all.js", integrity="sha384-4oV5EgaV02iISL2ban6c/RmotsABqE4yZxZLcYMAdG7FAPsyHYAPpywE9PJo+Khy", crossorigin="anonymous")
+
+		script(type="text/javascript", src="https://cdn.jsdelivr.net/npm/jdenticon@2.1.1")
+
+		script(src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js")
+		
+		script(src="https://cdn.ravenjs.com/3.22.4/raven.min.js", crossorigin="anonymous")
+		script.
+			Raven.config('https://0bf20e8357a748cab8aa9d35c0f790dd@sentry.io/130800').install();
+			
+			$(document).ready(function() {
+				$('[data-toggle="tooltip"]').tooltip();
+				$('[data-toggle="popover"]').popover({html:true});
+			});
+
+			hljs.initHighlightingOnLoad();
+		
+		block endOfBody

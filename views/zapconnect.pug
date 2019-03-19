@@ -1,0 +1,18 @@
+extends layout
+
+block headContent
+	title Zap Connect
+
+block content
+	h1(class="h2") Zap Connect
+	hr
+
+	if (!session.admin)
+		p If logged in as an admin, this page will display connection info to assist in connecting the Zap mobile wallet to your LND node.
+
+		a(href="/login") Login
+
+	else
+
+		span abc
+

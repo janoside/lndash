@@ -1,0 +1,121 @@
+extends layout4
+
+block headContent
+	title Node Details - #{nodeInfo.node.pub_key}
+
+block breadcrumb
+	ol.breadcrumb
+		li.breadcrumb-item
+			a(href='/') Home
+		li.breadcrumb-item Network
+		li.breadcrumb-item
+			a(href="/nodes") Nodes
+		li.breadcrumb-item.active #{nodeInfo.node.pub_key}
+	
+block content
+
+	h1(class="h2")
+		div(class="clearfix")
+			div(class="float-left mr-3")
+				span Node
+			div(class="float-left mr-3")
+				- var node_pubkey = nodeInfo.node.pub_key;
+				- var node_icon_size = "1.25em";
+				include ./includes/node-icon.pug
+		
+		small(class="monospace word-wrap", style="width: 100%;") #{nodeInfo.node.pub_key}
+
+	hr
+
+	div(class="card mb-3 shadow-sm")
+		div(class="card-header")
+			h2(class="h6 mb-0") Summary
+
+		div(class="card-body")
+			div(class="row")
+				div(class="col-md-8")
+					div(class="row")
+						div(class="summary-split-table-label") Alias
+						div(class="summary-split-table-content monospace")
+							if (nodeInfo.node.alias.length > 0)
+								span #{nodeInfo.node.alias}
+							else
+								span -
+
+					div(class="row")
+						div(class="summary-split-table-label") Color
+						div(class="summary-split-table-content monospace")
+							- var node_color = nodeInfo.node.color;
+							include ./includes/node-color-swatch.pug
+							span #{nodeInfo.node.color}
+
+					div(class="row")
+						div(class="summary-split-table-label") Addresses
+						div(class="summary-split-table-content monospace")
+							if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
+								each addressItem in nodeInfo.node.addresses
+									span #{addressItem.network} #{addressItem.addr}
+									br
+							else
+								span -
+
+					div(class="row")
+						div(class="summary-split-table-label") Last Update
+						div(class="summary-split-table-content monospace")
+							- var timeAgoTime = nodeInfo.node.last_update;
+							- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timeAgoTime) * 1000))));
+							- var dateTimeUtc = moment.utc(new Date(parseInt(nodeInfo.node.last_update) * 1000)).format("Y-MM-DD HH:mm:ss");
+							
+							span #{dateTimeUtc} utc
+							br
+							span.text-muted #{timeAgo.format()} ago
+							
+					div(class="row")
+						div(class="summary-split-table-label") Channels
+						div(class="summary-split-table-content monospace") #{parseInt(nodeInfo.num_channels).toLocaleString()}
+
+					div(class="row")
+						div(class="summary-split-table-label") Total Capacity
+						div(class="summary-split-table-content monospace")
+							- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(100000000);
+							include ./includes/value-display.pug
+
+				div(class="col-md-4")
+						if (qrcodeUrls[nodeInfo.node.pub_key])
+							div(style="display: inline-block; margin-right: 15px;")
+								img(src=qrcodeUrls[nodeInfo.node.pub_key], alt=Pubkey QR Code, style="border: solid 1px #ccc;")
+								br
+								span(class="text-center monospace") Public Key
+
+						if (nodeUri && qrcodeUrls[nodeUri])
+							div(style="display: inline-block;")
+								img(src=qrcodeUrls[nodeUri], alt=URI QR Code, style="border: solid 1px #ccc;")
+								br
+								span(class="text-center monospace") URI
+
+
+	if (session.admin)
+		div(class="card mb-3 shadow-sm")
+			div(class="card-header")
+				h2(class="h6 mb-0") Actions
+			div(class="card-body")
+				if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
+					a(href=("/connectToPeer?pubKey=" + nodeInfo.node.pub_key + "&address=" + nodeInfo.node.addresses[0].addr), class="btn btn-primary mr-3") Connect as Peer
+				else
+					a(href="javascript:void(0)", class="btn btn-secondary mr-3", title="Unable to connect. No addresses found.", data-toggle="tooltip", disabled) Connect as Peer
+
+				a(href=("/openchannel?pubkey=" + nodeInfo.node.pub_key), class="btn btn-primary") Open Channel
+
+	div(class="card mb-3 shadow-sm")
+		div(class="card-header")
+			h2(class="h6 mb-0")
+				span #{parseInt(nodeInfo.num_channels).toLocaleString()} 
+				if (nodeInfo.num_channels == 1)
+					span Channel
+				else
+					span Channels
+
+		div(class="card-body")
+			- var channels = nodeChannels;
+			- var channelTableNotBordered = true;
+			include includes/channel-table.pug

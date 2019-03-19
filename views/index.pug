@@ -1,0 +1,296 @@
+extends layout4
+
+block headContent
+	title LND Admin
+
+block breadcrumb
+	ol.breadcrumb
+		li.breadcrumb-item.active Home
+
+block content
+	if (false)
+		pre #{JSON.stringify(fullNetworkDescription, null, 4)}
+
+	if (fullNetworkDescription)
+		if (config.demoSite && session.hideHomepageBanner != "true" || true)
+			div(class="alert alert-primary alert-dismissible shadow-sm", role="alert")
+				p
+					strong LND Admin
+					span  is 
+					a(href="https://github.com/janoside/lnd-admin") open-source
+					span  and easy to set up. It can communicate with your LND node via gRPC. See the 
+					a(href="https://github.com/janoside/lnd-admin") project description
+					span  for a list of features and instructions for running.
+
+				div(style="height: 34px;")
+					a(class="github-button", href=config.siteInfo.sourceUrl, data-icon="octicon-star", data-size="large", data-show-count="true", aria-label="Star janoside/btc-rpc-explorer on GitHub", style="padding-right: 10px;") Star
+					
+					span    
+					a(class="github-button", href=(config.siteInfo.sourceUrl + "/fork"), data-icon="octicon-repo-forked", data-size="large", data-show-count="true", aria-label="Fork janoside/btc-rpc-explorer on GitHub") Fork
+
+					if (false)
+						.btn-group
+							button.btn.btn-dark.btn-lg(type='button')
+								span Support via 
+								img(src="/img/btcpay-logo.png", style="height: 30px;")
+
+							button.btn.btn-lg.btn-dark.dropdown-toggle.dropdown-toggle-split(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+								span.sr-only Toggle Dropdown
+							.dropdown-menu.p-2
+								label(for="donation-amount") Donation Amount (USD)
+								.input-group.mb-3
+									.input-group-prepend
+										a.btn.btn-primary.text-light
+											i(class="fas fa-minus-circle fa")
+									input#donation-amount.form-control.text-center(type='text' placeholder='10' aria-label='Example text with button addon' aria-describedby='button-addon1')
+									.input-group-append
+										a.btn.btn-primary.text-light
+											i(class="fas fa-plus-circle")
+
+								a(href="javascript:void(0)", id="donation-plus")
+									
+								a(href="javascript:void(0)", id="donation-minus")
+									
+
+						form(method='POST' action='https://btcpay.chaintools.io/api/v1/invoices')
+							input(type='hidden' name='storeId' value='DUUExHMvKNAFukrJZHCShMhwZvfPq87QnkUhvE6h5kh2')
+							input(type='hidden' name='price' value='10')
+							input(type='hidden' name='currency' value='USD')
+							input(type='hidden' name='notifyEmail' value='chaintools.io@gmail.com')
+							input(type='image' src='https://btcpay.chaintools.io/img/paybutton/donate.png' name='submit' style='width:209px' alt='Pay with BtcPay, Self-Hosted Bitcoin Payment Processor')
+
+
+				a(href="/changeSetting?name=hideHomepageBanner&value=true", class="close", aria-label="Close", style="text-decoration: none;")
+					span(aria-hidden="true") &times;
+				
+		
+		- var totalCapacity = 0;
+		each item in fullNetworkDescription.channels.sortedByLastUpdate
+			- totalCapacity = totalCapacity + parseInt(item.capacity);
+
+		- var networkSummaryItemCount = 3;
+		- var networkSummaryColumnClass = "col-md-4";
+		if (networkSummaryItemCount > 6)
+			- networkSummaryColumnClass = "col-md-3";
+
+		style.
+			#node-details-table th {
+				max-width: 200px !important;
+			}
+
+		//pre
+		//	code.json #{JSON.stringify(channelBalance, null, 4)}
+
+		div.row
+			div.col-md-6
+				div(class="card mb-3 shadow-sm")
+					div(class="card-header")
+						h2(class="h6 mb-0") My Node Summary
+					div(class="card-body")
+						if (true)
+							div(class="row")
+								div(class="summary-split-table-label") Public Key
+								div(class="summary-split-table-content monospace")
+									a(href=("/node/" + getInfo.identity_pubkey), data-toggle="tooltip", title=getInfo.identity_pubkey) #{getInfo.identity_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
+
+							div(class="row")
+								div(class="summary-split-table-label") Alias
+								div(class="summary-split-table-content monospace") #{getInfo.alias}
+
+							div(class="row")
+								div(class="summary-split-table-label") Color
+								div(class="summary-split-table-content monospace")
+									- var node_color = fullNetworkDescription.nodeInfoByPubkey[getInfo.identity_pubkey].node.color;
+									include ./includes/node-color-swatch.pug
+									span #{node_color}
+
+							div(class="row")
+								- var versionParts = getInfo.version.split(" ");
+								div(class="summary-split-table-label") Version
+								div(class="summary-split-table-content monospace")
+									each versionPart in versionParts
+										span #{versionPart}
+										br
+
+							if (false)
+								div(class="col-md-6")
+								div(class="row")
+									div(class="summary-split-table-label") URIs
+									div(class="summary-split-table-content monospace")
+										each uri, index in getInfo.uris
+											if (getInfo.uris.length > 1)
+												span #{index + 1}: #{uri}
+											else
+												span #{uri}
+
+							div(class="row")
+								div(class="summary-split-table-label")
+									if (getInfo.chains.length == 1)
+										span Chain
+									else
+										span Chains
+								div(class="summary-split-table-content monospace")
+									each chain in getInfo.chains
+										span #{chain.chain} (#{chain.network})
+										br
+
+							div(class="row")
+								div(class="summary-split-table-label") Current Block
+								div(class="summary-split-table-content monospace")
+									if (config.blockExplorerUrl)
+										a(href=(config.blockExplorerUrl + "/block/" + getInfo.block_hash), target="_blank") ##{getInfo.block_height.toLocaleString()}
+										span.text-muted  (
+											if (getInfo.synced_to_chain)
+												span.text-muted synchronized
+											else
+												span.text-danger not synchronized
+
+											span )
+
+									else
+										span #{getInfo.block_hash}
+										br
+										span(class="text-muted") (#{getInfo.block_height.toLocaleString()})
+
+							div(class="row")
+								div(class="summary-split-table-label") Channels
+								div(class="summary-split-table-content monospace")
+									span #{parseInt(getInfo.num_active_channels).toLocaleString()} active
+
+									if (getInfo.num_pending_channels > 0 || getInfo.num_inactive_channels > 0)
+										span.text-muted  (
+											if (getInfo.num_pending_channels > 0)
+												span #{parseInt(getInfo.num_pending_channels).toLocaleString()} pending
+
+												if (getInfo.num_inactive_channels > 0)
+													span , 
+
+											if (getInfo.num_inactive_channels > 0)
+												span #{parseInt(getInfo.num_inactive_channels).toLocaleString()} inactive
+											span )
+
+							div(class="row")
+								div(class="summary-split-table-label") Balance
+								div(class="summary-split-table-content monospace")
+									- var currencyValue = new Decimal(parseInt(channelBalance.balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+									include includes/value-display.pug
+									span  in active channels
+
+									- var currencyValue = new Decimal(parseInt(channelBalance.pending_open_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+									if (currencyValue > 0)
+										br
+										include includes/value-display.pug
+										span  in pending channels
+
+									- var currencyValue = new Decimal(parseInt(walletBalance.confirmed_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+									if (currencyValue > 0)
+										br
+										include includes/value-display.pug
+										span  confirmed in wallet
+
+									- var currencyValue = new Decimal(parseInt(walletBalance.unconfirmed_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+									if (currencyValue > 0)
+										br
+										include includes/value-display.pug
+										span  unconfirmed in wallet
+
+			div.col-md-6
+				div(class="card mb-4 shadow-sm")
+					div(class="card-header")
+						h2(class="h6 mb-0") Network Summary
+					div(class="card-body")
+						div(class="row")
+							- var currencyValue = new Decimal(totalCapacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+							div(class="summary-split-table-label") Total Capacity
+							div(class="summary-split-table-content monospace")
+								include ./includes/value-display.pug
+
+						div(class="row")
+							div(class="summary-split-table-label") Nodes
+							div(class="summary-split-table-content monospace")
+								span #{fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()}
+
+						div(class="row")
+							div(class="summary-split-table-label") Channels
+							div(class="summary-split-table-content monospace")
+								span #{fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()}
+
+						div(class="row")
+							- var currencyValue = new Decimal(totalCapacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(fullNetworkDescription.channels.sortedByLastUpdate.length);
+							div(class="summary-split-table-label") Avg Channel Capacity
+							div(class="summary-split-table-content monospace")
+								include ./includes/value-display.pug
+
+
+		if (false)
+			div(class="card mb-4 shadow-sm")
+				div(class="card-header")
+					div(class="row")
+						div(class="col")
+							h2(class="h6 mb-0") #{fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()} 
+								if (fullNetworkDescription.nodes.sortedByLastUpdate.length == 1)
+									span Node
+								else
+									span Nodes
+
+						div(class="col")
+							span(style="float: right;")
+								a(href="/nodes")
+									span  Browse Nodes &raquo;
+
+				div(class="card-body")
+					div.row
+						div.col-md-4
+							h3.h4 Recently Updated
+							- var nodeInfos = fullNetworkDescription.nodes.sortedByLastUpdate.slice(0, 5);
+							include includes/node-card-list.pug
+
+						div.col-md-4
+							h3.h4 Top Channel Count
+							- var nodeInfos = fullNetworkDescription.nodes.sortedByChannelCount.slice(0, 5);
+							include includes/node-card-list.pug
+
+						div.col-md-4
+							h3.h4 Top Capacity
+							- var nodeInfos = fullNetworkDescription.nodes.sortedByTotalCapacity.slice(0, 5);
+							include includes/node-card-list.pug
+				
+
+		if (false)
+			div(class="card mb-4 shadow-sm")
+				div(class="card-header")
+					div(class="row")
+						div(class="col")
+							h2(class="h6 mb-0") #{fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()} 
+								if (fullNetworkDescription.channels.sortedByLastUpdate.length == 1)
+									span Channel
+								else
+									span Channels
+
+						div(class="col")
+							span(style="float: right;")
+								a(href="/channels")
+									span  Browse Channels &raquo;
+
+				div(class="card-body")
+					ul(class='nav nav-tabs')
+						li(class="nav-item")
+							a(data-toggle="tab", href="#tab-channels-sortedByLastUpdate", class="nav-link active", role="tab") Recently Updated
+						li(class="nav-item")
+							a(data-toggle="tab", href="#tab-channels-sortedByCapacity", class="nav-link", role="tab") Most Capacity
+
+					div(class="tab-content")
+						div(id="tab-channels-sortedByLastUpdate", class="tab-pane active", role="tabpanel")
+							- var channels = fullNetworkDescription.channels.sortedByLastUpdate.slice(0, 10);
+							include includes/channel-table.pug
+
+						div(id="tab-channels-sortedByCapacity", class="tab-pane", role="tabpanel")
+							- var channels = fullNetworkDescription.channels.sortedByCapacity.slice(0, 10);
+							include includes/channel-table.pug
+
+	else
+		div(class="alert alert-danger") No data available for current network state. Check your RPC connection.
+
+
+block endOfBody
+	script(async, defer, src="https://buttons.github.io/buttons.js")

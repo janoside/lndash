@@ -1,0 +1,34 @@
+if (fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey])
+	- var card_node = {pubkey:card_node_pubkey, alias:fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey].node.alias, color:fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey].node.color};
+
+if (node_card_body_only)
+	div(class="float-left mr-2")
+		if (card_node)
+			- var node_pubkey = card_node.pubkey;
+			- var node_icon_size = "2.75em";
+			include ./node-icon.pug
+				
+	div(class="float-left")
+		if (card_node)
+			a(href=("/node/" + card_node.pubkey), title=card_node.pubkey, data-toggle="tooltip") #{card_node.pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
+			
+			br
+			- var node_alias = card_node.alias;
+			include ./node-alias-display.pug
+
+else
+	div(class="card shadow-sm monospace", style="min-width: 275px;")
+		div(class="card-body p-2")
+			div(class="float-left mr-2")
+				if (card_node)
+					- var node_pubkey = card_node.pubkey;
+					- var node_icon_size = "2.75em";
+					include ./node-icon.pug
+						
+			div(class="float-left")
+				if (card_node)
+					a(href=("/node/" + card_node.pubkey), title=card_node.pubkey, data-toggle="tooltip") #{card_node.pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
+					
+					br
+					- var node_alias = card_node.alias;
+					include ./node-alias-display.pug

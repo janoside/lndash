@@ -1,0 +1,14 @@
+div(class="table-responsive")
+	table(class="table table-bordered")
+		thead(class=theadClass)
+			tr
+				th Node
+				th Address
+				th Last Update
+				th(class="text-right") Channels
+				th(class="text-right") Capacity
+		
+		tbody
+			- var node_card_body_only = true;
+			each nodeInfo, index in nodeInfos
+				include ./node-table-row.pug

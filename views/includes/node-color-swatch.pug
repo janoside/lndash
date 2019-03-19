@@ -1,0 +1,6 @@
+- var hsl = utils.colorHexToHsl(node_color);
+
+if (hsl.s < 0.1)
+	div(style=("display: inline-block; width: 2em; height: 1.25em; margin-bottom: -4px !important; margin-right: 5px !important; padding: 0; margin: 0; border-radius: 0.2em; border: solid 1px #aaa; background: " + node_color), title=node_color, data-toggle="tooltip")
+else
+	div(style=("display: inline-block; width: 2em; height: 1.25em; margin-bottom: -4px !important; margin-right: 5px !important; padding: 0; margin: 0; border-radius: 0.2em; background: " + node_color), title=node_color, data-toggle="tooltip")

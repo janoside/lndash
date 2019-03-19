@@ -1,0 +1,4 @@
+each nodeInfo in nodeInfos
+	div.mb-3
+		- var card_node_pubkey = nodeInfo.node.pub_key;
+		include ./node-card.pug

@@ -1,0 +1,33 @@
+tr(class="monospace word-wrap")
+	td #{(channel_index + 1).toLocaleString()}
+	td(class="table-col-channelid")
+		a(href=("/channel/" + channel.chan_id)) #{channel.chan_id}
+
+	td
+		if (channel.initiator)
+			i(class="fas fa-check text-success")
+		else
+			i(class="fas fa-times text-dark")
+
+
+	td
+		- var card_node_pubkey = channel.remote_pubkey;
+		include ./node-card.pug
+
+	td(class="table-col-currencyvalue text-right")
+		- var currencyValue = new Decimal(channel.local_balance).dividedBy(100000000);
+		include ./value-display.pug
+
+	td(class="table-col-currencyvalue text-right")
+		- var currencyValue = new Decimal(channel.remote_balance).dividedBy(100000000);
+		include ./value-display.pug
+
+	td(class="table-col-currencyvalue text-right")
+		- var currencyValue = new Decimal(channel.capacity).dividedBy(100000000);
+		include ./value-display.pug
+
+	td(table-col-time)
+		- var lastUpdateTime = fullNetworkDescription.channelsById[channel.chan_id].last_update;
+		- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(lastUpdateTime) * 1000))));
+
+		span(title=(moment.utc(new Date(parseInt(lastUpdateTime) * 1000)).format("Y-MM-DD HH:mm:ss") + " utc"), data-toggle="tooltip") #{timeAgo.humanize()}

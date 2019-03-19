@@ -1,0 +1,7 @@
+if (node_alias.length > 0)
+	if (node_alias.length > config.site.aliasMaxDisplayLength)
+		span(title=node_alias, data-toggle="tooltip") #{node_alias.substring(0, config.site.aliasMaxDisplayLength)}-
+	else
+		span #{node_alias}
+else
+	span -

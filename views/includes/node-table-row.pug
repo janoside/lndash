@@ -1,0 +1,27 @@
+tr(class="monospace word-wrap")
+	td
+		- var card_node_pubkey = nodeInfo.node.pub_key;
+		include ./node-card.pug
+
+	td(class="table-col-ipaddress")
+		if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
+			if (nodeInfo.node.addresses[0].addr.length > 25)
+				span(title=nodeInfo.node.addresses[0].addr, data-toggle="tooltip") -#{nodeInfo.node.addresses[0].addr.substring(nodeInfo.node.addresses[0].addr.length - 26, nodeInfo.node.addresses[0].addr.length - 1)}
+			else
+				span #{nodeInfo.node.addresses[0].addr}
+		else
+			span -
+
+	td(class="table-col-time")
+		if (nodeInfo.node.last_update == 0)
+			span -
+		else
+			- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(nodeInfo.node.last_update) * 1000))));
+			span(title=moment.utc(new Date(parseInt(nodeInfo.node.last_update) * 1000)).format("Y-MM-DD HH:mm:ss"), data-toggle="tooltip") #{timeAgo.humanize()}
+
+	td(class="table-col-int text-right")
+		span #{parseInt(nodeInfo.num_channels).toLocaleString()}
+
+	td(class="table-col-currencyvalue text-right")
+		- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(100000000);
+		include ./value-display.pug

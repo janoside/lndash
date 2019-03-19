@@ -1,0 +1,99 @@
+extends layout4
+
+block headContent
+	title My Peers
+
+block breadcrumb
+	ol.breadcrumb
+		li.breadcrumb-item
+			a(href='/') Home
+		li.breadcrumb-item My Node
+		li.breadcrumb-item.active My Peers
+	
+block content
+	//h1(class="h2") My Peers
+	//hr
+
+	if (!getInfo && !listPeers)
+		div(class="alert alert-danger") No data available. Check your RPC connection.
+
+	else
+
+		ul(class='nav nav-tabs mb-3')
+			li(class="nav-item")
+				a(data-toggle="tab", href="#tab-details", class="nav-link active", role="tab") Details
+			li(class="nav-item")
+				a(data-toggle="tab", href="#tab-json", class="nav-link", role="tab") JSON
+
+		div(class="tab-content")
+			div(id="tab-details", class="tab-pane active", role="tabpanel")
+
+				nav.navbar.navbar-expand-lg.navbar-light.mb-0.header-nav
+					span.navbar-brand
+						span #{listPeers.peers.length.toLocaleString()} 
+						if (listPeers.peers.length == 1)
+							span Peer
+						else
+							span Peers
+							
+				table(class="table table-responsive-sm")
+					thead(class="table-head-with-nav")
+						tr
+							th Node
+							th Address
+							th Value Transfer (received / sent)
+							th Data Transfer
+							
+							th(class="text-center") Inbound?
+							th(class="text-right") Ping
+
+					tbody(class="monospace")
+						each item in listPeers.peers
+							tr
+								td
+									- var card_node_pubkey = item.pub_key;
+									- var node_card_body_only = true;
+									include ./includes/node-card.pug
+
+								td #{item.address}
+
+								td
+									if (item.sat_recv == 0 && item.sat_sent == 0)
+										span -
+									else
+										i.fas.fa-sign-in-alt.mr-2
+										span #{parseInt(item.sat_recv).toLocaleString()} sat
+
+										br
+
+										i.fas.fa-sign-out-alt.mr-2
+										span #{parseInt(item.sat_sent).toLocaleString()} sat
+								
+								
+								- var bytesSentData = utils.formatLargeNumber(item.bytes_sent, 2);
+								- var bytesRecvData = utils.formatLargeNumber(item.bytes_recv, 2);
+								
+								td
+									i.fas.fa-arrow-up.mr-2
+									span #{bytesSentData[0]} #{bytesSentData[1].abbreviation}B
+									
+									br
+
+									i.fas.fa-arrow-down.mr-2
+									span #{bytesRecvData[0]} #{bytesRecvData[1].abbreviation}B
+									
+
+								
+
+								td(class="text-center")
+									if (item.inbound)
+										i(class="fas fa-check text-success")
+									else
+										i(class="fas fa-times")
+
+								td(class="text-right") #{parseInt(item.ping_time).toLocaleString()}
+
+			div(id="tab-json", class="tab-pane", role="tabpanel")
+				if (listPeers)
+					pre
+						code #{JSON.stringify(listPeers, null, 4)}

@@ -1,0 +1,61 @@
+extends layout4
+
+block headContent
+	title Local Channels
+
+block breadcrumb
+	ol.breadcrumb
+		li.breadcrumb-item
+			a(href='/') Home
+		li.breadcrumb-item My Node
+		li.breadcrumb-item.active My Channels
+	
+block content
+	//h1(class="h2") Local Channels
+	//hr
+
+	if (!session.admin)
+		p If logged in as an admin, this page will display a list of the local channels for this node.
+
+		a(href="/login") Login
+
+	else
+		ul(class='nav nav-tabs mb-3')
+			li(class="nav-item")
+				a(data-toggle="tab", href="#tab-details", class="nav-link active", role="tab") Details
+			li(class="nav-item")
+				a(data-toggle="tab", href="#tab-json", class="nav-link", role="tab") JSON
+
+		div(class="tab-content")
+			div(id="tab-details", class="tab-pane active", role="tabpanel")
+				nav.navbar.navbar-expand-lg.navbar-light.mb-0.header-nav
+					span.navbar-brand
+						span #{localChannels.channels.length.toLocaleString()} 
+						if (localChannels.channels.length == 1)
+							span Channel
+						else
+							span Channels
+
+				if (true)
+					div(class="table-responsive")
+						table(class="table")
+							thead(class="table-head-with-nav")
+								tr
+									th
+									th ID
+									th
+										span(title="Whether channel was created by the local node", data-toggle="tooltip") Initiator
+									th Remote Node
+									th(class="text-right") Local Balance
+									th(class="text-right") Remote Balance
+									th(class="text-right") Capacity
+									th Last Update
+							
+							tbody
+								each channel, channel_index in localChannels.channels
+									include ./includes/local-channel-table-row.pug
+
+			div(id="tab-json", class="tab-pane", role="tabpanel")
+				pre
+					code #{JSON.stringify(localChannels.channels, null, 4)}
+

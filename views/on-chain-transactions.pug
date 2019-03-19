@@ -1,0 +1,157 @@
+extends layout4
+
+block breadcrumb
+	ol.breadcrumb
+		li.breadcrumb-item
+			a(href='/') Home
+		li.breadcrumb-item Payments
+		li.breadcrumb-item.active On-Chain Transactions
+
+block content
+	h1(class="h2") On-Chain Transactions
+	hr
+
+	if (!session.admin)
+		p If logged in as an admin, this page will display a list of the on-chain transactions made by/to this node.
+
+		a(href="/login") Login
+
+	else
+
+		ul(class='nav nav-tabs mb-3')
+			li(class="nav-item")
+				a(data-toggle="tab", href="#tab-details", class="nav-link active", role="tab") Details
+			li(class="nav-item")
+				a(data-toggle="tab", href="#tab-json", class="nav-link", role="tab") JSON
+
+		- var unconfirmedTxCount = 0;
+		each tx, index in onChainTransactions.transactions
+			if (tx.num_confirmations == 0)
+				- unconfirmedTxCount++;
+
+		- var confirmedTxCount = (onChainTransactions.transactions.length - unconfirmedTxCount);
+
+
+
+		div(class="tab-content")
+			div(id="tab-details", class="tab-pane active", role="tabpanel")
+
+				if (unconfirmedTxCount > 0)
+					div(class="mb-5")
+						nav.navbar.navbar-expand-lg.navbar-light.mb-0.header-nav
+							span.navbar-brand
+								span #{unconfirmedTxCount.toLocaleString()} 
+								if (unconfirmedTxCount == 1)
+									span Unconfirmed Transaction
+								else
+									span Unconfirmed Transactions
+
+						div(class="table-responsive")
+							table(class="table")
+								thead(class="table-head-with-nav")
+									tr
+										th
+										th Txid
+										th Amount
+								
+								tbody(class="monospace")
+									each tx, index in onChainTransactions.transactions
+										if (tx.num_confirmations == 0)
+											tr
+												td #{(index + 1).toLocaleString()}
+												td(class="table-col-text")
+													if (config.blockExplorerUrl)
+														a(href=(config.blockExplorerUrl + "/tx/" + tx.tx_hash), title=tx.tx_hash, data-toggle="tooltip") #{tx.tx_hash.substring(0, config.site.txidMaxDisplayLength)}
+													else
+														span(title=tx.tx_hash, data-toggle="tooltip") #{tx.tx_hash.substring(0, config.site.txidMaxDisplayLength)}
+
+												td(class="table-col-currencyvalue")
+													- var currencyValue = new Decimal(Math.abs(parseInt(tx.amount))).dividedBy(100000000);
+													if (parseInt(tx.amount) > 0)
+														div(class="text-success")
+															span +
+															include ./includes/value-display.pug
+													else
+														div(class="text-danger")
+															span -
+															include ./includes/value-display.pug
+
+				div(class="mb-5")
+					nav.navbar.navbar-expand-lg.navbar-light.mb-0.header-nav
+						span.navbar-brand
+							span #{confirmedTxCount.toLocaleString()} 
+							if (unconfirmedTxCount > 0)
+								span Confirmed 
+							if (unconfirmedTxCount == 1)
+								span Transaction
+							else
+								span Transactions
+
+					div(class="table-responsive")
+						table(class="table")
+							thead(class="table-head-with-nav")
+								tr
+									th
+									th Txid
+									th Addresses
+									th(class="text-right") Block
+									th(class="text-right") Confirmations
+									th Date
+									th(class="text-right") Amount
+							
+							tbody(class="monospace")
+								each tx, index in onChainTransactions.transactions
+									if (tx.num_confirmations > 0)
+										tr
+											td #{(index + 1).toLocaleString()}
+											td(class="table-col-text")
+												if (config.blockExplorerUrl)
+													a(href=(config.blockExplorerUrl + "/tx/" + tx.tx_hash), target="_blank", title=tx.tx_hash, data-toggle="tooltip") #{tx.tx_hash.substring(0, config.site.txidMaxDisplayLength)}
+												else
+													span(title=tx.tx_hash, data-toggle="tooltip") #{tx.tx_hash.substring(0, config.site.txidMaxDisplayLength)}
+
+											td(class="table-col-text")
+												if (config.blockExplorerUrl)
+													each addr, index in tx.dest_addresses
+														a(href=(config.blockExplorerUrl + "/address/" + addr), target="_blank") #{addr}
+														br
+												else
+													each addr, index in tx.dest_addresses
+														span #{addr}
+														br
+
+											td(class="table-col-int text-right")
+												if (config.blockExplorerUrl)
+													a(href=(config.blockExplorerUrl + "/block-height/" + tx.block_height), target="_blank") #{parseInt(tx.block_height).toLocaleString()}
+													span  
+													span(title=tx.block_hash, data-toggle="tooltip")
+														i(class="fas fa-info-circle text-muted")
+												else
+													span(title=tx.tx_hash, data-toggle="tooltip") #{parseInt(tx.block_height).toLocaleString()} 
+													span(title=tx.block_hash, data-toggle="tooltip") 
+														i(class="fas fa-info-circle text-muted")
+
+											td(class="table-col-int text-right") #{tx.num_confirmations.toLocaleString()}
+
+											td(class="table-col-time")
+												- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(tx.time_stamp) * 1000))));
+
+												span #{timeAgo.humanize()} ago
+												span  
+													i(class="far fa-clock", title=(moment.utc(new Date(parseInt(tx.time_stamp) * 1000)).format("Y-MM-DD HH:mm:ss") + " utc"), data-toggle="tooltip")
+
+											td(class="table-col-currencyvalue text-right")
+												- var currencyValue = new Decimal(Math.abs(parseInt(tx.amount))).dividedBy(100000000);
+												if (parseInt(tx.amount) > 0)
+													div(class="text-success")
+														span +
+														include ./includes/value-display.pug
+												else
+													div(class="text-danger")
+														span -
+														include ./includes/value-display.pug
+
+			div(id="tab-json", class="tab-pane", role="tabpanel")
+				pre
+					code #{JSON.stringify(onChainTransactions, null, 4)}
+

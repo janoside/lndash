@@ -1,0 +1,292 @@
+doctype html
+//
+	* CoreUI - Free Bootstrap Admin Template
+	* @version v2.1.12
+	* @link https://coreui.io
+	* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+	* Licensed under MIT (https://coreui.io/license)
+head
+	base(href='./')
+	meta(charset='utf-8')
+	meta(http-equiv='X-UA-Compatible' content='IE=edge')
+	meta(name='viewport' content='width=device-width, initial-scale=1.0, shrink-to-fit=no')
+	meta(name='description' content='LND Admin - Web UI for managing LND (Lightning Network Daemon)')
+	meta(name='author' content='Dan Janosik')
+	meta(name='keyword' content='Bootstrap,Admin,Template,Open,Source,jQuery,CSS,HTML,RWD,Dashboard')
+
+	link(rel="stylesheet", href="/css/highlight.min.css", integrity="sha384-zhIsEafzyQWHSoMCQ4BfT8ZlRXQyIFwAHAJn32PNdsb8n6tVysGZSLpEEIvCskw4")
+	link(rel="stylesheet", href="/css/dataTables.bootstrap4.min.css", integrity="sha384-EkHEUZ6lErauT712zSr0DZ2uuCmi3DoQj6ecNdHQXpMpFNGAQ48WjfXCE5n20W+R")
+
+	// Main styles for this application
+	link(href='/css/coreui.css' rel='stylesheet')
+
+	//link(rel="stylesheet", href="/css/bootstrap-dark.css")
+	//link(rel="stylesheet", href="/css/dark-touchups.css")
+
+	link(href='/css/styling.css' rel='stylesheet')
+
+
+	link(rel="icon", type="image/png", href="/img/logo/lightning.png")
+
+	block headContent
+		title #{config.siteInfo.title}
+
+body.sidebar-lg-show.bg-white
+	header.app-header.navbar
+		button.navbar-toggler.sidebar-toggler.d-lg-none.mr-auto(type='button' data-toggle='sidebar-show')
+			span.navbar-toggler-icon
+		a.navbar-brand(href='/')
+			img.navbar-brand-full.mr-2(src='/img/logo/lightning.svg' width='25' height='25' alt='LND Admin')
+			span.navbar-brand-full LND Admin
+			img.navbar-brand-minimized(src='/img/logo/lightning.svg' width='25' height='25' alt='LND Admin Logo')
+		button.navbar-toggler.sidebar-toggler.d-md-down-none(type='button' data-toggle='sidebar-lg-show')
+			span.navbar-toggler-icon
+
+		if (false)
+			ul.nav.navbar-nav.d-md-down-none
+				li.nav-item.px-3
+					a.nav-link(href='/') Dashboard
+				li.nav-item.px-3
+					a.nav-link(href='#') Users
+				li.nav-item.px-3
+					a.nav-link(href='#') Settings
+
+
+		ul.nav.navbar-nav.ml-auto
+			if (false)
+				li.nav-item.d-md-down-none
+					a.nav-link(href='#')
+						i.icon-bell
+						span.badge.badge-pill.badge-danger 5
+				li.nav-item.d-md-down-none
+					a.nav-link(href='#')
+						i.icon-list
+				li.nav-item.d-md-down-none
+					a.nav-link(href='#')
+						i.icon-location-pin
+
+			li.nav-item.dropdown
+				a.nav-link(data-toggle='dropdown' href='javascript:void(0)' role='button' aria-haspopup='true' aria-expanded='false' class="mr-4")
+					//img.img-avatar(src='img/avatars/6.jpg' alt='admin@bootstrapmaster.com')
+					if (session.admin)
+						i(class="fas fa-user mr-1") 
+						span  Admin
+					else
+						i(class="far fa-user mr-1") 
+						span  Guest
+
+				.dropdown-menu.dropdown-menu-right
+					.dropdown-header.text-center
+						strong Account
+					a.dropdown-item(href='#')
+						i.fa.fa-bell-o
+						|	Updates
+						span.badge.badge-info 42
+					a.dropdown-item(href='#')
+						i.fa.fa-envelope-o
+						|	Messages
+						span.badge.badge-success 42
+					a.dropdown-item(href='#')
+						i.fa.fa-tasks
+						|	Tasks
+						span.badge.badge-danger 42
+					a.dropdown-item(href='#')
+						i.fa.fa-comments
+						|	Comments
+						span.badge.badge-warning 42
+					.dropdown-header.text-center
+						strong Settings
+					a.dropdown-item(href='#')
+						i.fa.fa-user
+						|	Profile
+					a.dropdown-item(href='#')
+						i.fa.fa-wrench
+						|	Settings
+					a.dropdown-item(href='#')
+						i.fa.fa-usd
+						|	Payments
+						span.badge.badge-secondary 42
+					a.dropdown-item(href='#')
+						i.fa.fa-file
+						|	Projects
+						span.badge.badge-primary 42
+					.dropdown-divider
+					a.dropdown-item(href='#')
+						i.fa.fa-shield
+						|	Lock Account
+					a.dropdown-item(href='#')
+						i.fa.fa-lock
+						|	Logout
+
+		if (false)
+			button.navbar-toggler.aside-menu-toggler.d-md-down-none(type='button' data-toggle='aside-menu-lg-show')
+				span.navbar-toggler-icon
+			button.navbar-toggler.aside-menu-toggler.d-lg-none(type='button' data-toggle='aside-menu-show')
+				span.navbar-toggler-icon
+
+	.app-body
+		.sidebar
+			nav.sidebar-nav
+				ul.nav
+					li.nav-item
+						a.nav-link(href='/')
+							i.nav-icon.fas.fa-2x.fa-home.mr-2
+							|	Home
+
+					li.nav-title My Node
+					li.nav-item
+						a.nav-link(href='/node-status')
+							i.nav-icon.fas.fa-info-circle.mr-2
+							|	Details
+					li.nav-item
+						a.nav-link(href='/local-channels')
+							i.nav-icon.fas.fa-exchange-alt.mr-2
+							|	My Channels
+					li.nav-item
+						a.nav-link(href='/peers')
+							i.nav-icon.fas.fa-users.mr-2
+							|	My Peers
+
+					li.nav-title Payments
+					li.nav-item
+						a.nav-link(href='/invoices')
+							i.nav-icon.fas.fa-sign-in-alt.mr-2
+							|	Invoices
+					li.nav-item
+						a.nav-link(href='/payment-history')
+							i.nav-icon.fas.fa-sign-out-alt.mr-2
+							|	Payments Sent
+					li.nav-item
+						a.nav-link(href='/on-chain-transactions')
+							i.nav-icon.fas.fa-link.mr-2
+							|	On-Chain Transactions
+					li.nav-item
+						a.nav-link(href='/routed-payments')
+							i.nav-icon.fas.fa-arrow-right.mr-2
+							|	Routed Payments
+
+					li.nav-title Public Network
+					li.nav-item
+						a.nav-link(href='/nodes')
+							i.nav-icon.fas.fa-network-wired.mr-2
+							|	All Nodes
+					li.nav-item
+						a.nav-link(href='/channels')
+							i.nav-icon.fas.fa-globe-americas.mr-2
+							|	All Channels
+
+					li.nav-title Tools
+					li.nav-item
+						a.nav-link(href='/create-invoice')
+							i.nav-icon.fas.fa-asterisk.mr-2
+							|	Create Invoice
+					li.nav-item
+						a.nav-link(href='/send-payment')
+							i.nav-icon.fas.fa-receipt.mr-2
+							|	Pay Invoice
+					li.nav-item
+						a.nav-link(href='/openchannel')
+							i.nav-icon.fas.fa-plus-square.mr-2
+							|	Open Channel
+					li.nav-item
+						a.nav-link(href='/generate-address')
+							i.nav-icon.fab.fa-bitcoin.mr-2
+							|	New Deposit Address
+					li.nav-item
+						a.nav-link(href='/sign-verify')
+							i.nav-icon.fas.fa-pen-nib.mr-2
+							|	Sign / Verify Messages
+					li.nav-item
+						a.nav-link(href='/query-route')
+							i.nav-icon.fas.fa-route.mr-2
+							|	Query Route
+					
+
+					if (false)
+						li.nav-item.nav-dropdown
+							a.nav-link.nav-dropdown-toggle(href='/local-channels')
+								i.fas.fa-exchange-alt.mr-2
+								|	My Channels
+
+							ul.nav-dropdown-items
+								li.nav-item
+									a.nav-link(href='base/breadcrumb.html')
+										i.nav-icon.icon-puzzle
+										|	Breadcrumb
+								li.nav-item
+									a.nav-link(href='base/cards.html')
+										i.nav-icon.icon-puzzle
+										|	Cards
+							
+			
+			button.sidebar-minimizer.brand-minimizer(type='button')
+
+		main.main.pb-4
+			block breadcrumb
+				ol.breadcrumb
+					li.breadcrumb-item
+						a(href='/') Admin Home
+					
+					if (false)
+						// Breadcrumb Menu
+						li.breadcrumb-menu.d-md-down-none
+							.btn-group(role='group' aria-label='Button group')
+								a.btn(href='#')
+									i.icon-speech
+								a.btn(href='./')
+									i.icon-graph
+									| &#x9;Dashboard
+								a.btn(href='#')
+									i.icon-settings
+									| &#x9;Settings
+			.container-fluid
+				.animated.fadeIn
+					block content
+		
+		if (false)	
+			include includes/aside-menu.pug
+	
+	if (false)
+		footer.app-footer
+			div
+				a(href='https://coreui.io') CoreUI
+				span &copy; 2018 creativeLabs.
+			.ml-auto
+				span Powered by
+				a(href='https://coreui.io') CoreUI
+
+	script(src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous")
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous")
+	script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous")
+
+	script(defer src="https://use.fontawesome.com/releases/v5.7.2/js/all.js" integrity="sha384-0pzryjIRos8mFBWMzSSZApWtPl/5++eIfzYmTgBBmXYdhvxPc+XcFEk+zJwDgWbP" crossorigin="anonymous")
+	
+	script(src="/js/highlight.min.js")
+
+	// CoreUI and necessary plugins
+	script(src='/js/pace.min.js')
+	script(src='/js/perfect-scrollbar.min.js')
+	script(src='/js/coreui.min.js')
+	// Plugins and scripts required by this view
+	//script(src='vendors/chart.js/js/Chart.min.js')
+	//script(src='vendors/@coreui/coreui-plugin-chartjs-custom-tooltips/js/custom-tooltips.min.js')
+	script(src='/js/main.js')
+
+	script(type="text/javascript", src="https://cdn.jsdelivr.net/npm/jdenticon@2.1.1")
+
+	script(src="/js/jquery.dataTables.min.js", integrity="sha384-rgWRqC0OFPisxlUvl332tiM/qmaNxnlY46eksSZD84t+s2vZlqGeHrncwIRX7CGp")
+	script(src="/js/dataTables.bootstrap4.min.js", integrity="sha384-uiSTMvD1kcI19sAHJDVf68medP9HA2E2PzGis9Efmfsdb8p9+mvbQNgFhzii1MEX")
+
+	script.
+		$(document).ready(function() {
+			$('[data-toggle="tooltip"]').tooltip();
+			$('[data-toggle="popover"]').popover({html:true, container:"body"});
+		});
+
+		$(document).ready(function() {
+			$(".data-table").DataTable();
+		});
+
+		hljs.initHighlightingOnLoad();
+
+	block endOfBody

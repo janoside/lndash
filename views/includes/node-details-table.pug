@@ -1,0 +1,16 @@
+div(class="table-responsive")
+	table(class="table")
+		thead
+			tr
+				if (showTableNumbers)
+					th
+				th Node
+				th Address
+				th Last Update
+				th(class="text-right") Channels
+				th(class="text-right") Total Capacity
+				
+		
+		tbody
+			each node, index in nodes
+				include ./node-details-table-row.pug

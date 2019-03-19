@@ -1,0 +1,82 @@
+
+extends layout4
+
+block headContent
+	title Payment History
+
+block breadcrumb
+	ol.breadcrumb
+		li.breadcrumb-item
+			a(href='/') Home
+		li.breadcrumb-item Payments
+		li.breadcrumb-item.active Payments Sent
+	
+block content
+	//h1(class="h2") Payment History
+	//hr
+
+	if (!session.admin)
+		p If logged in as an admin, this page will display a list of payments made from your node.
+
+		a(href="/login") Login
+
+	else
+
+		h1.h3 #{payments.payments.length.toLocaleString()} 
+			if (payments.payments.length == 1)
+				span Payment
+			else
+				span Payments
+		hr
+
+		if (true)
+			- var node_card_body_only = true;
+			div(class="table-responsive")
+				table(class="table table-bordered data-table")
+					thead(class="table-head-with-navx")
+						tr
+							th #
+							th Destination
+							th Date
+							th Hash
+
+							th(class="text-right") Hops
+							th(class="text-right") Fee
+							th(class="text-right") Value
+					
+					tbody
+						each payment, index in payments.payments
+							tr(class="monospace word-wrap")
+								td #{(index + 1).toLocaleString()}
+								
+								if (false)
+									td
+										span(title=payment.payment_preimage, data-toggle="tooltip") #{payment.payment_preimage.substring(0, 15)}
+
+								td
+									- var destinationNodePubkey = payment.path[payment.path.length - 1];
+									- var destNode = fullNetworkDescription.nodeInfoByPubkey[destinationNodePubkey].node;
+									- var card_node_pubkey = destinationNodePubkey;
+									include ./includes/node-card.pug
+
+								td(class="table-col-time")
+									- var timestampTime = parseInt(payment.creation_date);
+									- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timestampTime) * 1000))));
+									- var dateTimeUtc = moment.utc(new Date(parseInt(timestampTime) * 1000)).format("Y-MM-DD HH:mm:ss");
+
+									span #{dateTimeUtc} utc
+									br
+									span.text-muted #{timeAgo.humanize()} ago
+
+								td
+									span(title=payment.payment_hash, data-toggle="tooltip") #{payment.payment_hash.substring(0, 15)}
+
+								td(class="table-col-int text-right") #{payment.path.length.toLocaleString()}
+
+								td(class="table-col-currencyvalue text-right")
+									- var currencyValue = new Decimal(payment.fee).dividedBy(100000000);
+									include ./includes/value-display.pug
+
+								td(class="table-col-currencyvalue text-right")
+									- var currencyValue = new Decimal(payment.value_msat).dividedBy(100000000).dividedBy(1000);
+									include ./includes/value-display.pug

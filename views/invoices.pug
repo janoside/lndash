@@ -1,0 +1,110 @@
+extends layout4
+
+block headContent
+	title Invoices
+
+block breadcrumb
+	ol.breadcrumb
+		li.breadcrumb-item
+			a(href='/') Home
+		li.breadcrumb-item Payments
+		li.breadcrumb-item.active Invoices
+
+block content
+	//h1(class="h2") Invoices
+	//hr
+
+	if (!session.admin)
+		p If logged in as an admin, this page will display a list of the invoices / payment requests made by/for this node.
+
+		a(href="/login") Login
+
+	else
+
+		h1.h3 #{invoiceCount.toLocaleString()} 
+			if (invoiceCount == 1)
+				span Invoice
+			else
+				span Invoices
+		hr
+
+		if (true)
+			each invoice, invoice_index in allInvoices
+				div(class="modal fade" id=("invoiceModal-" + invoice_index) role="dialog" xaria-labelledby="exampleModalLabel" aria-hidden="true")
+					div(class="modal-dialog modal-xl" role="document")
+						div(class="modal-content")
+							div(class="modal-header")
+								h5.modal-title(id="exampleModalLabel") Invoice ##{invoice_index}
+								button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+									span(aria-hidden="true") &times;
+
+							div(class="modal-body")
+								- var jsonX = allInvoices[invoice_index];
+								- jsonX.r_preimage_base64 = Buffer.from(jsonX.r_preimage).toString("base64");
+								- jsonX.r_preimage_hex = Buffer.from(jsonX.r_preimage).toString("hex");
+								- jsonX.r_hash_base64 = Buffer.from(jsonX.r_hash).toString("base64");
+								- jsonX.r_hash_hex = Buffer.from(jsonX.r_hash).toString("hex");
+
+								- delete jsonX.r_preimage;
+								- delete jsonX.r_hash;
+
+								pre
+									code(class="json") #{JSON.stringify(jsonX, null, 4)}
+
+							div(class="modal-footer")
+								button(type="button" class="btn btn-secondary" data-dismiss="modal") Close
+
+			div(class="table-responsive")
+				table(class="table table-bordered data-table")
+					thead(class="table-head-with-navx")
+						tr
+							th #
+							th Memo
+							th Created
+							th Settled
+							th(class="text-right") Value
+							th Details
+					
+					tbody
+						each invoice, invoice_index in allInvoices
+							tr(class="monospace word-wrap")
+								td #{(sort == "desc" ? (invoiceCount - invoice_index) : (offset + invoice_index + 1)).toLocaleString()}
+
+								td(class="table-col-text")
+									if (invoice.memo)
+										span #{invoice.memo}
+									else
+										span -
+
+								td(class="table-col-time")
+									- var createdAtTime = parseInt(invoice.creation_date);
+									- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(createdAtTime) * 1000))));
+									- var dateTimeUtc = moment.utc(new Date(parseInt(createdAtTime) * 1000)).format("Y-MM-DD HH:mm:ss");
+
+									span #{dateTimeUtc} utc
+									br
+									span.text-muted #{timeAgo.humanize()} ago
+
+								td(class="table-col-int")
+									if (invoice.settled)
+										- var settleTime = parseInt(invoice.settle_date);
+										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(settleTime) * 1000))));
+										- var dateTimeUtc = moment.utc(new Date(parseInt(settleTime) * 1000)).format("Y-MM-DD HH:mm:ss");
+
+										span #{dateTimeUtc} utc
+										br
+										span.text-muted #{timeAgo.humanize()} ago
+
+									else
+										span(class="text-danger") Unsettled
+
+								td(class="table-col-currencyvalue text-right")
+									span #{parseInt(invoice.value).toLocaleString()} sat
+									br
+									span.text-muted
+										- var currencyValue = new Decimal(invoice.value).dividedBy(100000000);
+										include ./includes/value-display.pug
+
+								td
+									a(href="javascript:void(0)" data-toggle="modal" data-target=("#invoiceModal-" + invoice_index)) Details
+

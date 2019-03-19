@@ -1,0 +1,106 @@
+ul.sidebar-menu.scrollable.pos-r
+	li.nav-item.mT-30.active
+		a.sidebar-link(href='/')
+			span.icon-holder
+				i.c-blue-500.ti-home
+			span.title Network Overview
+	li.nav-item
+		a.sidebar-link(href='/node-status')
+			span.icon-holder
+				i.c-brown-500.ti-email
+			span.title My Node
+	li.nav-item
+		a.sidebar-link(href='/local-channels')
+			span.icon-holder
+				i.c-blue-500.ti-share
+			span.title My Channels
+	li.nav-item
+		a.sidebar-link(href='/payment-history')
+			span.icon-holder
+				i.c-deep-orange-500.ti-calendar
+			span.title Payment History
+	li.nav-item
+		a.sidebar-link(href='/invoices')
+			span.icon-holder
+				i.c-deep-purple-500.ti-comment-alt
+			span.title Invoices
+	li.nav-item
+		a.sidebar-link(href='/send-payment')
+			span.icon-holder
+				i.c-indigo-500.ti-bar-chart
+			span.title Send Payment
+	li.nav-item
+		a.sidebar-link(href='/on-chain-transactions')
+			span.icon-holder
+				i.c-light-blue-500.ti-pencil
+			span.title On-Chain Transactions
+
+	if (false)
+		li.nav-item.dropdown
+			a.sidebar-link(href='ui.html')
+				span.icon-holder
+					i.c-pink-500.ti-palette
+				span.title UI Elements
+		li.nav-item.dropdown
+			a.dropdown-toggle(href='javascript:void(0);')
+				span.icon-holder
+					i.c-orange-500.ti-layout-list-thumb
+				span.title Tables
+				span.arrow
+					i.ti-angle-right
+			ul.dropdown-menu
+				li
+					a.sidebar-link(href='basic-table.html') Basic Table
+				li
+					a.sidebar-link(href='datatable.html') Data Table
+		li.nav-item.dropdown
+			a.dropdown-toggle(href='javascript:void(0);')
+				span.icon-holder
+					i.c-purple-500.ti-map
+				span.title Maps
+				span.arrow
+					i.ti-angle-right
+			ul.dropdown-menu
+				li
+					a(href='google-maps.html') Google Map
+				li
+					a(href='vector-maps.html') Vector Map
+		li.nav-item.dropdown
+			a.dropdown-toggle(href='javascript:void(0);')
+				span.icon-holder
+					i.c-red-500.ti-files
+				span.title Pages
+				span.arrow
+					i.ti-angle-right
+			ul.dropdown-menu
+				li
+					a.sidebar-link(href='blank.html') Blank
+				li
+					a.sidebar-link(href='404.html') 404
+				li
+					a.sidebar-link(href='500.html') 500
+				li
+					a.sidebar-link(href='signin.html') Sign In
+				li
+					a.sidebar-link(href='signup.html') Sign Up
+		li.nav-item.dropdown
+			a.dropdown-toggle(href='javascript:void(0);')
+				span.icon-holder
+					i.c-teal-500.ti-view-list-alt
+				span.title Multiple Levels
+				span.arrow
+					i.ti-angle-right
+			ul.dropdown-menu
+				li.nav-item.dropdown
+					a(href='javascript:void(0);')
+						span Menu Item
+				li.nav-item.dropdown
+					a(href='javascript:void(0);')
+						span Menu Item
+						span.arrow
+							i.ti-angle-right
+					ul.dropdown-menu
+						li
+							a(href='javascript:void(0);') Menu Item
+						li
+							a(href='javascript:void(0);') Menu Item

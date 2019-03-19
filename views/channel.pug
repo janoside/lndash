@@ -1,0 +1,121 @@
+extends layout4
+
+block headContent
+	title Channel Details - 
+	
+block content
+
+	h1(class="h2") Channel
+		br
+		small(class="monospace word-wrap") #{channel.channel_id}
+	hr
+
+	ul(class='nav nav-tabs mb-3')
+		li(class="nav-item")
+			a(data-toggle="tab", href="#tab-details", class="nav-link active", role="tab") Details
+		li(class="nav-item")
+			a(data-toggle="tab", href="#tab-json", class="nav-link", role="tab") JSON
+
+	div(class="tab-content")
+		div(id="tab-details", class="tab-pane active", role="tabpanel")
+			div(class="card mb-3 shadow-sm")
+				div(class="card-header")
+					h2(class="h6 mb-0") Summary
+
+				div(class="card-body")
+					div(class="row")
+						div(class="summary-table-label", title="On-chain transaction that opened this channel", data-toggle="tooltip") Channel Point
+						div(class="summary-table-content monospace")
+							if (config.blockExplorerUrl)
+								a(href=(config.blockExplorerUrl + "/tx/" + channel.chan_point.substring(0, channel.chan_point.indexOf(":"))), target="_blank") #{channel.chan_point}
+							else
+								span #{channel.chan_point}
+
+					div(class="row")
+						div(class="summary-table-label") Last Update
+						div(class="summary-table-content monospace")
+							- var timeAgoTime = channel.last_update;
+							span #{moment.utc(new Date(parseInt(channel.last_update) * 1000)).format("Y-MM-DD HH:mm:ss")} utc
+							include ./includes/time-ago.pug
+
+					div(class="row")
+						div(class="summary-table-label") Capacity
+						div(class="summary-table-content monospace")
+							- var currencyValue = new Decimal(channel.capacity).dividedBy(100000000);
+							include ./includes/value-display.pug
+
+					if (localChannels.byId && localChannels.byId[channel.channel_id])
+						div(class="row")
+							div(class="summary-table-label") Local?
+							div(class="summary-table-content monospace")
+								i(class="fas fa-check text-success")
+								
+
+
+			div(class="card mb-3 shadow-sm")
+				div(class="card-header")
+					h2(class="h6 mb-0") Policies
+				div(class="card-body")
+					table(class="table table-responsive-sm")
+						thead
+							tr
+								th
+								th Node
+								th(class="text-right") Time Lock Delta
+								th(class="text-right") Min HTLC
+								th(class="text-right") Fee Base (msat)
+								th(class="text-right") Fee Rate (milli-msat)
+						tbody
+							tr(class="monospace")
+								th 1
+								td
+									- var card_node_pubkey = channel.node1_pub;
+									include ./includes/node-card.pug
+
+								if (channel.node1_policy)
+									td(class="text-right") #{parseInt(channel.node1_policy.time_lock_delta).toLocaleString()}
+									td(class="text-right") #{parseInt(channel.node1_policy.min_htlc).toLocaleString()}
+									td(class="text-right") #{parseInt(channel.node1_policy.fee_base_msat).toLocaleString()}
+									td(class="text-right") #{parseInt(channel.node1_policy.fee_rate_milli_msat).toLocaleString()}
+								else
+									td(class="text-right") ?
+									td(class="text-right") ?
+									td(class="text-right") ?
+									td(class="text-right") ?
+							tr(class="monospace")
+								th 2
+								td
+									- var card_node_pubkey = channel.node2_pub;
+									include ./includes/node-card.pug
+
+								if (channel.node2_policy)
+									td(class="text-right") #{parseInt(channel.node2_policy.time_lock_delta).toLocaleString()}
+									td(class="text-right") #{parseInt(channel.node2_policy.min_htlc).toLocaleString()}
+									td(class="text-right") #{parseInt(channel.node2_policy.fee_base_msat).toLocaleString()}
+									td(class="text-right") #{parseInt(channel.node2_policy.fee_rate_milli_msat).toLocaleString()}
+								else
+									td(class="text-right") ?
+									td(class="text-right") ?
+									td(class="text-right") ?
+									td(class="text-right") ?
+
+			div(class="card mb-3 shadow-sm")
+				div(class="card-header")
+					h2(class="h6 mb-0") Node Details
+				div(class="card-body")
+					- var nodes = [ node1, node2 ];
+					- var showTableNumbers = true;
+					include includes/node-details-table.pug
+
+		div(id="tab-json", class="tab-pane", role="tabpanel")
+			h4 channelInfo
+			pre
+				code #{JSON.stringify(channel, null, 4)}
+
+			h4 node1Info
+			pre
+				code #{JSON.stringify(node1, null, 4)}
+
+			h4 node2Info
+			pre
+				code #{JSON.stringify(node2, null, 4)}
