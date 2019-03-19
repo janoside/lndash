@@ -11,89 +11,74 @@ block breadcrumb
 		li.breadcrumb-item.active My Peers
 	
 block content
-	//h1(class="h2") My Peers
-	//hr
+	h1.h3 #{listPeers.peers.length.toLocaleString()} 
+		if (listPeers.peers.length == 1)
+			span Peer
+		else
+			span Peers
+
+	hr
 
 	if (!getInfo && !listPeers)
 		div(class="alert alert-danger") No data available. Check your RPC connection.
 
 	else
 
-		ul(class='nav nav-tabs mb-3')
-			li(class="nav-item")
-				a(data-toggle="tab", href="#tab-details", class="nav-link active", role="tab") Details
-			li(class="nav-item")
-				a(data-toggle="tab", href="#tab-json", class="nav-link", role="tab") JSON
+		div.table-responsive
+			table(class="table table-bordered")
+				thead(class="table-head-with-nav")
+					tr
+						th Node
+						th Address
+						
+						th.text-right Value Transfer (received / sent)
+						th.text-right Data Transfer
+						
+						th.text-center Inbound?
+						th.text-right Ping
 
-		div(class="tab-content")
-			div(id="tab-details", class="tab-pane active", role="tabpanel")
-
-				nav.navbar.navbar-expand-lg.navbar-light.mb-0.header-nav
-					span.navbar-brand
-						span #{listPeers.peers.length.toLocaleString()} 
-						if (listPeers.peers.length == 1)
-							span Peer
-						else
-							span Peers
-							
-				table(class="table table-responsive-sm")
-					thead(class="table-head-with-nav")
+				tbody(class="monospace")
+					each item in listPeers.peers
 						tr
-							th Node
-							th Address
-							th Value Transfer (received / sent)
-							th Data Transfer
-							
-							th(class="text-center") Inbound?
-							th(class="text-right") Ping
+							td
+								- var card_node_pubkey = item.pub_key;
+								include ./includes/node-card.pug
 
-					tbody(class="monospace")
-						each item in listPeers.peers
-							tr
-								td
-									- var card_node_pubkey = item.pub_key;
-									- var node_card_body_only = true;
-									include ./includes/node-card.pug
+							td #{item.address}
 
-								td #{item.address}
-
-								td
-									if (item.sat_recv == 0 && item.sat_sent == 0)
-										span -
-									else
-										i.fas.fa-sign-in-alt.mr-2
-										span #{parseInt(item.sat_recv).toLocaleString()} sat
-
-										br
-
-										i.fas.fa-sign-out-alt.mr-2
-										span #{parseInt(item.sat_sent).toLocaleString()} sat
-								
-								
-								- var bytesSentData = utils.formatLargeNumber(item.bytes_sent, 2);
-								- var bytesRecvData = utils.formatLargeNumber(item.bytes_recv, 2);
-								
-								td
-									i.fas.fa-arrow-up.mr-2
-									span #{bytesSentData[0]} #{bytesSentData[1].abbreviation}B
+							td.text-right
+								if (item.sat_recv == 0 && item.sat_sent == 0)
+									span -
+								else
 									
+									span #{parseInt(item.sat_recv).toLocaleString()} sat
+									i.fas.fa-sign-in-alt.ml-2
+
 									br
 
-									i.fas.fa-arrow-down.mr-2
-									span #{bytesRecvData[0]} #{bytesRecvData[1].abbreviation}B
-									
+									span #{parseInt(item.sat_sent).toLocaleString()} sat
+									i.fas.fa-sign-out-alt.ml-2
+							
+							
+							- var bytesSentData = utils.formatLargeNumber(item.bytes_sent, 1);
+							- var bytesRecvData = utils.formatLargeNumber(item.bytes_recv, 1);
+							
+							td.text-right
+								span #{bytesSentData[0]} #{bytesSentData[1].abbreviation}B
+								i.fas.fa-arrow-up.ml-2
+								
+								br
 
+								span #{bytesRecvData[0]} #{bytesRecvData[1].abbreviation}B
+								i.fas.fa-arrow-down.ml-2
 								
 
-								td(class="text-center")
-									if (item.inbound)
-										i(class="fas fa-check text-success")
-									else
-										i(class="fas fa-times")
+							
 
-								td(class="text-right") #{parseInt(item.ping_time).toLocaleString()}
+							td.text-center.align-middle
+								if (item.inbound)
+									i(class="fas fa-check text-success")
+								else
+									i(class="fas fa-times")
 
-			div(id="tab-json", class="tab-pane", role="tabpanel")
-				if (listPeers)
-					pre
-						code #{JSON.stringify(listPeers, null, 4)}
+							td(class="text-right") #{parseInt(item.ping_time).toLocaleString()}

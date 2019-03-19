@@ -3,7 +3,7 @@ tr(class="monospace word-wrap")
 	td(class="table-col-channelid")
 		a(href=("/channel/" + channel.chan_id)) #{channel.chan_id}
 
-	td
+	td.text-center
 		if (channel.initiator)
 			i(class="fas fa-check text-success")
 		else

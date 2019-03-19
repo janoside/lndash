@@ -9,6 +9,5 @@ div(class="table-responsive")
 				th(class="text-right") Capacity
 		
 		tbody
-			- var node_card_body_only = true;
 			each channel, index in channels
 				include ./channel-table-row.pug
