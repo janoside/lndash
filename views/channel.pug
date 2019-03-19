@@ -2,10 +2,29 @@ extends layout4
 
 block headContent
 	title Channel Details - 
+
+block breadcrumb
+	if (localChannels.byId && localChannels.byId[channel.channel_id])
+		ol.breadcrumb
+			li.breadcrumb-item
+				a(href='/') Home
+			li.breadcrumb-item My Node
+			li.breadcrumb-item
+				a(href="/local-channels") My Channels
+			li.breadcrumb-item.active Channel #{channel.channel_id}
+
+	else
+		ol.breadcrumb
+			li.breadcrumb-item
+				a(href='/') Home
+			li.breadcrumb-item Network
+			li.breadcrumb-item
+				a(href="/channels") All Channels
+			li.breadcrumb-item.active Channel #{channel.channel_id}
 	
 block content
 
-	h1(class="h2") Channel
+	h1.h3 Channel
 		br
 		small(class="monospace word-wrap") #{channel.channel_id}
 	hr
@@ -110,12 +129,12 @@ block content
 		div(id="tab-json", class="tab-pane", role="tabpanel")
 			h4 channelInfo
 			pre
-				code #{JSON.stringify(channel, null, 4)}
+				code.json #{JSON.stringify(channel, null, 4)}
 
 			h4 node1Info
 			pre
-				code #{JSON.stringify(node1, null, 4)}
+				code.json #{JSON.stringify(node1, null, 4)}
 
 			h4 node2Info
 			pre
-				code #{JSON.stringify(node2, null, 4)}
+				code.json #{JSON.stringify(node2, null, 4)}

@@ -55,8 +55,8 @@ block content
 								button(type="button" class="btn btn-secondary" data-dismiss="modal") Close
 
 			div(class="table-responsive")
-				table(class="table table-bordered data-table")
-					thead(class="table-head-with-navx")
+				table(class="table table-bordered border-top")
+					thead.bg-light
 						tr
 							th #
 							th Memo
@@ -68,7 +68,7 @@ block content
 					tbody
 						each invoice, invoice_index in allInvoices
 							tr(class="monospace word-wrap")
-								td #{(sort == "desc" ? (invoiceCount - invoice_index) : (offset + invoice_index + 1)).toLocaleString()}
+								td.font-weight-bold #{(sort == "desc" ? (invoiceCount - invoice_index) : (offset + invoice_index + 1)).toLocaleString()}
 
 								td(class="table-col-text")
 									if (invoice.memo)

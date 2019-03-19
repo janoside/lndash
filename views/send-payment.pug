@@ -46,6 +46,7 @@ block headContent
 				if (distance < 0) {
 					clearInterval(x);
 					document.getElementById("expiry-text").innerHTML = "Expired";
+					document.getElementById("expiry-text").className += "text-danger";
 				}
 			}, 1000);
 	
@@ -73,7 +74,7 @@ block content
 
 					div(class="tab-content")
 						div(id="tab-summary", class="tab-pane active", role="tabpanel")
-							div(class="monospace")
+							div
 								div(class="row")
 									div(class="summary-table-label") Description
 									div(class="summary-table-content monospace")
@@ -115,7 +116,7 @@ block content
 
 						div(id="tab-json", class="tab-pane", role="tabpanel")
 							pre
-								code #{JSON.stringify(decodedInvoice, null, 4)}
+								code.json #{JSON.stringify(decodedInvoice, null, 4)}
 
 					
 					hr

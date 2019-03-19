@@ -26,16 +26,15 @@ block content
 	else
 		
 		div(class="table-responsive")
-			table(class="table table-bordered")
+			table(class="table table-bordered border-top")
 				thead(class="table-head-with-nav")
 					tr
-						th
+						th #
 						th ID
-						th
+						th.text-center
 							span(title="Whether channel was created by the local node", data-toggle="tooltip") Initiator
 						th Remote Node
-						th(class="text-right") Local Balance
-						th(class="text-right") Remote Balance
+						th Balance
 						th(class="text-right") Capacity
 						th Last Update
 				

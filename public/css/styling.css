@@ -38,6 +38,11 @@ table.dataTable {
 	padding: 0.5rem 1rem;
 }
 
+.tooltip-inner {
+	max-width: 400px;
+	font-family: monospace;
+}
+
 /*.app-body .sidebar {
 	flex: 0 0 250px;
 }
