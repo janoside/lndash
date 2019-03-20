@@ -221,7 +221,15 @@ function connectViaRpc(rpcConfig, index) {
 
 		lndConnection.GetInfo({}, function(err, response) {
 			if (err) {
-				console.log("Error connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC: " + err + ", error json: " + JSON.stringify(err));
+				console.log("Error 3208r2ugddsh: Failed connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC: " + err + ", error json: " + JSON.stringify(err));
+
+				return;
+			}
+
+			if (response == null) {
+				console.log("Error 923ehrfheu: Failed connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC: null response");
+				
+				return;
 			}
 
 			if (response != null) {

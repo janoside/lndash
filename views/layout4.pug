@@ -60,8 +60,9 @@ body.sidebar-lg-show.bg-white
 
 					.dropdown-menu
 						each lndIndex, index in lndConnections.indexes
-							a.dropdown-item(href=('/connect-lnd?index=' + lndIndex))
-								|	#{lndConnections.connectionsByIndex[lndIndex].internal_alias}
+							if (lndConnections.connectionsByIndex[lndIndex] != null)
+								a.dropdown-item(href=('/connect-lnd?index=' + lndIndex))
+									|	#{lndConnections.connectionsByIndex[lndIndex].internal_alias}
 
 
 		ul.nav.navbar-nav.ml-auto
