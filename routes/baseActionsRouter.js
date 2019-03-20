@@ -754,8 +754,10 @@ router.get("/on-chain-transactions", function(req, res) {
 router.get("/invoices", function(req, res) {
 	var limit = config.site.pageSizes.invoices;
 	var offset = 0;
-	var sort = "desc";
-
+	var sort = "created-desc";
+	var settled = "all";
+	var created = "all";
+	
 	if (req.query.limit) {
 		limit = parseInt(req.query.limit);
 	}
@@ -768,15 +770,84 @@ router.get("/invoices", function(req, res) {
 		sort = req.query.sort;
 	}
 
+	if (req.query.settled) {
+		console.log("got it: " + req.query.settled);
+		settled = req.query.settled.toLowerCase();
+	}
+
+	if (req.query.created) {
+		created = req.query.created.toLowerCase();
+	}
+
 	res.locals.limit = limit;
 	res.locals.offset = offset;
 	res.locals.sort = sort;
+	res.locals.settled = settled;
+	res.locals.created = created;
 	res.locals.paginationBaseUrl = "/invoices";
 
 	rpcApi.getInvoices().then(function(invoicesResponse) {
-		if (sort == "desc") {
+		if (sort == "created-desc") {
 			invoicesResponse.invoices.reverse();
 		}
+
+		var allInvoices = invoicesResponse.invoices;
+		var filteredInvoices = [];
+
+		var predicates = [
+			// settled
+			function(inv) {
+				if (settled == "all") {
+					return true;
+				}
+
+				if (settled == "settled") {
+					//console.log("set1: " + settled + " - " + inv.settle_date + " - " + (inv.settle_date != "0"));
+					return (inv.settle_date != "0");
+
+				} else if (settled == "unsettled") {
+					//console.log("set2: " + settled + " - " + inv.settle_date + " - " + (inv.settle_date != "0"));
+					return (inv.settle_date == "0");
+				}
+
+				// should never happen
+				console.log(`Error 237rh2340r7yfre: Unexpected filter value: settled=${settled}`);
+
+				return true;
+			},
+			// created
+			function(inv) {
+				if (created == "all") {
+					return true;
+				}
+
+				var creation_date = parseInt(inv.creation_date);
+				var cutoffs = {"60-mins":60*60, "24-hrs":60*60*24, "7-days":60*60*24*7, "30-days":60*60*24*30};
+
+				console.log("ct: " + created + " - " + cutoffs[created] + " - " + creation_date + " - " + (new Date().getTime() / 1000 + cutoffs[created]) + " - " + new Date().getTime() / 1000);
+
+				return creation_date >= (new Date().getTime() / 1000 - cutoffs[created]);
+			},
+		];
+
+		for (var i = 0; i < allInvoices.length; i++) {
+			var invoice = allInvoices[i];
+
+			var excluded = false;
+			for (var j = 0; j < predicates.length; j++) {
+				if (!predicates[j](invoice)) {
+					excluded = true;
+
+					break;
+				}
+			}
+
+			if (!excluded) {
+				filteredInvoices.push(invoice);
+			}
+		}
+
+		var filteredCount = allInvoices.length - filteredInvoices.length;
 
 		var invoices = [];
 		for (var i = offset; i < Math.min(limit + offset, invoicesResponse.invoices.length); i++) {
@@ -784,6 +855,8 @@ router.get("/invoices", function(req, res) {
 		}
 
 		res.locals.invoices = invoices;
+		res.locals.filteredInvoices = filteredInvoices;
+		res.locals.filteredCount = filteredCount;
 		res.locals.allInvoices = invoicesResponse.invoices;
 		res.locals.invoiceCount = invoicesResponse.invoices.length;
 		

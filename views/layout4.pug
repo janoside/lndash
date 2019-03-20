@@ -72,27 +72,28 @@ body.sidebar-lg-show.bg-main
 								- var lndConn = lndConnections.connectionsByIndex[lndIndex];
 								- var node_pubkey = lndConn.internal_pubkey;
 
-								- var addrs = [];
-								each address in fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.addresses
-									- addrs.push(address.addr);
+								if (fullNetworkDescription)
+									- var addrs = [];
+									each address in fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.addresses
+										- addrs.push(address.addr);
 
-								a.dropdown-item(href=('/connect-lnd?index=' + lndIndex))
-									div.clearfix
-										div.float-left.mr-3
-											include includes/node-icon.pug
+									a.dropdown-item(href=('/connect-lnd?index=' + lndIndex))
+										div.clearfix
+											div.float-left.mr-3
+												include includes/node-icon.pug
 
-										div.float-left
-											span.font-weight-bold #{node_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
-											br
-											span Alias: 
-												span.text-monospace #{lndConn.internal_alias}
-											br
-											span Address: 
-												span.text-monospace #{addrs}
-											br
-											span Version: 
-												- var versionParts = lndConn.internal_version.split(" ");
-												span.text-monospace.word-wrap #{versionParts[0]}
+											div.float-left
+												span.font-weight-bold #{node_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
+												br
+												span Alias: 
+													span.text-monospace #{lndConn.internal_alias}
+												br
+												span Address: 
+													span.text-monospace #{addrs}
+												br
+												span Version: 
+													- var versionParts = lndConn.internal_version.split(" ");
+													span.text-monospace.word-wrap #{versionParts[0]}
 									
 
 
