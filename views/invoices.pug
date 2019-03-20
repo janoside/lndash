@@ -11,21 +11,26 @@ block breadcrumb
 		li.breadcrumb-item.active Invoices
 
 block content
-	//h1(class="h2") Invoices
-	//hr
-
 	if (!session.admin)
-		p If logged in as an admin, this page will display a list of the invoices / payment requests made by/for this node.
+		h1.h3 Invoices
+		hr
 
-		a(href="/login") Login
+		- var loginRequiredNote = "display details about this node's invoices.";
+		include includes/login-required-alert.pug
 
 	else
 
-		h1.h3 #{invoiceCount.toLocaleString()} 
-			if (invoiceCount == 1)
-				span Invoice
-			else
-				span Invoices
+		div.row
+			div.col-md-6
+				h1.h3 #{invoiceCount.toLocaleString()} 
+					if (invoiceCount == 1)
+						span Invoice
+					else
+						span Invoices
+			div.col-md-6.text-right
+				a.btn.btn-primary(href="/create-invoice")
+					i.fas.fa-asterisk.mr-2
+					span Create Invoice
 		hr
 
 		if (true)

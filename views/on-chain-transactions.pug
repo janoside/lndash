@@ -5,13 +5,15 @@ block breadcrumb
 		li.breadcrumb-item
 			a(href='/') Home
 		li.breadcrumb-item Payments
-		li.breadcrumb-item.active On-Chain Transactions
+		li.breadcrumb-item.active My Wallet Transactions
 
 block content
 	if (!session.admin)
-		p If logged in as an admin, this page will display a list of the on-chain transactions made by/to this node.
+		h1.h3 My Wallet Transactions
+		hr
 
-		a(href="/login") Login
+		- var loginRequiredNote = "display details about this node's on-chain wallet transactions.";
+		include includes/login-required-alert.pug
 
 	else
 

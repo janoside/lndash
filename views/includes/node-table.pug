@@ -1,7 +1,8 @@
 div(class="table-responsive")
-	table(class="table table-bordered")
-		thead(class=theadClass)
+	table(class="table table-bordered border-top")
+		thead.bg-light
 			tr
+				th #
 				th Node
 				th Address
 				th Last Update
@@ -10,4 +11,5 @@ div(class="table-responsive")
 		
 		tbody
 			each nodeInfo, index in nodeInfos
+				- var nodeTableIndex = (nodeTableIndexOffset + index + 1);
 				include ./node-table-row.pug

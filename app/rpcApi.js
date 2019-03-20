@@ -21,7 +21,7 @@ function refreshFullNetworkDescription() {
 	console.log("Refreshing network description...");
 	
 	return new Promise(function(resolve_1, reject_1) {
-		lightning.describeGraph({include_unannounced:true}, function(err, describeGraphResponse) {
+		lndRpc.describeGraph({include_unannounced:true}, function(err, describeGraphResponse) {
 			if (err) {
 				console.log("Error 2397gr2039rf6g2: " + err + ", error json: " + JSON.stringify(err));
 			}
@@ -39,7 +39,7 @@ function refreshFullNetworkDescription() {
 			var promises = [];
 			describeGraphResponse.nodes.forEach(function(node) {
 				promises.push(new Promise(function(resolve_2, reject_2) {
-					lightning.getNodeInfo({pub_key:node.pub_key}, function(err2, nodeInfoResponse) {
+					lndRpc.getNodeInfo({pub_key:node.pub_key}, function(err2, nodeInfoResponse) {
 						if (err2) {
 							console.log("Error 312r9ygef9y: " + err2);
 						}
@@ -154,7 +154,7 @@ function refreshLocalChannels() {
 	console.log("Refreshing local channels...");
 	
 	return new Promise(function(resolve_1, reject_1) {
-		lightning.ListChannels({}, function(err, listChannelsResponse) {
+		lndRpc.ListChannels({}, function(err, listChannelsResponse) {
 			if (err) {
 				utils.logError("23179egwqeufgsd", err);
 			}
@@ -190,7 +190,7 @@ function refreshLocalChannels() {
 
 function connectToPeer(pubKey, address) {
 	return new Promise(function(resolve, reject) {
-		lightning.ConnectPeer({addr:{pubkey:pubKey, host:address}}, function(err, response) {
+		lndRpc.ConnectPeer({addr:{pubkey:pubKey, host:address}}, function(err, response) {
 			if (err) {
 				utils.logError("82320ghfwreg", err);
 
@@ -206,7 +206,7 @@ function connectToPeer(pubKey, address) {
 
 function listPayments() {
 	return new Promise(function(resolve, reject) {
-		lightning.ListPayments({}, function(err, response) {
+		lndRpc.ListPayments({}, function(err, response) {
 			if (err) {
 				utils.logError("3297rfhwe7fesuwy", err);
 
@@ -222,7 +222,7 @@ function listPayments() {
 
 function getNetworkStats() {
 	return new Promise(function(resolve, reject) {
-		lightning.GetNetworkInfo({}, function(err, response) {
+		lndRpc.GetNetworkInfo({}, function(err, response) {
 			if (err) {
 				utils.logError("32r9yg4329t655", err);
 
@@ -238,7 +238,7 @@ function getNetworkStats() {
 
 function decodeInvoiceString(invoiceStr) {
 	return new Promise(function(resolve, reject) {
-		lightning.DecodePayReq({pay_req:invoiceStr}, function(err, response) {
+		lndRpc.DecodePayReq({pay_req:invoiceStr}, function(err, response) {
 			if (err) {
 				utils.logError("08342ht074gtw", err);
 
@@ -256,7 +256,7 @@ function payInvoice(invoiceStr) {
 	console.log("Sending payment for invoice: " + invoiceStr);
 
 	return new Promise(function(resolve, reject) {
-		lightning.SendPaymentSync({payment_request:invoiceStr}, function(err, response) {
+		lndRpc.SendPaymentSync({payment_request:invoiceStr}, function(err, response) {
 			if (err) {
 				utils.logError("10r38dhf8shf", err);
 
@@ -276,7 +276,7 @@ function payInvoice(invoiceStr) {
 
 function getWalletBalance() {
 	return new Promise(function(resolve, reject) {
-		lightning.WalletBalance({}, function(err, response) {
+		lndRpc.WalletBalance({}, function(err, response) {
 			if (err) {
 				utils.logError("23ge072g30dwevf", err);
 
@@ -292,7 +292,7 @@ function getWalletBalance() {
 
 function getChannelBalance() {
 	return new Promise(function(resolve, reject) {
-		lightning.ChannelBalance({}, function(err, response) {
+		lndRpc.ChannelBalance({}, function(err, response) {
 			if (err) {
 				utils.logError("0uefbwdbfb", err);
 
@@ -308,7 +308,7 @@ function getChannelBalance() {
 
 function getOnChainTransactions() {
 	return new Promise(function(resolve, reject) {
-		lightning.GetTransactions({}, function(err, response) {
+		lndRpc.GetTransactions({}, function(err, response) {
 			if (err) {
 				utils.logError("123084r723yd", err);
 
@@ -324,7 +324,7 @@ function getOnChainTransactions() {
 
 function getInvoices() {
 	return new Promise(function(resolve, reject) {
-		lightning.ListInvoices({num_max_invoices:1000000}, function(err, response) {
+		lndRpc.ListInvoices({num_max_invoices:1000000}, function(err, response) {
 			if (err) {
 				utils.logError("213r07h23e07few", err);
 
@@ -340,7 +340,7 @@ function getInvoices() {
 
 function openChannel(remoteNodePubkey, localAmount, sendAmount) {
 	return new Promise(function(resolve, reject) {
-		lightning.OpenChannel({node_pubkey_string:remoteNodePubkey, local_funding_amount:localAmount, push_sat:sendAmount}, function(err, response) {
+		lndRpc.OpenChannel({node_pubkey_string:remoteNodePubkey, local_funding_amount:localAmount, push_sat:sendAmount}, function(err, response) {
 			if (err) {
 				utils.logError("04fh23yg432", err);
 

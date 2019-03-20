@@ -1,10 +1,8 @@
-# Lightning RPC Explorer
+# LND Admin
 
-Simple, database-free Lightning network explorer, via gRPC. Built with Node.js, express, bootstrap-v4.
+Admin web interface for LND from Lightning Labs. Built with Node.js, express, bootstrap-v4.
 
-This tool is intended to be a simple, self-hosted explorer for the Lightning network, driven by RPC calls to your own lightning node.
-
-A live demo of the tool is available at https://lightning.chaintools.io
+A live demo of the tool is available at https://lnd-admin.chaintools.io
 
 # Features
 
@@ -12,6 +10,7 @@ A live demo of the tool is available at https://lightning.chaintools.io
 * Browse nodes and channels, sorted by last update or capacity
 * View node and channel details
 * Search by node or channel
+* Configure multiple LND nodes and switch between them
 
 # Getting started
 
@@ -25,10 +24,9 @@ A live demo of the tool is available at https://lightning.chaintools.io
 
 1. Clone this repo
 2. `npm install`
-3. `npm run build`
-4. Configure via environment variables or `.env` file. See [configuration](#configuration).
-5. `npm start`
-6. Open [http://127.0.0.1:3004/](http://127.0.0.1:3004/)
+3. Configure via environment variables or `.env` file. See [configuration](#configuration).
+4. `npm start`
+5. Open [http://127.0.0.1:3004/](http://127.0.0.1:3004/)
 
 
 ### Configuration

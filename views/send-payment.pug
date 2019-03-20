@@ -55,9 +55,8 @@ block content
 	hr
 
 	if (!session.admin)
-		p If logged in as an admin, this page will enable sending payments via your lightning node.
-
-		a(href="/login") Login
+		- var loginRequiredNote = "allow you to pay an invoice from your LND node.";
+		include includes/login-required-alert.pug
 
 	else
 

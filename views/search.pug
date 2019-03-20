@@ -23,7 +23,7 @@ block content
 					span Nodes
 
 		- var nodeInfos = searchResults.nodes;
-		- var theadClass = "table-head-with-nav";
+		- var nodeTableIndexOffset = 0;
 		include includes/node-table.pug
 		
 
@@ -41,7 +41,7 @@ block content
 					span Channels
 
 		- var channels = searchResults.channels;
-		- var theadClass = "table-head-with-nav";
+		- var channelTableIndexOffset = 0;
 		include includes/channel-table.pug
 
 	if (noNodes && noChannels)

@@ -1,0 +1,28 @@
+extends layout4
+
+block headContent
+	title Create Invoice
+
+block breadcrumb
+	ol.breadcrumb
+		li.breadcrumb-item
+			a(href='/') Home
+		li.breadcrumb-item Tools
+		li.breadcrumb-item.active Create Invoice
+	
+block content
+	h1.h3 Create Invoice
+	hr
+
+	if (!session.admin)
+		- var loginRequiredNote = "allow you to create a new invoice.";
+		include includes/login-required-alert.pug
+
+	else
+
+		if (!getInfo && !listPeers)
+			div(class="alert alert-danger") Check your RPC connection.
+
+		else
+
+			

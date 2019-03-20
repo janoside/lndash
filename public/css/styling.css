@@ -150,7 +150,7 @@ strong {
 }
 
 .summary-table-content, .summary-split-table-content {
-	margin-bottom: 20px;
+	margin-bottom: 15px !important;
 }
 
 @media (min-width: 576px) {
@@ -272,11 +272,11 @@ strong {
 	}
 
 	.summary-split-table-label {
-		max-width: 11%;
+		max-width: 12%;
 		text-align: right;
 	}
 	.summary-split-table-content {
-		max-width: 89%;
+		max-width: 88%;
 		margin-bottom: 5px;
 	}
 

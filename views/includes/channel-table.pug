@@ -1,7 +1,8 @@
 div(class="table-responsive")
-	table(class=("table " + (channelTableNotBordered ? "" : "table-bordered")))
-		thead
+	table(class=("table " + (channelTableNotBordered ? "" : "table-bordered border-top")))
+		thead.bg-light
 			tr
+				th #
 				th ID
 				th Node 1
 				th Node 2
@@ -10,4 +11,5 @@ div(class="table-responsive")
 		
 		tbody
 			each channel, index in channels
+				- var channelTableIndex = (channelTableIndexOffset + index + 1);
 				include ./channel-table-row.pug

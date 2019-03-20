@@ -11,21 +11,26 @@ block breadcrumb
 		li.breadcrumb-item.active Open Channel
 
 block content
-	//h1(class="h2") Open Channel
-	//hr
+	h1.h3 Open Channel
+	hr
 
-	form(method="post", action="/openchannel")
-		div(class="form-group")
-			label(for="pubkey") Remote Node Public Key
-			input(type="text", class="form-control", id="pubkey", name="pubkey", value=pubkey, placeholder="Remote Node Public Key")
+	if (!session.admin)
+		- var loginRequiredNote = "allow you to open a payment channel.";
+		include includes/login-required-alert.pug
 
-		div(class="form-group")
-			label(for="local_balance") Local Balance
-			input(type="text", class="form-control", id="local_balance", name="local_balance", value=local_balance, placeholder="Local Balance")
+	else
 
-		div(class="form-group")
-			label(for="remote_balance") Remote Balance
-			input(type="text", class="form-control", id="remote_balance", name="remote_balance", value=remote_balance, placeholder="Remote Balance")
+		form(method="post", action="/openchannel")
+			div(class="form-group")
+				label(for="pubkey") Remote Node Public Key
+				input(type="text", class="form-control", id="pubkey", name="pubkey", value=pubkey, placeholder="Remote Node Public Key")
 
-		button(type="submit", class="btn btn-primary") Open Channel
+			div(class="form-group")
+				label(for="local_balance") Local Balance
+				input(type="text", class="form-control", id="local_balance", name="local_balance", value=local_balance, placeholder="Local Balance")
 
+			div(class="form-group")
+				label(for="remote_balance") Remote Balance
+				input(type="text", class="form-control", id="remote_balance", name="remote_balance", value=remote_balance, placeholder="Remote Balance")
+
+			button(type="submit", class="btn btn-primary") Open Channel

@@ -12,13 +12,12 @@ block breadcrumb
 		li.breadcrumb-item.active Payments Sent
 	
 block content
-	//h1(class="h2") Payment History
-	//hr
-
 	if (!session.admin)
-		p If logged in as an admin, this page will display a list of payments made from your node.
+		h1.h3 Payments Sent
+		hr
 
-		a(href="/login") Login
+		- var loginRequiredNote = "display details about this node's outgoing payments.";
+		include includes/login-required-alert.pug
 
 	else
 

@@ -1,0 +1,29 @@
+extends layout4
+
+block headContent
+	title Sign / Verify Messages
+
+block breadcrumb
+	ol.breadcrumb
+		li.breadcrumb-item
+			a(href='/') Home
+		li.breadcrumb-item Tools
+		li.breadcrumb-item.active Sign / Verify Messages
+	
+block content
+	h1.h3 Sign / Verify Messages
+
+	hr
+
+	if (!session.admin)
+		- var loginRequiredNote = "allow you to sign and verify messages.";
+		include includes/login-required-alert.pug
+
+	else
+
+		if (!getInfo && !listPeers)
+			div(class="alert alert-danger") Check your RPC connection.
+
+		else
+
+			

@@ -42,14 +42,26 @@ body.sidebar-lg-show.bg-white
 		button.navbar-toggler.sidebar-toggler.d-md-down-none(type='button' data-toggle='sidebar-lg-show')
 			span.navbar-toggler-icon
 
-		if (false)
+		if (true)
 			ul.nav.navbar-nav.d-md-down-none
-				li.nav-item.px-3
-					a.nav-link(href='/') Dashboard
-				li.nav-item.px-3
-					a.nav-link(href='#') Users
-				li.nav-item.px-3
-					a.nav-link(href='#') Settings
+				if (false)
+					li.nav-item.px-3
+						a.nav-link(href='/') Dashboard
+					li.nav-item.px-3
+						a.nav-link(href='#') Users
+					li.nav-item.px-3
+						a.nav-link(href='#') Settings
+
+				li.nav-item.dropdown.ml-4
+					a.nav-link(data-toggle='dropdown' href='javascript:void(0)' role='button' aria-haspopup='true' aria-expanded='false')
+						span LND Node: 
+						span.font-weight-bold #{lndRpc.internal_alias}
+						i.fas.fa-angle-double-down.ml-2
+
+					.dropdown-menu
+						each lndIndex, index in lndConnections.indexes
+							a.dropdown-item(href=('/connect-lnd?index=' + lndIndex))
+								|	#{lndConnections.connectionsByIndex[lndIndex].internal_alias}
 
 
 		ul.nav.navbar-nav.ml-auto
@@ -76,47 +88,23 @@ body.sidebar-lg-show.bg-white
 						span  Guest
 
 				.dropdown-menu.dropdown-menu-right
-					.dropdown-header.text-center
+					.dropdown-header
 						strong Account
-					a.dropdown-item(href='#')
-						i.fa.fa-bell-o
-						|	Updates
-						span.badge.badge-info 42
-					a.dropdown-item(href='#')
-						i.fa.fa-envelope-o
-						|	Messages
-						span.badge.badge-success 42
-					a.dropdown-item(href='#')
-						i.fa.fa-tasks
-						|	Tasks
-						span.badge.badge-danger 42
-					a.dropdown-item(href='#')
-						i.fa.fa-comments
-						|	Comments
-						span.badge.badge-warning 42
-					.dropdown-header.text-center
+					if (session.admin)
+						a.dropdown-item(href='/logout')
+							i.fa.fa-sign-out-alt
+							|	Logout
+					else
+						a.dropdown-item(href='/login')
+							i.fa.fa-sign-in-alt
+							|	Login
+					
+					.dropdown-header
 						strong Settings
-					a.dropdown-item(href='#')
-						i.fa.fa-user
-						|	Profile
-					a.dropdown-item(href='#')
+					a.dropdown-item(href='/settings')
 						i.fa.fa-wrench
 						|	Settings
-					a.dropdown-item(href='#')
-						i.fa.fa-usd
-						|	Payments
-						span.badge.badge-secondary 42
-					a.dropdown-item(href='#')
-						i.fa.fa-file
-						|	Projects
-						span.badge.badge-primary 42
-					.dropdown-divider
-					a.dropdown-item(href='#')
-						i.fa.fa-shield
-						|	Lock Account
-					a.dropdown-item(href='#')
-						i.fa.fa-lock
-						|	Logout
+					
 
 		if (false)
 			button.navbar-toggler.aside-menu-toggler.d-md-down-none(type='button' data-toggle='aside-menu-lg-show')
@@ -135,9 +123,13 @@ body.sidebar-lg-show.bg-white
 
 					li.nav-title My Node
 					li.nav-item
-						a.nav-link(href='/node-status')
-							i.nav-icon.fas.fa-info-circle.mr-2
-							|	Details
+						a.nav-link(href='/wallet')
+							i.nav-icon.fas.fa-wallet.mr-2
+							|	My Wallet
+					li.nav-item
+						a.nav-link(href='/on-chain-transactions')
+							i.nav-icon.fas.fa-link.mr-2
+							|	My Wallet Transactions
 					li.nav-item
 						a.nav-link(href='/local-channels')
 							i.nav-icon.fas.fa-exchange-alt.mr-2
@@ -147,7 +139,7 @@ body.sidebar-lg-show.bg-white
 							i.nav-icon.fas.fa-users.mr-2
 							|	My Peers
 
-					li.nav-title Payments
+					li.nav-title Lightning Payments
 					li.nav-item
 						a.nav-link(href='/invoices')
 							i.nav-icon.fas.fa-sign-in-alt.mr-2
@@ -156,10 +148,6 @@ body.sidebar-lg-show.bg-white
 						a.nav-link(href='/payment-history')
 							i.nav-icon.fas.fa-sign-out-alt.mr-2
 							|	Payments Sent
-					li.nav-item
-						a.nav-link(href='/on-chain-transactions')
-							i.nav-icon.fas.fa-link.mr-2
-							|	On-Chain Transactions
 					li.nav-item
 						a.nav-link(href='/routed-payments')
 							i.nav-icon.fas.fa-arrow-right.mr-2
@@ -189,10 +177,6 @@ body.sidebar-lg-show.bg-white
 							i.nav-icon.fas.fa-plus-square.mr-2
 							|	Open Channel
 					li.nav-item
-						a.nav-link(href='/generate-address')
-							i.nav-icon.fab.fa-bitcoin.mr-2
-							|	New Deposit Address
-					li.nav-item
 						a.nav-link(href='/sign-verify')
 							i.nav-icon.fas.fa-pen-nib.mr-2
 							|	Sign / Verify Messages
@@ -200,6 +184,10 @@ body.sidebar-lg-show.bg-white
 						a.nav-link(href='/query-route')
 							i.nav-icon.fas.fa-route.mr-2
 							|	Query Route
+					li.nav-item
+						a.nav-link(href='/zapconnect')
+							i.nav-icon.fas.fa-route.mr-2
+							|	ZapConnect
 					
 
 					if (false)
@@ -240,8 +228,15 @@ body.sidebar-lg-show.bg-white
 									i.icon-settings
 									| &#x9;Settings
 			.container-fluid
-				.animated.fadeIn
-					block content
+				if (userMessage)
+					div.alert.shadow-sm.mb-4(class=(userMessageType ? ("alert-"  + userMessageType) : "alert-info"), role="alert")
+						span !{userMessage}
+
+				else if (session.userMessage)
+					div.alert.shadow-sm.mb-4(class=(session.userMessageType ? ("alert-"  + session.userMessageType) : "alert-info"), role="alert")
+						span !{session.userMessage}
+
+				block content
 		
 		if (false)	
 			include includes/aside-menu.pug

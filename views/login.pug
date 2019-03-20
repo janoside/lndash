@@ -3,6 +3,12 @@ extends layout4
 block headContent
 	title Login
 
+block breadcrumb
+	ol.breadcrumb
+		li.breadcrumb-item
+			a(href='/') Home
+		li.breadcrumb-item.active Login
+
 block content
 	h1(class="h2") Login
 	hr

@@ -40,9 +40,7 @@ block content
 
 	hr
 
-	if (session.hideAllNodes)
-		// show nothing
-	else if (session.hideChannelsNetworkNote)
+	if (session.hideNodesNetworkNote)
 		// show nothing
 	else
 		div(class="alert alert-primary alert-dismissible shadow-sm", role="alert")
@@ -54,15 +52,13 @@ block content
 
 			div
 				a(href="/changeSetting?name=hideNodesNetworkNote&value=true") Don't show this note again
-				span.mx-2 |
-				a(href="/changeSetting?name=hideAllNotes&value=true") Don't show any notes again
-
+				
 
 			a(href="/changeSetting?name=hideNodesNetworkNote&value=true", class="close", aria-label="Close", style="text-decoration: none;")
 				span(aria-hidden="true") &times;
 
 
-	- var theadClass = "table-head-with-navx";
+	- var nodeTableIndexOffset = offset;
 	include includes/node-table.pug
 
 

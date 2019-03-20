@@ -1,0 +1,14 @@
+extends layout4
+
+block headContent
+	title Settings
+
+block breadcrumb
+	ol.breadcrumb
+		li.breadcrumb-item
+			a(href='/') Home
+		li.breadcrumb-item.active Settings
+	
+block content
+	pre
+		code.json #{JSON.stringify(session, null, 4)}

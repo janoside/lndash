@@ -22,19 +22,6 @@ var exponentScales = [
 	{val:1000, name:"kilo", abbreviation:"K", exponent:"3"}
 ];
 
-function redirectToConnectPageIfNeeded(req, res) {
-	if (!req.session.host) {
-		req.session.redirectUrl = req.originalUrl;
-		
-		res.redirect("/");
-		res.end();
-		
-		return true;
-	}
-	
-	return false;
-}
-
 function hex2ascii(hex) {
 	var str = "";
 	for (var i = 0; i < hex.length; i += 2) {
@@ -474,7 +461,6 @@ function buildQrCodeUrl(str, results) {
 
 
 module.exports = {
-	redirectToConnectPageIfNeeded: redirectToConnectPageIfNeeded,
 	hex2ascii: hex2ascii,
 	splitArrayIntoChunks: splitArrayIntoChunks,
 	getRandomString: getRandomString,

@@ -11,76 +11,85 @@ block breadcrumb
 		li.breadcrumb-item.active My Peers
 	
 block content
-	h1.h3 #{listPeers.peers.length.toLocaleString()} 
-		if (listPeers.peers.length == 1)
-			span Peer
-		else
-			span Peers
+	if (!session.admin)
+		h1.h3 My Peers
+		hr
 
-	hr
-
-	if (!getInfo && !listPeers)
-		div(class="alert alert-danger") No data available. Check your RPC connection.
+		- var loginRequiredNote = "display details about this node's peers.";
+		include includes/login-required-alert.pug
 
 	else
 
-		div.table-responsive
-			table(class="table table-bordered border-top")
-				thead(class="table-head-with-nav")
-					tr
-						th #
-						th Node
-						th Address
+		h1.h3 #{listPeers.peers.length.toLocaleString()} 
+			if (listPeers.peers.length == 1)
+				span Peer
+			else
+				span Peers
 
-						th.text-right Value Transfer (received / sent)
-						th.text-right Data Transfer
-						
-						th.text-center Inbound?
-						th.text-right Ping
+		hr
 
-				tbody(class="monospace")
-					each item, item_index in listPeers.peers
+		if (!getInfo && !listPeers)
+			div(class="alert alert-danger") No data available. Check your RPC connection.
+
+		else
+
+			div.table-responsive
+				table(class="table table-bordered border-top")
+					thead(class="table-head-with-nav")
 						tr
-							td.font-weight-bold #{(item_index + 1).toLocaleString()}
-							td
-								- var card_node_pubkey = item.pub_key;
-								include ./includes/node-card.pug
+							th #
+							th Node
+							th Address
 
-							td #{item.address}
+							th.text-right Value Transfer (received / sent)
+							th.text-right Data Transfer
+							
+							th.text-center Inbound?
+							th.text-right Ping
 
-							td.text-right
-								if (item.sat_recv == 0 && item.sat_sent == 0)
-									span -
-								else
+					tbody(class="monospace")
+						each item, item_index in listPeers.peers
+							tr
+								td.font-weight-bold #{(item_index + 1).toLocaleString()}
+								td
+									- var card_node_pubkey = item.pub_key;
+									include ./includes/node-card.pug
+
+								td #{item.address}
+
+								td.text-right
+									if (item.sat_recv == 0 && item.sat_sent == 0)
+										span -
+									else
+										
+										span #{parseInt(item.sat_recv).toLocaleString()} sat
+										i.fas.fa-sign-in-alt.ml-2
+
+										br
+
+										span #{parseInt(item.sat_sent).toLocaleString()} sat
+										i.fas.fa-sign-out-alt.ml-2
+								
+								
+								- var bytesSentData = utils.formatLargeNumber(item.bytes_sent, 1);
+								- var bytesRecvData = utils.formatLargeNumber(item.bytes_recv, 1);
+								
+								td.text-right
+									span #{bytesSentData[0]} #{bytesSentData[1].abbreviation}B
+									i.fas.fa-arrow-up.ml-2
 									
-									span #{parseInt(item.sat_recv).toLocaleString()} sat
-									i.fas.fa-sign-in-alt.ml-2
-
 									br
 
-									span #{parseInt(item.sat_sent).toLocaleString()} sat
-									i.fas.fa-sign-out-alt.ml-2
-							
-							
-							- var bytesSentData = utils.formatLargeNumber(item.bytes_sent, 1);
-							- var bytesRecvData = utils.formatLargeNumber(item.bytes_recv, 1);
-							
-							td.text-right
-								span #{bytesSentData[0]} #{bytesSentData[1].abbreviation}B
-								i.fas.fa-arrow-up.ml-2
-								
-								br
+									span #{bytesRecvData[0]} #{bytesRecvData[1].abbreviation}B
+									i.fas.fa-arrow-down.ml-2
+									
 
-								span #{bytesRecvData[0]} #{bytesRecvData[1].abbreviation}B
-								i.fas.fa-arrow-down.ml-2
 								
 
-							
+								td.text-center.align-middle
+									if (item.inbound)
+										i(class="fas fa-check text-success")
+									else
+										i(class="fas fa-times")
 
-							td.text-center.align-middle
-								if (item.inbound)
-									i(class="fas fa-check text-success")
-								else
-									i(class="fas fa-times")
-
-							td(class="text-right") #{parseInt(item.ping_time).toLocaleString()}
+								td(class="text-right") #{parseInt(item.ping_time).toLocaleString()}

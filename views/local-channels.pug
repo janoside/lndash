@@ -11,19 +11,21 @@ block breadcrumb
 		li.breadcrumb-item.active My Channels
 	
 block content
-	h1.h3 #{localChannels.channels.length.toLocaleString()} 
-		if (localChannels.channels.length == 1)
-			span Channel
-		else
-			span Channels
-	hr
-
 	if (!session.admin)
-		p If logged in as an admin, this page will display a list of the local channels for this node.
+		h1.h3 My Channels
+		hr
 
-		a(href="/login") Login
+		- var loginRequiredNote = "display details about this node's channels.";
+		include includes/login-required-alert.pug
 
 	else
+
+		h1.h3 #{localChannels.channels.length.toLocaleString()} 
+			if (localChannels.channels.length == 1)
+				span Channel
+			else
+				span Channels
+		hr
 		
 		div(class="table-responsive")
 			table(class="table table-bordered border-top")

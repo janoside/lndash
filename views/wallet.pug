@@ -1,0 +1,63 @@
+extends layout4
+
+block headContent
+	title My Wallet
+
+block breadcrumb
+	ol.breadcrumb
+		li.breadcrumb-item
+			a(href='/') Home
+		li.breadcrumb-item My Node
+		li.breadcrumb-item.active My Wallet
+	
+block content
+	if (!session.admin)
+		h1.h3 My Wallet
+		hr
+
+		- var loginRequiredNote = "display details about this node's wallet.";
+		include includes/login-required-alert.pug
+
+	else
+
+		div.card.shadow-sm.mb-3
+			div.card-header
+				h2.h6.mb-0 Wallet Summary
+			div.card-body
+				div.row
+					div(class="summary-split-table-label") Confirmed, On-Chain Balance
+					div(class="summary-split-table-content monospace")
+						- var currencyValue = new Decimal(walletBalance.confirmed_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+						include includes/value-display.pug
+
+				div.row
+					div(class="summary-split-table-label") Pending, On-Chain Balance
+					div(class="summary-split-table-content monospace")
+						- var currencyValue = new Decimal(walletBalance.unconfirmed_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+						include includes/value-display.pug
+
+				div.row
+					div(class="summary-split-table-label") Active Channel Balance
+					div(class="summary-split-table-content monospace")
+						- var currencyValue = new Decimal(channelBalance.balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+						include includes/value-display.pug
+
+				div.row
+					div(class="summary-split-table-label") Pending Channel Balance
+					div(class="summary-split-table-content monospace")
+						- var currencyValue = new Decimal(channelBalance.pending_open_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+						include includes/value-display.pug
+
+		div.card.shadow-sm.mb-3
+			div.card-header
+				h2.h6.mb-0 Tools
+			div.card-body
+				a.btn.btn-primary.mr-2.mb-2.mb-sm-0(href="javascript:void(0)") New Deposit Address (p2wkh)
+				a.btn.btn-primary.mr-2(href="javascript:void(0)") New Deposit Address (np2wkh)
+
+		if (false)
+			pre
+				code.json #{JSON.stringify(walletBalance, null, 4)}
+
+			pre
+				code.json #{JSON.stringify(channelBalance, null, 4)}

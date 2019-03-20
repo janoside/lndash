@@ -13,7 +13,7 @@ router.get("/", function(req, res) {
 	var promises = [];
 
 	promises.push(new Promise(function(resolve, reject) {
-		lightning.getInfo({}, function(err, response) {
+		lndRpc.getInfo({}, function(err, response) {
 			if (err) {
 				utils.logError("3u1rh2yugfew0fwe", err);
 
@@ -147,11 +147,52 @@ router.get("/channel/:channelId", function(req, res) {
 	});
 });
 
+router.get("/settings", function(req, res) {
+	res.render("settings");
+});
+
+router.get("/create-invoice", function(req, res) {
+	res.render("create-invoice");
+});
+
+router.get("/sign-verify", function(req, res) {
+	res.render("sign-verify");
+});
+
+router.get("/wallet", function(req, res) {
+	var promises = [];
+
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getChannelBalance().then(function(channelBalanceResponse) {
+			res.locals.channelBalance = channelBalanceResponse;
+
+			resolve();
+		});
+	}));
+
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getWalletBalance().then(function(walletBalanceResponse) {
+			res.locals.walletBalance = walletBalanceResponse;
+
+			resolve();
+		});
+	}));
+
+	Promise.all(promises).then(function() {
+		res.render("wallet");
+
+	}).catch(function(err) {
+		console.log("Error 3r9ygew9fgvew9fd: " + err);
+
+		res.render("wallet");
+	});
+});
+
 router.get("/node-status", function(req, res) {
 	var promises = [];
 
 	promises.push(new Promise(function(resolve, reject) {
-		lightning.getInfo({}, function(err, response) {
+		lndRpc.getInfo({}, function(err, response) {
 			if (err) {
 				utils.logError("3u1rh2yugfew0fwe", err);
 
@@ -183,7 +224,7 @@ router.get("/node-status", function(req, res) {
 	}));
 
 	promises.push(new Promise(function(resolve, reject) {
-		lightning.listPeers({}, function(err, response) {
+		lndRpc.listPeers({}, function(err, response) {
 			if (err) {
 				utils.logError("u3rhgqfdygews", err);
 
@@ -223,7 +264,7 @@ router.get("/peers", function(req, res) {
 	var promises = [];
 
 	promises.push(new Promise(function(resolve, reject) {
-		lightning.getInfo({}, function(err, response) {
+		lndRpc.getInfo({}, function(err, response) {
 			if (err) {
 				utils.logError("3u1rh2yugfew0fwe", err);
 
@@ -255,7 +296,7 @@ router.get("/peers", function(req, res) {
 	}));
 
 	promises.push(new Promise(function(resolve, reject) {
-		lightning.listPeers({}, function(err, response) {
+		lndRpc.listPeers({}, function(err, response) {
 			if (err) {
 				utils.logError("u3rhgqfdygews", err);
 
@@ -357,6 +398,40 @@ router.get("/changeSetting", function(req, res) {
 	}
 
 	res.redirect(req.headers.referer);
+});
+
+router.get("/connect-lnd", function(req, res) {
+	if (req.query.index) {
+		var lndIndex = parseInt(req.query.index);
+
+		if (lndIndex != global.lndRpc.internal_index) {
+			global.lndRpc = global.lndConnections.connectionsByIndex[lndIndex];
+
+			rpcApi.refreshFullNetworkDescription().then(function() {
+				req.session.userMessage = `Switched to LND '${global.lndRpc.internal_alias}'`;
+				req.session.userMessageType = "success";
+
+				res.redirect(req.headers.referer);
+
+			}).catch(function(err) {
+				console.log("Error 230uhfwequfghewfuew: " + err);
+
+				req.session.userMessage = `Error switching to LND '${global.lndRpc.internal_alias}'`;
+				req.session.userMessageType = "danger";
+
+				res.redirect(req.headers.referer);
+			});
+		} else {
+			req.session.userMessage = `Already connected to LND '${global.lndRpc.internal_alias}'`;
+
+			// no change
+			res.redirect(req.headers.referer);
+		}
+	} else {
+		res.locals.userMessage = "To connect to another LND node you must specify a connection index.";
+
+		res.redirect(req.headers.referer);
+	}
 });
 
 router.get("/nodes", function(req, res) {

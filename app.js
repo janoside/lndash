@@ -80,6 +80,28 @@ function logNetworkStats() {
 	}
 }
 
+function getSourcecodeProjectMetadata() {
+	var options = {
+		url: "https://api.github.com/repos/janoside/lnd-admin",
+		headers: {
+			'User-Agent': 'request'
+		}
+	};
+
+	request(options, function(error, response, body) {
+		if (error == null && response && response.statusCode && response.statusCode == 200) {
+			var responseBody = JSON.parse(body);
+
+			global.sourcecodeProjectMetadata = responseBody;
+
+			//console.log(`SourcecodeProjectMetadata: ${JSON.stringify(global.sourcecodeProjectMetadata)}`);
+
+		} else {
+			console.log(`Error 3208fh3ew7eghfg: ${error}, StatusCode: ${response.statusCode}, Response: ${JSON.stringify(response)}`);
+		}
+	});
+}
+
 
 
 app.runOnStartup = function() {
@@ -107,13 +129,17 @@ app.runOnStartup = function() {
 		});
 	}
 
-	if (global.sourcecodeVersion == null) {
+	if (global.sourcecodeVersion == null && fs.existsSync('.git')) {
 		simpleGit(".").log(["-n 1"], function(err, log) {
 			global.sourcecodeVersion = log.all[0].hash.substring(0, 10);
 			global.sourcecodeDate = log.all[0].date.substring(0, "0000-00-00".length);
 		});
 	}
 
+	if (config.demoSite) {
+		getSourcecodeProjectMetadata();
+		setInterval(getSourcecodeProjectMetadata, 3600000);
+	}
 
 	if (global.exchangeRates == null) {
 		utils.refreshExchangeRates();
@@ -122,20 +148,40 @@ app.runOnStartup = function() {
 	// refresh exchange rate periodically
 	setInterval(utils.refreshExchangeRates, 30 * 60000);
 
+	global.lndConnections = {
+		connectionsByIndex: {},
+		connectionsByAlias: {},
+
+		aliases:[],
+		indexes:[]
+	};
+
 	// connect and pull down the current network description
-	connectViaRpc().then(function() {
-		rpcApi.refreshFullNetworkDescription();
-		rpcApi.refreshLocalChannels();
+	var index = -1;
+	config.credentials.rpcConfigs.forEach(function(rpcConfig) {
+		index++;
 
-		// refresh periodically
-		setInterval(rpcApi.refreshFullNetworkDescription, 60000);
-		setInterval(rpcApi.refreshLocalChannels, 60000);
+		global.lndConnections.indexes.push(index);
 
-		setInterval(logNetworkStats, 5 * 60000);
+		connectViaRpc(rpcConfig, index).then(function(response) {
+			console.log("RPC connected: " + response.index);
+			if (response.index == 0) {
+				global.lndRpc = response.lndConnection;
+
+				rpcApi.refreshFullNetworkDescription();
+				rpcApi.refreshLocalChannels();
+
+				// refresh periodically
+				setInterval(rpcApi.refreshFullNetworkDescription, 60000);
+				setInterval(rpcApi.refreshLocalChannels, 60000);
+
+				setInterval(logNetworkStats, 5 * 60000);
+			}
+		});
 	});
 };
 
-function connectViaRpc() {
+function connectViaRpc(rpcConfig, index) {
 	return new Promise(function(resolve, reject) {
 		// Ref: https://github.com/lightningnetwork/lnd/blob/master/docs/grpc/javascript.md
 
@@ -146,19 +192,19 @@ function connectViaRpc() {
 
 		// Lnd admin macaroon is at ~/.lnd/admin.macaroon on Linux and
 		// ~/Library/Application Support/Lnd/admin.macaroon on Mac
-		var m = fs.readFileSync(config.credentials.rpc.adminMacaroonFilepath);
+		var m = fs.readFileSync(rpcConfig.adminMacaroonFilepath);
 		var macaroon = m.toString('hex');
 
 		// build meta data credentials
-		var metadata = new grpc.Metadata()
-		metadata.add('macaroon', macaroon)
+		var metadata = new grpc.Metadata();
+		metadata.add('macaroon', macaroon);
 		var macaroonCreds = grpc.credentials.createFromMetadataGenerator((_args, callback) => {
 			callback(null, metadata);
 		});
 
 		//  Lnd cert is at ~/.lnd/tls.cert on Linux and
 		//  ~/Library/Application Support/Lnd/tls.cert on Mac
-		var lndCert = fs.readFileSync(config.credentials.rpc.tlsCertFilepath);
+		var lndCert = fs.readFileSync(rpcConfig.tlsCertFilepath);
 		var sslCreds = grpc.credentials.createSsl(lndCert);
 
 		// combine the cert credentials and the macaroon auth credentials
@@ -171,20 +217,29 @@ function connectViaRpc() {
 		// uncomment to print available function of RPC protocol
 		//console.log(lnrpc);
 		
-		var lightning = new lnrpc.Lightning(config.credentials.rpc.host + ":" + config.credentials.rpc.port, credentials, {'grpc.max_receive_message_length': 50*1024*1024});
+		var lndConnection = new lnrpc.Lightning(rpcConfig.host + ":" + rpcConfig.port, credentials, {'grpc.max_receive_message_length': 50*1024*1024});
 
-		lightning.GetInfo({}, function(err, response) {
+		lndConnection.GetInfo({}, function(err, response) {
 			if (err) {
-				console.log("Error connecting to LND @ " + config.credentials.rpc.host + ":" + config.credentials.rpc.port + " via RPC: " + err + ", error json: " + JSON.stringify(err));
+				console.log("Error connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC: " + err + ", error json: " + JSON.stringify(err));
 			}
 
 			if (response != null) {
-				console.log("Connected to LND @ " + config.credentials.rpc.host + ":" + config.credentials.rpc.port + " via RPC.\n\nGetInfo=" + JSON.stringify(response, null, 4));
+				console.log("Connected to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC.\n\nGetInfo=" + JSON.stringify(response, null, 4));
 			}
 
-			global.lightning = lightning;
+			global.lndConnections.connectionsByIndex[index] = lndConnection;
+			global.lndConnections.connectionsByAlias[response.alias] = lndConnection;
+			global.lndConnections.aliases.push(response.alias);
 
-			resolve();
+			if (index == 0) {
+				global.lndRpc = lndConnection;
+			}
+
+			lndConnection.internal_index = index;
+			lndConnection.internal_alias = response.alias;
+
+			resolve({lndConnection:lndConnection, index:index});
 		});
 	});
 }
@@ -258,12 +313,6 @@ app.use(function(req, res, next) {
 
 	res.locals.currencyFormatType = req.session.currencyFormatType;
 
-
-	if (!["/", "/connect"].includes(req.originalUrl)) {
-		if (utils.redirectToConnectPageIfNeeded(req, res)) {
-			return;
-		}
-	}
 	
 	if (req.session.userMessage) {
 		res.locals.userMessage = req.session.userMessage;
