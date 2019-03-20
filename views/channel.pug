@@ -52,8 +52,11 @@ block content
 						div(class="summary-table-label") Last Update
 						div.summary-table-content.text-monospace
 							- var timeAgoTime = channel.last_update;
+							- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timeAgoTime) * 1000))));
+							
 							span #{moment.utc(new Date(parseInt(channel.last_update) * 1000)).format("Y-MM-DD HH:mm:ss")} utc
-							include ./includes/time-ago.pug
+							br
+							span.text-muted #{timeAgo.format()} ago
 
 					div(class="row")
 						div(class="summary-table-label") Capacity

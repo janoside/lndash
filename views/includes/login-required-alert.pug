@@ -4,9 +4,16 @@ div.alert.alert-primary
 	if (loginRequiredNote)
 		div.mb-3 If logged in as an admin this page will #{loginRequiredNote}
 
-		a.btn.btn-primary(href="/login") Login
-
 	else
 		div.mb-3 You must be logged in as an admin to view this page.
 
-		a.btn.btn-primary(href="/login") Login
+	form(method="post", action="/login")
+		div(class="form-group")
+			label(for="username") Username
+			input(type="text", class="form-control", id="username", name="username")
+
+		div(class="form-group")
+			label(for="password") Password
+			input(type="password", class="form-control", id="password", name="password")
+
+		button(type="submit", class="btn btn-primary") Login
