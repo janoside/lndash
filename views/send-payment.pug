@@ -76,7 +76,7 @@ block content
 							div
 								div(class="row")
 									div(class="summary-table-label") Description
-									div(class="summary-table-content monospace")
+									div.summary-table-content.text-monospace
 										if (decodedInvoice.description)
 											span #{decodedInvoice.description}
 										else
@@ -84,17 +84,17 @@ block content
 
 								div(class="row")
 									div(class="summary-table-label") Hash
-									div(class="summary-table-content monospace") #{decodedInvoice.payment_hash}
+									div.summary-table-content.text-monospace #{decodedInvoice.payment_hash}
 
 								div(class="row")
 									div(class="summary-table-label") Amount
-									div(class="summary-table-content monospace")
+									div.summary-table-content.text-monospace
 										- var currencyValue = new Decimal(decodedInvoice.num_satoshis).dividedBy(100000000);
 										include ./includes/value-display.pug
 
 								div(class="row")
 									div(class="summary-table-label") Date
-									div(class="summary-table-content monospace")
+									div.summary-table-content.text-monospace
 										- var timestampTime = parseInt(decodedInvoice.timestamp);
 										- var timeAgoTime = timestampTime;
 										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timestampTime) * 1000))));
@@ -104,12 +104,12 @@ block content
 
 								div(class="row")
 									div(class="summary-table-label") Expiration
-									div(class="summary-table-content monospace")
+									div.summary-table-content.text-monospace
 										span(id="expiry-text") -
 
 								div(class="row")
 									div(class="summary-table-label") Destination
-									div(class="summary-table-content monospace")
+									div.summary-table-content.text-monospace
 										- var card_node_pubkey = decodedInvoice.destination;
 										include ./includes/node-card.pug
 

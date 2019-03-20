@@ -36,12 +36,12 @@ block content
 							div(class="col-md-8")
 								div(class="row")
 									div(class="summary-split-table-label") Version
-									div(class="summary-split-table-content monospace") #{getInfo.version}
+									div.summary-split-table-content.text-monospace #{getInfo.version}
 
 								div(class="col-md-6")
 								div(class="row")
 									div(class="summary-split-table-label") URIs
-									div(class="summary-split-table-content monospace")
+									div.summary-split-table-content.text-monospace
 										each uri, index in getInfo.uris
 											if (getInfo.uris.length > 1)
 												span #{index + 1}: #{uri}
@@ -50,30 +50,30 @@ block content
 
 								div(class="row")
 									div(class="summary-split-table-label") Public Key
-									div(class="summary-split-table-content monospace")
+									div.summary-split-table-content.text-monospace
 										a(href=("/node/" + getInfo.identity_pubkey)) #{getInfo.identity_pubkey}
 
 								div(class="row")
 									div(class="summary-split-table-label") Alias
-									div(class="summary-split-table-content monospace") #{getInfo.alias}
+									div.summary-split-table-content.text-monospace #{getInfo.alias}
 
 								div(class="row")
 									div(class="summary-split-table-label") Color
-									div(class="summary-split-table-content monospace")
+									div.summary-split-table-content.text-monospace
 										- var node_color = fullNetworkDescription.nodeInfoByPubkey[getInfo.identity_pubkey].node.color;
 										include ./includes/node-color-swatch.pug
 										span #{node_color}
 
 								div(class="row")
 									div(class="summary-split-table-label") Chains
-									div(class="summary-split-table-content monospace")
+									div.summary-split-table-content.text-monospace
 										each chain in getInfo.chains
 											span #{chain.chain}_#{chain.network}
 											br
 
 								div(class="row")
 									div(class="summary-split-table-label") Block Hash
-									div(class="summary-split-table-content monospace")
+									div.summary-split-table-content.text-monospace
 										if (config.blockExplorerUrl)
 											a(href=(config.blockExplorerUrl + "/block/" + getInfo.block_hash), target="_blank") #{getInfo.block_hash}
 											br
@@ -85,12 +85,12 @@ block content
 
 								div(class="row")
 									div(class="summary-split-table-label") Channels
-									div(class="summary-split-table-content monospace") #{parseInt(getInfo.num_active_channels).toLocaleString()}
+									div.summary-split-table-content.text-monospace #{parseInt(getInfo.num_active_channels).toLocaleString()}
 
 								if (getInfo.num_pending_channels > 0)
 									div(class="row")
 										div(class="summary-split-table-label") Pending Channels
-										div(class="summary-split-table-content monospace") #{parseInt(getInfo.num_pending_channels).toLocaleString()}
+										div.summary-split-table-content.text-monospace #{parseInt(getInfo.num_pending_channels).toLocaleString()}
 
 							div(class="col-md-4")
 								if (qrcodeUrls[getInfo.identity_pubkey])
@@ -127,7 +127,7 @@ block content
 									th(class="text-center") Inbound?
 									th(class="text-right") Ping
 
-							tbody(class="monospace")
+							tbody.text-monospace
 								each item in listPeers.peers
 									tr
 										td

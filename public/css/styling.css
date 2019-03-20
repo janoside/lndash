@@ -13,8 +13,10 @@ img.header-image {
 	margin-right: 10px;
 }
 
-code, .monospace {
-	font-family: monospace;
+.monospace {
+	font-weight: bold;
+	color: red;
+	font-size: 30px;
 }
 
 .card {

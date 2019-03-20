@@ -44,7 +44,7 @@ block content
 								th Txid
 								th Amount
 						
-						tbody(class="monospace")
+						tbody.text-monospace
 							each tx, index in onChainTransactions.transactions
 								if (tx.num_confirmations == 0)
 									tr
@@ -92,7 +92,7 @@ block content
 							th Date
 							th.text-right Amount
 					
-					tbody(class="monospace")
+					tbody.text-monospace
 						- onChainTransactions.transactions.reverse();
 						each tx, index in onChainTransactions.transactions
 							if (tx.num_confirmations > 0)

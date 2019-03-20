@@ -26,25 +26,25 @@ block content
 			div.card-body
 				div.row
 					div(class="summary-split-table-label") Confirmed, On-Chain Balance
-					div(class="summary-split-table-content monospace")
+					div.summary-split-table-content.text-monospace
 						- var currencyValue = new Decimal(walletBalance.confirmed_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 						include includes/value-display.pug
 
 				div.row
 					div(class="summary-split-table-label") Pending, On-Chain Balance
-					div(class="summary-split-table-content monospace")
+					div.summary-split-table-content.text-monospace
 						- var currencyValue = new Decimal(walletBalance.unconfirmed_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 						include includes/value-display.pug
 
 				div.row
 					div(class="summary-split-table-label") Active Channel Balance
-					div(class="summary-split-table-content monospace")
+					div.summary-split-table-content.text-monospace
 						- var currencyValue = new Decimal(channelBalance.balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 						include includes/value-display.pug
 
 				div.row
 					div(class="summary-split-table-label") Pending Channel Balance
-					div(class="summary-split-table-content monospace")
+					div.summary-split-table-content.text-monospace
 						- var currencyValue = new Decimal(channelBalance.pending_open_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 						include includes/value-display.pug
 

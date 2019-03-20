@@ -47,7 +47,7 @@ block content
 							th.text-center Inbound?
 							th.text-right Ping
 
-					tbody(class="monospace")
+					tbody.text-monospace
 						each item, item_index in listPeers.peers
 							tr
 								td.font-weight-bold #{(item_index + 1).toLocaleString()}

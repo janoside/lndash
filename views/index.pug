@@ -162,16 +162,16 @@ block content
 						if (true)
 							div(class="row")
 								div(class="summary-split-table-label") Public Key
-								div(class="summary-split-table-content monospace")
+								div.summary-split-table-content.text-monospace
 									a(href=("/node/" + getInfo.identity_pubkey)) #{getInfo.identity_pubkey}
 
 							div(class="row")
 								div(class="summary-split-table-label") Alias
-								div(class="summary-split-table-content monospace") #{getInfo.alias}
+								div.summary-split-table-content.text-monospace #{getInfo.alias}
 
 							div(class="row")
 								div(class="summary-split-table-label") Color
-								div(class="summary-split-table-content monospace")
+								div.summary-split-table-content.text-monospace
 									- var node_color = fullNetworkDescription.nodeInfoByPubkey[getInfo.identity_pubkey].node.color;
 									include ./includes/node-color-swatch.pug
 									span #{node_color}
@@ -179,7 +179,7 @@ block content
 							div(class="row")
 								- var versionParts = getInfo.version.split(" ");
 								div(class="summary-split-table-label") Version
-								div(class="summary-split-table-content monospace")
+								div.summary-split-table-content.text-monospace
 									each versionPart in versionParts
 										span #{versionPart}
 										br
@@ -188,7 +188,7 @@ block content
 								div(class="col-md-6")
 								div(class="row")
 									div(class="summary-split-table-label") URIs
-									div(class="summary-split-table-content monospace")
+									div.summary-split-table-content.text-monospace
 										each uri, index in getInfo.uris
 											if (getInfo.uris.length > 1)
 												span #{index + 1}: #{uri}
@@ -201,14 +201,14 @@ block content
 										span Chain
 									else
 										span Chains
-								div(class="summary-split-table-content monospace")
+								div.summary-split-table-content.text-monospace
 									each chain in getInfo.chains
 										span #{chain.chain} (#{chain.network})
 										br
 
 							div(class="row")
 								div(class="summary-split-table-label") Current Block
-								div(class="summary-split-table-content monospace")
+								div.summary-split-table-content.text-monospace
 									if (config.blockExplorerUrl)
 										a(href=(config.blockExplorerUrl + "/block/" + getInfo.block_hash), target="_blank") ##{getInfo.block_height.toLocaleString()}
 										span.text-muted  (
@@ -226,7 +226,7 @@ block content
 
 							div(class="row")
 								div(class="summary-split-table-label") Channels
-								div(class="summary-split-table-content monospace")
+								div.summary-split-table-content.text-monospace
 									span #{parseInt(getInfo.num_active_channels).toLocaleString()} active
 
 									if (getInfo.num_pending_channels > 0 || getInfo.num_inactive_channels > 0)
@@ -243,7 +243,7 @@ block content
 
 							div(class="row")
 								div(class="summary-split-table-label") Balance
-								div(class="summary-split-table-content monospace")
+								div.summary-split-table-content.text-monospace
 									- var currencyValue = new Decimal(parseInt(channelBalance.balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 									include includes/value-display.pug
 									span  in active channels
@@ -282,23 +282,23 @@ block content
 						div(class="row")
 							- var currencyValue = new Decimal(totalCapacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 							div(class="summary-split-table-label") Total Capacity
-							div(class="summary-split-table-content monospace")
+							div.summary-split-table-content.text-monospace
 								include ./includes/value-display.pug
 
 						div(class="row")
 							div(class="summary-split-table-label") Nodes
-							div(class="summary-split-table-content monospace")
+							div.summary-split-table-content.text-monospace
 								span #{fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()}
 
 						div(class="row")
 							div(class="summary-split-table-label") Channels
-							div(class="summary-split-table-content monospace")
+							div.summary-split-table-content.text-monospace
 								span #{fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()}
 
 						div(class="row")
 							- var currencyValue = new Decimal(totalCapacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(fullNetworkDescription.channels.sortedByLastUpdate.length);
 							div(class="summary-split-table-label") Avg Channel Capacity
-							div(class="summary-split-table-content monospace")
+							div.summary-split-table-content.text-monospace
 								include ./includes/value-display.pug
 
 

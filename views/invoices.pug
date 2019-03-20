@@ -72,7 +72,7 @@ block content
 					
 					tbody
 						each invoice, invoice_index in allInvoices
-							tr(class="monospace word-wrap")
+							tr.text-monospace.word-wrap
 								td.font-weight-bold #{(sort == "desc" ? (invoiceCount - invoice_index) : (offset + invoice_index + 1)).toLocaleString()}
 
 								td(class="table-col-text")

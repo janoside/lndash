@@ -23,7 +23,7 @@ block content
 				- var node_icon_size = "1.25em";
 				include ./includes/node-icon.pug
 		
-		small(class="monospace word-wrap", style="width: 100%;") #{nodeInfo.node.pub_key}
+		small.text-monospace.word-wrap(style="width: 100%;") #{nodeInfo.node.pub_key}
 
 	hr
 
@@ -36,7 +36,7 @@ block content
 				div(class="col-md-8")
 					div(class="row")
 						div(class="summary-split-table-label") Alias
-						div(class="summary-split-table-content monospace")
+						div.summary-split-table-content.text-monospace
 							if (nodeInfo.node.alias.length > 0)
 								span #{nodeInfo.node.alias}
 							else
@@ -44,14 +44,14 @@ block content
 
 					div(class="row")
 						div(class="summary-split-table-label") Color
-						div(class="summary-split-table-content monospace")
+						div.summary-split-table-content.text-monospace
 							- var node_color = nodeInfo.node.color;
 							include ./includes/node-color-swatch.pug
 							span #{nodeInfo.node.color}
 
 					div(class="row")
 						div(class="summary-split-table-label") Addresses
-						div(class="summary-split-table-content monospace")
+						div.summary-split-table-content.text-monospace
 							if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
 								each addressItem in nodeInfo.node.addresses
 									span #{addressItem.network} #{addressItem.addr}
@@ -61,7 +61,7 @@ block content
 
 					div(class="row")
 						div(class="summary-split-table-label") Last Update
-						div(class="summary-split-table-content monospace")
+						div.summary-split-table-content.text-monospace
 							- var timeAgoTime = nodeInfo.node.last_update;
 							- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timeAgoTime) * 1000))));
 							- var dateTimeUtc = moment.utc(new Date(parseInt(nodeInfo.node.last_update) * 1000)).format("Y-MM-DD HH:mm:ss");
@@ -72,11 +72,11 @@ block content
 							
 					div(class="row")
 						div(class="summary-split-table-label") Channels
-						div(class="summary-split-table-content monospace") #{parseInt(nodeInfo.num_channels).toLocaleString()}
+						div.summary-split-table-content.text-monospace #{parseInt(nodeInfo.num_channels).toLocaleString()}
 
 					div(class="row")
 						div(class="summary-split-table-label") Total Capacity
-						div(class="summary-split-table-content monospace")
+						div.summary-split-table-content.text-monospace
 							- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(100000000);
 							include ./includes/value-display.pug
 
