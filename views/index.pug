@@ -163,7 +163,7 @@ block content
 							div(class="row")
 								div(class="summary-split-table-label") Public Key
 								div(class="summary-split-table-content monospace")
-									a(href=("/node/" + getInfo.identity_pubkey), data-toggle="tooltip", title=getInfo.identity_pubkey) #{getInfo.identity_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
+									a(href=("/node/" + getInfo.identity_pubkey)) #{getInfo.identity_pubkey}
 
 							div(class="row")
 								div(class="summary-split-table-label") Alias
@@ -265,6 +265,13 @@ block content
 										br
 										include includes/value-display.pug
 										span  unconfirmed in wallet
+
+							div.row
+								div.summary-split-table-label
+									span.border-dashed(title="This image is derived from the node's public key and should be unique to this node. The color for the outer ring is the node's 'color' property.", data-toggle="tooltip") Icon
+								div.summary-split-table-content
+									- var node_pubkey = getInfo.identity_pubkey;
+									include includes/node-icon.pug
 
 			div.col-md-6
 				div(class="card mb-4 shadow-sm")

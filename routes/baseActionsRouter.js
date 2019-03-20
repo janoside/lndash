@@ -408,7 +408,7 @@ router.get("/connect-lnd", function(req, res) {
 			global.lndRpc = global.lndConnections.connectionsByIndex[lndIndex];
 
 			rpcApi.refreshFullNetworkDescription().then(function() {
-				req.session.userMessage = `Switched to LND '${global.lndRpc.internal_alias}'`;
+				req.session.userMessage = `Switched to LND ${global.lndRpc.internal_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)} ('${global.lndRpc.internal_alias}')`;
 				req.session.userMessageType = "success";
 
 				res.redirect(req.headers.referer);
@@ -416,13 +416,13 @@ router.get("/connect-lnd", function(req, res) {
 			}).catch(function(err) {
 				console.log("Error 230uhfwequfghewfuew: " + err);
 
-				req.session.userMessage = `Error switching to LND '${global.lndRpc.internal_alias}'`;
+				req.session.userMessage = `Error switching to LND ${global.lndRpc.internal_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)} ('${global.lndRpc.internal_alias}')`;
 				req.session.userMessageType = "danger";
 
 				res.redirect(req.headers.referer);
 			});
 		} else {
-			req.session.userMessage = `Already connected to LND '${global.lndRpc.internal_alias}'`;
+			req.session.userMessage = `Already connected to LND ${global.lndRpc.internal_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)} ('${global.lndRpc.internal_alias}')`;
 
 			// no change
 			res.redirect(req.headers.referer);

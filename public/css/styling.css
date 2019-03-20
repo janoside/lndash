@@ -43,6 +43,10 @@ table.dataTable {
 	font-family: monospace;
 }
 
+.border-dashed {
+	border-bottom: 1px dashed #999;
+}
+
 /*.app-body .sidebar {
 	flex: 0 0 250px;
 }

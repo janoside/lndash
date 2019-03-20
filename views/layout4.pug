@@ -52,17 +52,37 @@ body.sidebar-lg-show.bg-white
 					li.nav-item.px-3
 						a.nav-link(href='#') Settings
 
-				li.nav-item.dropdown.ml-4
+				span.ml-4.mr-2 LND Node: 
+				li.nav-item.dropdown
+					
 					a.nav-link(data-toggle='dropdown' href='javascript:void(0)' role='button' aria-haspopup='true' aria-expanded='false')
-						span LND Node: 
 						span.font-weight-bold #{lndRpc.internal_alias}
 						i.fas.fa-angle-double-down.ml-2
 
-					.dropdown-menu
+					.dropdown-menu(style="min-width: 23rem;")
 						each lndIndex, index in lndConnections.indexes
 							if (lndConnections.connectionsByIndex[lndIndex] != null)
+								- var lndConn = lndConnections.connectionsByIndex[lndIndex];
+								- var node_pubkey = lndConn.internal_pubkey;
+
+								- var addrs = [];
+								each address in fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.addresses
+									- addrs.push(address.addr);
+
 								a.dropdown-item(href=('/connect-lnd?index=' + lndIndex))
-									|	#{lndConnections.connectionsByIndex[lndIndex].internal_alias}
+									div.clearfix
+										div.float-left.mr-3
+											include includes/node-icon.pug
+
+										div.float-left
+											span.font-weight-bold #{node_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
+											br
+											span Alias: 
+												span.text-monospace #{lndConn.internal_alias}
+											br
+											span Address: 
+												span.text-monospace #{addrs}
+									
 
 
 		ul.nav.navbar-nav.ml-auto
@@ -230,12 +250,18 @@ body.sidebar-lg-show.bg-white
 									| &#x9;Settings
 			.container-fluid
 				if (userMessage)
-					div.alert.shadow-sm.mb-4(class=(userMessageType ? ("alert-"  + userMessageType) : "alert-info"), role="alert")
+					div.alert.alert-dismissable.shadow-sm.mb-4(class=(userMessageType ? ("alert-"  + userMessageType) : "alert-info"), role="alert")
 						span !{userMessage}
 
+						a.close(href="javascript:void(0)" aria-label="Close" data-dismiss="alert" style="text-decoration: none;")
+							span(aria-hidden="true") &times;
+
 				else if (session.userMessage)
-					div.alert.shadow-sm.mb-4(class=(session.userMessageType ? ("alert-"  + session.userMessageType) : "alert-info"), role="alert")
+					div.alert.alert-dismissable.shadow-sm.mb-4(class=(session.userMessageType ? ("alert-"  + session.userMessageType) : "alert-info"), role="alert")
 						span !{session.userMessage}
+
+						a.close(href="javascript:void(0)" aria-label="Close" data-dismiss="alert" style="text-decoration: none;")
+							span(aria-hidden="true") &times;
 
 				block content
 		
