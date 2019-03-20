@@ -4,11 +4,10 @@ block headContent
 	title My Wallet
 
 block breadcrumb
-	ol.breadcrumb
-		li.breadcrumb-item
-			a(href='/') Home
-		li.breadcrumb-item My Node
-		li.breadcrumb-item.active My Wallet
+	li.breadcrumb-item
+		a(href='/') Home
+	li.breadcrumb-item My Node
+	li.breadcrumb-item.active My Wallet
 	
 block content
 	if (!session.admin)

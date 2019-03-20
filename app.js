@@ -247,6 +247,7 @@ function connectViaRpc(rpcConfig, index) {
 			lndConnection.internal_index = index;
 			lndConnection.internal_alias = response.alias;
 			lndConnection.internal_pubkey = response.identity_pubkey;
+			lndConnection.internal_version = response.version;
 
 			resolve({lndConnection:lndConnection, index:index});
 		});

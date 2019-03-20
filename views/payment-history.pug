@@ -5,11 +5,10 @@ block headContent
 	title Payment History
 
 block breadcrumb
-	ol.breadcrumb
-		li.breadcrumb-item
-			a(href='/') Home
-		li.breadcrumb-item Payments
-		li.breadcrumb-item.active Payments Sent
+	li.breadcrumb-item
+		a(href='/') Home
+	li.breadcrumb-item Payments
+	li.breadcrumb-item.active Payments Sent
 	
 block content
 	if (!session.admin)

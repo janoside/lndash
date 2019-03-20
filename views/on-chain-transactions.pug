@@ -1,11 +1,10 @@
 extends layout4
 
 block breadcrumb
-	ol.breadcrumb
-		li.breadcrumb-item
-			a(href='/') Home
-		li.breadcrumb-item Payments
-		li.breadcrumb-item.active My Wallet Transactions
+	li.breadcrumb-item
+		a(href='/') Home
+	li.breadcrumb-item Payments
+	li.breadcrumb-item.active My Wallet Transactions
 
 block content
 	if (!session.admin)

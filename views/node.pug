@@ -4,13 +4,12 @@ block headContent
 	title Node Details - #{nodeInfo.node.pub_key}
 
 block breadcrumb
-	ol.breadcrumb
-		li.breadcrumb-item
-			a(href='/') Home
-		li.breadcrumb-item Network
-		li.breadcrumb-item
-			a(href="/nodes") Nodes
-		li.breadcrumb-item.active #{nodeInfo.node.pub_key}
+	li.breadcrumb-item
+		a(href='/') Home
+	li.breadcrumb-item Network
+	li.breadcrumb-item
+		a(href="/nodes") Nodes
+	li.breadcrumb-item.active #{nodeInfo.node.pub_key}
 	
 block content
 

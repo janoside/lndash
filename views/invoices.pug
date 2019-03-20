@@ -4,11 +4,10 @@ block headContent
 	title Invoices
 
 block breadcrumb
-	ol.breadcrumb
-		li.breadcrumb-item
-			a(href='/') Home
-		li.breadcrumb-item Payments
-		li.breadcrumb-item.active Invoices
+	li.breadcrumb-item
+		a(href='/') Home
+	li.breadcrumb-item Payments
+	li.breadcrumb-item.active Invoices
 
 block content
 	if (!session.admin)

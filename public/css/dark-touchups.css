@@ -13,3 +13,11 @@ hr {
 .hljs-type, .hljs-string, .hljs-number, .hljs-selector-id, .hljs-selector-class, .hljs-quote, .hljs-template-tag, .hljs-deletion {
 	color: #95dbc6;
 }
+
+.bg-main {
+	background-color: #0c0c0c;
+}
+
+body {
+	color: white;
+}
