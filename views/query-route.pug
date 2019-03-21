@@ -1,23 +1,24 @@
 extends layout4
 
 block headContent
-	title Zap Connect
+	title Query Route
 
 block breadcrumb
 	li.breadcrumb-item
 		a(href='/') Home
 	li.breadcrumb-item Tools
-	li.breadcrumb-item.active Zap Connect
-
+	li.breadcrumb-item.active Query Route
+	
 block content
-	h1(class="h2") Zap Connect
+	h1.h3 Query Route
+
 	hr
 
 	if (!session.admin)
-		- var loginRequiredNote = "give help you connect to a mobile Zap wallet.";
+		- var loginRequiredNote = "allow you to query lightning payment routes through the network.";
 		include includes/login-required-alert.pug
 
 	else
 
 		div.alert.alert-primary Coming soon...
-
+			

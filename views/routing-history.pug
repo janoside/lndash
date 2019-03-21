@@ -1,23 +1,24 @@
 extends layout4
 
 block headContent
-	title Zap Connect
+	title Routing History
 
 block breadcrumb
 	li.breadcrumb-item
 		a(href='/') Home
-	li.breadcrumb-item Tools
-	li.breadcrumb-item.active Zap Connect
-
+	li.breadcrumb-item Lightning Payments
+	li.breadcrumb-item.active Routing History
+	
 block content
-	h1(class="h2") Zap Connect
+	h1.h3 Routing History
+
 	hr
 
 	if (!session.admin)
-		- var loginRequiredNote = "give help you connect to a mobile Zap wallet.";
+		- var loginRequiredNote = "show this node's forwarding/routing history.";
 		include includes/login-required-alert.pug
 
 	else
 
 		div.alert.alert-primary Coming soon...
-
+			

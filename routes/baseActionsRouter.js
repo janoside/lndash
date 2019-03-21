@@ -384,6 +384,14 @@ router.post("/login", function(req, res) {
 	res.render("login");
 });
 
+router.get("/query-route", function(req, res) {
+	res.render("query-route");
+});
+
+router.get("/routing-history", function(req, res) {
+	res.render("routing-history");
+});
+
 router.get("/logout", function(req, res) {
 	req.session.admin = false;
 
@@ -878,7 +886,7 @@ router.get("/openchannel", function(req, res) {
 });
 
 router.get("/zapconnect", function(req, res) {
-	var fs = require('fs');
+	/*var fs = require('fs');
 
 	fs.open('file.txt', 'r', function(status, fd) {
 		if (status) {
@@ -890,16 +898,18 @@ router.get("/zapconnect", function(req, res) {
 			console.log(buffer.toString('utf8', 0, num));
 		});
 	});
+
 	utils.buildQrCodeUrls(qrcodeStrings).then(function(qrcodeUrls) {
 		res.locals.qrcodeUrls = qrcodeUrls;
 
-		res.render("node");
+		res.render("zapconnect");
 
 	}).catch(function(err) {
 		utils.logError("3e0ufhdhfsdss", err);
 		
-		res.render("node");
-	});
+		res.render("zapconnect");
+	});*/
+	res.render("zapconnect");
 });
 
 module.exports = router;
