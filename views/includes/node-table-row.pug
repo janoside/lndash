@@ -18,7 +18,11 @@ tr(class="text-monospace word-wrap")
 			span -
 		else
 			- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(nodeInfo.node.last_update) * 1000))));
-			span(title=moment.utc(new Date(parseInt(nodeInfo.node.last_update) * 1000)).format("Y-MM-DD HH:mm:ss"), data-toggle="tooltip") #{timeAgo.humanize()}
+			- var dateTimeUtc = moment.utc(new Date(parseInt(nodeInfo.node.last_update) * 1000)).format("Y-MM-DD HH:mm:ss");
+
+			span #{timeAgo.humanize()}
+			br
+			span.text-muted #{dateTimeUtc} utc
 
 	td(class="table-col-int text-right")
 		span #{parseInt(nodeInfo.num_channels).toLocaleString()}

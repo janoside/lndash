@@ -38,42 +38,45 @@ block content
 			div.card-header
 				span.h6 Sorting / Filters
 			div.card-body
-				span.dropdown.mr-2
-					button.btn.btn-primary.dropdown-toggle(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-						span Sort: 
-						span.font-weight-bold
-							if (sort == null || sort == "created-desc")
-								| Created Date, Newest first
-							else if (sort == "created-asc")
-								| Created Date, Oldest first
-							else if (sort == "value-desc")
-								| Value, Highest first
-							else if (sort == "value-asc")
-								| Value, Lowest first
+				div.clearfix
+					span.dropdown.mr-4.float-left
+						span.font-weight-bold.mr-1 Sort
+						button.btn.btn-primary.dropdown-toggle.mb-2.mb-lg-0(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+							span
+								if (sort == null || sort == "created-desc")
+									| Created Date, Newest first
+								else if (sort == "created-asc")
+									| Created Date, Oldest first
+								else if (sort == "value-desc")
+									| Value, Highest first
+								else if (sort == "value-asc")
+									| Value, Lowest first
 
-					div.dropdown-menu(aria-labelledby="dropdownMenuButton")
-						a.dropdown-item(href=`/invoices?sort=created-desc&settled=${settled}&created=${created}`) Created Date, Newest first
-						a.dropdown-item(href=`/invoices?sort=created-asc&settled=${settled}&created=${created}`) Created Date, Oldest first
-						a.dropdown-item(href=`/invoices?sort=value-desc&settled=${settled}&created=${created}`) Value, Highest first
-						a.dropdown-item(href=`/invoices?sort=value-asc&settled=${settled}&created=${created}`) Value, Lowest first
+						div.dropdown-menu(aria-labelledby="dropdownMenuButton")
+							a.dropdown-item(href=`/invoices?sort=created-desc&settled=${settled}&created=${created}`) Created Date, Newest first
+							a.dropdown-item(href=`/invoices?sort=created-asc&settled=${settled}&created=${created}`) Created Date, Oldest first
+							a.dropdown-item(href=`/invoices?sort=value-desc&settled=${settled}&created=${created}`) Value, Highest first
+							a.dropdown-item(href=`/invoices?sort=value-asc&settled=${settled}&created=${created}`) Value, Lowest first
 
-				span.font-weight-bold.ml-4.mr-2 Status
-				- var statusFilterOptions = ["Settled", "Unsettled", "All"];
-				div.btn-group.mr-2(role="group")
-					each opt in statusFilterOptions
-						if (settled != null && settled == opt.toLowerCase())
-							span.btn.btn-primary #{opt}
-						else
-							a.btn.btn-secondary.bg-light(href=`/invoices?sort=${sort}&settled=${opt}&created=${created}`) #{opt}
+					div.mr-4.mb-2.mb-lg-0.float-left
+						span.font-weight-bold.mr-1 Status
+						- var statusFilterOptions = ["Settled", "Unsettled", "All"];
+						div.btn-group.mr-2(role="group")
+							each opt in statusFilterOptions
+								if (settled != null && settled == opt.toLowerCase())
+									span.btn.btn-primary #{opt}
+								else
+									a.btn.btn-secondary.bg-light(href=`/invoices?sort=${sort}&settled=${opt}&created=${created}`) #{opt}
 
-				span.font-weight-bold.ml-4.mr-2 Time
-				- var createdFilterOptions = ["60 Mins", "24 Hrs", "7 Days", "30 Days", "All"];
-				div.btn-group.mr-2(role="group")
-					each opt in createdFilterOptions
-						if (created != null && created == opt.toLowerCase().replace(" ", "-"))
-							span.btn.btn-primary #{opt}
-						else
-							a.btn.btn-secondary.bg-light(href=`/invoices?sort=${sort}&settled=${settled}&created=${opt.replace(" ", "-")}`) #{opt}
+					div.mr-4.mb-2.mb-lg-0.float-left
+						span.font-weight-bold.mr-1 Time
+						- var createdFilterOptions = ["60 Mins", "24 Hrs", "7 Days", "30 Days", "All"];
+						div.btn-group.mr-2(role="group")
+							each opt in createdFilterOptions
+								if (created != null && created == opt.toLowerCase().replace(" ", "-"))
+									span.btn.btn-primary #{opt}
+								else
+									a.btn.btn-secondary.bg-light(href=`/invoices?sort=${sort}&settled=${settled}&created=${opt.replace(" ", "-")}`) #{opt}
 
 				div.alert.alert-primary.mt-3.mb-0
 					span Showing #{filteredInvoices.length.toLocaleString()} invoice
