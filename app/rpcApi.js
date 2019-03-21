@@ -156,11 +156,11 @@ function refreshLocalChannels() {
 	return new Promise(function(resolve_1, reject_1) {
 		lndRpc.ListChannels({}, function(err, listChannelsResponse) {
 			if (err) {
-				utils.logError("23179egwqeufgsd", err);
+				utils.logError("Error 23179egwqeufgsd: ", err);
 			}
 
 			if (listChannelsResponse == null) {
-				utils.logError("dfhg12328", "null listChannels response");
+				utils.logError("Error 76dfhg12328: null listChannels response");
 
 				resolve_1();
 

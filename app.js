@@ -363,12 +363,12 @@ app.use(function(req, res, next) {
 			next();
 
 		}).catch(function(err) {
-			utils.logError("37921hdasudfgd", err);
+			utils.logError("Error 37921hdasudfgd: ", err);
 
 			next();
 		});
 	}).catch(function(err) {
-		utils.logError("3297rhgdgvsf1", err);
+		utils.logError("Error 3297rhgdgvsf1: ", err);
 
 		next();
 	});
