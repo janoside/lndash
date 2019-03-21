@@ -60,6 +60,11 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 						a.nav-link(href='#') Settings
 
 				span.ml-4.mr-2 LND Node: 
+				span.mr-2
+					- var node_pubkey = lndRpc.internal_pubkey;
+					- var node_icon_size = "2.25em";
+					include includes/node-icon.pug
+					- var node_icon_size = null;
 				li.nav-item.dropdown
 					
 					a.nav-link(data-toggle='dropdown' href='javascript:void(0)' role='button' aria-haspopup='true' aria-expanded='false')
@@ -84,6 +89,8 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 
 											div.float-left
 												span.font-weight-bold #{node_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
+												if (lndConn == lndRpc)
+													i.fas.fa-check.text-success.ml-2
 												br
 												span.font-weight-bold Alias: 
 												span.text-monospace #{lndConn.internal_alias}
