@@ -1,8 +1,8 @@
 # LND Admin
 
-Admin web interface for [LND](https://github.com/lightningnetwork/lnd). Built with Node.js, express, bootstrap-v4, coreui.
+Admin web interface for [LND](https://github.com/lightningnetwork/lnd), via gRPC. Built with Node.js, express, bootstrap-v4, coreui.
 
-A live demo of the tool is available at https://lnd-admin.chaintools.io
+Live demo: https://lnd-admin.chaintools.io
 
 # Features
 
