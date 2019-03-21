@@ -7,12 +7,14 @@ var currencyUnits = [
 		name:"BTC",
 		multiplier:1,
 		default:true,
+		active:true,
 		values:["", "btc", "BTC"],
 		decimalPlaces:8
 	},
 	{
 		type:"native",
 		name:"mBTC",
+		active:false,
 		multiplier:1000,
 		values:["mbtc"],
 		decimalPlaces:5
@@ -20,6 +22,7 @@ var currencyUnits = [
 	{
 		type:"native",
 		name:"bits",
+		active:false,
 		multiplier:1000000,
 		values:["bits"],
 		decimalPlaces:2
@@ -27,6 +30,7 @@ var currencyUnits = [
 	{
 		type:"native",
 		name:"sat",
+		active:true,
 		multiplier:100000000,
 		values:["sat", "satoshi"],
 		decimalPlaces:0

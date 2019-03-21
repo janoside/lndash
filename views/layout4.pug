@@ -38,14 +38,14 @@ head
 	block headContent
 		title #{config.siteInfo.title}
 
-body.sidebar-lg-show.bg-main
+body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 	header.app-header.navbar.bg-main
 		button.navbar-toggler.sidebar-toggler.d-lg-none.mr-auto(type='button' data-toggle='sidebar-show')
 			span.navbar-toggler-icon
 		a.navbar-brand(href='/')
-			img.navbar-brand-full.mr-2(src='/img/logo/lightning.svg' width='25' height='25' alt='LND Admin')
-			span.navbar-brand-full LND Admin
-			img.navbar-brand-minimized(src='/img/logo/lightning.svg' width='25' height='25' alt='LND Admin Logo')
+			img.navbar-brand-full(src='/img/logo/app.png' width='82' height='25' alt='LND Admin')
+			//span.navbar-brand-full LND Admin
+			img.navbar-brand-minimized(src='/img/logo/app.png' width='82' height='25' alt='LND Admin')
 		button.navbar-toggler.sidebar-toggler.d-md-down-none(type='button' data-toggle='sidebar-lg-show')
 			span.navbar-toggler-icon
 
@@ -63,7 +63,7 @@ body.sidebar-lg-show.bg-main
 				li.nav-item.dropdown
 					
 					a.nav-link(data-toggle='dropdown' href='javascript:void(0)' role='button' aria-haspopup='true' aria-expanded='false')
-						span.font-weight-bold #{lndRpc.internal_alias}
+						span.text-body #{lndRpc.internal_alias}
 						i.fas.fa-angle-double-down.ml-2
 
 					.dropdown-menu(style="min-width: 23rem;")
@@ -85,19 +85,19 @@ body.sidebar-lg-show.bg-main
 											div.float-left
 												span.font-weight-bold #{node_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
 												br
-												span Alias: 
-													span.text-monospace #{lndConn.internal_alias}
+												span.font-weight-bold Alias: 
+												span.text-monospace #{lndConn.internal_alias}
 												br
-												span Address: 
-													span.text-monospace #{addrs}
+												span.font-weight-bold Address: 
+												span.text-monospace #{addrs}
 												br
-												span Version: 
-													- var versionParts = lndConn.internal_version.split(" ");
-													span.text-monospace.word-wrap #{versionParts[0]}
+												span.font-weight-bold Version: 
+												- var versionParts = lndConn.internal_version.split(" ");
+												span.text-monospace.word-wrap #{versionParts[0]}
 									
 
 
-		ul.nav.navbar-nav.ml-auto.mr-5
+		ul.nav.navbar-nav.ml-auto.mr-2
 			if (false)
 				li.nav-item.d-md-down-none
 					a.nav-link(href='#')
@@ -110,64 +110,60 @@ body.sidebar-lg-show.bg-main
 					a.nav-link(href='#')
 						i.icon-location-pin
 
-			li.nav-item.dropdown
-				a.nav-link.dropdown-toggle.mr-3(href="javascript:void(0)", id="settingsDropdown", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") 
-					i.fas.fa-cog.mr-1
-				div.dropdown-menu.dropdown-menu-right(aria-labelledby="settingsDropdown")
-					if (coinConfig.currencyUnits)
-						span.dropdown-header Currency Units
-						each item in coinConfig.currencyUnits
-							if (item.type == "native" || config.queryExchangeRates)
-								a.dropdown-item(href=("/changeSetting?name=currencyFormatType&value=" + item.values[0]))
-									each valueName in item.values
-										if (currencyFormatType == valueName)
-											i(class="fas fa-check")
-									span  #{item.name}
+			if (false)
+				li.nav-item.dropdown
+					a.nav-link.dropdown-toggle(data-toggle='dropdown' href='javascript:void(0)' role='button' aria-haspopup='true' aria-expanded='false')
+						//img.img-avatar(src='img/avatars/6.jpg' alt='admin@bootstrapmaster.com')
+						if (session.admin)
+							i(class="fas fa-user mr-1") 
+							span  Admin
+						else
+							i(class="far fa-user mr-1") 
+							span  Guest
 
-					span.dropdown-header Theme
-					a.dropdown-item(href="/changeSetting?name=uiTheme&value=light")
-						if (session.uiTheme == "light" || session.uiTheme == "")
-							i.fas.fa-check
-						span  Light
-					a(class="dropdown-item", href="/changeSetting?name=uiTheme&value=dark")
-						if (session.uiTheme == "dark")
-							i.fas.fa-check
-						span  Dark
+					.dropdown-menu.dropdown-menu-right
+						.dropdown-header
+							strong Account
+						if (session.admin)
+							a.dropdown-item(href='/logout')
+								i.fa.fa-sign-out-alt
+								|	Logout
+						else
+							a.dropdown-item(href='/login')
+								i.fa.fa-sign-in-alt
+								|	Login
+						
 
-			li.nav-item.dropdown
-				a.nav-link.dropdown-toggle(data-toggle='dropdown' href='javascript:void(0)' role='button' aria-haspopup='true' aria-expanded='false')
-					//img.img-avatar(src='img/avatars/6.jpg' alt='admin@bootstrapmaster.com')
-					if (session.admin)
-						i(class="fas fa-user mr-1") 
-						span  Admin
-					else
-						i(class="far fa-user mr-1") 
-						span  Guest
+						if (coinConfig.currencyUnits)
+							span.dropdown-header Currency Units
+							each item in coinConfig.currencyUnits
+								if (item.type == "native" || config.queryExchangeRates)
+									a.dropdown-item(href=("/changeSetting?name=currencyFormatType&value=" + item.values[0]))
+										each valueName in item.values
+											if (currencyFormatType == valueName)
+												i(class="fas fa-check")
+										span  #{item.name}
 
-				.dropdown-menu.dropdown-menu-right
-					.dropdown-header
-						strong Account
-					if (session.admin)
-						a.dropdown-item(href='/logout')
-							i.fa.fa-sign-out-alt
-							|	Logout
-					else
-						a.dropdown-item(href='/login')
-							i.fa.fa-sign-in-alt
-							|	Login
-					
-					.dropdown-header
-						strong Settings
-					a.dropdown-item(href='/settings')
-						i.fa.fa-wrench
-						|	Settings
+						span.dropdown-header Theme
+						a.dropdown-item(href="/changeSetting?name=uiTheme&value=light")
+							if (session.uiTheme == "light" || session.uiTheme == "")
+								i.fas.fa-check
+							span  Light
+						a(class="dropdown-item", href="/changeSetting?name=uiTheme&value=dark")
+							if (session.uiTheme == "dark")
+								i.fas.fa-check
+							span  Dark
 					
 
-		if (false)
+		if (true)
+			- var userIconClassEx = (session.admin ? "fas" : "far")
 			button.navbar-toggler.aside-menu-toggler.d-md-down-none(type='button' data-toggle='aside-menu-lg-show')
-				span.navbar-toggler-icon
+				i.fas.fa-user-circle.text-body.fa-2x.mr-2(class=userIconClassEx)
+				//span.navbar-toggler-icon
+
 			button.navbar-toggler.aside-menu-toggler.d-lg-none(type='button' data-toggle='aside-menu-show')
-				span.navbar-toggler-icon
+				i.fas.fa-user-circle.text-body.fa-2x.mr-2(class=userIconClassEx)
+				//span.navbar-toggler-icon
 
 	.app-body
 		.sidebar
@@ -301,7 +297,7 @@ body.sidebar-lg-show.bg-main
 
 				block content
 		
-		if (false)	
+		if (true)	
 			include includes/aside-menu.pug
 	
 	if (false)
@@ -322,13 +318,13 @@ body.sidebar-lg-show.bg-main
 	script(src="/js/highlight.min.js")
 
 	// CoreUI and necessary plugins
-	script(src='/js/pace.min.js')
 	script(src='/js/perfect-scrollbar.min.js')
 	script(src='/js/coreui.min.js')
+
 	// Plugins and scripts required by this view
 	//script(src='vendors/chart.js/js/Chart.min.js')
 	//script(src='vendors/@coreui/coreui-plugin-chartjs-custom-tooltips/js/custom-tooltips.min.js')
-	script(src='/js/main.js')
+	//script(src='/js/main.js')
 
 	script(src="/js/jdenticon.min.js" integrity="")
 
