@@ -168,14 +168,20 @@ function refreshLocalChannels() {
 			}
 
 			var localChannelsById = {};
+			var localChannelsByTxid = {};
 
 			listChannelsResponse.channels.forEach(function(channel) {
 				localChannelsById[channel.chan_id] = channel;
+
+				if (channel.channel_point != null) {
+					localChannelsByTxid[channel.channel_point.substring(0, channel.channel_point.indexOf(":"))] = channel;
+				}
 			});
 
 			localChannels = {};
 			localChannels.channels = listChannelsResponse.channels;
 			localChannels.byId = localChannelsById;
+			localChannels.byTxid = localChannelsByTxid;
 
 			console.log("Finished refreshing local channels; elapsed time: " + (new Date().getTime() - startTime.getTime()));
 

@@ -84,6 +84,8 @@ block content
 							th.text-right #
 							th Txid
 							th Addresses
+							th
+								span.border-dashed(title="If applicable, show the channel opened with the transaction.", data-toggle="tooltip") Channel Opened
 							th.text-right
 								span Block /
 								br
@@ -112,6 +114,13 @@ block content
 											each addr, index in tx.dest_addresses
 												span(title=addr, data-toggle="tooltip") #{addr.substring(0, config.site.addressMaxDisplayLength)}
 												br
+
+									td
+										if (localChannels.byTxid[tx.tx_hash] != null)
+											a(href=`/channel/${localChannels.byTxid[tx.tx_hash].chan_id}`) #{localChannels.byTxid[tx.tx_hash].chan_id}
+											
+										else
+											span -
 
 									td(class="table-col-int text-right")
 										if (config.blockExplorerUrl)
