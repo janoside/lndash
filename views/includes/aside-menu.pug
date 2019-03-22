@@ -47,6 +47,40 @@ aside.aside-menu.p-3.bg-main
 				else
 					a.btn.btn-secondary.bg-light(href=`/changeSetting?name=uiTheme&value=${item.vals[0]}`) #{item.name}
 
+	if (lndConnections.indexes.length > 1)
+		div.mb-3
+			h5.h6 LND Node
+			each lndIndex, index in lndConnections.indexes
+				if (lndConnections.connectionsByIndex[lndIndex] != null)
+					- var lndConn = lndConnections.connectionsByIndex[lndIndex];
+					- var node_pubkey = lndConn.internal_pubkey;
+
+					if (fullNetworkDescription)
+						- var addrs = [];
+						each address in fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.addresses
+							- addrs.push(address.addr);
+
+						div.card.mb-2
+							div.card-body
+								div.clearfix
+									small
+										a.stretched-link(href=('/connect-lnd?index=' + lndIndex), onclick="$('#switchLndModal').modal()") #{node_pubkey.substring(0, config.site.pubkeyMaxDisplayLength - 3)}
+										if (lndConn == lndRpc)
+											i.fas.fa-check.text-success.ml-2
+										br
+										span.font-weight-bold Alias
+										br
+										span.text-monospace #{lndConn.internal_alias}
+										br
+										span.font-weight-bold Address
+										br
+										span.text-monospace #{addrs}
+										br
+										span.font-weight-bold Version
+										br
+										- var versionParts = lndConn.internal_version.split(" ");
+										span.text-monospace.word-wrap #{versionParts[0]}
+
 	if (false)
 		ul.nav.nav-tabs(role='tablist')
 			li.nav-item
