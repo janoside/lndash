@@ -171,10 +171,12 @@ app.runOnStartup = function() {
 
 				rpcApi.refreshFullNetworkDescription();
 				rpcApi.refreshLocalChannels();
+				rpcApi.refreshLocalClosedChannels();
 
 				// refresh periodically
 				setInterval(rpcApi.refreshFullNetworkDescription, 60000);
 				setInterval(rpcApi.refreshLocalChannels, 60000);
+				setInterval(rpcApi.refreshLocalClosedChannels, 60000);
 
 				setInterval(logNetworkStats, 5 * 60000);
 			}

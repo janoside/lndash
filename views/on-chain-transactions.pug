@@ -7,6 +7,13 @@ block breadcrumb
 	li.breadcrumb-item.active My Wallet Transactions
 
 block content
+	if (false)
+		pre
+			code.json #{JSON.stringify(localChannels, null, 4)}
+
+		pre
+			code.json #{JSON.stringify(localClosedChannels, null, 4)}
+
 	if (!session.admin)
 		h1.h3 My Wallet Transactions
 		hr
@@ -118,7 +125,12 @@ block content
 									td
 										if (localChannels.byTxid[tx.tx_hash] != null)
 											a(href=`/channel/${localChannels.byTxid[tx.tx_hash].chan_id}`) #{localChannels.byTxid[tx.tx_hash].chan_id}
-											
+
+										else if (closedChannels.byTxid[tx.tx_hash] != null)
+											span #{closedChannels.byTxid[tx.tx_hash].chan_id}
+											br
+											span.text-muted (closed)
+
 										else
 											span -
 

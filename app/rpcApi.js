@@ -3,6 +3,7 @@ var utils = require("./utils.js");
 
 var fullNetworkDescription = null;
 var localChannels = null;
+var localClosedChannels = null;
 
 function getFullNetworkDescription() {
 	return new Promise(function(resolve, reject) {
@@ -148,6 +149,17 @@ function getLocalChannels() {
 	});
 }
 
+function getClosedChannels() {
+	return new Promise(function(resolve, reject) {
+		// try a manual refresh here, but don't wait for it
+		if (localClosedChannels == null) {
+			refreshLocalClosedChannels();
+		}
+
+		resolve(localClosedChannels);
+	});
+}
+
 function refreshLocalChannels() {
 	var startTime = new Date();
 
@@ -189,6 +201,51 @@ function refreshLocalChannels() {
 		});
 	});
 }
+
+function refreshLocalClosedChannels() {
+	var startTime = new Date();
+
+	console.log("Refreshing closed channels...");
+	
+	return new Promise(function(resolve_1, reject_1) {
+		lndRpc.ClosedChannels({}, function(err, closedChannelsResponse) {
+			if (err) {
+				utils.logError("23r07wehf7dsf: ", err);
+			}
+
+			if (closedChannelsResponse == null) {
+				utils.logError("2183ryu243r7034w: null listChannels response");
+
+				resolve_1();
+
+				return;
+			}
+
+			var byId = {};
+			var byTxid = {};
+
+			closedChannelsResponse.channels.forEach(function(channel) {
+				byId[channel.chan_id] = channel;
+
+				if (channel.channel_point != null) {
+					byTxid[channel.channel_point.substring(0, channel.channel_point.indexOf(":"))] = channel;
+				}
+			});
+
+			localClosedChannels = {};
+			localClosedChannels.channels = closedChannelsResponse.channels;
+			localClosedChannels.byId = byId;
+			localClosedChannels.byTxid = byTxid;
+
+			//console.log("Closed channels: " + JSON.stringify(localClosedChannels, null, 4));
+
+			console.log("Finished refreshing closed channels; elapsed time: " + (new Date().getTime() - startTime.getTime()));
+
+			resolve_1();
+		});
+	});
+}
+
 
 
 
@@ -366,6 +423,9 @@ module.exports = {
 
 	getLocalChannels: getLocalChannels,
 	refreshLocalChannels: refreshLocalChannels,
+
+	getClosedChannels: getClosedChannels,
+	refreshLocalClosedChannels: refreshLocalClosedChannels,
 
 	connectToPeer: connectToPeer,
 	listPayments: listPayments,

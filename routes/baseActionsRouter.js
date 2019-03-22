@@ -745,9 +745,33 @@ router.post("/send-payment", function(req, res) {
 });
 
 router.get("/on-chain-transactions", function(req, res) {
-	rpcApi.getOnChainTransactions().then(function(onChainTransactionsResponse) {
-		res.locals.onChainTransactions = onChainTransactionsResponse;
-		
+	var promises = [];
+
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getLocalChannels().then(function(localChannels) {
+			res.locals.localChannels = localChannels;
+
+			resolve();
+		});
+	}));
+
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getClosedChannels().then(function(closedChannels) {
+			res.locals.closedChannels = closedChannels;
+
+			resolve();
+		});
+	}));
+
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getOnChainTransactions().then(function(onChainTransactionsResponse) {
+			res.locals.onChainTransactions = onChainTransactionsResponse;
+
+			resolve();
+		});
+	}));
+
+	Promise.all(promises).then(function() {
 		res.render("on-chain-transactions");
 
 	}).catch(function(err) {
