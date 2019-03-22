@@ -126,10 +126,18 @@ router.get("/node/:nodePubKey", function(req, res) {
 router.get("/channel/:channelId", function(req, res) {
 	var channelId = req.params.channelId;
 
+	res.locals.channelId = channelId;
+
 	rpcApi.getFullNetworkDescription().then(function(fnd) {
 		res.locals.fullNetworkDescription = fnd;
 
 		res.locals.channel = fnd.channelsById[channelId];
+
+		if (res.locals.channel == null) {
+			res.render("channel");
+
+			return;
+		}
 
 		res.locals.node1 = fnd.nodeInfoByPubkey[res.locals.channel.node1_pub];
 		res.locals.node2 = fnd.nodeInfoByPubkey[res.locals.channel.node2_pub];
