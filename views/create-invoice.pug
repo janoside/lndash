@@ -13,12 +13,59 @@ block content
 	h1.h3 Create Invoice
 	hr
 
+	if (createInvoiceResponse != null)
+		div.alert.alert-success
+			h3.h5 Success
+
+			div.mb-3 Your invoice was created successfully!
+
+			div.form-group
+				label.font-weight-bold(for="payment_request") Payment Request
+				div.input-group
+					textarea.form-control.text-monospace #{createInvoiceResponse.payment_request}
+
+			div.mb-3
+				span.font-weight-bold Hash (hex)
+				br
+				span.text-monospace #{createInvoiceResponse.r_hash_hex}
+
+			div.mb-3
+				span.font-weight-bold Hash (base64)
+				br
+				span.text-monospace #{createInvoiceResponse.r_hash_base64}
+			
+			if (false)
+				pre
+					code.json #{JSON.stringify(createInvoiceResponse, null, 4)}
+
 	if (!session.admin)
 		- var loginRequiredNote = "allow you to create a new invoice.";
 		include includes/login-required-alert.pug
 
 	else
 
-		div.alert.alert-primary Coming soon...
+		form(method="post", action="/create-invoice")
+			div(class="form-group")
+				label(for="memo") Memo
+				input(type="text", class="form-control", id="memo", name="memo")
+
+			div.row
+				div.col-md-2
+					div.form-group
+						label(for="amount") Amount
+						div.input-group
+							input(type="number", class="form-control", id="amount", name="amount")
+							div.input-group-append
+								div.input-group-text satoshis
+
+				div.col-md-2
+					div.form-group
+						label(for="expiration") Expiration
+						div.input-group
+							input(type="number", class="form-control", id="expiration", name="expiration", value="24")
+							div.input-group-append
+								div.input-group-text hours
+
+			button(type="submit", class="btn btn-primary") Create Invoice
 
 			

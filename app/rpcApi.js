@@ -249,7 +249,21 @@ function refreshLocalClosedChannels() {
 
 
 
+function createInvoice(memo, valueSats, expirySeconds) {
+	return new Promise(function(resolve, reject) {
+		lndRpc.AddInvoice({memo:memo, value:valueSats, expiry:expirySeconds}, function(err, response) {
+			if (err) {
+				utils.logError("29073tgwgedf", err);
 
+				reject(err);
+
+				return;
+			}
+
+			resolve(response);
+		});
+	});
+}
 
 function connectToPeer(pubKey, address) {
 	return new Promise(function(resolve, reject) {
@@ -434,6 +448,7 @@ module.exports = {
 	getChannelBalance,
 	getWalletBalance,
 
+	createInvoice: createInvoice,
 	decodeInvoiceString: decodeInvoiceString,
 	payInvoice: payInvoice,
 	getOnChainTransactions: getOnChainTransactions,

@@ -155,6 +155,28 @@ router.get("/create-invoice", function(req, res) {
 	res.render("create-invoice");
 });
 
+router.post("/create-invoice", function(req, res) {
+	var memo = req.body.memo;
+	var amountSats = req.body.amount;
+	var expirationHrs = req.body.expiration;
+
+	rpcApi.createInvoice(memo, amountSats, expirationHrs * 3600).then(function(response) {
+		response.r_hash_base64 = Buffer.from(response.r_hash).toString("base64");
+		response.r_hash_hex = Buffer.from(response.r_hash).toString("hex");
+
+		delete response.r_hash;
+
+		res.locals.createInvoiceResponse = response;
+
+		res.render("create-invoice");
+
+	}).catch(function(err) {
+		utils.logError("23598yrgwe9fygwe9", err);
+
+		res.render("create-invoice");
+	});
+});
+
 router.get("/sign-verify", function(req, res) {
 	res.render("sign-verify");
 });
