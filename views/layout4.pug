@@ -68,8 +68,7 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 				li.nav-item.dropdown
 					
 					a.nav-link(data-toggle='dropdown' href='javascript:void(0)' role='button' aria-haspopup='true' aria-expanded='false')
-						span.text-body #{lndRpc.internal_alias}
-						i.fas.fa-angle-double-down.ml-2
+						span.text-body.dropdown-toggle #{lndRpc.internal_alias}
 
 					.dropdown-menu(style="min-width: 23rem;")
 						each lndIndex, index in lndConnections.indexes
