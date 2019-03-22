@@ -755,10 +755,18 @@ router.get("/send-payment", function(req, res) {
 
 router.post("/send-payment", function(req, res) {
 	rpcApi.payInvoice(req.query.invoice).then(function(response) {
-		console.log("SendPayment response: " + response + ", json: " + JSON.stringify(response));
+		res.locals.payInvoiceResponse = response;
 
-		req.session.userMessage = "Payment sent successfully!";
-		req.session.userMessageType = "success";
+		response.payment_preimage_base64 = Buffer.from(response.payment_preimage).toString("base64");
+		response.payment_preimage_hex = Buffer.from(response.payment_preimage).toString("hex");
+
+		response.payment_hash_base64 = Buffer.from(response.payment_hash).toString("base64");
+		response.payment_hash_hex = Buffer.from(response.payment_hash).toString("hex");
+
+		delete response.payment_preimage;
+		delete response.payment_hash;
+
+		console.log("SendPayment response: " + response + ", json: " + JSON.stringify(response, null, 4));
 
 		res.render("send-payment");
 

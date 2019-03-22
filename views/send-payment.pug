@@ -59,6 +59,70 @@ block content
 
 	else
 
+		if (payInvoiceResponse)
+			if (payInvoiceResponse.payment_error != "")
+				div.alert.alert-danger
+					h3.h5 Failed to Pay Invoice
+
+					span Error: #{payInvoiceResponse.payment_error}
+
+					span Details
+					pre
+						code.json #{JSON.stringify(payInvoiceResponse, null, 4)}
+			else
+				div.alert.alert-success
+					h3.h5 Payment Sent
+
+					- var dest_pubkey = payInvoiceResponse.payment_route.hops[payInvoiceResponse.payment_route.hops.length - 1].pub_key;
+					span Your payment of 
+					span.font-weight-bold #{parseInt(payInvoiceResponse.payment_route.total_amt).toLocaleString()} sat 
+					span was sent to 
+					span.font-weight-bold #{dest_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
+					span  in 
+					span.font-weight-bold #{parseInt(payInvoiceResponse.payment_route.hops.length).toLocaleString()} hops
+					span . You paid 
+					span.font-weight-bold #{parseInt(payInvoiceResponse.payment_route.total_fees_msat).toLocaleString()} msat 
+					span in fees.
+
+					div.clearfix.mt-2.text-monospace
+						div.float-left.mr-2
+							div.card
+								div.card-body
+									- var card_node_pubkey = lndRpc.internal_pubkey;
+									include includes/node-card.pug
+
+						div.float-left.mr-2.mt-4
+							i.fas.fa-arrow-right
+
+						each hop, hopIndex in payInvoiceResponse.payment_route.hops
+							if (hopIndex > 0)
+								div.float-left.mr-2.mt-4
+									i.fas.fa-arrow-right
+
+							div.float-left.mr-2
+								div.card.text-body
+									div.card-body
+										div.pb-3.mb-3.border-bottom
+											- var card_node_pubkey = hop.pub_key;
+											include includes/node-card.pug
+
+										div.mb-2
+											span.font-weight-bold Channel
+											br
+											a(href=`/channel/${hop.chan_id}`) #{hop.chan_id}
+
+										div
+											span.font-weight-bold Fees
+											br
+											if (parseInt(hop.fee_msat) > 0)
+												span.text-danger +#{hop.fee_msat} msat
+											else
+												span -
+
+					if (false)
+						pre
+							code.json #{JSON.stringify(payInvoiceResponse, null, 4)}
+
 		if (decodedInvoice)
 			div(class="card mb-3 shadow-sm")
 				div(class="card-header")
@@ -73,6 +137,12 @@ block content
 					div(class="tab-content")
 						div(id="tab-summary", class="tab-pane active", role="tabpanel")
 							div
+								div(class="row")
+									div(class="summary-table-label") Destination
+									div.summary-table-content.text-monospace
+										- var card_node_pubkey = decodedInvoice.destination;
+										include ./includes/node-card.pug
+
 								div(class="row")
 									div(class="summary-table-label") Description
 									div.summary-table-content.text-monospace
@@ -106,12 +176,7 @@ block content
 									div(class="summary-table-label") Expiration
 									div.summary-table-content.text-monospace
 										span(id="expiry-text") -
-
-								div(class="row")
-									div(class="summary-table-label") Destination
-									div.summary-table-content.text-monospace
-										- var card_node_pubkey = decodedInvoice.destination;
-										include ./includes/node-card.pug
+								
 
 						div(id="tab-json", class="tab-pane", role="tabpanel")
 							pre

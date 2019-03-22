@@ -19,16 +19,17 @@ if (node_card_include_wrapper)
 					include ./node-alias-display.pug
 
 else
-	div(class="float-left mr-2")
-		if (card_node)
-			- var node_pubkey = card_node.pubkey;
-			- var node_icon_size = "2.75em";
-			include ./node-icon.pug
+	div.clearfix
+		div.float-left.mr-2
+			if (card_node)
+				- var node_pubkey = card_node.pubkey;
+				- var node_icon_size = "2.75em";
+				include ./node-icon.pug
+					
+		div.float-left
+			if (card_node)
+				a(href=("/node/" + card_node.pubkey), title=card_node.pubkey, data-toggle="tooltip") #{card_node.pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
 				
-	div(class="float-left")
-		if (card_node)
-			a(href=("/node/" + card_node.pubkey), title=card_node.pubkey, data-toggle="tooltip") #{card_node.pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
-			
-			br
-			- var node_alias = card_node.alias;
-			include ./node-alias-display.pug
+				br
+				- var node_alias = card_node.alias;
+				include ./node-alias-display.pug
