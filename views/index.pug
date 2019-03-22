@@ -14,11 +14,13 @@ block content
 		if (config.demoSite && session.hideHomepageBanner != "true")
 			div(class="alert alert-primary alert-dismissible shadow-sm", role="alert")
 				p
-					strong LND Admin
+					span.font-weight-bold LND Admin
 					span  is 
-					a(href="https://github.com/janoside/lnd-admin", target="_blank") open-source
-					span  and easy to set up. It communicates with your LND node via gRPC. See the 
-					a(href="https://github.com/janoside/lnd-admin", target="_blank") project description
+					a(href="https://github.com/janoside/lnd-admin" target="_blank") open-source
+					span  and easy to set up. It communicates with your 
+					a(href="https://github.com/lightningnetwork/lnd" target="_blank") LND
+					span  node via gRPC. See the 
+					a(href="https://github.com/janoside/lnd-admin" target="_blank") project description
 					span  for a list of features and instructions for running.
 
 				if (global.sourcecodeProjectMetadata)
