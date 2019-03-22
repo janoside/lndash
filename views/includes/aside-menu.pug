@@ -81,6 +81,16 @@ aside.aside-menu.p-3.bg-main
 										- var versionParts = lndConn.internal_version.split(" ");
 										span.text-monospace.word-wrap #{versionParts[0]}
 
+	hr
+
+	h5.h5 Status
+
+	div.mb-3
+		h5.h6 App Version
+		a(href=`https://github.com/janoside/lnd-admin/commit/${sourcecodeVersion}`) ##{sourcecodeVersion.substring(0, 16)}
+		br
+		span.text-muted #{sourcecodeDate}
+
 	if (false)
 		ul.nav.nav-tabs(role='tablist')
 			li.nav-item
