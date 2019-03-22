@@ -168,32 +168,32 @@ function refreshLocalChannels() {
 	return new Promise(function(resolve_1, reject_1) {
 		lndRpc.ListChannels({}, function(err, listChannelsResponse) {
 			if (err) {
-				utils.logError("Error 23179egwqeufgsd: ", err);
+				utils.logError("23179egwqeufgsd: ", err);
 			}
 
 			if (listChannelsResponse == null) {
-				utils.logError("Error 76dfhg12328: null listChannels response");
+				utils.logError("76dfhg12328: null listChannels response");
 
 				resolve_1();
 
 				return;
 			}
 
-			var localChannelsById = {};
-			var localChannelsByTxid = {};
+			var byId = {};
+			var byTxid = {};
 
 			listChannelsResponse.channels.forEach(function(channel) {
-				localChannelsById[channel.chan_id] = channel;
+				byId[channel.chan_id] = channel;
 
 				if (channel.channel_point != null) {
-					localChannelsByTxid[channel.channel_point.substring(0, channel.channel_point.indexOf(":"))] = channel;
+					byTxid[channel.channel_point.substring(0, channel.channel_point.indexOf(":"))] = channel;
 				}
 			});
 
 			localChannels = {};
 			localChannels.channels = listChannelsResponse.channels;
-			localChannels.byId = localChannelsById;
-			localChannels.byTxid = localChannelsByTxid;
+			localChannels.byId = byId;
+			localChannels.byTxid = byTxid;
 
 			console.log("Finished refreshing local channels; elapsed time: " + (new Date().getTime() - startTime.getTime()));
 
