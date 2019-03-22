@@ -262,6 +262,8 @@ function connectViaRpc(rpcConfig, index) {
 app.use(function(req, res, next) {
 	// make session available in templates
 	res.locals.session = req.session;
+
+	req.session.loginRedirect = req.headers.referer;
 	
 	if (config.credentials.rpc) {
 		req.session.host = config.credentials.rpc.host;
