@@ -15,6 +15,21 @@ tr(class="text-monospace word-wrap")
 		include ./node-card.pug
 
 	td.text-right
+		- var currencyValue = new Decimal(channel.total_satoshis_received).dividedBy(100000000);
+		if (currencyValue > 0)
+			span.text-success
+				span +
+				include ./value-display.pug
+
+			br
+
+		- currencyValue = new Decimal(channel.total_satoshis_sent).dividedBy(100000000);
+		if (currencyValue > 0)
+			span.text-danger
+				span -
+				include ./value-display.pug
+
+	td.text-right
 		- var currencyValue = new Decimal(channel.local_balance).dividedBy(100000000);
 		include ./value-display.pug
 
