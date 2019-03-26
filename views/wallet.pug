@@ -19,40 +19,193 @@ block content
 
 	else
 
-		div.card.shadow-sm.mb-3
+		div.row
+			div.col-md-6
+				div.card.shadow-sm.mb-3
+					div.card-header
+						h2.h6.mb-0 Wallet Summary
+					div.card-body
+						div.row
+							div(class="summary-split-table-label") Balance
+							div.summary-split-table-content.text-monospace
+								- var currencyValue = new Decimal(walletBalance.confirmed_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+								include includes/value-display.pug
+
+								if (walletBalance.unconfirmed_balance > 0)
+									br
+									span.text-muted (+
+										- var currencyValue = new Decimal(walletBalance.unconfirmed_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+										include includes/value-display.pug
+										span  unconfirmed)
+
+						if (false)
+							div.row
+								div(class="summary-split-table-label") Active Channel Balance
+								div.summary-split-table-content.text-monospace
+									- var currencyValue = new Decimal(channelBalance.balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+									include includes/value-display.pug
+
+							div.row
+								div(class="summary-split-table-label") Pending Channel Balance
+								div.summary-split-table-content.text-monospace
+									- var currencyValue = new Decimal(channelBalance.pending_open_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+									include includes/value-display.pug
+
+			div.col-md-6
+				div.card.shadow-sm.mb-3
+					div.card-header
+						h2.h6.mb-0 Send to LND Wallet
+					div.card-body
+						a.btn.btn-primary.mr-2.mb-2.mb-sm-0(href="javascript:void(0)") New Deposit Address (p2wkh)
+						a.btn.btn-primary.mr-2(href="javascript:void(0)") New Deposit Address (np2wkh)
+
+		- var unconfirmedTxCount = 0;
+		each tx, index in onChainTransactions.transactions
+			if (tx.num_confirmations == 0)
+				- unconfirmedTxCount++;
+
+		- var confirmedTxCount = (onChainTransactions.transactions.length - unconfirmedTxCount);
+
+
+
+		div.card
 			div.card-header
-				h2.h6.mb-0 Wallet Summary
+				h3.h6.mb-0 Transactions
+
 			div.card-body
-				div.row
-					div(class="summary-split-table-label") Confirmed, On-Chain Balance
-					div.summary-split-table-content.text-monospace
-						- var currencyValue = new Decimal(walletBalance.confirmed_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-						include includes/value-display.pug
+				if (unconfirmedTxCount > 0)
+					div(class="mb-4")
+						h1.h3 #{unconfirmedTxCount.toLocaleString()} 
+							if (unconfirmedTxCount == 1)
+								span Unconfirmed Transaction
+							else
+								span Unconfirmed Transactions
 
-				div.row
-					div(class="summary-split-table-label") Pending, On-Chain Balance
-					div.summary-split-table-content.text-monospace
-						- var currencyValue = new Decimal(walletBalance.unconfirmed_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-						include includes/value-display.pug
+						hr
 
-				div.row
-					div(class="summary-split-table-label") Active Channel Balance
-					div.summary-split-table-content.text-monospace
-						- var currencyValue = new Decimal(channelBalance.balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-						include includes/value-display.pug
+						div(class="table-responsive")
+							table(class="table")
+								thead.bg-light
+									tr
+										th #
+										th Txid
+										th Amount
+								
+								tbody.text-monospace
+									each tx, index in onChainTransactions.transactions
+										if (tx.num_confirmations == 0)
+											tr
+												td.font-weight-bold #{(index + 1).toLocaleString()}
+												td(class="table-col-text")
+													if (config.blockExplorerUrl)
+														a(href=(config.blockExplorerUrl + "/tx/" + tx.tx_hash), title=tx.tx_hash, data-toggle="tooltip") #{tx.tx_hash.substring(0, config.site.txidMaxDisplayLength)}
+													else
+														span(title=tx.tx_hash, data-toggle="tooltip") #{tx.tx_hash.substring(0, config.site.txidMaxDisplayLength)}
 
-				div.row
-					div(class="summary-split-table-label") Pending Channel Balance
-					div.summary-split-table-content.text-monospace
-						- var currencyValue = new Decimal(channelBalance.pending_open_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-						include includes/value-display.pug
+												td(class="table-col-currencyvalue")
+													- var currencyValue = new Decimal(Math.abs(parseInt(tx.amount))).dividedBy(100000000);
+													if (parseInt(tx.amount) > 0)
+														div(class="text-success")
+															span +
+															include ./includes/value-display.pug
+													else
+														div(class="text-danger")
+															span -
+															include ./includes/value-display.pug
 
-		div.card.shadow-sm.mb-3
-			div.card-header
-				h2.h6.mb-0 Tools
-			div.card-body
-				a.btn.btn-primary.mr-2.mb-2.mb-sm-0(href="javascript:void(0)") New Deposit Address (p2wkh)
-				a.btn.btn-primary.mr-2(href="javascript:void(0)") New Deposit Address (np2wkh)
+				div
+					h1.h3 #{confirmedTxCount.toLocaleString()} 
+						if (unconfirmedTxCount > 0)
+							span Confirmed 
+
+						if (unconfirmedTxCount == 1)
+							span Transaction
+						else
+							span Transactions
+
+					hr
+
+					div(class="table-responsive")
+						table(class="table")
+							thead.bg-light
+								tr
+									th.text-right #
+									th Txid
+									th Addresses
+									th
+										span.border-dotted(title="If applicable, show the channel opened with the transaction.", data-toggle="tooltip") Channel Opened
+									th.text-right
+										span Block /
+										br
+										span Confirmations
+									th Date
+									th.text-right Amount
+							
+							tbody.text-monospace
+								- onChainTransactions.transactions.reverse();
+								each tx, index in onChainTransactions.transactions
+									if (tx.num_confirmations > 0)
+										tr
+											td.text-right.font-weight-bold #{(index + 1).toLocaleString()}
+											td(class="table-col-text")
+												if (config.blockExplorerUrl)
+													a(href=(config.blockExplorerUrl + "/tx/" + tx.tx_hash), target="_blank", title=tx.tx_hash, data-toggle="tooltip") #{tx.tx_hash.substring(0, config.site.txidMaxDisplayLength)}
+												else
+													span(title=tx.tx_hash, data-toggle="tooltip") #{tx.tx_hash.substring(0, config.site.txidMaxDisplayLength)}
+
+											td(class="table-col-text")
+												if (config.blockExplorerUrl)
+													each addr, index in tx.dest_addresses
+														a(href=(config.blockExplorerUrl + "/address/" + addr), target="_blank", title=addr, data-toggle="tooltip") #{addr.substring(0, config.site.addressMaxDisplayLength)}
+														br
+												else
+													each addr, index in tx.dest_addresses
+														span(title=addr, data-toggle="tooltip") #{addr.substring(0, config.site.addressMaxDisplayLength)}
+														br
+
+											td
+												if (localChannels.byTxid[tx.tx_hash] != null)
+													a(href=`/channel/${localChannels.byTxid[tx.tx_hash].chan_id}`) #{localChannels.byTxid[tx.tx_hash].chan_id}
+
+												else if (closedChannels.byTxid[tx.tx_hash] != null)
+													span #{closedChannels.byTxid[tx.tx_hash].chan_id}
+													br
+													span.text-muted (closed)
+
+												else
+													span -
+
+											td(class="table-col-int text-right")
+												if (config.blockExplorerUrl)
+													a(href=(config.blockExplorerUrl + "/block-height/" + tx.block_height), target="_blank") #{parseInt(tx.block_height).toLocaleString()}
+												else
+													span(title=tx.tx_hash, data-toggle="tooltip") #{parseInt(tx.block_height).toLocaleString()}
+
+												br
+												span #{tx.num_confirmations.toLocaleString()}
+
+											td(class="table-col-time")
+												- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(tx.time_stamp) * 1000))));
+												- var dateTimeUtc = moment.utc(new Date(parseInt(tx.time_stamp) * 1000)).format("Y-MM-DD HH:mm:ss");
+
+												span #{dateTimeUtc} utc
+												br
+												span.text-muted #{timeAgo.humanize()} ago
+
+											td(class="table-col-currencyvalue text-right")
+												- var currencyValue = new Decimal(Math.abs(parseInt(tx.amount))).dividedBy(100000000);
+												if (parseInt(tx.amount) > 0)
+													div(class="text-success")
+														span +
+														include ./includes/value-display.pug
+												else if (parseInt(tx.amount) < 0)
+													div(class="text-danger")
+														span -
+														include ./includes/value-display.pug
+												else
+													span -
+
+
 
 		if (false)
 			pre
