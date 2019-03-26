@@ -40,7 +40,7 @@ block content
 							th Node
 							th Address
 
-							th.text-right Value Transfer (received / sent)
+							th.text-right Value Transfer
 							th.text-right Data Transfer
 							
 							th.text-center Inbound?
@@ -60,14 +60,19 @@ block content
 									if (item.sat_recv == 0 && item.sat_sent == 0)
 										span -
 									else
-										
-										span #{parseInt(item.sat_recv).toLocaleString()} sat
-										i.fas.fa-sign-in-alt.ml-2
+										- var currencyValue = new Decimal(item.sat_recv).dividedBy(100000000);
+										if (currencyValue > 0)
+											span.text-success
+												span +
+												include includes/value-display.pug
 
-										br
+											br
 
-										span #{parseInt(item.sat_sent).toLocaleString()} sat
-										i.fas.fa-sign-out-alt.ml-2
+										- currencyValue = new Decimal(item.sat_sent).dividedBy(100000000);
+										if (currencyValue > 0)
+											span.text-danger
+												span -
+												include includes/value-display.pug
 								
 								
 								- var bytesSentData = utils.formatLargeNumber(item.bytes_sent, 1);

@@ -1,4 +1,5 @@
 body {
+	font-size: 14px;
 }
 
 hr {
@@ -51,6 +52,10 @@ table.dataTable {
 
 .border-dashed {
 	border-bottom: 1px dashed #999;
+}
+
+.border-dotted {
+	border-bottom: 1px dotted #777;
 }
 
 /*.app-body .sidebar {

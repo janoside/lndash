@@ -62,6 +62,5 @@ tr(class="text-monospace word-wrap")
 		- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(lastUpdateTime) * 1000))));
 		- var dateTimeUtc = moment.utc(new Date(parseInt(lastUpdateTime) * 1000)).format("Y-MM-DD HH:mm:ss");
 
-		span #{timeAgo.humanize()}
-		br
-		span.text-muted #{dateTimeUtc} utc
+		span.mr-2 #{timeAgo.humanize()}
+		i.far.fa-clock(data-toggle="tooltip", title=`${dateTimeUtc} utc`)

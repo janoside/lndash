@@ -156,9 +156,7 @@ block content
 										span(class="text-danger") Unsettled
 
 								td(class="table-col-currencyvalue text-right")
-									span #{parseInt(invoice.value).toLocaleString()} sat
-									br
-									span.text-muted
+									span
 										- var currencyValue = new Decimal(invoice.value).dividedBy(100000000);
 										include ./includes/value-display.pug
 

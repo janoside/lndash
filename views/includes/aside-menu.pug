@@ -68,16 +68,16 @@ aside.aside-menu.p-3.bg-main
 										if (lndConn == lndRpc)
 											i.fas.fa-check.text-success.ml-2
 										br
-										span.font-weight-bold Alias
-										br
+										//span.font-weight-bold Alias
+										//br
 										span.text-monospace #{lndConn.internal_alias}
 										br
-										span.font-weight-bold Address
-										br
+										//span.font-weight-bold Address
+										//br
 										span.text-monospace #{addrs}
 										br
-										span.font-weight-bold Version
-										br
+										//span.font-weight-bold Version
+										//br
 										- var versionParts = lndConn.internal_version.split(" ");
 										span.text-monospace.word-wrap #{versionParts[0]}
 
