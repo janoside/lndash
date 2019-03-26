@@ -969,7 +969,7 @@ router.get("/openchannel", function(req, res) {
 	res.render("openchannel");
 });
 
-router.get("/zapconnect", function(req, res) {
+router.get("/lndconnect", function(req, res) {
 	/*var fs = require('fs');
 
 	fs.open('file.txt', 'r', function(status, fd) {
@@ -986,14 +986,14 @@ router.get("/zapconnect", function(req, res) {
 	utils.buildQrCodeUrls(qrcodeStrings).then(function(qrcodeUrls) {
 		res.locals.qrcodeUrls = qrcodeUrls;
 
-		res.render("zapconnect");
+		res.render("lndconnect");
 
 	}).catch(function(err) {
 		utils.logError("3e0ufhdhfsdss", err);
 		
-		res.render("zapconnect");
+		res.render("lndconnect");
 	});*/
-	res.render("zapconnect");
+	res.render("lndconnect");
 });
 
 module.exports = router;
