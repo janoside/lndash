@@ -1,48 +1,69 @@
-extends layout
+extends layout4
 
 block headContent
 	title Search - #{query}
+
+block breadcrumb
+	li.breadcrumb-item
+		a(href='/') Home
+	li.breadcrumb-item
+		a(href='/search') Search
+	li.breadcrumb-item.active #{query}
 	
 block content
 
-	h1(class="h2") Search
-		small : #{query}
+	h1.h2 Search
 	hr
 
-	
-	- var noNodes = true;
-	if (searchResults && searchResults.nodes && searchResults.nodes.length > 0)
-		- noNodes = false;
+	form.mb-4(method="get")
+		div.input-group
+			div.input-group-prepend
+				label.input-group-text(for="query")
+					i.fas.fa-search
 
-		nav.navbar.navbar-expand-lg.navbar-light.mb-0.header-nav
-			span.navbar-brand
-				span Found #{searchResults.nodes.length.toLocaleString()} 
-				if (searchResults.nodes.length == 1)
-					span Node
-				else
-					span Nodes
-
-		- var nodeInfos = searchResults.nodes;
-		- var nodeTableIndexOffset = 0;
-		include includes/node-table.pug
-		
+			input.form-control.form-control-lg(id="query" type="text" name="query" value=query placeholder="public key, channel id, alias, color, or address")
+			
+			div.input-group-append
+				button.btn.btn-primary.btn-lg(type="submit")
+					span Search
 
 
-	- var noChannels = true;
-	if (searchResults && searchResults.channels && searchResults.channels.length > 0)
-		- noChannels = false;
+	if (query)
+		- var noNodes = true;
+		if (searchResults && searchResults.nodes && searchResults.nodes.length > 0)
+			- noNodes = false;
 
-		nav.navbar.navbar-expand-lg.navbar-light.mb-0.header-nav
-			span.navbar-brand
-				span Found #{searchResults.channels.length.toLocaleString()} 
-				if (searchResults.channels.length == 1)
-					span Channel
-				else
-					span Channels
+			div.mb-4
+				h4.h5
+					span Found #{searchResults.nodes.length.toLocaleString()} 
+					if (searchResults.nodes.length == 1)
+						span Node
+					else
+						span Nodes
+				hr
 
-		- var channels = searchResults.channels;
-		- var channelTableIndexOffset = 0;
-		include includes/channel-table.pug
+				- var nodeInfos = searchResults.nodes;
+				- var nodeTableIndexOffset = 0;
+				include includes/node-table.pug
+			
 
-	if (noNodes && noChannels)
-		div(class="alert alert-warning shadow-sm") No results found for query: #{query}
+
+		- var noChannels = true;
+		if (searchResults && searchResults.channels && searchResults.channels.length > 0)
+			- noChannels = false;
+
+			div.mb-4
+				h4.h5
+					span Found #{searchResults.channels.length.toLocaleString()} 
+					if (searchResults.channels.length == 1)
+						span Channel
+					else
+						span Channels
+				hr
+
+				- var channels = searchResults.channels;
+				- var channelTableIndexOffset = 0;
+				include includes/channel-table.pug
+
+		if (noNodes && noChannels)
+			div.alert.alert-warning.shadow-sm No results found for query: #{query}

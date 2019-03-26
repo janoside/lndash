@@ -630,9 +630,7 @@ router.get("/local-channels", function(req, res) {
 
 router.get("/search", function(req, res) {
 	if (!req.query.query) {
-		req.session.userMessage = "Enter a public key, alias, address, or channel id.";
-
-		res.redirect("/");
+		res.render("search");
 
 		return;
 	}
