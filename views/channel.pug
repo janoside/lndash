@@ -96,13 +96,13 @@ block content
 									if (localChannel.total_satoshis_received == 0 && localChannel.total_satoshis_sent == 0)
 										span -
 									else
-										span.text-success
-											- var currencyValue = new Decimal(localChannel.total_satoshis_received).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-											if (currencyValue > 0)
+										- var currencyValue = new Decimal(localChannel.total_satoshis_received).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+										if (currencyValue > 0)
+											span.text-success
 												span +
 												include includes/value-display.pug
 
-										br
+											br
 
 										span.text-danger
 											- var currencyValue = new Decimal(localChannel.total_satoshis_sent).dividedBy(coinConfig.baseCurrencyUnit.multiplier);

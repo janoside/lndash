@@ -2,7 +2,9 @@ tr(class="text-monospace word-wrap")
 	td.font-weight-bold #{channelTableIndex.toLocaleString()}
 
 	td(class="table-col-channelid")
-		a(href=("/channel/" + channel.channel_id)) #{channel.channel_id}
+		a(href=("/channel/" + channel.channel_id))
+			- var channel_id = channel.channel_id;
+			include ./channel-id.pug
 
 	td
 		- var card_node_pubkey = channel.node1_pub;

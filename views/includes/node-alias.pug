@@ -1,0 +1,25 @@
+- var cutoffs = [8, 12];
+
+if (node_alias.length > 0)
+	if (node_alias.length > cutoffs[0])
+		if (node_alias.length > cutoffs[1])
+			if (node_alias.length > config.site.aliasMaxDisplayLength)
+				span.mr-1
+					span #{node_alias.substring(0, cutoffs[0])}
+					span.d-none.d-lg-inline #{node_alias.substring(cutoffs[0], cutoffs[1])}
+					span.d-none.d-xl-inline #{node_alias.substring(cutoffs[1], config.site.aliasMaxDisplayLength)}
+
+				i.fas.fa-ellipsis-h(title=node_alias, data-toggle="tooltip")
+
+			else
+				span #{node_alias.substring(0, cutoffs[0])}
+				span.d-none.d-lg-inline #{node_alias.substring(cutoffs[0], cutoffs[1])}
+				span.d-none.d-xl-inline #{node_alias.substring(cutoffs[1])}
+		else
+			span #{node_alias.substring(0, cutoffs[0])}
+			span.d-none.d-lg-inline #{node_alias.substring(cutoffs[0])}
+	else
+		span #{node_alias}
+	
+else
+	span -

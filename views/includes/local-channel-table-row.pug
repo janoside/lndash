@@ -1,8 +1,10 @@
 tr(class="text-monospace word-wrap")
 	td.font-weight-bold #{(channel_index + 1).toLocaleString()}
 	td(class="table-col-channelid")
-		a(href=("/channel/" + channel.chan_id)) #{channel.chan_id}
-
+		a(href=("/channel/" + channel.chan_id))
+			- var channel_id = channel.chan_id;
+			include ./channel-id.pug
+			
 	td.text-center.align-middle
 		if (channel.initiator)
 			i(class="fas fa-check text-success")

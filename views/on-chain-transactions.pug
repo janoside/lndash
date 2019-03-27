@@ -124,7 +124,9 @@ block content
 
 									td
 										if (localChannels.byTxid[tx.tx_hash] != null)
-											a(href=`/channel/${localChannels.byTxid[tx.tx_hash].chan_id}`) #{localChannels.byTxid[tx.tx_hash].chan_id}
+											a(href=`/channel/${localChannels.byTxid[tx.tx_hash].chan_id}`)
+												- var channel_id = localChannels.byTxid[tx.tx_hash].chan_id;
+												include includes/channel-id.pug
 
 										else if (closedChannels.byTxid[tx.tx_hash] != null)
 											span #{closedChannels.byTxid[tx.tx_hash].chan_id}

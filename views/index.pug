@@ -68,7 +68,9 @@ block content
 								tr
 									th.text-right Public Key
 									td.monospace
-										a(href=("/node/" + getInfo.identity_pubkey), data-toggle="tooltip", title=getInfo.identity_pubkey) #{getInfo.identity_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
+										a(href=("/node/" + getInfo.identity_pubkey), data-toggle="tooltip", title=getInfo.identity_pubkey)
+											- var node_pubkey = getInfo.identity_pubkey;
+											include includes/node-pubkey.pug
 
 								tr
 									th.text-right Alias

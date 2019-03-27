@@ -19,14 +19,15 @@ block content
 
 	else
 
-		div.row
+		div.row.mb-3
 			div.col-md-6
 				div.card.shadow-sm.mb-3
 					div.card-header
 						h2.h6.mb-0 Wallet Summary
 					div.card-body
 						div.row
-							div(class="summary-split-table-label") Balance
+							div(class="summary-split-table-label")
+								span.border-dotted(data-toggle="tooltip" title="The value in your wallet that's not currently committed to any payment channels.") Balance
 							div.summary-split-table-content.text-monospace
 								- var currencyValue = new Decimal(walletBalance.confirmed_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 								include includes/value-display.pug
@@ -68,14 +69,16 @@ block content
 
 
 
-		div.card
+		div.card.shadow-sm
 			div.card-header
-				h3.h6.mb-0 Transactions
+				h3.h6.mb-0 #{confirmedTxCount.toLocaleString()} Transactions
+					if (unconfirmedTxCount > 0)
+						span.text-muted  (+#{unconfirmedTxCount.toLocaleString()} unconfirmed)
 
 			div.card-body
 				if (unconfirmedTxCount > 0)
 					div(class="mb-4")
-						h1.h3 #{unconfirmedTxCount.toLocaleString()} 
+						h1.h6 #{unconfirmedTxCount.toLocaleString()} 
 							if (unconfirmedTxCount == 1)
 								span Unconfirmed Transaction
 							else
@@ -114,17 +117,6 @@ block content
 															include ./includes/value-display.pug
 
 				div
-					h1.h3 #{confirmedTxCount.toLocaleString()} 
-						if (unconfirmedTxCount > 0)
-							span Confirmed 
-
-						if (unconfirmedTxCount == 1)
-							span Transaction
-						else
-							span Transactions
-
-					hr
-
 					div(class="table-responsive")
 						table(class="table")
 							thead.bg-light

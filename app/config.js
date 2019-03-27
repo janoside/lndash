@@ -40,8 +40,8 @@ module.exports = {
 
 	site: {
 		pubkeyMaxDisplayLength: 22,
-		aliasMaxDisplayLength: 25,
-		addressMaxDisplayLength: 25,
+		aliasMaxDisplayLength: 22,
+		addressMaxDisplayLength: 22,
 		txidMaxDisplayLength: 22,
 
 		pageSizes:{
