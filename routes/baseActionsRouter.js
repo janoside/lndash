@@ -828,8 +828,107 @@ router.get("/disconnectPeer", function(req, res) {
 });
 
 router.get("/payment-history", function(req, res) {
+	var limit = config.site.pageSizes.invoices;
+	var offset = 0;
+	var sort = "date-desc";
+	var date = "all";
+	
+	if (req.query.limit) {
+		limit = parseInt(req.query.limit);
+	}
+
+	if (req.query.offset) {
+		offset = parseInt(req.query.offset);
+	}
+
+	if (req.query.sort) {
+		sort = req.query.sort;
+	}
+
+	if (req.query.date) {
+		date = req.query.date.toLowerCase();
+	}
+
+	res.locals.limit = limit;
+	res.locals.offset = offset;
+	res.locals.sort = sort;
+	res.locals.date = date;
+	res.locals.paginationBaseUrl = `/payment-history?sort=${sort}&date=${date}`;
+
 	rpcApi.listPayments().then(function(listPaymentsResponse) {
-		res.locals.payments = listPaymentsResponse;
+		var allPayments = listPaymentsResponse.payments;
+
+		var allFilteredPayments = [];
+
+		var predicates = [
+			// date
+			function(payment) {
+				if (date == "all") {
+					return true;
+				}
+
+				var creation_date = parseInt(payment.creation_date);
+				var cutoffs = {"60-min":60*60, "24-hr":60*60*24, "7-day":60*60*24*7, "30-day":60*60*24*30};
+
+				return creation_date >= (new Date().getTime() / 1000 - cutoffs[date]);
+			},
+		];
+
+		for (var i = 0; i < allPayments.length; i++) {
+			var payment = allPayments[i];
+
+			var excluded = false;
+			for (var j = 0; j < predicates.length; j++) {
+				if (!predicates[j](payment)) {
+					excluded = true;
+
+					break;
+				}
+			}
+
+			if (!excluded) {
+				allFilteredPayments.push(payment);
+			}
+		}
+
+		allFilteredPayments.sort(function(a, b) {
+			if (sort == "date-desc") {
+				return parseInt(b.creation_date) - parseInt(a.creation_date);
+
+			} else if (sort == "date-asc") {
+				return parseInt(a.creation_date) - parseInt(b.creation_date);
+
+			} else if (sort == "value-desc") {
+				var diff = parseInt(b.value_msat) - parseInt(a.value_msat);
+
+				if (diff == 0) {
+					return parseInt(b.creation_date) - parseInt(a.creation_date);
+
+				} else {
+					return diff;
+				}
+			} else if (sort == "dest-asc") {
+				if (a.path[a.path.length - 1] == b.path[b.path.length - 1]) {
+					return parseInt(b.creation_date) - parseInt(a.creation_date);
+
+				} else {
+					return (a.path[a.path.length - 1] > b.path[b.path.length - 1]) ? 1 : -1;
+				}
+			} else {
+				return parseInt(b.creation_date) - parseInt(a.creation_date);
+			}
+		});
+
+		var pagedFilteredPayments = [];
+		for (var i = offset; i < Math.min(offset + limit, allFilteredPayments.length); i++) {
+			pagedFilteredPayments.push(allFilteredPayments[i]);
+		}
+		
+		res.locals.listPaymentsResponse = listPaymentsResponse;
+
+		res.locals.allPayments = listPaymentsResponse.payments;
+		res.locals.allFilteredPayments = allFilteredPayments;
+		res.locals.pagedFilteredPayments = pagedFilteredPayments;
 
 		res.render("payment-history");
 
@@ -966,7 +1065,6 @@ router.get("/invoices", function(req, res) {
 	}
 
 	if (req.query.settled) {
-		console.log("got it: " + req.query.settled);
 		settled = req.query.settled.toLowerCase();
 	}
 
@@ -1017,7 +1115,7 @@ router.get("/invoices", function(req, res) {
 				}
 
 				var creation_date = parseInt(inv.creation_date);
-				var cutoffs = {"60-mins":60*60, "24-hrs":60*60*24, "7-days":60*60*24*7, "30-days":60*60*24*30};
+				var cutoffs = {"60-min":60*60, "24-hr":60*60*24, "7-day":60*60*24*7, "30-day":60*60*24*30};
 
 				//console.log("ct: " + created + " - " + cutoffs[created] + " - " + creation_date + " - " + (new Date().getTime() / 1000 + cutoffs[created]) + " - " + new Date().getTime() / 1000);
 
@@ -1055,10 +1153,13 @@ router.get("/invoices", function(req, res) {
 		}
 
 		res.locals.invoices = invoices;
-		res.locals.filteredInvoices = pagedFilteredInvoices;
+		
 		res.locals.filteredCount = filteredCount;
+
 		res.locals.allInvoices = invoicesResponse.invoices;
 		res.locals.allFilteredInvoices = filteredInvoices;
+		res.locals.pagedFilteredInvoices = pagedFilteredInvoices;
+
 		res.locals.invoiceCount = invoicesResponse.invoices.length;
 		
 		res.render("invoices");

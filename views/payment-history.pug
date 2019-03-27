@@ -20,60 +20,137 @@ block content
 
 	else
 
-		h1.h3 #{payments.payments.length.toLocaleString()} 
-			if (payments.payments.length == 1)
+		h1.h3 #{allPayments.length.toLocaleString()} 
+			if (allPayments.length == 1)
 				span Payment
 			else
 				span Payments
+
+			if (allFilteredPayments.length < allPayments.length)
+				small.text-muted  (showing #{allFilteredPayments.length.toLocaleString()})
 		hr
 
-		if (true)
-			div(class="table-responsive")
-				table(class="table table-bordered border-top")
-					thead.bg-light
-						tr
-							th #
-							th Destination
-							th Date
-							th Hash
+		div.card.mb-3.shadow-sm
+			div.card-body
+				div.clearfix
+					div.dropdown.mr-4.float-left
+						div Sort
+						button.btn.btn-primary.dropdown-toggle.mb-2.mb-lg-0(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+							span
+								if (sort == null || sort == "date-desc")
+									| Date, Newest first
+								else if (sort == "date-asc")
+									| Date, Oldest first
+								else if (sort == "value-desc")
+									| Value (highest first)
+								else if (sort == "dest-asc")
+									| Destination (by pubkey)
 
-							th(class="text-right") Hops
-							th(class="text-right") Fee
-							th(class="text-right") Value
+						div.dropdown-menu(aria-labelledby="dropdownMenuButton")
+							a.dropdown-item(href=`/payment-history?sort=date-desc&date=${date}`) Date, Newest first
+							a.dropdown-item(href=`/payment-history?sort=date-asc&date=${date}`) Date, Oldest first
+							a.dropdown-item(href=`/payment-history?sort=value-desc&date=${date}`) Value (highest first)
+							a.dropdown-item(href=`/payment-history?sort=dest-asc&date=${date}`) Destination (by pubkey)
+
+					div.mr-4.mb-2.mb-lg-0.float-left
+						div Time
+						- var createdFilterOptions = ["60 min", "24 hr", "7 day", "30 day", "All"];
+						div.btn-group.mr-2(role="group")
+							each opt in createdFilterOptions
+								if (date != null && date == opt.toLowerCase().replace(" ", "-"))
+									span.btn.btn-primary #{opt}
+								else
+									a.btn.btn-secondary.bg-light(href=`/payment-history?sort=${sort}&date=${opt.replace(" ", "-")}`) #{opt}
+
+				hr.my-3
+
+				div
+					if (allFilteredPayments.length > limit)
+						span Showing 
+						span.font-weight-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredPayments.length).toLocaleString()} 
+						span of 
+						span.font-weight-bold #{allFilteredPayments.length.toLocaleString()} 
+						if (allPayments.length > allFilteredPayments.length)
+							span filtered 
+						span payment
+						if (allFilteredPayments.length != 1)
+							span s
+
+					else if (allFilteredPayments.length > 0)
+						span Showing all 
+						span.font-weight-bold #{allFilteredPayments.length.toLocaleString()} 
+						if (allPayments.length > allFilteredPayments.length)
+							span filtered 
+						span payment
+						if (allFilteredPayments.length != 1)
+							span s
+
+					else
+						div.alert.alert-warning.shadow-sm.mb-0 No matching payments
+
+				- var itemCount = allFilteredPayments.length;
+				if (itemCount > limit)
+					- var pageNumber = offset / limit + 1;
+					- var pageCount = Math.floor(itemCount / limit);
+					- if (pageCount * limit < itemCount) {
+						- pageCount++;
+					- }
+					- var paginationUrlFunction = function(x) {
+						- return paginationBaseUrl + "&limit=" + limit + "&offset=" + ((x - 1) * limit);
+					- }
 					
-					tbody
-						each payment, index in payments.payments
-							tr.text-monospace.word-wrap
-								td #{(index + 1).toLocaleString()}
-								
-								if (false)
+					div.mt-2.mb-0
+						include includes/pagination.pug
+
+
+		if (true)
+			if (allFilteredPayments.length > 0)
+				div(class="table-responsive")
+					table(class="table table-bordered border-top")
+						thead.bg-light
+							tr
+								th.text-right #
+								th Destination
+								th Date
+								th Hash
+
+								th(class="text-right") Hops
+								th(class="text-right") Fee
+								th(class="text-right") Value
+						
+						tbody
+							each payment, index in pagedFilteredPayments
+								tr.text-monospace.word-wrap
+									th.text-right #{(index + 1).toLocaleString()}
+									
+									if (false)
+										td
+											span(title=payment.payment_preimage, data-toggle="tooltip") #{payment.payment_preimage.substring(0, 15)}
+
 									td
-										span(title=payment.payment_preimage, data-toggle="tooltip") #{payment.payment_preimage.substring(0, 15)}
+										- var destinationNodePubkey = payment.path[payment.path.length - 1];
+										- var destNode = fullNetworkDescription.nodeInfoByPubkey[destinationNodePubkey].node;
+										- var card_node_pubkey = destinationNodePubkey;
+										include ./includes/node-card.pug
 
-								td
-									- var destinationNodePubkey = payment.path[payment.path.length - 1];
-									- var destNode = fullNetworkDescription.nodeInfoByPubkey[destinationNodePubkey].node;
-									- var card_node_pubkey = destinationNodePubkey;
-									include ./includes/node-card.pug
+									td(class="table-col-time")
+										- var timestampTime = parseInt(payment.creation_date);
+										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timestampTime) * 1000))));
+										- var dateTimeUtc = moment.utc(new Date(parseInt(timestampTime) * 1000)).format("Y-MM-DD HH:mm:ss");
 
-								td(class="table-col-time")
-									- var timestampTime = parseInt(payment.creation_date);
-									- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timestampTime) * 1000))));
-									- var dateTimeUtc = moment.utc(new Date(parseInt(timestampTime) * 1000)).format("Y-MM-DD HH:mm:ss");
+										span #{timeAgo.format()} ago
+										br
+										span.text-muted #{dateTimeUtc} utc
 
-									span #{dateTimeUtc} utc
-									br
-									span.text-muted #{timeAgo.humanize()} ago
+									td
+										span.border-dotted(title=payment.payment_hash, data-toggle="tooltip") #{payment.payment_hash.substring(0, 15)}
 
-								td
-									span(title=payment.payment_hash, data-toggle="tooltip") #{payment.payment_hash.substring(0, 15)}
+									td(class="table-col-int text-right") #{payment.path.length.toLocaleString()}
 
-								td(class="table-col-int text-right") #{payment.path.length.toLocaleString()}
+									td(class="table-col-currencyvalue text-right")
+										- var currencyValue = new Decimal(payment.fee).dividedBy(100000000);
+										include ./includes/value-display.pug
 
-								td(class="table-col-currencyvalue text-right")
-									- var currencyValue = new Decimal(payment.fee).dividedBy(100000000);
-									include ./includes/value-display.pug
-
-								td(class="table-col-currencyvalue text-right")
-									- var currencyValue = new Decimal(payment.value_msat).dividedBy(100000000).dividedBy(1000);
-									include ./includes/value-display.pug
+									td(class="table-col-currencyvalue text-right")
+										- var currencyValue = new Decimal(payment.value_msat).dividedBy(100000000).dividedBy(1000);
+										include ./includes/value-display.pug

@@ -26,6 +26,9 @@ block content
 						span Invoice
 					else
 						span Invoices
+
+					if (allFilteredInvoices.length < allInvoices.length)
+						small.text-muted  (showing #{allFilteredInvoices.length.toLocaleString()})
 			div.col-md-6.text-right
 				a.btn.btn-primary.mr-2(href="/create-invoice")
 					i.fas.fa-asterisk.mr-2
@@ -79,15 +82,28 @@ block content
 				hr.my-3
 
 				div
-					span Showing 
-					span.font-weight-bold ##{(offset + 1).toLocaleString()} - #{(offset + limit).toLocaleString()} 
-					span of 
-					span.font-weight-bold #{allFilteredInvoices.length.toLocaleString()} 
-					if (allInvoices.length > allFilteredInvoices.length)
-						span filtered 
-					span invoice
-					if (filteredInvoices.length != 1)
-						span s
+					if (allFilteredInvoices.length > limit)
+						span Showing 
+						span.font-weight-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredInvoices.length).toLocaleString()} 
+						span of 
+						span.font-weight-bold #{allFilteredInvoices.length.toLocaleString()} 
+						if (allInvoices.length > allFilteredInvoices.length)
+							span filtered 
+						span invoice
+						if (allFilteredInvoices.length != 1)
+							span s
+
+					else if (allFilteredInvoices.length > 0)
+						span Showing all 
+						span.font-weight-bold #{allFilteredInvoices.length.toLocaleString()} 
+						if (allInvoices.length > allFilteredInvoices.length)
+							span filtered 
+
+						span invoice
+						if (allFilteredInvoices.length > 1)
+							span s
+					else
+						div.alert.alert-warning.shadow-sm.mb-0 No matching invoices
 
 				- var itemCount = allFilteredInvoices.length;
 				if (itemCount > limit)
@@ -104,80 +120,81 @@ block content
 						include includes/pagination.pug
 
 		if (true)
-			each invoice, invoice_index in filteredInvoices
-				div(class="modal fade" id=("invoiceModal-" + invoice_index) role="dialog" xaria-labelledby="exampleModalLabel" aria-hidden="true")
-					div(class="modal-dialog modal-xl" role="document")
-						div(class="modal-content")
-							div(class="modal-header")
-								h5.modal-title(id="exampleModalLabel") Invoice ##{invoice_index}
-								button(type="button" class="close" data-dismiss="modal" aria-label="Close")
-									span(aria-hidden="true") &times;
+			if (allFilteredInvoices.length > 0)
+				each invoice, invoice_index in pagedFilteredInvoices
+					div(class="modal fade" id=("invoiceModal-" + invoice_index) role="dialog" xaria-labelledby="exampleModalLabel" aria-hidden="true")
+						div(class="modal-dialog modal-xl" role="document")
+							div(class="modal-content")
+								div(class="modal-header")
+									h5.modal-title(id="exampleModalLabel") Invoice ##{invoice_index}
+									button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+										span(aria-hidden="true") &times;
 
-							div(class="modal-body")
-								- var jsonX = allInvoices[invoice_index];
-								- jsonX.r_preimage_base64 = Buffer.from(jsonX.r_preimage).toString("base64");
-								- jsonX.r_preimage_hex = Buffer.from(jsonX.r_preimage).toString("hex");
-								- jsonX.r_hash_base64 = Buffer.from(jsonX.r_hash).toString("base64");
-								- jsonX.r_hash_hex = Buffer.from(jsonX.r_hash).toString("hex");
+								div(class="modal-body")
+									- var jsonX = allInvoices[invoice_index];
+									- jsonX.r_preimage_base64 = Buffer.from(jsonX.r_preimage).toString("base64");
+									- jsonX.r_preimage_hex = Buffer.from(jsonX.r_preimage).toString("hex");
+									- jsonX.r_hash_base64 = Buffer.from(jsonX.r_hash).toString("base64");
+									- jsonX.r_hash_hex = Buffer.from(jsonX.r_hash).toString("hex");
 
-								- delete jsonX.r_preimage;
-								- delete jsonX.r_hash;
+									- delete jsonX.r_preimage;
+									- delete jsonX.r_hash;
 
-								pre
-									code(class="json") #{JSON.stringify(jsonX, null, 4)}
+									pre
+										code(class="json") #{JSON.stringify(jsonX, null, 4)}
 
-							div(class="modal-footer")
-								button(type="button" class="btn btn-secondary" data-dismiss="modal") Close
+								div(class="modal-footer")
+									button(type="button" class="btn btn-secondary" data-dismiss="modal") Close
 
-			div(class="table-responsive")
-				table(class="table table-bordered border-top")
-					thead.bg-light
-						tr
-							th #
-							th Memo
-							th Created
-							th Settled
-							th(class="text-right") Value
-							th Details
-					
-					tbody
-						each invoice, invoice_index in filteredInvoices
-							tr.text-monospace.word-wrap
-								td.font-weight-bold #{(sort == "desc" ? (invoiceCount - invoice_index) : (offset + invoice_index + 1)).toLocaleString()}
+				div(class="table-responsive")
+					table(class="table table-bordered border-top")
+						thead.bg-light
+							tr
+								th.text-right #
+								th Memo
+								th Created
+								th Settled
+								th(class="text-right") Value
+								th Details
+						
+						tbody
+							each invoice, invoice_index in pagedFilteredInvoices
+								tr.text-monospace.word-wrap
+									th.text-right #{(sort == "desc" ? (invoiceCount - invoice_index) : (offset + invoice_index + 1)).toLocaleString()}
 
-								td(class="table-col-text")
-									if (invoice.memo)
-										span #{invoice.memo}
-									else
-										span -
+									td(class="table-col-text")
+										if (invoice.memo)
+											span #{invoice.memo}
+										else
+											span -
 
-								td(class="table-col-time")
-									- var createdAtTime = parseInt(invoice.creation_date);
-									- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(createdAtTime) * 1000))));
-									- var dateTimeUtc = moment.utc(new Date(parseInt(createdAtTime) * 1000)).format("Y-MM-DD HH:mm:ss");
-
-									span #{dateTimeUtc} utc
-									br
-									span.text-muted #{timeAgo.humanize()} ago
-
-								td(class="table-col-int")
-									if (invoice.settled)
-										- var settleTime = parseInt(invoice.settle_date);
-										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(settleTime) * 1000))));
-										- var dateTimeUtc = moment.utc(new Date(parseInt(settleTime) * 1000)).format("Y-MM-DD HH:mm:ss");
+									td(class="table-col-time")
+										- var createdAtTime = parseInt(invoice.creation_date);
+										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(createdAtTime) * 1000))));
+										- var dateTimeUtc = moment.utc(new Date(parseInt(createdAtTime) * 1000)).format("Y-MM-DD HH:mm:ss");
 
 										span #{dateTimeUtc} utc
 										br
 										span.text-muted #{timeAgo.humanize()} ago
 
-									else
-										span(class="text-danger") Unsettled
+									td(class="table-col-int")
+										if (invoice.settled)
+											- var settleTime = parseInt(invoice.settle_date);
+											- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(settleTime) * 1000))));
+											- var dateTimeUtc = moment.utc(new Date(parseInt(settleTime) * 1000)).format("Y-MM-DD HH:mm:ss");
 
-								td(class="table-col-currencyvalue text-right")
-									span
-										- var currencyValue = new Decimal(invoice.value).dividedBy(100000000);
-										include ./includes/value-display.pug
+											span #{dateTimeUtc} utc
+											br
+											span.text-muted #{timeAgo.humanize()} ago
 
-								td
-									a(href="javascript:void(0)" data-toggle="modal" data-target=("#invoiceModal-" + invoice_index)) Details
+										else
+											span(class="text-danger") Unsettled
+
+									td(class="table-col-currencyvalue text-right")
+										span
+											- var currencyValue = new Decimal(invoice.value).dividedBy(100000000);
+											include ./includes/value-display.pug
+
+									td
+										a(href="javascript:void(0)" data-toggle="modal" data-target=("#invoiceModal-" + invoice_index)) Details
 
