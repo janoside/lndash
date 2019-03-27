@@ -29,6 +29,10 @@ Live demo: https://lnd-admin.chaintools.io
 Configuration options may be passed as environment variables or by creating a `.env` file in the root directory. See [.env-sample](.env-sample) for a list of the options and details for formatting `.env`.
 
 
+# Credits
+
+Thanks to inspiration from [LND](https://github.com/lightningnetwork/lnd), [Joule](https://lightningjoule.com/), [RTL](https://github.com/ShahanaFarooqui/RTL), [zap desktop](https://github.com/LN-Zap/zap-desktop), [lndash](https://github.com/djmelik/lndash), and [lnd-explorer](https://github.com/altangent/lnd-explorer).
+
 # Donate
 
 To support continued development of this tool and/or to support the hosting of the live demo site:
