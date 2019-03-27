@@ -83,43 +83,82 @@ router.get("/", function(req, res) {
 router.get("/node/:nodePubKey", function(req, res) {
 	var nodePubKey = req.params.nodePubKey;
 
-	rpcApi.getFullNetworkDescription().then(function(fnd) {
-		res.locals.fullNetworkDescription = fnd;
-		res.locals.nodeInfo = fnd.nodeInfoByPubkey[nodePubKey];
+	var promises = [];
 
+	promises.push(new Promise(function(resolve, reject) {
+		lndRpc.listPeers({}, function(err, response) {
+			if (err) {
+				utils.logError("u3rhgqfdygews", err);
 
-		res.locals.nodeChannels = [];
-		fnd.channels.sortedByLastUpdate.forEach(function(channel) {
-			if (channel.node1_pub == nodePubKey || channel.node2_pub == nodePubKey) {
-				res.locals.nodeChannels.push(channel);
+				reject(err);
+
+				return;
 			}
+
+			res.locals.listPeers = response;
+
+			res.locals.peerPubkeys = [];
+			if (response.peers) {
+				response.peers.forEach(function(peerInfo) {
+					res.locals.peerPubkeys.push(peerInfo.pub_key);
+				});
+			}
+
+			resolve();
 		});
+	}));
 
-		var qrcodeStrings = [];
-		qrcodeStrings.push(nodePubKey);
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getFullNetworkDescription().then(function(fnd) {
+			res.locals.fullNetworkDescription = fnd;
+			res.locals.nodeInfo = fnd.nodeInfoByPubkey[nodePubKey];
 
-		if (res.locals.nodeInfo.node.addresses) {
-			for (var i = 0; i < res.locals.nodeInfo.node.addresses.length; i++) {
-				if (res.locals.nodeInfo.node.addresses[i].network == "tcp") {
-					res.locals.nodeUri = nodePubKey + "@" + res.locals.nodeInfo.node.addresses[i].addr;
+			res.locals.nodeChannels = [];
+			fnd.channels.sortedByLastUpdate.forEach(function(channel) {
+				if (channel.node1_pub == nodePubKey || channel.node2_pub == nodePubKey) {
+					res.locals.nodeChannels.push(channel);
+				}
+			});
 
-					qrcodeStrings.push(res.locals.nodeUri);
+			var qrcodeStrings = [];
+			qrcodeStrings.push(nodePubKey);
 
-					break;
+			if (res.locals.nodeInfo.node.addresses) {
+				for (var i = 0; i < res.locals.nodeInfo.node.addresses.length; i++) {
+					if (res.locals.nodeInfo.node.addresses[i].network == "tcp") {
+						res.locals.nodeUri = nodePubKey + "@" + res.locals.nodeInfo.node.addresses[i].addr;
+
+						qrcodeStrings.push(res.locals.nodeUri);
+
+						break;
+					}
 				}
 			}
-		}
 
-		utils.buildQrCodeUrls(qrcodeStrings).then(function(qrcodeUrls) {
-			res.locals.qrcodeUrls = qrcodeUrls;
+			utils.buildQrCodeUrls(qrcodeStrings).then(function(qrcodeUrls) {
+				res.locals.qrcodeUrls = qrcodeUrls;
 
-			res.render("node");
+				resolve();
 
+			}).catch(function(err) {
+				utils.logError("3e0ufhdhfsdss", err);
+				
+				resolve();
+			});
 		}).catch(function(err) {
-			utils.logError("3e0ufhdhfsdss", err);
-			
-			res.render("node");
+			utils.logError("349e7ghwef96werg", err);
+
+			reject(err);
 		});
+	}));
+
+	Promise.all(promises).then(function() {
+		res.render("node");
+
+	}).catch(function(err) {
+		utils.logError("230rhsd0gds", err);
+		
+		res.render("node");
 	});
 });
 
@@ -733,8 +772,8 @@ router.get("/about", function(req, res) {
 });
 
 router.get("/connectToPeer", function(req, res) {
-	if (!req.query.pubKey) {
-		req.session.userMessage = "Unable to connect to peer: missing pubKey";
+	if (!req.query.pubkey) {
+		req.session.userMessage = "Unable to connect to peer: missing pubkey";
 
 		res.redirect(req.headers.referer);
 	}
@@ -745,7 +784,7 @@ router.get("/connectToPeer", function(req, res) {
 		res.redirect(req.headers.referer);
 	}
 
-	rpcApi.connectToPeer(req.query.pubKey, req.query.address).then(function(response) {
+	rpcApi.connectToPeer(req.query.pubkey, req.query.address).then(function(response) {
 		req.session.userMessage = "Success! Connected to new peer.";
 		req.session.userMessageType = "success";
 
@@ -757,6 +796,31 @@ router.get("/connectToPeer", function(req, res) {
 		utils.logError("397gedgfgggsgsgs", err);
 
 		req.session.userMessage = "Error connecting to peer: " + err + "(" + JSON.stringify(err) + ")";
+		req.session.userMessageType = "danger";
+
+		res.redirect(req.headers.referer);
+	});
+});
+
+router.get("/disconnectPeer", function(req, res) {
+	if (!req.query.pubkey) {
+		req.session.userMessage = "Unable to disconnect from peer: missing pubkey";
+
+		res.redirect(req.headers.referer);
+	}
+
+	rpcApi.disconnectFromPeer(req.query.pubkey).then(function(response) {
+		req.session.userMessage = "Success - Disconnected from peer";
+		req.session.userMessageType = "success";
+
+		res.redirect(req.headers.referer);
+
+	}).catch(function(err) {
+		req.session.userErrors.push(err);
+
+		utils.logError("23407ht40werhg", err);
+
+		req.session.userMessage = "Error disconnecting from peer: " + err + "(" + JSON.stringify(err) + ")";
 		req.session.userMessageType = "danger";
 
 		res.redirect(req.headers.referer);

@@ -96,14 +96,29 @@ block content
 	if (session.admin)
 		div(class="card mb-3 shadow-sm")
 			div(class="card-header")
-				h2(class="h6 mb-0") Actions
+				h2(class="h6 mb-0") Tools
 			div(class="card-body")
-				if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
-					a(href=("/connectToPeer?pubKey=" + nodeInfo.node.pub_key + "&address=" + nodeInfo.node.addresses[0].addr), class="btn btn-primary mr-3") Connect as Peer
-				else
-					a(href="javascript:void(0)", class="btn btn-secondary mr-3", title="Unable to connect. No addresses found.", data-toggle="tooltip", disabled) Connect as Peer
+				if (peerPubkeys.includes(nodeInfo.node.pub_key))
+					a.btn.btn-primary.mr-3(href=`/disconnectPeer?pubkey=${nodeInfo.node.pub_key}`)
+						i.fas.fa-unlink.mr-2
+						span Disconnect from Peer
 
-				a(href=("/openchannel?pubkey=" + nodeInfo.node.pub_key), class="btn btn-primary") Open Channel
+				else
+					if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
+						a.btn.btn-primary.mr-3(href=`/connectToPeer?pubkey=${nodeInfo.node.pub_key}&address=${nodeInfo.node.addresses[0].addr}`)
+							i.fas.fa-link.mr-2
+							span Connect as Peer
+					else
+						a.btn.btn-secondary.mr-3(href="javascript:void(0)", class="", title="Unable to connect. No addresses found.", data-toggle="tooltip", disabled)
+							i.fas.fa-link.mr-2
+							span Connect as Peer
+
+				a.btn.btn-primary.mr-3(href=`/openchannel?pubkey=${nodeInfo.node.pub_key}`)
+					i.fas.fa-exchange-alt.mr-2
+					span Open Channel
+
+				if (false)
+					a.btn.btn-primary.mr-3(href=`/sendPayment?pubkey=${nodeInfo.node.pub_key}`) Send Payment
 
 	div(class="card mb-3 shadow-sm")
 		div(class="card-header")

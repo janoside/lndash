@@ -281,6 +281,22 @@ function connectToPeer(pubKey, address) {
 	});
 }
 
+function disconnectFromPeer(pubKey) {
+	return new Promise(function(resolve, reject) {
+		lndRpc.DisconnectPeer({pub_key:pubKey}, function(err, response) {
+			if (err) {
+				utils.logError("23r097hwef07ghds", err);
+
+				reject(err);
+
+				return;
+			}
+
+			resolve(response);
+		});
+	});
+}
+
 function listPayments() {
 	return new Promise(function(resolve, reject) {
 		lndRpc.ListPayments({}, function(err, response) {
@@ -474,6 +490,8 @@ module.exports = {
 	refreshLocalClosedChannels: refreshLocalClosedChannels,
 
 	connectToPeer: connectToPeer,
+	disconnectFromPeer: disconnectFromPeer,
+
 	listPayments: listPayments,
 	getNetworkStats: getNetworkStats,
 
