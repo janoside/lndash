@@ -617,6 +617,11 @@ router.get("/channels", function(req, res) {
 		res.locals.channels = res.locals.channels.slice(offset, offset + limit);
 
 		res.render("channels");
+
+	}).catch(function(err) {
+		utils.logError("239yrg239r", err);
+
+		res.render("channels");
 	});
 });
 
@@ -624,6 +629,7 @@ router.get("/local-channels", function(req, res) {
 	var limit = 20;
 	var offset = 0;
 	var sort = "last_update-desc";
+	var status = "active";
 
 	if (req.query.limit) {
 		limit = parseInt(req.query.limit);
