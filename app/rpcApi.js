@@ -431,6 +431,38 @@ function openChannel(remoteNodePubkey, localAmount, sendAmount) {
 	});
 }
 
+function signMessage(msg) {
+	return new Promise(function(resolve, reject) {
+		lndRpc.SignMessage({msg:msg}, function(err, response) {
+			if (err) {
+				utils.logError("2u9few09fgye", err);
+
+				reject(err);
+
+				return;
+			}
+
+			resolve(response);
+		});
+	});
+}
+
+function verifyMessage(msg, signature) {
+	return new Promise(function(resolve, reject) {
+		lndRpc.VerifyMessage({msg:msg, signature:signature}, function(err, response) {
+			if (err) {
+				utils.logError("92ufhwyfegwds", err);
+
+				reject(err);
+
+				return;
+			}
+
+			resolve(response);
+		});
+	});
+}
+
 module.exports = {
 	getFullNetworkDescription: getFullNetworkDescription,
 	refreshFullNetworkDescription: refreshFullNetworkDescription,
@@ -452,5 +484,8 @@ module.exports = {
 	decodeInvoiceString: decodeInvoiceString,
 	payInvoice: payInvoice,
 	getOnChainTransactions: getOnChainTransactions,
-	getInvoices: getInvoices
+	getInvoices: getInvoices,
+
+	signMessage:signMessage,
+	verifyMessage:verifyMessage
 };

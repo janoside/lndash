@@ -189,6 +189,39 @@ router.get("/sign-verify", function(req, res) {
 	res.render("sign-verify");
 });
 
+router.post("/sign-verify", function(req, res) {
+	var msg = req.body.msg;
+	var signature = req.body.signature;
+
+	res.locals.msg = msg;
+	res.locals.signature = signature;
+
+	if (signature != null && signature.length > 0) {
+		rpcApi.verifyMessage(msg, signature).then(function(response) {
+			res.locals.verifyMessageResponse = response;
+
+			res.render("sign-verify");
+
+		}).catch(function(err) {
+			utils.logError("29378rg30gfbd", err);
+
+			res.render("sign-verify");
+		});
+	} else {
+		rpcApi.signMessage(msg).then(function(response) {
+			res.locals.signMessageResponse = response;
+			res.locals.signature = response.signature;
+
+			res.render("sign-verify");
+
+		}).catch(function(err) {
+			utils.logError("2397rgwefbcduhj", err);
+
+			res.render("sign-verify");
+		});
+	}
+});
+
 router.get("/wallet", function(req, res) {
 	var promises = [];
 

@@ -1,16 +1,16 @@
 extends layout4
 
 block headContent
-	title Sign / Verify Messages
+	title Sign or Verify
 
 block breadcrumb
 	li.breadcrumb-item
 		a(href='/') Home
 	li.breadcrumb-item Tools
-	li.breadcrumb-item.active Sign / Verify Messages
+	li.breadcrumb-item.active Sign or Verify
 	
 block content
-	h1.h3 Sign / Verify Messages
+	h1.h3 Sign or Verify
 
 	hr
 
@@ -20,5 +20,40 @@ block content
 
 	else
 
-		div.alert.alert-primary Coming soon...
+		if (signMessageResponse)
+			if (signMessageResponse.signature)
+				div.alert.alert-success
+					span Message Signed Successfully
+
+			else
+				div.alert.alert-danger
+					h3.
+					pre
+						code.json #{JSON.stringify(signMessageResponse, null, 4)}
+
+		if (verifyMessageResponse)
+			if (verifyMessageResponse.valid)
+				div.alert.alert-success
+					h3.h5 Signature Verified
+
+					span Message signature verified, using public key 
+					span.font-weight-bold #{verifyMessageResponse.pubkey}
+					span .
+
+			else
+				div.alert.alert-danger
+					pre
+						code.json #{JSON.stringify(verifyMessageResponse, null, 4)}
+
+		form(method="post")
+			div.form-group
+				label(for="msg") Message
+				input.form-control.text-monospace.form-control-lg(id="msg" name="msg" type="text" value=msg)
+
+			div.form-group
+				label(for="signature") Signature
+				input.form-control.text-monospace.form-control-lg(id="signature" name="signature" type="text" value=signature)
+				small.text-muted Signature to verify, or leave blank to generate a new signature
+
+			button.btn.btn-primary(type="submit") Sign / Verify
 			
