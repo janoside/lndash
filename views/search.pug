@@ -12,7 +12,7 @@ block breadcrumb
 	
 block content
 
-	h1.h2 Search
+	h1.h3 Search
 	hr
 
 	if (session.hideSearchNote)
@@ -21,7 +21,7 @@ block content
 		div(class="alert alert-primary alert-dismissible shadow-sm", role="alert")
 			h3.h5 Note
 			div.mb-2
-				p Searching here will find all public nodes and/or channels visible to your node. It will match on public keys, aliases, addresses, colors, and channel ids.
+				div.mb-2 Searching here will find all public nodes and/or channels visible to your node. It will match on public keys, aliases, addresses, colors, and channel ids.
 				span.font-weight-bold Important: 
 				span Please be aware that the 
 				span.font-weight-bold alias
