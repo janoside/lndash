@@ -35,12 +35,10 @@ block content
 		hr
 
 		div.card.mb-3.shadow-sm
-			div.card-header
-				span.h6 Sorting + Filtering
 			div.card-body
 				div.clearfix
-					span.dropdown.mr-4.float-left
-						span.font-weight-bold.mr-1 Sort
+					div.dropdown.mr-4.float-left
+						div Sort
 						button.btn.btn-primary.dropdown-toggle.mb-2.mb-lg-0(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
 							span
 								if (sort == null || sort == "created-desc")
@@ -59,7 +57,7 @@ block content
 							a.dropdown-item(href=`/invoices?sort=value-asc&settled=${settled}&created=${created}`) Value, Lowest first
 
 					div.mr-4.mb-2.mb-lg-0.float-left
-						span.font-weight-bold.mr-1 Status
+						div Status
 						- var statusFilterOptions = ["Settled", "Unsettled", "All"];
 						div.btn-group.mr-2(role="group")
 							each opt in statusFilterOptions
@@ -69,8 +67,8 @@ block content
 									a.btn.btn-secondary.bg-light(href=`/invoices?sort=${sort}&settled=${opt}&created=${created}`) #{opt}
 
 					div.mr-4.mb-2.mb-lg-0.float-left
-						span.font-weight-bold.mr-1 Time
-						- var createdFilterOptions = ["60 Mins", "24 Hrs", "7 Days", "30 Days", "All"];
+						div Time
+						- var createdFilterOptions = ["60 min", "24 hr", "7 day", "30 day", "All"];
 						div.btn-group.mr-2(role="group")
 							each opt in createdFilterOptions
 								if (created != null && created == opt.toLowerCase().replace(" ", "-"))
@@ -78,12 +76,32 @@ block content
 								else
 									a.btn.btn-secondary.bg-light(href=`/invoices?sort=${sort}&settled=${settled}&created=${opt.replace(" ", "-")}`) #{opt}
 
-				div.alert.alert-primary.mt-3.mb-0
-					span Showing #{filteredInvoices.length.toLocaleString()} invoice
+				hr.my-3
+
+				div
+					span Showing 
+					span.font-weight-bold ##{(offset + 1).toLocaleString()} - #{(offset + limit).toLocaleString()} 
+					span of 
+					span.font-weight-bold #{allFilteredInvoices.length.toLocaleString()} 
+					if (allInvoices.length > allFilteredInvoices.length)
+						span filtered 
+					span invoice
 					if (filteredInvoices.length != 1)
 						span s
-						
-					span  out of #{allInvoices.length.toLocaleString()}
+
+				- var itemCount = allFilteredInvoices.length;
+				if (itemCount > limit)
+					- var pageNumber = offset / limit + 1;
+					- var pageCount = Math.floor(itemCount / limit);
+					- if (pageCount * limit < itemCount) {
+						- pageCount++;
+					- }
+					- var paginationUrlFunction = function(x) {
+						- return paginationBaseUrl + "&limit=" + limit + "&offset=" + ((x - 1) * limit);
+					- }
+					
+					div.mt-2.mb-0
+						include includes/pagination.pug
 
 		if (true)
 			each invoice, invoice_index in filteredInvoices

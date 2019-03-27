@@ -65,6 +65,6 @@ block content
 			- return paginationBaseUrl + "?limit=" + limit + "&offset=" + ((x - 1) * limit + "&sort=" + sort);
 		- }
 		
-		//hr
-		div.mt-4
+		div.mt-4.d-flex.justify-content-center
+			- var paginationClass = "pagination-lg";
 			include includes/pagination.pug

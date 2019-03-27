@@ -979,7 +979,7 @@ router.get("/invoices", function(req, res) {
 	res.locals.sort = sort;
 	res.locals.settled = settled;
 	res.locals.created = created;
-	res.locals.paginationBaseUrl = "/invoices";
+	res.locals.paginationBaseUrl = `/invoices?sort=${sort}&settled=${settled}&created=${created}`;
 
 	rpcApi.getInvoices().then(function(invoicesResponse) {
 		if (sort == "created-desc") {
@@ -1019,7 +1019,7 @@ router.get("/invoices", function(req, res) {
 				var creation_date = parseInt(inv.creation_date);
 				var cutoffs = {"60-mins":60*60, "24-hrs":60*60*24, "7-days":60*60*24*7, "30-days":60*60*24*30};
 
-				console.log("ct: " + created + " - " + cutoffs[created] + " - " + creation_date + " - " + (new Date().getTime() / 1000 + cutoffs[created]) + " - " + new Date().getTime() / 1000);
+				//console.log("ct: " + created + " - " + cutoffs[created] + " - " + creation_date + " - " + (new Date().getTime() / 1000 + cutoffs[created]) + " - " + new Date().getTime() / 1000);
 
 				return creation_date >= (new Date().getTime() / 1000 - cutoffs[created]);
 			},
@@ -1042,6 +1042,11 @@ router.get("/invoices", function(req, res) {
 			}
 		}
 
+		var pagedFilteredInvoices = [];
+		for (var i = offset; i < Math.min(offset + limit, filteredInvoices.length); i++) {
+			pagedFilteredInvoices.push(filteredInvoices[i]);
+		}
+
 		var filteredCount = allInvoices.length - filteredInvoices.length;
 
 		var invoices = [];
@@ -1050,9 +1055,10 @@ router.get("/invoices", function(req, res) {
 		}
 
 		res.locals.invoices = invoices;
-		res.locals.filteredInvoices = filteredInvoices;
+		res.locals.filteredInvoices = pagedFilteredInvoices;
 		res.locals.filteredCount = filteredCount;
 		res.locals.allInvoices = invoicesResponse.invoices;
+		res.locals.allFilteredInvoices = filteredInvoices;
 		res.locals.invoiceCount = invoicesResponse.invoices.length;
 		
 		res.render("invoices");
