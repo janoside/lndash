@@ -23,18 +23,22 @@ block content
 		if (signMessageResponse)
 			if (signMessageResponse.signature)
 				div.alert.alert-success
-					span Message Signed Successfully
+					h3.h6 Success
+
+					span Message signed successfully
 
 			else
 				div.alert.alert-danger
-					h3.
-					pre
-						code.json #{JSON.stringify(signMessageResponse, null, 4)}
+					h3.h6 Message Signing Failed
+					
+					if (false)
+						pre
+							code.json #{JSON.stringify(signMessageResponse, null, 4)}
 
 		if (verifyMessageResponse)
 			if (verifyMessageResponse.valid)
 				div.alert.alert-success
-					h3.h5 Signature Verified
+					h3.h6 Signature Verified
 
 					span Message signature verified, using public key 
 					span.font-weight-bold #{verifyMessageResponse.pubkey}
@@ -42,8 +46,13 @@ block content
 
 			else
 				div.alert.alert-danger
-					pre
-						code.json #{JSON.stringify(verifyMessageResponse, null, 4)}
+					h3.h6 Signature Verification Failed
+
+					span  Invalid signature
+
+					if (false)
+						pre
+							code.json #{JSON.stringify(verifyMessageResponse, null, 4)}
 
 		form(method="post")
 			div.form-group
