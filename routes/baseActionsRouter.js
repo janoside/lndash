@@ -546,6 +546,8 @@ router.post("/query-route", function(req, res) {
 			resolve();
 
 		}).catch(function(err) {
+			res.locals.queryRouteError = err;
+			
 			utils.logError("3y9rewfgefge", err);
 
 			reject(err);

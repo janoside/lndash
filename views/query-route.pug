@@ -38,17 +38,31 @@ block content
 						div.input-group
 							input(type="number", class="form-control", id="amount", name="amountSat" value=amountSat)
 							div.input-group-append
-								div.input-group-text satoshis
+								div.input-group-text sat
 
 			button.btn.btn-primary(type="submit") Query
-			
 
-		if (queryRouteResponse && queryRouteResponse.routes.length > 0)
+		
+			
+		if (queryRouteError)
 			hr.my-3
 
-			div.alert.alert-success Route Found
+			div.alert.alert-warning.shadow-sm
+				h3.h6 No Route Found
 
-			div.card
+				if (queryRouteError != null && queryRouteError.details)
+					span.text-capitalize #{queryRouteError.details}
+
+			if (false)
+				pre
+					code.json #{JSON.stringify(queryRouteError, null, 4)}
+
+		else if (queryRouteResponse)
+			hr.my-3
+
+			div.alert.alert-success.shadow-sm.font-weight-bold Route Found
+
+			div.card.shadow-sm.text-body
 				div.card-header
 					h3.h6.mb-0 Route
 				div.card-body
@@ -74,53 +88,53 @@ block content
 							span.font-weight-bold Hops: 
 							span.text-monospace #{route.hops.length.toLocaleString()}
 
-					hr.my-3
+					hr.my-3(style="border-top: 1px solid rgba(0, 0, 0, 0.1);")
 
-					div
-						div.mb-3
-							div.card.text-body.shadow-sm
-								div.card-header
-									h3.h6.mb-0
-										i.fas.fa-play-circle.mr-2.fa-lg
-										span Origin
-								div.card-body
-									div.font-weight-bold.mb-2 Node
-									
-									- var card_node_pubkey = lndRpc.internal_pubkey;
-									include includes/node-card.pug
+					div.clearfix
+						div.card.text-body.shadow-sm.float-left.mr-3
+							div.card-header
+								h3.h6.mb-0
+									i.fas.fa-play-circle.mr-2.fa-lg
+									span Origin
+							div.card-body
+								div.font-weight-bold.mb-2 Node
+								
+								- var card_node_pubkey = lndRpc.internal_pubkey;
+								include includes/node-card.pug
 
 						each hop, hopIndex in route.hops
-							div(class=(hopIndex < (route.hops.length - 1) ? "mb-3" : false))
-								div.card.text-body.shadow-sm
-									div.card-header
+							
+							div.card.text-body.shadow-sm.float-left.mr-3
+								div.card-header
+									h3.h6.mb-0
 										if (hopIndex == (route.hops.length - 1))
 											i.fas.fa-check-circle.mr-2.fa-lg
 										else
-											i.fas.fa-arrow-circle-down.mr-2.fa-lg
+											i.fas.fa-arrow-circle-right.mr-2.fa-lg
 
 										span Hop ##{(hopIndex + 1).toLocaleString()}
 
 										if (hopIndex == (route.hops.length - 1))
 											span  (Destination)
+									
+								div.card-body
+									div.mb-3.border-bottom.pb-3
+										div.font-weight-bold.mb-2 Node
+										- var card_node_pubkey = hop.pub_key;
+										include includes/node-card.pug
 										
-									div.card-body
-										div.mb-3.border-bottom.pb-3
-											div.font-weight-bold.mb-2 Node
-											- var card_node_pubkey = hop.pub_key;
-											include includes/node-card.pug
-											
 
-										div.mb-2
-											div.font-weight-bold Channel
-											
-											a.text-monospace(href=`/channel/${hop.chan_id}`)
-												- var channel_id = hop.chan_id;
-												include includes/channel-id.pug
+									div.mb-2
+										div.font-weight-bold Channel
+										
+										a.text-monospace(href=`/channel/${hop.chan_id}`)
+											- var channel_id = hop.chan_id;
+											include includes/channel-id.pug
 
-										div
-											div.font-weight-bold Fees
-											
-											if (parseInt(hop.fee_msat) > 0)
-												span.text-danger.text-monospace +#{hop.fee_msat} msat
-											else
-												span.text-monospace -
+									div
+										div.font-weight-bold Fees
+										
+										if (parseInt(hop.fee_msat) > 0)
+											span.text-danger.text-monospace +#{hop.fee_msat} msat
+										else
+											span.text-monospace.text-success 0
