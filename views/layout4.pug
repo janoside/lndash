@@ -286,7 +286,8 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 								a.btn(href='#')
 									i.icon-settings
 									| &#x9;Settings
-			.container-fluid
+			
+			.container-fluid.mx-0.px-2.px-lg-3.px-xl-4
 				if (userMessage)
 					div.alert.alert-dismissable.shadow-sm.mb-4(class=(userMessageType ? ("alert-"  + userMessageType) : "alert-info"), role="alert")
 						span !{userMessage}
