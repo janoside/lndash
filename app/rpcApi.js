@@ -479,6 +479,22 @@ function verifyMessage(msg, signature) {
 	});
 }
 
+function queryRoute(targetPubkey, amountSat) {
+	return new Promise(function(resolve, reject) {
+		lndRpc.QueryRoutes({pub_key:targetPubkey, amt:amountSat, num_routes:1}, function(err, response) {
+			if (err) {
+				utils.logError("9273rgdcugdcug", err);
+
+				reject(err);
+
+				return;
+			}
+
+			resolve(response);
+		});
+	});
+}
+
 module.exports = {
 	getFullNetworkDescription: getFullNetworkDescription,
 	refreshFullNetworkDescription: refreshFullNetworkDescription,
@@ -505,5 +521,7 @@ module.exports = {
 	getInvoices: getInvoices,
 
 	signMessage:signMessage,
-	verifyMessage:verifyMessage
+	verifyMessage:verifyMessage,
+
+	queryRoute:queryRoute
 };

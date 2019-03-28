@@ -20,5 +20,90 @@ block content
 
 	else
 
-		div.alert.alert-primary Coming soon...
+		form(method="post")
+			div.form-group
+				label(for="msg") Target Public Key
+				input.form-control.text-monospace(id="pubkey" name="pubkey" type="text" value=pubkey)
+
+			div.row
+				div.col-md-2
+					div.form-group
+						label(for="amount") Amount
+						div.input-group
+							input(type="number", class="form-control", id="amount", name="amountSat" value=amountSat)
+							div.input-group-append
+								div.input-group-text satoshis
+
+			button.btn.btn-primary(type="submit") Query
 			
+
+		if (queryRouteResponse && queryRouteResponse.routes.length > 0)
+			hr.my-3
+
+			div.alert.alert-success Route Found
+
+			div.card
+				div.card-header
+					h3.h6.mb-0 Route
+				div.card-body
+
+					- var route = queryRouteResponse.routes[0];
+
+					div.clearfix
+						div.float-left.mr-4
+							span.font-weight-bold Total Cost: 
+							- var currencyValue = new Decimal(route.total_amt).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+							include includes/value-display.pug
+
+						div.float-left.mr-4
+							span.font-weight-bold Total Fees: 
+							- var currencyValue = new Decimal(route.total_fees).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+							include includes/value-display.pug
+
+						div.float-left.mr-4
+							span.font-weight-bold Total Timelock: 
+							span.text-monospace #{route.total_time_lock.toLocaleString()}
+
+						div.float-left.mr-4
+							span.font-weight-bold Hops: 
+							span.text-monospace #{route.hops.length.toLocaleString()}
+
+					hr.my-3
+
+					div.text-monospace
+						div.float-left.mr-2
+							div.card.text-body
+								div.card-body
+									- var card_node_pubkey = lndRpc.internal_pubkey;
+									include includes/node-card.pug
+
+						div.float-left.mr-2.mt-4
+							i.fas.fa-arrow-right
+
+						each hop, hopIndex in route.hops
+							if (hopIndex > 0)
+								div.float-left.mr-2.mt-4
+									i.fas.fa-arrow-right
+
+							div.float-left.mr-2
+								div.card.text-body
+									div.card-body
+										div.pb-3.mb-3.border-bottom
+											- var card_node_pubkey = hop.pub_key;
+											include includes/node-card.pug
+
+										div.mb-2
+											span.font-weight-bold Channel
+											br
+											
+											a(href=`/channel/${hop.chan_id}`)
+												- var channel_id = hop.chan_id;
+												include includes/channel-id.pug
+
+										div
+											span.font-weight-bold Fees
+											br
+											if (parseInt(hop.fee_msat) > 0)
+												span.text-danger +#{hop.fee_msat} msat
+											else
+												span -

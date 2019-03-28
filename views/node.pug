@@ -117,6 +117,10 @@ block content
 					i.fas.fa-exchange-alt.mr-2
 					span Open Channel
 
+				a.btn.btn-primary.mr-3(href=`/query-route?pubkey=${nodeInfo.node.pub_key}`)
+					i.fas.fa-route.mr-2
+					span Query Route Here
+
 				if (false)
 					a.btn.btn-primary.mr-3(href=`/sendPayment?pubkey=${nodeInfo.node.pub_key}`) Send Payment
 

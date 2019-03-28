@@ -511,7 +511,55 @@ router.post("/login", function(req, res) {
 });
 
 router.get("/query-route", function(req, res) {
+	if (req.query.pubkey) {
+		res.locals.pubkey = req.query.pubkey;
+	}
+
+	if (req.query.amountSat) {
+		res.locals.amountSat = req.query.amountSat;
+	}
+
 	res.render("query-route");
+});
+
+router.post("/query-route", function(req, res) {
+	var pubkey = "";
+	var amountSat = 0;
+
+	if (req.body.pubkey) {
+		pubkey = req.body.pubkey;
+	}
+
+	if (req.body.amountSat) {
+		amountSat = parseInt(req.body.amountSat);
+	}
+
+	res.locals.pubkey = pubkey;
+	res.locals.amountSat = amountSat;
+
+	var promises = [];
+
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.queryRoute(pubkey, amountSat).then(function(queryRouteResponse) {
+			res.locals.queryRouteResponse = queryRouteResponse;
+
+			resolve();
+
+		}).catch(function(err) {
+			utils.logError("3y9rewfgefge", err);
+
+			reject(err);
+		});
+	}));
+
+	Promise.all(promises).then(function() {
+		res.render("query-route");
+
+	}).catch(function(err) {
+		utils.logError("23rey9gwefdsg", err);
+
+		res.render("query-route");
+	});
 });
 
 router.get("/routing-history", function(req, res) {
