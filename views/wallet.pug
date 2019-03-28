@@ -57,8 +57,8 @@ block content
 					div.card-header
 						h2.h6.mb-0 Tools
 					div.card-body
-						a.btn.btn-primary.mr-2.mb-2.mb-md-0(href="javascript:void(0)") New Deposit Address (p2wkh)
-						a.btn.btn-primary.mr-2.mb-2.mb-md-0(href="javascript:void(0)") New Deposit Address (np2wkh)
+						a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)") New Deposit Address (p2wkh)
+						a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)") New Deposit Address (np2wkh)
 
 		- var unconfirmedTxCount = 0;
 		each tx, index in onChainTransactions.transactions
@@ -141,18 +141,26 @@ block content
 											td.text-right.font-weight-bold #{(index + 1).toLocaleString()}
 											td(class="table-col-text")
 												if (config.blockExplorerUrl)
-													a(href=(config.blockExplorerUrl + "/tx/" + tx.tx_hash), target="_blank", title=tx.tx_hash, data-toggle="tooltip") #{tx.tx_hash.substring(0, config.site.txidMaxDisplayLength)}
+													a(href=(config.blockExplorerUrl + "/tx/" + tx.tx_hash), target="_blank", title=tx.tx_hash, data-toggle="tooltip")
+														- var btc_txid = tx.tx_hash;
+														include includes/btc-txid.pug
 												else
-													span(title=tx.tx_hash, data-toggle="tooltip") #{tx.tx_hash.substring(0, config.site.txidMaxDisplayLength)}
+													span(title=tx.tx_hash, data-toggle="tooltip")
+														- var btc_txid = tx.tx_hash;
+														include includes/btc-txid.pug
 
 											td(class="table-col-text")
 												if (config.blockExplorerUrl)
 													each addr, index in tx.dest_addresses
-														a(href=(config.blockExplorerUrl + "/address/" + addr), target="_blank", title=addr, data-toggle="tooltip") #{addr.substring(0, config.site.addressMaxDisplayLength)}
+														a(href=(config.blockExplorerUrl + "/address/" + addr), target="_blank", title=addr, data-toggle="tooltip")
+															- var btc_address = addr;
+															include includes/btc-address.pug
 														br
 												else
 													each addr, index in tx.dest_addresses
-														span(title=addr, data-toggle="tooltip") #{addr.substring(0, config.site.addressMaxDisplayLength)}
+														span(title=addr, data-toggle="tooltip")
+															- var btc_address = addr;
+															include includes/btc-address.pug
 														br
 
 											td

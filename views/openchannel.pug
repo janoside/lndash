@@ -20,16 +20,16 @@ block content
 	else
 
 		form(method="post", action="/openchannel")
-			div(class="form-group")
+			div.form-group
 				label(for="pubkey") Remote Node Public Key
-				input(type="text", class="form-control", id="pubkey", name="pubkey", value=pubkey, placeholder="Remote Node Public Key")
+				input.form-control.form-control-lg.text-monospace(type="text" id="pubkey" name="pubkey" value=pubkey placeholder="Remote Node Public Key")
 
-			div(class="form-group")
+			div.form-group
 				label(for="local_balance") Local Balance
-				input(type="text", class="form-control", id="local_balance", name="local_balance", value=local_balance, placeholder="Local Balance")
+				input.form-control.form-control-lg.text-monospace(type="text" id="local_balance" name="local_balance" value=local_balance placeholder="Local Balance")
 
-			div(class="form-group")
+			div.form-group
 				label(for="remote_balance") Remote Balance
-				input(type="text", class="form-control", id="remote_balance", name="remote_balance", value=remote_balance, placeholder="Remote Balance")
+				input.form-control.form-control-lg.text-monospace(type="text" id="remote_balance" name="remote_balance" value=remote_balance placeholder="Remote Balance")
 
 			button(type="submit", class="btn btn-primary") Open Channel

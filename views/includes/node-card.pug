@@ -2,17 +2,17 @@ if (fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey])
 	- var card_node = {pubkey:card_node_pubkey, alias:fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey].node.alias, color:fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey].node.color};
 
 if (node_card_include_wrapper)
-	div(class="card shadow-sm monospace", style="min-width: 275px;")
-		div(class="card-body p-2")
-			div(class="float-left mr-2")
+	div.card.shadow-sm.text-monospace(style="min-width: 275px;")
+		div.card-body.p-2
+			div.float-left.mr-2
 				if (card_node)
 					- var node_pubkey = card_node.pubkey;
 					- var node_icon_size = "2.75em";
 					include ./node-icon.pug
 						
-			div(class="float-left")
+			div.float-left
 				if (card_node)
-					a(href=("/node/" + card_node.pubkey), title=card_node.pubkey, data-toggle="tooltip")
+					a(href=`/node/${card_node.pubkey}`, title=card_node.pubkey, data-toggle="tooltip")
 						include ./node-pubkey.pug
 					
 					br
@@ -29,7 +29,7 @@ else
 					
 		div.float-left
 			if (card_node)
-				a(href=("/node/" + card_node.pubkey), title=card_node.pubkey, data-toggle="tooltip")
+				a(href=`/node/${card_node.pubkey}`, title=card_node.pubkey, data-toggle="tooltip")
 					include ./node-pubkey.pug
 				
 				br

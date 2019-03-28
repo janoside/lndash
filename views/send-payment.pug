@@ -194,8 +194,8 @@ block content
 
 		else
 			form(method="get")
-				div(class="form-group")
+				div.form-group
 					label(for="invoice") Encoded Payment Request / Invoice
-					textarea.form-control.text-monospace(rows="6" id="invoice" name="invoice")
+					textarea.form-control.form-control-lg.text-monospace(rows="4" id="invoice" name="invoice")
 
 				button(type="submit", class="btn btn-primary") Decode

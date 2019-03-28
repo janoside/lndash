@@ -45,26 +45,26 @@ block content
 	else
 
 		form(method="post", action="/create-invoice")
-			div(class="form-group")
+			div.form-group
 				label(for="memo") Memo
-				input(type="text", class="form-control", id="memo", name="memo")
+				input.form-control.form-control-lg.text-monospace(type="text" id="memo" name="memo")
 
 			div.row
 				div.col-md-2
 					div.form-group
 						label(for="amount") Amount
 						div.input-group
-							input(type="number", class="form-control", id="amount", name="amount")
+							input.form-control.form-control-lg.text-monospace(type="number" id="amount" name="amount")
 							div.input-group-append
-								div.input-group-text sat
+								div.input-group-text.text-monospace sat
 
 				div.col-md-2
 					div.form-group
 						label(for="expiration") Expiration
 						div.input-group
-							input(type="number", class="form-control", id="expiration", name="expiration", value="24")
+							input.form-control.form-control-lg.text-monospace(type="number" id="expiration" name="expiration" value="24")
 							div.input-group-append
-								div.input-group-text hrs
+								div.input-group-text.text-monospace hrs
 
 			button(type="submit", class="btn btn-primary") Create Invoice
 

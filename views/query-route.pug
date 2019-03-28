@@ -23,7 +23,7 @@ block content
 		form(method="post")
 			div.form-group
 				label(for="msg") Target Node
-				input.form-control.text-monospace(id="pubkey" name="pubkey" type="text" value=pubkey)
+				input.form-control.form-control-lg.text-monospace(id="pubkey" name="pubkey" type="text" value=pubkey)
 
 			if (pubkey)
 				div.card.text-monospace.mb-3.bg-light
@@ -36,9 +36,9 @@ block content
 					div.form-group
 						label(for="amount") Amount
 						div.input-group
-							input(type="number", class="form-control", id="amount", name="amountSat" value=amountSat)
+							input.form-control.form-control-lg.text-monospace(type="number" id="amount" name="amountSat" value=amountSat)
 							div.input-group-append
-								div.input-group-text sat
+								div.input-group-text.text-monospace sat
 
 			button.btn.btn-primary(type="submit") Query
 
