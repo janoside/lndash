@@ -60,7 +60,7 @@ block content
 								if (date != null && date == opt.toLowerCase().replace(" ", "-"))
 									span.btn.btn-primary #{opt}
 								else
-									a.btn.btn-secondary.bg-light(href=`/payment-history?sort=${sort}&date=${opt.replace(" ", "-")}`) #{opt}
+									a.btn.btn-light.border(href=`/payment-history?sort=${sort}&date=${opt.replace(" ", "-")}`) #{opt}
 
 				hr.my-3
 

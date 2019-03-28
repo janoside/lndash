@@ -181,16 +181,17 @@ block content
 			div(id="tab-json", class="tab-pane", role="tabpanel")
 				h4 channelInfo
 				pre
-					code.json #{JSON.stringify(channel, null, 4)}
+					code.json.bg-light #{JSON.stringify(channel, null, 4)}
 
-				h4 localChannelInfo
-				pre
-					code.json #{JSON.stringify(localChannels.byId[channel.channel_id], null, 4)}
+				if (localChannels.byId[channel.channel_id])
+					h4 localChannelInfo
+					pre
+						code.json.bg-light #{JSON.stringify(localChannels.byId[channel.channel_id], null, 4)}
 
 				h4 node1Info
 				pre
-					code.json #{JSON.stringify(node1, null, 4)}
+					code.json.bg-light #{JSON.stringify(node1, null, 4)}
 
 				h4 node2Info
 				pre
-					code.json #{JSON.stringify(node2, null, 4)}
+					code.json.bg-light #{JSON.stringify(node2, null, 4)}

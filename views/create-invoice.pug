@@ -36,7 +36,7 @@ block content
 			
 			if (false)
 				pre
-					code.json #{JSON.stringify(createInvoiceResponse, null, 4)}
+					code.json.bg-light #{JSON.stringify(createInvoiceResponse, null, 4)}
 
 	if (!session.admin)
 		- var loginRequiredNote = "allow you to create a new invoice.";
@@ -56,7 +56,7 @@ block content
 						div.input-group
 							input(type="number", class="form-control", id="amount", name="amount")
 							div.input-group-append
-								div.input-group-text satoshis
+								div.input-group-text sat
 
 				div.col-md-2
 					div.form-group
@@ -64,7 +64,7 @@ block content
 						div.input-group
 							input(type="number", class="form-control", id="expiration", name="expiration", value="24")
 							div.input-group-append
-								div.input-group-text hours
+								div.input-group-text hrs
 
 			button(type="submit", class="btn btn-primary") Create Invoice
 

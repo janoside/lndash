@@ -17,8 +17,11 @@ tr(class="text-monospace word-wrap")
 		include ./node-card.pug
 
 	td.text-right
+		- var atLeastOne = false;
 		- var currencyValue = new Decimal(channel.total_satoshis_received).dividedBy(100000000);
 		if (currencyValue > 0)
+			- var atLeastOne = true;
+
 			span.text-success
 				span +
 				include ./value-display.pug
@@ -27,9 +30,14 @@ tr(class="text-monospace word-wrap")
 
 		- currencyValue = new Decimal(channel.total_satoshis_sent).dividedBy(100000000);
 		if (currencyValue > 0)
+			- var atLeastOne = true;
+
 			span.text-danger
 				span -
 				include ./value-display.pug
+
+		if (!atLeastOne)
+			span -
 
 	td.text-right
 		- var currencyValue = new Decimal(channel.local_balance).dividedBy(100000000);

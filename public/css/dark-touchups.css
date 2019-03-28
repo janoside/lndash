@@ -18,6 +18,28 @@ hr {
 	background-color: #0c0c0c;
 }
 
-body {
-	color: white;
+body, .text-body {
+	color: white !important;
+}
+
+.bg-light {
+	background-color: #202326 !important;
+}
+
+
+.table-bordered {
+	border: 1px solid #2f373f;
+}
+
+.table-bordered th,
+.table-bordered td {
+	border: 1px solid #2f373f;
+}
+
+.table thead th {
+	border-bottom: solid 2px #2f373f;
+}
+
+.tab-content {
+	background-color: inherit;
 }

@@ -9,10 +9,10 @@ block breadcrumb
 block content
 	if (false)
 		pre
-			code.json #{JSON.stringify(localChannels, null, 4)}
+			code.json.bg-light #{JSON.stringify(localChannels, null, 4)}
 
 		pre
-			code.json #{JSON.stringify(localClosedChannels, null, 4)}
+			code.json.bg-light #{JSON.stringify(localClosedChannels, null, 4)}
 
 	if (!session.admin)
 		h1.h3 My Wallet Transactions

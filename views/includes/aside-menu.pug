@@ -34,7 +34,7 @@ aside.aside-menu.p-3.bg-main
 						if (currencySelected)
 							span.btn.btn-primary #{item.name}
 						else
-							a.btn.btn-secondary.bg-light(href=`/changeSetting?name=currencyFormatType&value=${item.values[0]}`) #{item.name}
+							a.btn.btn-light.border(href=`/changeSetting?name=currencyFormatType&value=${item.values[0]}`) #{item.name}
 
 	div.mb-3
 		h5.h6 Theme
@@ -45,7 +45,7 @@ aside.aside-menu.p-3.bg-main
 				if (itemSelected)
 					span.btn.btn-primary #{item.name}
 				else
-					a.btn.btn-secondary.bg-light(href=`/changeSetting?name=uiTheme&value=${item.vals[0]}`) #{item.name}
+					a.btn.btn-light.border(href=`/changeSetting?name=uiTheme&value=${item.vals[0]}`) #{item.name}
 
 	if (lndConnections.indexes.length > 1)
 		div.mb-3
