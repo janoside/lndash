@@ -1,5 +1,5 @@
 tr(class="text-monospace word-wrap")
-	td.font-weight-bold #{(channel_index + 1).toLocaleString()}
+	th.text-right #{(channel_index + 1).toLocaleString()}
 	td(class="table-col-channelid")
 		a(href=("/channel/" + channel.chan_id))
 			- var channel_id = channel.chan_id;

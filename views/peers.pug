@@ -36,7 +36,7 @@ block content
 				table(class="table table-bordered border-top")
 					thead(class="table-head-with-nav")
 						tr
-							th #
+							th.text-right #
 							th Node
 							th Address
 
@@ -49,7 +49,7 @@ block content
 					tbody.text-monospace
 						each item, item_index in listPeers.peers
 							tr
-								td.font-weight-bold #{(item_index + 1).toLocaleString()}
+								th.text-right #{(item_index + 1).toLocaleString()}
 								td
 									- var card_node_pubkey = item.pub_key;
 									include ./includes/node-card.pug

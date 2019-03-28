@@ -34,7 +34,8 @@ block content
 			div(class="row")
 				div(class="col-md-8")
 					div(class="row")
-						div(class="summary-split-table-label") Alias
+						div(class="summary-split-table-label")
+							span.border-dotted(title="The public name for this node, set by its owner. This can be set to any value, so should not be trusted as an identity unless otherwise verified." data-toggle="tooltip") Alias
 						div.summary-split-table-content.text-monospace
 							if (nodeInfo.node.alias.length > 0)
 								span #{nodeInfo.node.alias}
@@ -78,6 +79,13 @@ block content
 						div.summary-split-table-content.text-monospace
 							- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(100000000);
 							include ./includes/value-display.pug
+
+					if (nodeChannels.length > 1)
+						div(class="row")
+							div(class="summary-split-table-label") Avg Capacity
+							div.summary-split-table-content.text-monospace
+								- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(100000000).dividedBy(nodeChannels.length);
+								include ./includes/value-display.pug
 
 				div(class="col-md-4")
 						if (qrcodeUrls[nodeInfo.node.pub_key])
@@ -124,17 +132,42 @@ block content
 				if (false)
 					a.btn.btn-primary.mr-3(href=`/sendPayment?pubkey=${nodeInfo.node.pub_key}`) Send Payment
 
-	div(class="card mb-3 shadow-sm")
-		div(class="card-header")
-			h2(class="h6 mb-0")
-				span #{parseInt(nodeInfo.num_channels).toLocaleString()} 
-				if (nodeInfo.num_channels == 1)
+	- var sharedLocalChannels = [];
+	- var unsharedChannels = [];
+	each channel in nodeChannels
+		if (channel.node1_pub == lndRpc.internal_pubkey || channel.node2_pub == lndRpc.internal_pubkey)
+			- sharedLocalChannels.push(channel);
+		else
+			- unsharedChannels.push(channel);
+
+
+	if (sharedLocalChannels.length > 0)	
+		div.card.mb-3.shadow-sm
+			div.card-header
+				h2.h6.mb-0
+					span #{sharedLocalChannels.length.toLocaleString()} 
+					if (sharedLocalChannels.length == 1)
+						span Local Channel
+					else
+						span Local Channels
+
+			div.card-body
+				- var channels = sharedLocalChannels;
+				- var channelTableNotBordered = true;
+				- var channelTableIndexOffset = 0;
+				include includes/channel-table.pug
+
+	div.card.mb-3.shadow-sm
+		div.card-header
+			h2.h6.mb-0
+				span #{unsharedChannels.length.toLocaleString()} 
+				if (unsharedChannels.length == 1)
 					span Channel
 				else
 					span Channels
 
-		div(class="card-body")
-			- var channels = nodeChannels;
+		div.card-body
+			- var channels = unsharedChannels;
 			- var channelTableNotBordered = true;
 			- var channelTableIndexOffset = 0;
 			include includes/channel-table.pug

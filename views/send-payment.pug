@@ -50,7 +50,7 @@ block headContent
 			}, 1000);
 	
 block content
-	h1(class="h2") Pay Invoice
+	h1.h3 Pay Invoice
 	hr
 
 	if (!session.admin)
@@ -68,7 +68,7 @@ block content
 
 					span Details
 					pre
-						code.json #{JSON.stringify(payInvoiceResponse, null, 4)}
+						code.json.bg-light #{JSON.stringify(payInvoiceResponse, null, 4)}
 			else
 				div.alert.alert-success
 					h3.h5 Payment Sent
@@ -79,7 +79,9 @@ block content
 					span was sent to 
 					span.font-weight-bold #{dest_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
 					span  in 
-					span.font-weight-bold #{parseInt(payInvoiceResponse.payment_route.hops.length).toLocaleString()} hops
+					span.font-weight-bold #{parseInt(payInvoiceResponse.payment_route.hops.length).toLocaleString()} hop
+					if (payInvoiceResponse.payment_route.hops.length != 1)
+						span.font-weight-bold s
 					span . You paid 
 					span.font-weight-bold #{parseInt(payInvoiceResponse.payment_route.total_fees_msat).toLocaleString()} msat 
 					span in fees.
@@ -121,7 +123,7 @@ block content
 
 					if (false)
 						pre
-							code.json #{JSON.stringify(payInvoiceResponse, null, 4)}
+							code.json.bg-light #{JSON.stringify(payInvoiceResponse, null, 4)}
 
 		if (decodedInvoice)
 			div(class="card mb-3 shadow-sm")
@@ -180,7 +182,7 @@ block content
 
 						div(id="tab-json", class="tab-pane", role="tabpanel")
 							pre
-								code.json #{JSON.stringify(decodedInvoice, null, 4)}
+								code.json.bg-light #{JSON.stringify(decodedInvoice, null, 4)}
 
 					
 					hr
