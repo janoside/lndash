@@ -43,9 +43,14 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 		button.navbar-toggler.sidebar-toggler.d-lg-none.mr-auto(type='button' data-toggle='sidebar-show')
 			span.navbar-toggler-icon
 		a.navbar-brand(href='/')
+			if (session.uiTheme && session.uiTheme == "dark")
+				img.navbar-brand-full(src='/img/logo/app-dark.png' width='82' height='25' alt='LND Admin')
+			else
 			img.navbar-brand-full(src='/img/logo/app.png' width='82' height='25' alt='LND Admin')
+
 			//span.navbar-brand-full LND Admin
 			img.navbar-brand-minimized(src='/img/logo/app.png' width='82' height='25' alt='LND Admin')
+
 		button.navbar-toggler.sidebar-toggler.d-md-down-none(type='button' data-toggle='sidebar-lg-show')
 			span.navbar-toggler-icon
 
@@ -269,7 +274,7 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 			button.sidebar-minimizer.brand-minimizer(type='button')
 
 		main.main.pb-4
-			ol.breadcrumb.bg-main
+			ol.breadcrumb.bg-main.text-body
 				block breadcrumb
 					li.breadcrumb-item
 						a(href='/') Admin Home
