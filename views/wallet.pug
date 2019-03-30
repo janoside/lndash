@@ -73,17 +73,22 @@ block content
 			div.card-header
 				h3.h6.mb-0 #{walletUtxosResponse.utxos.length.toLocaleString()} UTXOs
 			div.card-body
+				each utxo, utxoIndex in walletUtxosResponse.utxos
+					- delete utxo.outpoint.txid_bytes;
+					include includes/wallet-utxo-details-modal.pug
+
 				div.table-responsive
 					table.table
 						thead.bg-light
 							tr
 								th.text-right #
 								th Type
-								th Txid
+								th Outpoint
 								th Address
 								th Pubkey Script
 								th.text-right Confirmations
 								th.text-right Amount
+								th Details
 
 						tbody.text-monospace
 							each utxo, utxoIndex in walletUtxosResponse.utxos
@@ -99,6 +104,8 @@ block content
 										else
 											span(title=tx.tx_hash, data-toggle="tooltip")
 												include includes/btc-txid.pug
+
+										span  [#{utxo.outpoint.output_index}]
 
 									td
 										- var btc_address = utxo.address;
@@ -120,6 +127,9 @@ block content
 									td.text-right
 										- var currencyValue = new Decimal(utxo.amount_sat).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 										include includes/value-display.pug
+
+									td
+										a(href="javascript:void(0)" data-toggle="modal" data-target=("#utxoModal-" + utxoIndex)) Details
 
 
 		div.card.shadow-sm
@@ -189,16 +199,20 @@ block content
 										span Confirmations
 									th Date
 									th.text-right Amount
+									th Details
 							
 							tbody.text-monospace
 								- onChainTransactions.transactions.reverse();
-								each tx, index in onChainTransactions.transactions
+								each tx, txIndex in onChainTransactions.transactions
+									include includes/wallet-tx-details-modal.pug
+
+								each tx, txIndex in onChainTransactions.transactions
 									if (tx.num_confirmations > 0)
 										tr
-											td.text-right.font-weight-bold #{(index + 1).toLocaleString()}
+											th.text-right #{(txIndex + 1).toLocaleString()}
 											td(class="table-col-text")
 												if (config.blockExplorerUrl)
-													a(href=(config.blockExplorerUrl + "/tx/" + tx.tx_hash), target="_blank", title=tx.tx_hash, data-toggle="tooltip")
+													a(href=`${config.blockExplorerUrl}/tx/${tx.tx_hash}`, target="_blank", title=tx.tx_hash, data-toggle="tooltip")
 														- var btc_txid = tx.tx_hash;
 														include includes/btc-txid.pug
 												else
@@ -208,13 +222,13 @@ block content
 
 											td(class="table-col-text")
 												if (config.blockExplorerUrl)
-													each addr, index in tx.dest_addresses
-														a(href=(config.blockExplorerUrl + "/address/" + addr), target="_blank", title=addr, data-toggle="tooltip")
+													each addr, addrIndex in tx.dest_addresses
+														a(href=`${config.blockExplorerUrl}/address/${addr}`, target="_blank", title=addr, data-toggle="tooltip")
 															- var btc_address = addr;
 															include includes/btc-address.pug
 														br
 												else
-													each addr, index in tx.dest_addresses
+													each addr, addrIndex in tx.dest_addresses
 														span(title=addr, data-toggle="tooltip")
 															- var btc_address = addr;
 															include includes/btc-address.pug
@@ -234,7 +248,7 @@ block content
 
 											td(class="table-col-int text-right")
 												if (config.blockExplorerUrl)
-													a(href=(config.blockExplorerUrl + "/block-height/" + tx.block_height), target="_blank") #{parseInt(tx.block_height).toLocaleString()}
+													a(href=`${config.blockExplorerUrl}/block-height/${tx.block_height}`, target="_blank") #{parseInt(tx.block_height).toLocaleString()}
 												else
 													span(title=tx.tx_hash, data-toggle="tooltip") #{parseInt(tx.block_height).toLocaleString()}
 
@@ -261,6 +275,9 @@ block content
 														include ./includes/value-display.pug
 												else
 													span -
+
+											td
+												a(href="javascript:void(0)" data-toggle="modal" data-target=("#txModal-" + txIndex)) Details
 
 
 

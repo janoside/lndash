@@ -1,0 +1,17 @@
+div.modal.fade(id=("txModal-" + txIndex) role="dialog" aria-hidden="true")
+	div.modal-dialog.modal-xl(role="document")
+		div.modal-content
+			div.modal-header
+				h5.modal-title.text-monospace
+					span Transaction
+					br
+					span #{tx.tx_hash}
+				button.close(type="button" data-dismiss="modal" aria-label="Close")
+					span(aria-hidden="true") &times;
+
+			div.modal-body
+				pre
+					code.json.bg-light #{JSON.stringify(tx, null, 4)}
+
+			div.modal-footer
+				button.btn.btn-secondary(type="button" class="" data-dismiss="modal") Close
