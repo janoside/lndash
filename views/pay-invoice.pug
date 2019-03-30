@@ -1,0 +1,231 @@
+extends layout4
+
+block breadcrumb
+	li.breadcrumb-item
+		a(href='/') Home
+	li.breadcrumb-item Tools
+	li.breadcrumb-item Pay Invoice
+
+block headContent
+	title Pay Invoice
+
+	if (decodedInvoice)
+		script.
+			var countDownDate = new Date(#{parseInt(decodedInvoice.timestamp)} * 1000 + #{decodedInvoice.expiry} * 1000).getTime();
+
+			// Update the count down every 1 second
+			var x = setInterval(function() {
+				// Get todays date and time
+				var now = new Date().getTime();
+
+				// Find the distance between now and the count down date
+				var distance = countDownDate - now;
+
+				// Time calculations for days, hours, minutes and seconds
+				var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+				var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+				var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+				var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+				// Display the result in the element with id="demo"
+				var str = "";
+				if (days > 0) {
+					str += (days + "d ");
+				}
+				if (hours > 0) {
+					str += (hours + "h ");
+				}
+
+				str += minutes + "m ";
+				str += seconds + "s";
+
+				document.getElementById("expiry-text").innerHTML = str;
+
+				// If the count down is finished, write some text
+				if (distance < 0) {
+					clearInterval(x);
+					document.getElementById("expiry-text").innerHTML = "Expired";
+					document.getElementById("expiry-text").className += "text-danger";
+				}
+			}, 1000);
+	
+block content
+	h1.h3 Pay Invoice
+	hr
+
+	if (!session.admin)
+		- var loginRequiredNote = "allow you to pay an invoice from your LND node.";
+		include includes/login-required-alert.pug
+
+	else
+
+		if (payInvoiceResponse)
+			if (payInvoiceResponse.payment_error != "")
+				div.alert.alert-danger
+					h3.h5 Failed to Pay Invoice
+
+					span Error: #{payInvoiceResponse.payment_error}
+
+					span Details
+					pre
+						code.json.bg-light #{JSON.stringify(payInvoiceResponse, null, 4)}
+			else
+				div.alert.alert-success
+					h3.h5 Payment Sent
+
+					- var dest_pubkey = payInvoiceResponse.payment_route.hops[payInvoiceResponse.payment_route.hops.length - 1].pub_key;
+					span Your payment of 
+					span.font-weight-bold #{parseInt(payInvoiceResponse.payment_route.total_amt).toLocaleString()} sat 
+					span was sent to 
+					span.font-weight-bold #{dest_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
+					span  in 
+					span.font-weight-bold #{parseInt(payInvoiceResponse.payment_route.hops.length).toLocaleString()} hop
+					if (payInvoiceResponse.payment_route.hops.length != 1)
+						span.font-weight-bold s
+					span . You paid 
+					span.font-weight-bold #{parseInt(payInvoiceResponse.payment_route.total_fees_msat).toLocaleString()} msat 
+					span in fees.
+
+					div.clearfix.mt-2.text-monospace(style="overflow: auto; width: 100%;")
+						div.float-left.mr-2
+							div.card.text-body
+								div.card-body
+									- var card_node_pubkey = lndRpc.internal_pubkey;
+									include includes/node-card.pug
+
+						div.float-left.mr-2.mt-4
+							i.fas.fa-arrow-right
+
+						each hop, hopIndex in payInvoiceResponse.payment_route.hops
+							if (hopIndex > 0)
+								div.float-left.mr-2.mt-4
+									i.fas.fa-arrow-right
+
+							div.float-left.mr-2
+								div.card.text-body
+									div.card-body
+										div.pb-3.mb-3.border-bottom
+											- var card_node_pubkey = hop.pub_key;
+											include includes/node-card.pug
+
+										div.mb-2
+											span.font-weight-bold Channel
+											br
+											
+											a(href=`/channel/${hop.chan_id}`)
+												- var channel_id = hop.chan_id;
+												include includes/channel-id.pug
+
+										div
+											span.font-weight-bold Fees
+											br
+											if (parseInt(hop.fee_msat) > 0)
+												span.text-danger +#{hop.fee_msat} msat
+											else
+												span -
+
+						each hop, hopIndex in payInvoiceResponse.payment_route.hops
+							if (hopIndex > -1)
+								div.float-left.mr-2.mt-4
+									i.fas.fa-arrow-right
+
+							div.float-left.mr-2
+								div.card.text-body
+									div.card-body
+										div.pb-3.mb-3.border-bottom
+											- var card_node_pubkey = hop.pub_key;
+											include includes/node-card.pug
+
+										div.mb-2
+											span.font-weight-bold Channel
+											br
+											a(href=`/channel/${hop.chan_id}`)
+												- var channel_id = hop.chan_id;
+												include includes/channel-id.pug
+
+										div
+											span.font-weight-bold Fees
+											br
+											if (parseInt(hop.fee_msat) > 0)
+												span.text-danger +#{hop.fee_msat} msat
+											else
+												span -
+
+					if (false)
+						pre
+							code.json.bg-light #{JSON.stringify(payInvoiceResponse, null, 4)}
+
+		if (decodedInvoice)
+			div(class="card mb-3 shadow-sm")
+				div(class="card-header")
+					h2(class="h6 mb-0") Payment Details
+				div(class="card-body")
+					ul(class='nav nav-tabs mb-3')
+						li(class="nav-item")
+							a(data-toggle="tab", href="#tab-summary", class="nav-link active", role="tab") Summary
+						li(class="nav-item")
+							a(data-toggle="tab", href="#tab-json", class="nav-link", role="tab") JSON
+
+					div(class="tab-content")
+						div(id="tab-summary", class="tab-pane active", role="tabpanel")
+							div
+								div(class="row")
+									div(class="summary-table-label") Destination
+									div.summary-table-content.text-monospace
+										- var card_node_pubkey = decodedInvoice.destination;
+										include ./includes/node-card.pug
+
+								div(class="row")
+									div(class="summary-table-label") Description
+									div.summary-table-content.text-monospace
+										if (decodedInvoice.description)
+											span #{decodedInvoice.description}
+										else
+											span -
+
+								div(class="row")
+									div(class="summary-table-label") Hash
+									div.summary-table-content.text-monospace #{decodedInvoice.payment_hash}
+
+								div(class="row")
+									div(class="summary-table-label") Amount
+									div.summary-table-content.text-monospace
+										- var currencyValue = new Decimal(decodedInvoice.num_satoshis).dividedBy(100000000);
+										include ./includes/value-display.pug
+
+								div(class="row")
+									div(class="summary-table-label") Date
+									div.summary-table-content.text-monospace
+										- var timestampTime = parseInt(decodedInvoice.timestamp);
+										- var timeAgoTime = timestampTime;
+										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timestampTime) * 1000))));
+
+										span #{moment.utc(new Date(parseInt(timestampTime) * 1000)).format("Y-MM-DD HH:mm:ss")} utc
+										br
+										span.text-muted #{timeAgo.format()} ago
+
+								div(class="row")
+									div(class="summary-table-label") Expiration
+									div.summary-table-content.text-monospace
+										span(id="expiry-text") -
+								
+
+						div(id="tab-json", class="tab-pane", role="tabpanel")
+							pre
+								code.json.bg-light #{JSON.stringify(decodedInvoice, null, 4)}
+
+					
+					hr
+
+					form(method="post")
+						input(type="hidden", name="invoice", value=invoice)
+
+						button(type="submit", class="btn btn-primary") Send Payment
+
+		else
+			form(method="get")
+				div.form-group
+					label(for="invoice") Encoded Payment Request / Invoice
+					textarea.form-control.form-control-lg.text-monospace(rows="4" id="invoice" name="invoice")
+
+				button(type="submit", class="btn btn-primary") Decode

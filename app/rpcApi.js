@@ -358,7 +358,23 @@ function payInvoice(invoiceStr) {
 				return;
 			}
 
-			console.log("Payment sent, response: " + response + ", json: " + JSON.stringify(response) + ", invoice: " + invoiceStr);
+			resolve(response);
+		});
+	});
+}
+
+function sendPayment(destPubkey, amountSat) {
+	console.log("Sending payment: dest=" + destPubkey + ", amt=" + amountSat);
+
+	return new Promise(function(resolve, reject) {
+		lndRpc.SendPaymentSync({dest_string:destPubkey, amt:amountSat}, function(err, response) {
+			if (err) {
+				utils.logError("32r0uhsd0uhds0", err);
+
+				reject(err);
+
+				return;
+			}
 
 			resolve(response);
 		});
@@ -495,6 +511,22 @@ function queryRoute(targetPubkey, amountSat) {
 	});
 }
 
+function getForwardingHistory(startTime, endTime, limit, offset) {
+	return new Promise(function(resolve, reject) {
+		lndRpc.ForwardingHistory({start_time:startTime, end_time:endTime, index_offset:offset, num_max_events:limit}, function(err, response) {
+			if (err) {
+				utils.logError("329hruewfdhhd", err);
+
+				reject(err);
+
+				return;
+			}
+
+			resolve(response);
+		});
+	});
+}
+
 module.exports = {
 	getFullNetworkDescription: getFullNetworkDescription,
 	refreshFullNetworkDescription: refreshFullNetworkDescription,
@@ -516,12 +548,16 @@ module.exports = {
 
 	createInvoice: createInvoice,
 	decodeInvoiceString: decodeInvoiceString,
+
 	payInvoice: payInvoice,
+	sendPayment: sendPayment,
+	
 	getOnChainTransactions: getOnChainTransactions,
 	getInvoices: getInvoices,
 
 	signMessage:signMessage,
 	verifyMessage:verifyMessage,
 
-	queryRoute:queryRoute
+	queryRoute: queryRoute,
+	getForwardingHistory: getForwardingHistory
 };

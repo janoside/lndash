@@ -1,0 +1,29 @@
+extends layout4
+
+block headContent
+	title Routing History
+
+block breadcrumb
+	li.breadcrumb-item
+		a(href='/') Home
+	li.breadcrumb-item Lightning Payments
+	li.breadcrumb-item Forwarding History
+	
+block content
+	h1.h3 Forwarding History
+
+	hr
+
+	if (!session.admin)
+		- var loginRequiredNote = "show this node's payment forwarding history.";
+		include includes/login-required-alert.pug
+
+	else
+
+		if (forwardingHistoryResponse.forwarding_events.length == 0)
+			div.alert.alert-warning Your node has not forwarded any payments
+
+		else
+			pre
+				code.json.bg-light #{JSON.stringify(forwardingHistoryResponse, null, 4)}
+			

@@ -22,7 +22,7 @@ block content
 
 		form(method="post")
 			div.form-group
-				label(for="msg") Target Node
+				label(for="pubkey") Target Node Public Key
 				input.form-control.form-control-lg.text-monospace(id="pubkey" name="pubkey" type="text" value=pubkey)
 
 			if (pubkey)
@@ -60,7 +60,7 @@ block content
 		else if (queryRouteResponse)
 			hr.my-3
 
-			div.alert.alert-success.shadow-sm.font-weight-bold Route Found
+			div.alert.alert-success.shadow-sm Route Found
 
 			div.card.shadow-sm.text-body
 				div.card-header

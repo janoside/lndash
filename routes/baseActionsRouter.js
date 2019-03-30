@@ -564,8 +564,36 @@ router.post("/query-route", function(req, res) {
 	});
 });
 
-router.get("/routing-history", function(req, res) {
-	res.render("routing-history");
+router.get("/forwarding-history", function(req, res) {
+	var startTime = new Date().getTime() - 24 * 60 * 60;
+	var endTime = new Date().getTime();
+	var limit = 20;
+	var offset = 0;
+
+	var promises = [];
+
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getForwardingHistory(startTime, endTime, limit, offset).then(function(fowardingHistoryResponse) {
+			res.locals.fowardingHistoryResponse = fowardingHistoryResponse;
+
+			resolve();
+
+		}).catch(function(err) {
+			utils.logError("703yrwegfddsg", err);
+
+			reject(err);
+		});
+	}));
+
+	Promise.all(promises).then(function() {
+		res.render("forwarding-history");
+
+	}).catch(function(err) {
+		utils.logError("932hr9y7wgdfcd", err);
+
+		res.render("forwarding-history");
+	});
+	
 });
 
 router.get("/logout", function(req, res) {
@@ -591,6 +619,9 @@ router.get("/connect-lnd", function(req, res) {
 		if (lndIndex != global.lndRpc.internal_index) {
 			global.lndRpc = global.lndConnections.connectionsByIndex[lndIndex];
 
+			rpcApi.refreshLocalChannels();
+			rpcApi.refreshLocalClosedChannels();
+
 			rpcApi.refreshFullNetworkDescription().then(function() {
 				req.session.userMessage = `Switched to LND ${global.lndRpc.internal_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)} ('${global.lndRpc.internal_alias}')`;
 				req.session.userMessageType = "success";
@@ -598,7 +629,7 @@ router.get("/connect-lnd", function(req, res) {
 				res.redirect(req.headers.referer);
 
 			}).catch(function(err) {
-				console.log("Error 230uhfwequfghewfuew: " + err);
+				utils.logError("230uhfwequfghewfuew", err);
 
 				req.session.userMessage = `Error switching to LND ${global.lndRpc.internal_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)} ('${global.lndRpc.internal_alias}')`;
 				req.session.userMessageType = "danger";
@@ -991,7 +1022,7 @@ router.get("/payment-history", function(req, res) {
 	});
 });
 
-router.get("/send-payment", function(req, res) {
+router.get("/pay-invoice", function(req, res) {
 	var promises = [];
 
 	if (req.query.invoice) {
@@ -1014,7 +1045,7 @@ router.get("/send-payment", function(req, res) {
 	}
 
 	Promise.all(promises).then(function() {
-		res.render("send-payment");
+		res.render("pay-invoice");
 
 	}).catch(function(err) {
 		req.session.userErrors.push(err);
@@ -1023,11 +1054,11 @@ router.get("/send-payment", function(req, res) {
 
 		utils.logError("4379t2347g", err);
 
-		res.render("send-payment");
+		res.render("pay-invoice");
 	})
 });
 
-router.post("/send-payment", function(req, res) {
+router.post("/pay-invoice", function(req, res) {
 	rpcApi.payInvoice(req.query.invoice).then(function(response) {
 		res.locals.payInvoiceResponse = response;
 
@@ -1040,9 +1071,7 @@ router.post("/send-payment", function(req, res) {
 		delete response.payment_preimage;
 		delete response.payment_hash;
 
-		console.log("SendPayment response: " + response + ", json: " + JSON.stringify(response, null, 4));
-
-		res.render("send-payment");
+		res.render("pay-invoice");
 
 	}).catch(function(err) {
 		req.session.userErrors.push(err);
@@ -1051,6 +1080,71 @@ router.post("/send-payment", function(req, res) {
 		req.session.userMessageType = "danger";
 
 		utils.logError("8usedghvcf072g", err);
+
+		res.render("pay-invoice");
+	});
+});
+
+router.get("/send-payment", function(req, res) {
+	var promises = [];
+
+	if (req.query.destPubkey) {
+		res.locals.destPubkey = req.query.destPubkey;
+	}
+
+	if (req.query.amountSat) {
+		res.locals.amountSat = req.query.amountSat;
+	}
+
+	Promise.all(promises).then(function() {
+		res.render("send-payment");
+
+	}).catch(function(err) {
+		req.session.userErrors.push(err);
+
+		utils.logError("24308trhw4078hrwhs", err);
+
+		res.render("send-payment");
+	})
+});
+
+router.post("/send-payment", function(req, res) {
+	var promises = [];
+
+	var destPubkey = "";
+	var amountSat = 0;
+
+	if (req.query.destPubkey) {
+		destPubkey = req.query.destPubkey;
+	}
+
+	if (req.query.amountSat) {
+		amountSat = parseInt(req.query.amountSat);
+	}
+
+	res.locals.destPubkey = destPubkey;
+	res.locals.amountSat = amountSat;
+
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.sendPayment(destPubkey, amountSat).then(function(sendPaymentResponse) {
+			res.locals.sendPaymentResponse = sendPaymentResponse;
+
+			resolve();
+
+		}).catch(function(err) {
+			utils.logError("973hrwdgfs", err);
+
+			reject(err);
+		});
+	}));
+
+	Promise.all(promises).then(function() {
+		res.render("send-payment");
+
+	}).catch(function(err) {
+		req.session.userErrors.push(err);
+
+		utils.logError("3290r7ghsd9gsd", err);
 
 		res.render("send-payment");
 	});
