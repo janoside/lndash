@@ -527,6 +527,22 @@ function getForwardingHistory(startTime, endTime, limit, offset) {
 	});
 }
 
+function getWalletUtxos(minConfirmations=1, maxConfirmations=100000000) {
+	return new Promise(function(resolve, reject) {
+		lndRpc.ListUnspent({min_confs:minConfirmations, max_confs:maxConfirmations}, function(err, response) {
+			if (err) {
+				utils.logError("3420d8hfsdhs0", err);
+
+				reject(err);
+
+				return;
+			}
+
+			resolve(response);
+		});
+	});
+}
+
 module.exports = {
 	getFullNetworkDescription: getFullNetworkDescription,
 	refreshFullNetworkDescription: refreshFullNetworkDescription,
@@ -545,6 +561,7 @@ module.exports = {
 
 	getChannelBalance,
 	getWalletBalance,
+	getWalletUtxos: getWalletUtxos,
 
 	createInvoice: createInvoice,
 	decodeInvoiceString: decodeInvoiceString,

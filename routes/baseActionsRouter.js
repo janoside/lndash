@@ -308,6 +308,11 @@ router.get("/wallet", function(req, res) {
 			res.locals.channelBalance = channelBalanceResponse;
 
 			resolve();
+
+		}).catch(function(err) {
+			utils.logError("3279hsd907ts", err);
+
+			reject(err);
 		});
 	}));
 
@@ -316,6 +321,11 @@ router.get("/wallet", function(req, res) {
 			res.locals.walletBalance = walletBalanceResponse;
 
 			resolve();
+
+		}).catch(function(err) {
+			utils.logError("3297rtwe7tg", err);
+
+			reject(err);
 		});
 	}));
 
@@ -324,6 +334,11 @@ router.get("/wallet", function(req, res) {
 			res.locals.localChannels = localChannels;
 
 			resolve();
+		
+		}).catch(function(err) {
+			utils.logError("2307rwehdsgds", err);
+
+			reject(err);
 		});
 	}));
 
@@ -332,6 +347,24 @@ router.get("/wallet", function(req, res) {
 			res.locals.closedChannels = closedChannels;
 
 			resolve();
+		
+		}).catch(function(err) {
+			utils.logError("3r07wgshsgs", err);
+
+			reject(err);
+		});
+	}));
+
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getWalletUtxos().then(function(walletUtxosResponse) {
+			res.locals.walletUtxosResponse = walletUtxosResponse;
+
+			resolve();
+		
+		}).catch(function(err) {
+			utils.logError("32078sdhsghgsh", err);
+
+			reject(err);
 		});
 	}));
 
@@ -340,6 +373,11 @@ router.get("/wallet", function(req, res) {
 			res.locals.onChainTransactions = onChainTransactionsResponse;
 
 			resolve();
+		
+		}).catch(function(err) {
+			utils.logError("213e087hy07sgdh", err);
+
+			reject(err);
 		});
 	}));
 
@@ -347,7 +385,7 @@ router.get("/wallet", function(req, res) {
 		res.render("wallet");
 
 	}).catch(function(err) {
-		console.log("Error 3r9ygew9fgvew9fd: " + err);
+		utils.logError("3r9ygew9fgvew9fd", err);
 
 		res.render("wallet");
 	});

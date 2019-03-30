@@ -19,46 +19,6 @@ block content
 
 	else
 
-		div.row.mb-3
-			div.col-md-6
-				div.card.shadow-sm.mb-3
-					div.card-header
-						h2.h6.mb-0 Wallet Summary
-					div.card-body
-						div.row
-							div.summary-split-table-label
-								span.border-dotted(data-toggle="tooltip" title="The value in your wallet that's not currently committed to any payment channels.") Balance
-							div.summary-split-table-content.text-monospace
-								- var currencyValue = new Decimal(walletBalance.confirmed_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-								include includes/value-display.pug
-
-								if (walletBalance.unconfirmed_balance > 0)
-									br
-									span.text-muted (+
-										- var currencyValue = new Decimal(walletBalance.unconfirmed_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										include includes/value-display.pug
-										span  unconfirmed)
-
-						if (false)
-							div.row
-								div.summary-split-table-label Active Channel Balance
-								div.summary-split-table-content.text-monospace
-									- var currencyValue = new Decimal(channelBalance.balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-									include includes/value-display.pug
-
-							div.row
-								div.summary-split-table-label Pending Channel Balance
-								div.summary-split-table-content.text-monospace
-									- var currencyValue = new Decimal(channelBalance.pending_open_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-									include includes/value-display.pug
-
-			div.col-md-6
-				div.card.shadow-sm.mb-3
-					div.card-header
-						h2.h6.mb-0 Tools
-					div.card-body
-						a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)") New Deposit Address (p2wkh)
-						a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)") New Deposit Address (np2wkh)
 
 		- var unconfirmedTxCount = 0;
 		each tx, index in onChainTransactions.transactions
@@ -67,6 +27,99 @@ block content
 
 		- var confirmedTxCount = (onChainTransactions.transactions.length - unconfirmedTxCount);
 
+
+		div.card.shadow-sm.mb-3
+			div.card-header
+				h2.h6.mb-0 Wallet
+			div.card-body
+				div.row
+					div.summary-table-label
+						span.border-dotted(data-toggle="tooltip" title="The value in your wallet that's not currently committed to any payment channels.") Balance
+					div.summary-table-content.text-monospace
+						- var currencyValue = new Decimal(walletBalance.confirmed_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+						include includes/value-display.pug
+
+						if (walletBalance.unconfirmed_balance > 0)
+							br
+							span.text-muted (+
+								- var currencyValue = new Decimal(walletBalance.unconfirmed_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+								include includes/value-display.pug
+								span  unconfirmed)
+
+					div.summary-table-label
+						span.border-dotted(title="Number of unspent transactions outputs." data-toggle="tooltip") UTXOs
+					div.summary-table-content.text-monospace #{walletUtxosResponse.utxos.length.toLocaleString()}
+
+					div.summary-table-label Transactions
+					div.summary-table-content.text-monospace #{confirmedTxCount.toLocaleString()}
+							
+
+		div.card.shadow-sm.mb-3
+			div.card-header
+				h2.h6.mb-0 Tools
+			div.card-body
+				a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)")
+					i.fas.fa-qrcode.mr-2
+					span New Deposit Address
+				a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)")
+					i.fas.fa-external-link-alt.mr-2
+					span Withdraw To Address(es)
+
+		if (false)
+			pre
+				code.json.bg-light #{JSON.stringify(walletUtxosResponse, null, 4)}
+						
+		div.card.shadow-sm.mb-3
+			div.card-header
+				h3.h6.mb-0 #{walletUtxosResponse.utxos.length.toLocaleString()} UTXOs
+			div.card-body
+				div.table-responsive
+					table.table
+						thead.bg-light
+							tr
+								th.text-right #
+								th Type
+								th Txid
+								th Address
+								th Pubkey Script
+								th.text-right Confirmations
+								th.text-right Amount
+
+						tbody.text-monospace
+							each utxo, utxoIndex in walletUtxosResponse.utxos
+								tr
+									th.text-right #{(utxoIndex + 1).toLocaleString()}
+									td #{utxo.type}
+									td
+										- var btc_txid = utxo.outpoint.txid_str;
+
+										if (config.blockExplorerUrl)
+											a(href=`${config.blockExplorerUrl}/tx/${btc_txid}`, title=btc_txid, data-toggle="tooltip")
+												include includes/btc-txid.pug
+										else
+											span(title=tx.tx_hash, data-toggle="tooltip")
+												include includes/btc-txid.pug
+
+									td
+										- var btc_address = utxo.address;
+
+										if (config.blockExplorerUrl)
+											a(href=`${config.blockExplorerUrl}/address/${btc_address}`, title=btc_address, data-toggle="tooltip")
+												include includes/btc-address.pug
+										else
+											span(title=btc_address, data-toggle="tooltip")
+												include includes/btc-address.pug
+
+									td
+										- var btc_address = utxo.pk_script;
+										span.border-dotted(title=btc_address data-toggle="tooltip")
+											include includes/btc-address.pug
+
+									td.text-right #{parseInt(utxo.confirmations).toLocaleString()}
+										
+									td.text-right
+										- var currencyValue = new Decimal(utxo.amount_sat).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+										include includes/value-display.pug
 
 
 		div.card.shadow-sm
@@ -101,12 +154,16 @@ block content
 												td.font-weight-bold #{(index + 1).toLocaleString()}
 												td(class="table-col-text")
 													if (config.blockExplorerUrl)
-														a(href=(config.blockExplorerUrl + "/tx/" + tx.tx_hash), title=tx.tx_hash, data-toggle="tooltip") #{tx.tx_hash.substring(0, config.site.txidMaxDisplayLength)}
+														a(href=`${config.blockExplorerUrl}/tx/${tx.tx_hash}`, title=tx.tx_hash, data-toggle="tooltip")
+															- var btc_txid = tx.tx_hash;
+															include includes/btc-txid.pug
 													else
-														span(title=tx.tx_hash, data-toggle="tooltip") #{tx.tx_hash.substring(0, config.site.txidMaxDisplayLength)}
+														span(title=tx.tx_hash, data-toggle="tooltip")
+															- var btc_txid = tx.tx_hash;
+															include includes/btc-txid.pug
 
 												td(class="table-col-currencyvalue")
-													- var currencyValue = new Decimal(Math.abs(parseInt(tx.amount))).dividedBy(100000000);
+													- var currencyValue = new Decimal(Math.abs(parseInt(tx.amount))).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 													if (parseInt(tx.amount) > 0)
 														div(class="text-success")
 															span +
@@ -193,7 +250,7 @@ block content
 												span.text-muted #{timeAgo.humanize()} ago
 
 											td(class="table-col-currencyvalue text-right")
-												- var currencyValue = new Decimal(Math.abs(parseInt(tx.amount))).dividedBy(100000000);
+												- var currencyValue = new Decimal(Math.abs(parseInt(tx.amount))).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 												if (parseInt(tx.amount) > 0)
 													div(class="text-success")
 														span +
