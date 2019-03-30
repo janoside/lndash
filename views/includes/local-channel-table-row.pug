@@ -1,15 +1,47 @@
 tr(class="text-monospace word-wrap")
 	th.text-right #{(channel_index + 1).toLocaleString()}
 	td(class="table-col-channelid")
-		a(href=("/channel/" + channel.chan_id))
-			- var channel_id = channel.chan_id;
-			include ./channel-id.pug
-			
-	td.text-center.align-middle
-		if (channel.initiator)
-			i(class="fas fa-check text-success")
+		if (channel.active)
+			a(href=("/channel/" + channel.chan_id))
+				- var channel_id = channel.chan_id;
+				include ./channel-id.pug
+
 		else
-			i(class="fas fa-times text-dark")
+			span
+				- var channel_id = channel.chan_id;
+				include ./channel-id.pug
+			
+	td
+		if (channel.active)
+			span.text-success Active
+		else
+			div.text-danger Closed
+
+			hr.my-2
+
+			div.text-muted
+				span.font-weight-bold Close Type: 
+				span #{channel.close_type}
+
+			div.text-muted
+				span.font-weight-bold Txid: 
+
+				if (config.blockExplorerUrl)
+					a(href=`${config.blockExplorerUrl}/tx/${channel.closing_tx_hash}`, title=channel.closing_tx_hash, data-toggle="tooltip")
+						- var btc_txid = channel.closing_tx_hash;
+						include ./btc-txid.pug
+				else
+					span(title=tx.tx_hash, data-toggle="tooltip")
+						- var btc_txid = channel.closing_tx_hash;
+						include ./btc-txid.pug
+
+			div.text-muted
+				span.font-weight-bold Block: 
+				if (config.blockExplorerUrl)
+					a(href=`${config.blockExplorerUrl}/block-height/${channel.close_height}`) #{channel.close_height.toLocaleString()}
+
+				else
+					span #{channel.close_height.toLocaleString()}
 
 
 	td
@@ -17,60 +49,81 @@ tr(class="text-monospace word-wrap")
 		include ./node-card.pug
 
 	td.text-right
-		- var atLeastOne = false;
-		- var currencyValue = new Decimal(channel.total_satoshis_received).dividedBy(100000000);
-		if (currencyValue > 0)
-			- var atLeastOne = true;
+		if (channel.active)
+			- var atLeastOne = false;
+			- var currencyValue = new Decimal(channel.total_satoshis_received).dividedBy(100000000);
+			if (currencyValue > 0)
+				- var atLeastOne = true;
 
-			span.text-success
-				span +
-				include ./value-display.pug
+				span.text-success
+					span +
+					include ./value-display.pug
 
-			br
+				br
 
-		- currencyValue = new Decimal(channel.total_satoshis_sent).dividedBy(100000000);
-		if (currencyValue > 0)
-			- var atLeastOne = true;
+			- currencyValue = new Decimal(channel.total_satoshis_sent).dividedBy(100000000);
+			if (currencyValue > 0)
+				- var atLeastOne = true;
 
-			span.text-danger
+				span.text-danger
+					span -
+					include ./value-display.pug
+
+			if (!atLeastOne)
 				span -
-				include ./value-display.pug
 
-		if (!atLeastOne)
+		else
 			span -
 
 	td.text-right
-		- var currencyValue = new Decimal(channel.local_balance).dividedBy(100000000);
-		include ./value-display.pug
+		if (channel.active)
+			- var currencyValue = new Decimal(channel.local_balance).dividedBy(100000000);
+			include ./value-display.pug
+
+		else
+			span -
 
 	td.text-right
-		- var currencyValue = new Decimal(channel.remote_balance).dividedBy(100000000);
-		include ./value-display.pug
+		if (channel.active)
+			- var currencyValue = new Decimal(channel.remote_balance).dividedBy(100000000);
+			include ./value-display.pug
+			
+			if (false)
+				div.row
+					div.col-md-6.text-right
+						- var currencyValue = new Decimal(channel.local_balance).dividedBy(100000000);
+						include ./value-display.pug
+
+					div.col-md-6.text-right
+						- var currencyValue = new Decimal(channel.remote_balance).dividedBy(100000000);
+						include ./value-display.pug
+
+				- var fullPercent = new Decimal(100 * parseFloat(channel.local_balance) / (parseFloat(channel.local_balance) + parseFloat(channel.remote_balance))).toDecimalPlaces(1);
+
+				div.progress.mt-2(style="height: 6px;")
+					div(class="progress-bar", role="progressbar", style=("width: " + fullPercent + "%;"), aria-valuenow=parseInt(fullPercent), aria-valuemin="0", aria-valuemax="100")
+
+		else
+			span -
 		
-		if (false)
-			div.row
-				div.col-md-6.text-right
-					- var currencyValue = new Decimal(channel.local_balance).dividedBy(100000000);
-					include ./value-display.pug
 
-				div.col-md-6.text-right
-					- var currencyValue = new Decimal(channel.remote_balance).dividedBy(100000000);
-					include ./value-display.pug
+	td.table-col-currencyvalue.text-right
+		if (channel.active)
+			- var currencyValue = new Decimal(channel.capacity).dividedBy(100000000);
+			include ./value-display.pug
 
-			- var fullPercent = new Decimal(100 * parseFloat(channel.local_balance) / (parseFloat(channel.local_balance) + parseFloat(channel.remote_balance))).toDecimalPlaces(1);
+		else
+			span -
 
-			div.progress.mt-2(style="height: 6px;")
-				div(class="progress-bar", role="progressbar", style=("width: " + fullPercent + "%;"), aria-valuenow=parseInt(fullPercent), aria-valuemin="0", aria-valuemax="100")
+	td.table-col-time
+		if (channel.active)
+			- var lastUpdateTime = fullNetworkDescription.channelsById[channel.chan_id].last_update;
+			- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(lastUpdateTime) * 1000))));
+			- var dateTimeUtc = moment.utc(new Date(parseInt(lastUpdateTime) * 1000)).format("Y-MM-DD HH:mm:ss");
+
+			span.mr-2 #{timeAgo.humanize()}
+			i.far.fa-clock(data-toggle="tooltip", title=`${dateTimeUtc} utc`)
+
+		else
+			span -
 		
-
-	td(class="table-col-currencyvalue text-right")
-		- var currencyValue = new Decimal(channel.capacity).dividedBy(100000000);
-		include ./value-display.pug
-
-	td(table-col-time)
-		- var lastUpdateTime = fullNetworkDescription.channelsById[channel.chan_id].last_update;
-		- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(lastUpdateTime) * 1000))));
-		- var dateTimeUtc = moment.utc(new Date(parseInt(lastUpdateTime) * 1000)).format("Y-MM-DD HH:mm:ss");
-
-		span.mr-2 #{timeAgo.humanize()}
-		i.far.fa-clock(data-toggle="tooltip", title=`${dateTimeUtc} utc`)

@@ -13,36 +13,31 @@ block content
 	h1.h3 Send Payment
 	hr
 
-	if (createInvoiceResponse != null)
-		div.alert.alert-success
-			h3.h5 Success
-
-			div.mb-3 Your invoice was created successfully!
-
-			div.form-group
-				label.font-weight-bold(for="payment_request") Payment Request
-				div.input-group
-					textarea.form-control.text-monospace #{createInvoiceResponse.payment_request}
-
-			div.mb-3
-				span.font-weight-bold Hash (hex)
-				br
-				span.text-monospace #{createInvoiceResponse.r_hash_hex}
-
-			div.mb-3
-				span.font-weight-bold Hash (base64)
-				br
-				span.text-monospace #{createInvoiceResponse.r_hash_base64}
-			
-			if (false)
-				pre
-					code.json.bg-light #{JSON.stringify(createInvoiceResponse, null, 4)}
-
 	if (!session.admin)
 		- var loginRequiredNote = "allow you to create a new invoice.";
 		include includes/login-required-alert.pug
 
 	else
+
+		if (sendPaymentResponse != null)
+			div.alert.alert-success
+				h3.h5 Success
+
+				div.mb-3 Payment sent successfully
+				
+				if (true)
+					pre
+						code.json.bg-light #{JSON.stringify(sendPaymentResponse, null, 4)}
+
+		if (sendPaymentError != null)
+			div.alert.alert-danger
+				h3.h5 Error
+
+				div.mb-3 Error sending payment
+				
+				if (true)
+					pre
+						code.json.bg-light #{JSON.stringify(sendPaymentError, null, 4)}
 
 		form(method="post")
 			div.form-group
@@ -54,7 +49,7 @@ block content
 					div.card-body
 						- var card_node_pubkey = destPubkey;
 						include includes/node-card.pug
-						
+
 			div.row
 				div.col-md-2
 					div.form-group

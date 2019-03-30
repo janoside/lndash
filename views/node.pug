@@ -129,9 +129,10 @@ block content
 					i.fas.fa-route.mr-2
 					span Query Route Here
 
-				a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/send-payment?destPubkey=${nodeInfo.node.pub_key}`)
-					i.fas.fa-money-bill-wave.mr-2
-					span Send Payment
+				if (false)
+					a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/send-payment?destPubkey=${nodeInfo.node.pub_key}`)
+						i.fas.fa-money-bill-wave.mr-2
+						span Send Payment
 
 	- var sharedLocalChannels = [];
 	- var unsharedChannels = [];

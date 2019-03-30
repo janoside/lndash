@@ -24,6 +24,12 @@ block content
 				label(for="pubkey") Remote Node Public Key
 				input.form-control.form-control-lg.text-monospace(type="text" id="pubkey" name="pubkey" value=pubkey placeholder="Remote Node Public Key")
 
+			if (pubkey)
+				div.card.text-monospace.mb-3.bg-light
+					div.card-body
+						- var card_node_pubkey = pubkey;
+						include includes/node-card.pug
+
 			div.form-group
 				label(for="local_balance") Local Balance
 				input.form-control.form-control-lg.text-monospace(type="text" id="local_balance" name="local_balance" value=local_balance placeholder="Local Balance")

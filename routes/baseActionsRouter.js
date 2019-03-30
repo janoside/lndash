@@ -547,7 +547,7 @@ router.post("/query-route", function(req, res) {
 
 		}).catch(function(err) {
 			res.locals.queryRouteError = err;
-			
+
 			utils.logError("3y9rewfgefge", err);
 
 			reject(err);
@@ -573,12 +573,14 @@ router.get("/forwarding-history", function(req, res) {
 	var promises = [];
 
 	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getForwardingHistory(startTime, endTime, limit, offset).then(function(fowardingHistoryResponse) {
-			res.locals.fowardingHistoryResponse = fowardingHistoryResponse;
+		rpcApi.getForwardingHistory(startTime, endTime, limit, offset).then(function(forwardingHistoryResponse) {
+			res.locals.forwardingHistoryResponse = forwardingHistoryResponse;
 
 			resolve();
 
 		}).catch(function(err) {
+			res.locals.forwardingHistoryError = err;
+
 			utils.logError("703yrwegfddsg", err);
 
 			reject(err);
@@ -748,8 +750,10 @@ router.get("/channels", function(req, res) {
 router.get("/local-channels", function(req, res) {
 	var limit = 20;
 	var offset = 0;
-	var sort = "last_update-desc";
-	var status = "active";
+	var sort = "capacity-desc";
+	var localbalance = "all";
+	var remotebalance = "all";
+	var status = "all";
 
 	if (req.query.limit) {
 		limit = parseInt(req.query.limit);
@@ -762,28 +766,248 @@ router.get("/local-channels", function(req, res) {
 	if (req.query.sort) {
 		sort = req.query.sort;
 	}
+	
+	if (req.query.status) {
+		status = req.query.status.toLowerCase();
+	}
+
+	if (req.query.localbalance) {
+		localbalance = req.query.localbalance.toLowerCase();
+	}
+
+	if (req.query.remotebalance) {
+		remotebalance = req.query.remotebalance.toLowerCase();
+	}
 
 	res.locals.limit = limit;
 	res.locals.offset = offset;
 	res.locals.sort = sort;
-	res.locals.paginationBaseUrl = "/channels";
+	res.locals.status = status;
+	res.locals.localbalance = localbalance;
+	res.locals.remotebalance = remotebalance;
+	res.locals.paginationBaseUrl = `/local-channels?status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}`;
 
 	var sortProperty = sort.substring(0, sort.indexOf("-"));
 	var sortDirection = sort.substring(sort.indexOf("-") + 1);
 
-	rpcApi.getFullNetworkDescription().then(function(fnd) {
-		res.locals.fullNetworkDescription = fnd;
+	var promises = [];
 
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getFullNetworkDescription().then(function(fnd) {
+			res.locals.fullNetworkDescription = fnd;
+
+			resolve();
+
+		}).catch(function(err) {
+			utils.logError("397rgdsfgsds", err);
+
+			reject(err);
+		});
+	}));
+
+	promises.push(new Promise(function(resolve, reject) {
 		rpcApi.getLocalChannels().then(function(localChannels) {
 			res.locals.localChannels = localChannels;
 
-			res.render("local-channels");
+			resolve();
 
 		}).catch(function(err) {
-			utils.logError("37921hdasudfgd", err);
+			utils.logError("2308rhsd0u7fhgsd", err);
 
-			res.render("local-channels");
+			reject(err);
 		});
+	}));
+
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getClosedChannels().then(function(closedChannels) {
+			res.locals.closedChannels = closedChannels;
+
+			resolve();
+
+		}).catch(function(err) {
+			utils.logError("23r0789h7dsss", err);
+
+			reject(err);
+		});
+	}));
+
+	Promise.all(promises).then(function() {
+		var allChannels = [];
+		
+		res.locals.localChannels.channels.forEach(function(chan) {
+			allChannels.push(chan);
+		});
+
+		res.locals.closedChannels.channels.forEach(function(chan) {
+			allChannels.push(chan);
+		});
+
+		var allFilteredChannels = [];
+
+
+
+
+
+		var predicates = [
+			// status
+			function(chan) {
+				if (status == "all") {
+					return true;
+				}
+
+				if (status == "active") {
+					return res.locals.localChannels.channels.includes(chan);
+
+				} else if (status == "closed") {
+					return res.locals.closedChannels.channels.includes(chan);
+				}
+
+				// should never happen
+				console.log(`Error 23r087hwfed0hsd: Unexpected filter value: status=${status}`);
+
+				return true;
+			},
+			// localbalance
+			function(chan) {
+				if (localbalance == "all") {
+					return true;
+				}
+
+				if (localbalance == "yes") {
+					return res.locals.localChannels.channels.includes(chan) && chan.local_balance > 0;
+
+				} else if (localbalance == "no") {
+					return res.locals.closedChannels.channels.includes(chan) || chan.local_balance <= 0;
+				}
+
+				// should never happen
+				console.log(`Error 432t07hsd0fghs: Unexpected filter value: localbalance=${localbalance}`);
+
+				return true;
+			},
+			// remotebalance
+			function(chan) {
+				if (remotebalance == "all") {
+					return true;
+				}
+
+				if (remotebalance == "yes") {
+					return res.locals.localChannels.channels.includes(chan) && chan.remote_balance > 0;
+
+				} else if (remotebalance == "no") {
+					return res.locals.closedChannels.channels.includes(chan) || chan.remote_balance <= 0;
+				}
+
+				// should never happen
+				console.log(`Error 23r9uyewhb0s9gys: Unexpected filter value: remotebalance=${remotebalance}`);
+
+				return true;
+			},
+		];
+
+		for (var i = 0; i < allChannels.length; i++) {
+			var channel = allChannels[i];
+
+			var excluded = false;
+			for (var j = 0; j < predicates.length; j++) {
+				if (!predicates[j](channel)) {
+					excluded = true;
+
+					break;
+				}
+			}
+
+			if (!excluded) {
+				allFilteredChannels.push(channel);
+			}
+		}
+
+
+		allFilteredChannels.sort(function(a, b) {
+			var aInfo = res.locals.fullNetworkDescription.channelsById[a.chan_id];
+			var bInfo = res.locals.fullNetworkDescription.channelsById[b.chan_id];
+
+			var fallback = 0;
+			if (a.active && !b.active) {
+				fallback = -1;
+
+			} else if (!a.active && b.active) {
+				fallback = 1;
+
+			} else if (aInfo != null && bInfo != null) {
+				fallback = bInfo.last_update - aInfo.last_update;
+			}
+
+			if (sort == "capacity-desc") {
+				var a1 = (a.active ? a.capacity : 0);
+				var b1 = (b.active ? b.capacity : 0);
+				var diff = b1 - a1;
+
+				if (diff == 0) {
+					return fallback;
+
+				} else {
+					return diff;
+				}
+			} else if (sort == "localbalance-desc") {
+				var a1 = (a.active ? a.local_balance : 0);
+				var b1 = (b.active ? b.local_balance : 0);
+				var diff = b1 - a1;
+
+				if (diff == 0) {
+					return fallback;
+					
+				} else {
+					return diff;
+				}
+			} else if (sort == "remotebalance-desc") {
+				var a1 = (a.active ? a.remote_balance : 0);
+				var b1 = (b.active ? b.remote_balance : 0);
+				var diff = b1 - a1;
+
+				if (diff == 0) {
+					return fallback;
+					
+				} else {
+					return diff;
+				}
+			} else if (sort == "valuetransfer-desc") {
+				var a1 = (a.active ? parseInt(a.total_satoshis_sent) + parseInt(a.total_satoshis_received) : 0);
+				var b1 = (b.active ? parseInt(b.total_satoshis_sent) + parseInt(b.total_satoshis_received) : 0);
+				var diff = b1 - a1;
+
+				if (diff == 0) {
+					return fallback;
+					
+				} else {
+					return diff;
+				}
+			} else if (sort == "updated-desc") {
+				return fallback;
+			}
+		});
+
+
+
+
+
+
+
+		var pagedFilteredChannels = [];
+		for (var i = offset; i < Math.min(offset + limit, allFilteredChannels.length); i++) {
+			pagedFilteredChannels.push(allFilteredChannels[i]);
+		}
+
+		res.locals.allChannels = allChannels;
+		res.locals.allFilteredChannels = allFilteredChannels;
+		res.locals.pagedFilteredChannels = pagedFilteredChannels;
+
+		res.render("local-channels");
+
+	}).catch(function(err) {
+		utils.logError("23r97hwef7usdgdsf", err);
+
+		res.render("local-channels");
 	});
 });
 
@@ -1114,12 +1338,12 @@ router.post("/send-payment", function(req, res) {
 	var destPubkey = "";
 	var amountSat = 0;
 
-	if (req.query.destPubkey) {
-		destPubkey = req.query.destPubkey;
+	if (req.body.destPubkey) {
+		destPubkey = req.body.destPubkey;
 	}
 
-	if (req.query.amountSat) {
-		amountSat = parseInt(req.query.amountSat);
+	if (req.body.amountSat) {
+		amountSat = parseInt(req.body.amountSat);
 	}
 
 	res.locals.destPubkey = destPubkey;
@@ -1132,6 +1356,8 @@ router.post("/send-payment", function(req, res) {
 			resolve();
 
 		}).catch(function(err) {
+			res.locals.sendPaymentError = err;
+
 			utils.logError("973hrwdgfs", err);
 
 			reject(err);
@@ -1229,7 +1455,7 @@ router.get("/invoices", function(req, res) {
 		}
 
 		var allInvoices = invoicesResponse.invoices;
-		var filteredInvoices = [];
+		var allFilteredInvoices = [];
 
 		var predicates = [
 			// settled
@@ -1280,16 +1506,16 @@ router.get("/invoices", function(req, res) {
 			}
 
 			if (!excluded) {
-				filteredInvoices.push(invoice);
+				allFilteredInvoices.push(invoice);
 			}
 		}
 
 		var pagedFilteredInvoices = [];
-		for (var i = offset; i < Math.min(offset + limit, filteredInvoices.length); i++) {
-			pagedFilteredInvoices.push(filteredInvoices[i]);
+		for (var i = offset; i < Math.min(offset + limit, allFilteredInvoices.length); i++) {
+			pagedFilteredInvoices.push(allFilteredInvoices[i]);
 		}
 
-		var filteredCount = allInvoices.length - filteredInvoices.length;
+		var filteredCount = allInvoices.length - allFilteredInvoices.length;
 
 		var invoices = [];
 		for (var i = offset; i < Math.min(limit + offset, invoicesResponse.invoices.length); i++) {
@@ -1301,7 +1527,7 @@ router.get("/invoices", function(req, res) {
 		res.locals.filteredCount = filteredCount;
 
 		res.locals.allInvoices = invoicesResponse.invoices;
-		res.locals.allFilteredInvoices = filteredInvoices;
+		res.locals.allFilteredInvoices = allFilteredInvoices;
 		res.locals.pagedFilteredInvoices = pagedFilteredInvoices;
 
 		res.locals.invoiceCount = invoicesResponse.invoices.length;
