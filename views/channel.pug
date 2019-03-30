@@ -79,7 +79,7 @@ block content
 								div(class="summary-table-label") Balance
 								div.summary-table-content
 									div.clearfix
-										div.float-left.mr-4
+										div.float-left.mr-5
 											div.font-weight-bold Local
 
 											- var currencyValue = new Decimal(localChannel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
@@ -89,7 +89,7 @@ block content
 
 												div.text-muted #{localBalancePercent.toDP(1)}%
 
-										div.float-left.mr-4
+										div.float-left.mr-5
 											div.font-weight-bold Remote
 
 											- var currencyValue = new Decimal(localChannel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);

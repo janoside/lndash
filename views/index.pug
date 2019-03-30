@@ -93,7 +93,7 @@ block content
 
 							div(class="row")
 								- var versionParts = getInfo.version.split(" ");
-								div.summary-split-table-label Version
+								div.summary-split-table-label LND Version
 								div.summary-split-table-content.text-monospace
 									each versionPart in versionParts
 										span #{versionPart}
@@ -175,7 +175,7 @@ block content
 								div.summary-split-table-content
 									div.clearfix
 										
-										div.float-left.mr-4
+										div.float-left.mr-5
 											div.font-weight-bold Local
 
 											div.text-monospace
@@ -185,7 +185,7 @@ block content
 												include includes/value-display.pug
 												div.text-muted #{localBalancePercent.toDP(1)}%
 
-										div.float-left.mr-4
+										div.float-left.mr-5
 											div.font-weight-bold Remote
 
 											div.text-monospace
