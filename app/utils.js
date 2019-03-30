@@ -99,9 +99,9 @@ function formatCurrencyAmountWithForcedDecimalPlaces(amount, formatType, forcedD
 		var dec = new Decimal(amount);
 
 		var decimalPlaces = formatInfo.decimalPlaces;
-		if (decimalPlaces == 0 && dec < 1) {
-			decimalPlaces = 5;
-		}
+		//if (decimalPlaces == 0 && dec < 1) {
+		//	decimalPlaces = 5;
+		//}
 
 		if (forcedDecimalPlaces >= 0) {
 			decimalPlaces = forcedDecimalPlaces;
