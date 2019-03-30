@@ -16,33 +16,7 @@ tr(class="text-monospace word-wrap")
 			span.text-success Active
 		else
 			div.text-danger Closed
-
-			hr.my-2
-
-			div.text-muted
-				span.font-weight-bold Close Type: 
-				span #{channel.close_type}
-
-			div.text-muted
-				span.font-weight-bold Txid: 
-
-				if (config.blockExplorerUrl)
-					a(href=`${config.blockExplorerUrl}/tx/${channel.closing_tx_hash}`, title=channel.closing_tx_hash, data-toggle="tooltip")
-						- var btc_txid = channel.closing_tx_hash;
-						include ./btc-txid.pug
-				else
-					span(title=tx.tx_hash, data-toggle="tooltip")
-						- var btc_txid = channel.closing_tx_hash;
-						include ./btc-txid.pug
-
-			div.text-muted
-				span.font-weight-bold Block: 
-				if (config.blockExplorerUrl)
-					a(href=`${config.blockExplorerUrl}/block-height/${channel.close_height}`) #{channel.close_height.toLocaleString()}
-
-				else
-					span #{channel.close_height.toLocaleString()}
-
+			div.text-muted #{channel.close_type}
 
 	td
 		- var card_node_pubkey = channel.remote_pubkey;
@@ -126,4 +100,7 @@ tr(class="text-monospace word-wrap")
 
 		else
 			span -
+
+	td
+		a(href="javascript:void(0)" data-toggle="modal" data-target=("#localChannelModal-" + localChannel_index)) Details
 		

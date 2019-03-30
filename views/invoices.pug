@@ -122,30 +122,8 @@ block content
 		if (true)
 			if (allFilteredInvoices.length > 0)
 				each invoice, invoice_index in pagedFilteredInvoices
-					div(class="modal fade" id=("invoiceModal-" + invoice_index) role="dialog" xaria-labelledby="exampleModalLabel" aria-hidden="true")
-						div(class="modal-dialog modal-xl" role="document")
-							div(class="modal-content")
-								div(class="modal-header")
-									h5.modal-title(id="exampleModalLabel") Invoice ##{invoice_index}
-									button(type="button" class="close" data-dismiss="modal" aria-label="Close")
-										span(aria-hidden="true") &times;
-
-								div(class="modal-body")
-									- var jsonX = allInvoices[invoice_index];
-									- jsonX.r_preimage_base64 = Buffer.from(jsonX.r_preimage).toString("base64");
-									- jsonX.r_preimage_hex = Buffer.from(jsonX.r_preimage).toString("hex");
-									- jsonX.r_hash_base64 = Buffer.from(jsonX.r_hash).toString("base64");
-									- jsonX.r_hash_hex = Buffer.from(jsonX.r_hash).toString("hex");
-
-									- delete jsonX.r_preimage;
-									- delete jsonX.r_hash;
-
-									pre
-										code(class="json") #{JSON.stringify(jsonX, null, 4)}
-
-								div(class="modal-footer")
-									button(type="button" class="btn btn-secondary" data-dismiss="modal") Close
-
+					include includes/invoice-details-modal.pug
+					
 				div(class="table-responsive")
 					table(class="table table-bordered border-top")
 						thead.bg-light

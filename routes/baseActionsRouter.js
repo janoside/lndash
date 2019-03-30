@@ -49,6 +49,35 @@ router.get("/", function(req, res) {
 			res.locals.fullNetworkDescription = fnd;
 
 			resolve();
+		
+		}).catch(function(err) {
+			utils.logError("23r08dsh0shg", err);
+			
+			reject(err);
+		});
+	}));
+
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getLocalChannels().then(function(localChannelsResponse) {
+			res.locals.localChannelsResponse = localChannelsResponse;
+
+			var totalLocalBalance = 0;
+			var totalRemoteBalance = 0;
+			
+			localChannelsResponse.channels.forEach(function(chan) {
+				totalLocalBalance += parseInt(chan.local_balance);
+				totalRemoteBalance += parseInt(chan.remote_balance);
+			});
+
+			res.locals.totalLocalBalance = totalLocalBalance;
+			res.locals.totalRemoteBalance = totalRemoteBalance;
+
+			resolve();
+		
+		}).catch(function(err) {
+			utils.logError("325078whs0d7hg8s", err);
+			
+			reject(err);
 		});
 	}));
 
@@ -57,6 +86,11 @@ router.get("/", function(req, res) {
 			res.locals.channelBalance = channelBalanceResponse;
 
 			resolve();
+
+		}).catch(function(err) {
+			utils.logError("397rehsdf90gs", err);
+
+			reject(err);
 		});
 	}));
 
@@ -65,6 +99,11 @@ router.get("/", function(req, res) {
 			res.locals.walletBalance = walletBalanceResponse;
 
 			resolve();
+		
+		}).catch(function(err) {
+			utils.logError("23r079uhsd0gsh", err);
+			
+			reject(err);
 		});
 	}));
 

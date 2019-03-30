@@ -172,8 +172,13 @@ block content
 										span Capacity
 
 							th Last Update
+							th Details
 					
 					tbody
 						each channel, channel_index in pagedFilteredChannels
+							- var localChannel_index = channel_index;
+							- var localChannel = channel;
+
+							include ./includes/local-channel-details-modal.pug
 							include ./includes/local-channel-table-row.pug
 

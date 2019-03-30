@@ -34,7 +34,7 @@ block content
 			div(class="row")
 				div(class="col-md-8")
 					div(class="row")
-						div(class="summary-split-table-label")
+						div.summary-split-table-label
 							span.border-dotted(title="The public name for this node, set by its owner. This can be set to any value, so should not be trusted as an identity unless otherwise verified." data-toggle="tooltip") Alias
 						div.summary-split-table-content.text-monospace
 							if (nodeInfo.node.alias.length > 0)
@@ -43,14 +43,14 @@ block content
 								span -
 
 					div(class="row")
-						div(class="summary-split-table-label") Color
+						div.summary-split-table-label Color
 						div.summary-split-table-content.text-monospace
 							- var node_color = nodeInfo.node.color;
 							include ./includes/node-color-swatch.pug
 							span #{nodeInfo.node.color}
 
 					div(class="row")
-						div(class="summary-split-table-label") Addresses
+						div.summary-split-table-label Addresses
 						div.summary-split-table-content.text-monospace
 							if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
 								each addressItem in nodeInfo.node.addresses
@@ -60,7 +60,7 @@ block content
 								span -
 
 					div(class="row")
-						div(class="summary-split-table-label") Last Update
+						div.summary-split-table-label Last Update
 						div.summary-split-table-content.text-monospace
 							- var timeAgoTime = nodeInfo.node.last_update;
 							- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timeAgoTime) * 1000))));
@@ -71,18 +71,18 @@ block content
 							span.text-muted #{timeAgo.format()} ago
 							
 					div(class="row")
-						div(class="summary-split-table-label") Channels
+						div.summary-split-table-label Channels
 						div.summary-split-table-content.text-monospace #{parseInt(nodeInfo.num_channels).toLocaleString()}
 
 					div(class="row")
-						div(class="summary-split-table-label") Total Capacity
+						div.summary-split-table-label Total Capacity
 						div.summary-split-table-content.text-monospace
 							- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(100000000);
 							include ./includes/value-display.pug
 
 					if (nodeChannels.length > 1)
 						div(class="row")
-							div(class="summary-split-table-label") Avg Capacity
+							div.summary-split-table-label Avg Capacity
 							div.summary-split-table-content.text-monospace
 								- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(100000000).dividedBy(nodeChannels.length);
 								include ./includes/value-display.pug

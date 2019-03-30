@@ -26,7 +26,7 @@ block content
 						h2.h6.mb-0 Wallet Summary
 					div.card-body
 						div.row
-							div(class="summary-split-table-label")
+							div.summary-split-table-label
 								span.border-dotted(data-toggle="tooltip" title="The value in your wallet that's not currently committed to any payment channels.") Balance
 							div.summary-split-table-content.text-monospace
 								- var currencyValue = new Decimal(walletBalance.confirmed_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
@@ -41,13 +41,13 @@ block content
 
 						if (false)
 							div.row
-								div(class="summary-split-table-label") Active Channel Balance
+								div.summary-split-table-label Active Channel Balance
 								div.summary-split-table-content.text-monospace
 									- var currencyValue = new Decimal(channelBalance.balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 									include includes/value-display.pug
 
 							div.row
-								div(class="summary-split-table-label") Pending Channel Balance
+								div.summary-split-table-label Pending Channel Balance
 								div.summary-split-table-content.text-monospace
 									- var currencyValue = new Decimal(channelBalance.pending_open_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 									include includes/value-display.pug

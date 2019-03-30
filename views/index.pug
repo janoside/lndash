@@ -8,7 +8,7 @@ block breadcrumb
 
 block content
 	if (false)
-		pre #{JSON.stringify(fullNetworkDescription, null, 4)}
+		pre #{JSON.stringify(channelBalance, null, 4)}
 
 	if (fullNetworkDescription)
 		if (config.demoSite && session.hideHomepageBanner != "true")
@@ -63,125 +63,37 @@ block content
 					div(class="card-header")
 						h2(class="h6 mb-0") My Node Summary
 					div(class="card-body")
-						if (false)
-							table.table
-								tr
-									th.text-right Public Key
-									td.monospace
-										a(href=("/node/" + getInfo.identity_pubkey), data-toggle="tooltip", title=getInfo.identity_pubkey)
-											- var node_pubkey = getInfo.identity_pubkey;
-											include includes/node-pubkey.pug
+						if (true)
+							div(class="row")
+								div.summary-split-table-label
+									span.border-dotted(title="This card shows the basic details of your node, and the format is used throughout this app. The image is derived from the node's public key and the color for the outer ring is the node's 'color' property. The first N characters of the public key and the alias are also displayed.", data-toggle="tooltip") Node
+								div.summary-split-table-content.text-monospace
+									div.clearfix
+										div.card.float-left
+											div.card-body
+												- var card_node_pubkey = getInfo.identity_pubkey;
+												include includes/node-card.pug
 
-								tr
-									th.text-right Alias
-									td.monospace #{getInfo.alias}
+							if (false)
+								div(class="row")
+									div.summary-split-table-label Public Key
+									div.summary-split-table-content.text-monospace
+										a(href=`/node/${getInfo.identity_pubkey}`) #{getInfo.identity_pubkey}
 
-								tr
-									th.text-right Color
-									td.monospace
+								div(class="row")
+									div.summary-split-table-label Alias
+									div.summary-split-table-content.text-monospace #{getInfo.alias}
+
+								div(class="row")
+									div.summary-split-table-label Color
+									div.summary-split-table-content.text-monospace
 										- var node_color = fullNetworkDescription.nodeInfoByPubkey[getInfo.identity_pubkey].node.color;
 										include ./includes/node-color-swatch.pug
 										span #{node_color}
 
-								tr
-									th.text-right Version
-									td.monospace
-										- var versionParts = getInfo.version.split(" ");
-										each versionPart in versionParts
-											span #{versionPart}
-											br
-
-								tr
-									th.text-right
-										if (getInfo.chains.length == 1)
-											span Chain
-										else
-											span Chains
-									td.monospace
-										each chain in getInfo.chains
-											span #{chain.chain} (#{chain.network})
-											br
-
-								tr
-									th.text-right Current Block
-									td.monospace
-										if (config.blockExplorerUrl)
-											a(href=(config.blockExplorerUrl + "/block/" + getInfo.block_hash), target="_blank") ##{getInfo.block_height.toLocaleString()}
-											span.text-muted  (
-												if (getInfo.synced_to_chain)
-													span.text-muted synchronized
-												else
-													span.text-danger not synchronized
-
-												span )
-
-										else
-											span #{getInfo.block_hash}
-											br
-											span(class="text-muted") (#{getInfo.block_height.toLocaleString()})
-
-								tr
-									th.text-right Channels
-									td.monospace
-										span #{parseInt(getInfo.num_active_channels).toLocaleString()} active
-
-										if (getInfo.num_pending_channels > 0 || getInfo.num_inactive_channels > 0)
-											span.text-muted  (
-												if (getInfo.num_pending_channels > 0)
-													span #{parseInt(getInfo.num_pending_channels).toLocaleString()} pending
-
-													if (getInfo.num_inactive_channels > 0)
-														span , 
-
-												if (getInfo.num_inactive_channels > 0)
-													span #{parseInt(getInfo.num_inactive_channels).toLocaleString()} inactive
-												span )
-
-								tr
-									th.text-right Balance
-									td.monospace
-										- var currencyValue = new Decimal(parseInt(channelBalance.balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										include includes/value-display.pug
-										span  in active channels
-
-										- var currencyValue = new Decimal(parseInt(channelBalance.pending_open_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										if (currencyValue > 0)
-											br
-											include includes/value-display.pug
-											span  in pending channels
-
-										- var currencyValue = new Decimal(parseInt(walletBalance.confirmed_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										if (currencyValue > 0)
-											br
-											include includes/value-display.pug
-											span  confirmed in wallet
-
-										- var currencyValue = new Decimal(parseInt(walletBalance.unconfirmed_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										if (currencyValue > 0)
-											br
-											include includes/value-display.pug
-											span  unconfirmed in wallet
-
-						if (true)
-							div(class="row")
-								div(class="summary-split-table-label") Public Key
-								div.summary-split-table-content.text-monospace
-									a(href=("/node/" + getInfo.identity_pubkey)) #{getInfo.identity_pubkey}
-
-							div(class="row")
-								div(class="summary-split-table-label") Alias
-								div.summary-split-table-content.text-monospace #{getInfo.alias}
-
-							div(class="row")
-								div(class="summary-split-table-label") Color
-								div.summary-split-table-content.text-monospace
-									- var node_color = fullNetworkDescription.nodeInfoByPubkey[getInfo.identity_pubkey].node.color;
-									include ./includes/node-color-swatch.pug
-									span #{node_color}
-
 							div(class="row")
 								- var versionParts = getInfo.version.split(" ");
-								div(class="summary-split-table-label") Version
+								div.summary-split-table-label Version
 								div.summary-split-table-content.text-monospace
 									each versionPart in versionParts
 										span #{versionPart}
@@ -190,7 +102,7 @@ block content
 							if (false)
 								div(class="col-md-6")
 								div(class="row")
-									div(class="summary-split-table-label") URIs
+									div.summary-split-table-label URIs
 									div.summary-split-table-content.text-monospace
 										each uri, index in getInfo.uris
 											if (getInfo.uris.length > 1)
@@ -199,7 +111,7 @@ block content
 												span #{uri}
 
 							div(class="row")
-								div(class="summary-split-table-label")
+								div.summary-split-table-label
 									if (getInfo.chains.length == 1)
 										span Chain
 									else
@@ -210,7 +122,7 @@ block content
 										br
 
 							div(class="row")
-								div(class="summary-split-table-label") Current Block
+								div.summary-split-table-label Current Block
 								div.summary-split-table-content.text-monospace
 									if (config.blockExplorerUrl)
 										a(href=(config.blockExplorerUrl + "/block/" + getInfo.block_hash), target="_blank") ##{getInfo.block_height.toLocaleString()}
@@ -228,7 +140,7 @@ block content
 										span(class="text-muted") (#{getInfo.block_height.toLocaleString()})
 
 							div(class="row")
-								div(class="summary-split-table-label") Channels
+								div.summary-split-table-label Channels
 								div.summary-split-table-content.text-monospace
 									span #{parseInt(getInfo.num_active_channels).toLocaleString()} active
 
@@ -245,62 +157,78 @@ block content
 											span )
 
 							div(class="row")
-								div(class="summary-split-table-label") Balance
+								div.summary-split-table-label Wallet Balance
 								div.summary-split-table-content.text-monospace
-									- var currencyValue = new Decimal(parseInt(channelBalance.balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-									include includes/value-display.pug
-									span  in active channels
-
-									- var currencyValue = new Decimal(parseInt(channelBalance.pending_open_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-									if (currencyValue > 0)
-										br
-										include includes/value-display.pug
-										span  in pending channels
-
 									- var currencyValue = new Decimal(parseInt(walletBalance.confirmed_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 									if (currencyValue > 0)
-										br
-										include includes/value-display.pug
-										span  confirmed in wallet
+										div
+											include includes/value-display.pug
 
 									- var currencyValue = new Decimal(parseInt(walletBalance.unconfirmed_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 									if (currencyValue > 0)
-										br
-										include includes/value-display.pug
-										span  unconfirmed in wallet
+										div.text-muted
+											include includes/value-display.pug
+											span  (unconfirmed)
 
-							div.row
-								div.summary-split-table-label
-									span.border-dotted(title="This image is derived from the node's public key and should be unique to this node. The color for the outer ring is the node's 'color' property.", data-toggle="tooltip") Icon
+							div(class="row")
+								div.summary-split-table-label Channel Balance
 								div.summary-split-table-content
-									- var node_pubkey = getInfo.identity_pubkey;
-									include includes/node-icon.pug
+									div.clearfix
+										
+										div.float-left.mr-4
+											div.font-weight-bold Local
+
+											div.text-monospace
+												- var currencyValue = new Decimal(totalLocalBalance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+												- var localBalancePercent = new Decimal(totalLocalBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
+
+												include includes/value-display.pug
+												div.text-muted #{localBalancePercent.toDP(1)}%
+
+										div.float-left.mr-4
+											div.font-weight-bold Remote
+
+											div.text-monospace
+												- var currencyValue = new Decimal(parseInt(totalRemoteBalance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+												- var remoteBalancePercent = new Decimal(totalRemoteBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
+
+												include includes/value-display.pug
+												div.text-muted #{remoteBalancePercent.toDP(1)}%
+
+							if (false)
+								div.row
+									div.summary-split-table-label
+										span.border-dotted(title="This image is derived from the node's public key and should be unique to this node. The color for the outer ring is the node's 'color' property.", data-toggle="tooltip") Icon
+									div.summary-split-table-content
+										- var node_pubkey = getInfo.identity_pubkey;
+										include includes/node-icon.pug
 
 			div.col-md-6
 				div(class="card mb-4 shadow-sm")
 					div(class="card-header")
-						h2(class="h6 mb-0") Network Summary
+						h2.h6.mb-0
+							span.border-dotted(title="This summary is for the public network from the point of view of your current node." data-toggle="tooltip") Public Network Summary
 					div(class="card-body")
 
 						div(class="row")
 							- var currencyValue = new Decimal(totalCapacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-							div(class="summary-split-table-label") Total Capacity
+							div.summary-split-table-label Total Capacity
 							div.summary-split-table-content.text-monospace
 								include ./includes/value-display.pug
 
 						div(class="row")
-							div(class="summary-split-table-label") Nodes
+							div.summary-split-table-label Nodes
 							div.summary-split-table-content.text-monospace
 								span #{fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()}
 
 						div(class="row")
-							div(class="summary-split-table-label") Channels
+							div.summary-split-table-label Channels
 							div.summary-split-table-content.text-monospace
 								span #{fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()}
 
 						div(class="row")
 							- var currencyValue = new Decimal(totalCapacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(fullNetworkDescription.channels.sortedByLastUpdate.length);
-							div(class="summary-split-table-label") Avg Channel Capacity
+							div.summary-split-table-label Avg Channel Capacity
 							div.summary-split-table-content.text-monospace
 								include ./includes/value-display.pug
 

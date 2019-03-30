@@ -77,18 +77,28 @@ block content
 
 							div(class="row")
 								div(class="summary-table-label") Balance
-								div.summary-table-content.text-monospace
-									span(style="width: 100px;") Local: 
-									span
-										- var currencyValue = new Decimal(localChannel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										include includes/value-display.pug
+								div.summary-table-content
+									div.clearfix
+										div.float-left.mr-4
+											div.font-weight-bold Local
 
-									br
+											- var currencyValue = new Decimal(localChannel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+											- var localBalancePercent = new Decimal(localChannel.local_balance).dividedBy(localChannel.local_balance + localChannel.remote_balance).times(100);
+											div.text-monospace
+												include includes/value-display.pug
 
-									span(style="width: 100px;") Remote: 
-									span
-										- var currencyValue = new Decimal(localChannel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										include includes/value-display.pug
+												div.text-muted #{localBalancePercent.toDP(1)}%
+
+										div.float-left.mr-4
+											div.font-weight-bold Remote
+
+											- var currencyValue = new Decimal(localChannel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+											- var remoteBalancePercent = new Decimal(localChannel.remote_balance).dividedBy(localChannel.local_balance + localChannel.remote_balance).times(100);
+
+											div.text-monospace
+												include includes/value-display.pug
+
+												div.text-muted #{remoteBalancePercent.toDP(1)}%
 
 							div(class="row")
 								div(class="summary-table-label") Value Transfer
