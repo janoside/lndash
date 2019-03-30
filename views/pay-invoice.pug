@@ -190,7 +190,7 @@ block content
 								div(class="row")
 									div(class="summary-table-label") Amount
 									div.summary-table-content.text-monospace
-										- var currencyValue = new Decimal(decodedInvoice.num_satoshis).dividedBy(100000000);
+										- var currencyValue = new Decimal(decodedInvoice.num_satoshis).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 										include ./includes/value-display.pug
 
 								div(class="row")

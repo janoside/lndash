@@ -77,14 +77,14 @@ block content
 					div(class="row")
 						div.summary-split-table-label Total Capacity
 						div.summary-split-table-content.text-monospace
-							- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(100000000);
+							- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 							include ./includes/value-display.pug
 
 					if (nodeChannels.length > 1)
 						div(class="row")
 							div.summary-split-table-label Avg Capacity
 							div.summary-split-table-content.text-monospace
-								- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(100000000).dividedBy(nodeChannels.length);
+								- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(nodeChannels.length);
 								include ./includes/value-display.pug
 
 				div(class="col-md-4")

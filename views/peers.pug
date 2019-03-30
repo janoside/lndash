@@ -60,7 +60,7 @@ block content
 									if (item.sat_recv == 0 && item.sat_sent == 0)
 										span -
 									else
-										- var currencyValue = new Decimal(item.sat_recv).dividedBy(100000000);
+										- var currencyValue = new Decimal(item.sat_recv).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 										if (currencyValue > 0)
 											span.text-success
 												span +
@@ -68,7 +68,7 @@ block content
 
 											br
 
-										- currencyValue = new Decimal(item.sat_sent).dividedBy(100000000);
+										- currencyValue = new Decimal(item.sat_sent).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 										if (currencyValue > 0)
 											span.text-danger
 												span -

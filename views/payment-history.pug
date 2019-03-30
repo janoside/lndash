@@ -148,9 +148,9 @@ block content
 									td(class="table-col-int text-right") #{payment.path.length.toLocaleString()}
 
 									td(class="table-col-currencyvalue text-right")
-										- var currencyValue = new Decimal(payment.fee).dividedBy(100000000);
+										- var currencyValue = new Decimal(payment.fee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 										include ./includes/value-display.pug
 
 									td(class="table-col-currencyvalue text-right")
-										- var currencyValue = new Decimal(payment.value_msat).dividedBy(100000000).dividedBy(1000);
+										- var currencyValue = new Decimal(payment.value_msat).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(1000);
 										include ./includes/value-display.pug

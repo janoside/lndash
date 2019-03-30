@@ -25,7 +25,7 @@ tr(class="text-monospace word-wrap")
 	td.text-right
 		if (channel.active)
 			- var atLeastOne = false;
-			- var currencyValue = new Decimal(channel.total_satoshis_received).dividedBy(100000000);
+			- var currencyValue = new Decimal(channel.total_satoshis_received).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 			if (currencyValue > 0)
 				- var atLeastOne = true;
 
@@ -35,7 +35,7 @@ tr(class="text-monospace word-wrap")
 
 				br
 
-			- currencyValue = new Decimal(channel.total_satoshis_sent).dividedBy(100000000);
+			- currencyValue = new Decimal(channel.total_satoshis_sent).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 			if (currencyValue > 0)
 				- var atLeastOne = true;
 
@@ -51,7 +51,7 @@ tr(class="text-monospace word-wrap")
 
 	td.text-right
 		if (channel.active)
-			- var currencyValue = new Decimal(channel.local_balance).dividedBy(100000000);
+			- var currencyValue = new Decimal(channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 			include ./value-display.pug
 
 		else
@@ -59,17 +59,17 @@ tr(class="text-monospace word-wrap")
 
 	td.text-right
 		if (channel.active)
-			- var currencyValue = new Decimal(channel.remote_balance).dividedBy(100000000);
+			- var currencyValue = new Decimal(channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 			include ./value-display.pug
 			
 			if (false)
 				div.row
 					div.col-md-6.text-right
-						- var currencyValue = new Decimal(channel.local_balance).dividedBy(100000000);
+						- var currencyValue = new Decimal(channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 						include ./value-display.pug
 
 					div.col-md-6.text-right
-						- var currencyValue = new Decimal(channel.remote_balance).dividedBy(100000000);
+						- var currencyValue = new Decimal(channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 						include ./value-display.pug
 
 				- var fullPercent = new Decimal(100 * parseFloat(channel.local_balance) / (parseFloat(channel.local_balance) + parseFloat(channel.remote_balance))).toDecimalPlaces(1);
@@ -83,7 +83,7 @@ tr(class="text-monospace word-wrap")
 
 	td.table-col-currencyvalue.text-right
 		if (channel.active)
-			- var currencyValue = new Decimal(channel.capacity).dividedBy(100000000);
+			- var currencyValue = new Decimal(channel.capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 			include ./value-display.pug
 
 		else

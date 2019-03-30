@@ -28,5 +28,5 @@ tr(class="text-monospace word-wrap")
 		span #{parseInt(nodeInfo.num_channels).toLocaleString()}
 
 	td(class="table-col-currencyvalue text-right")
-		- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(100000000);
+		- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 		include ./value-display.pug

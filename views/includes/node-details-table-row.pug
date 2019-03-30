@@ -29,6 +29,6 @@ tr.text-monospace
 
 	td(class="text-right")
 		if (node.total_capacity)
-			- var currencyValue = new Decimal(node.total_capacity).dividedBy(100000000);
+			- var currencyValue = new Decimal(node.total_capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 			include ./value-display.pug
 			//span #{parseInt(node.total_capacity).toLocaleString()}

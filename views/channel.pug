@@ -69,7 +69,7 @@ block content
 						div(class="row")
 							div(class="summary-table-label") Capacity
 							div.summary-table-content.text-monospace
-								- var currencyValue = new Decimal(channel.capacity).dividedBy(100000000);
+								- var currencyValue = new Decimal(channel.capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 								include ./includes/value-display.pug
 
 						if (localChannels.byId && localChannels.byId[channel.channel_id])

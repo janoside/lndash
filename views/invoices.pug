@@ -170,7 +170,7 @@ block content
 
 									td(class="table-col-currencyvalue text-right")
 										span
-											- var currencyValue = new Decimal(invoice.value).dividedBy(100000000);
+											- var currencyValue = new Decimal(invoice.value).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 											include ./includes/value-display.pug
 
 									td
