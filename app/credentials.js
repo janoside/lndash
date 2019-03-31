@@ -4,10 +4,6 @@ var os = require('os');
 var path = require('path');
 var url = require('url');
 
-var ifxUri = process.env.LND_ADMIN_INFLUXDB_URI ? url.parse(process.env.LND_ADMIN_INFLUXDB_URI, true) : { query: { } };
-var ifxAuth = ifxUri.auth ? ifxUri.auth.split(':') : [];
-var ifxActive = !!process.env.LND_ADMIN_ENABLE_INFLUXDB || Object.keys(process.env).some(k => k.startsWith('LND_ADMIN_INFLUXDB_'));
-
 var pwdHash = hashjs.sha256().update(process.env.LND_ADMIN_LOGIN_PASSWORD || "admin").digest('hex');
 
 console.log("pwdHash: " + pwdHash);
@@ -35,15 +31,6 @@ if (process.env.LND_ADMIN_NODE_COUNT) {
 
 module.exports = {
 	rpcConfigs:rpcConfigs,
-
-	influxdb:{
-		active: ifxActive,
-		host: ifxUri.hostname || process.env.BTCEXP_INFLUXDB_HOST || "127.0.0.1",
-		port: ifxUri.port || process.env.BTCEXP_INFLUXDB_PORT || 8086,
-		database: ifxUri.pathname && ifxUri.pathname.substr(1) || process.env.BTCEXP_INFLUXDB_DBNAME || "influxdb",
-		username: ifxAuth[0] || process.env.BTCEXP_INFLUXDB_USER || "admin",
-		password: ifxAuth[1] || process.env.BTCEXP_INFLUXDB_PASS || "admin"
-	},
 
 	adminUsername:process.env.LND_ADMIN_LOGIN_USERNAME || "admin",
 	adminPasswordSha256:pwdHash

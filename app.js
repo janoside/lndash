@@ -60,27 +60,6 @@ app.use(session({
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-function logNetworkStats() {
-	if (global.influxdb) {
-		rpcApi.getNetworkStats().then(function(response) {
-			var vals = [];
-			for (var x in response) {
-				var valX = response[x];
-
-				if (x == "total_network_capacity") {
-					valX = parseInt(valX);
-				}
-
-				vals.push({measurement:("lightning.network." + x), fields:{value:valX}})
-			}
-
-			global.influxdb.writePoints(vals).catch(err => {
-				console.error(`Error saving data to InfluxDB: ${err.stack}`)
-			});
-		});
-	}
-}
-
 function getSourcecodeProjectMetadata() {
 	var options = {
 		url: "https://api.github.com/repos/janoside/lnd-admin",
@@ -109,12 +88,6 @@ app.runOnStartup = function() {
 	global.config = config;
 	global.coinConfig = coins[config.coin];
 	global.coinConfigs = coins;
-
-	if (config.credentials.influxdb.active) {
-		global.influxdb = new Influx.InfluxDB(config.credentials.influxdb);
-
-		console.log(`Connected to InfluxDB: ${config.credentials.influxdb.host}:${config.credentials.influxdb.port}/${config.credentials.influxdb.database}`);
-	}
 
 	if (config.donationAddresses) {
 		var getDonationAddressQrCode = function(coinId) {
