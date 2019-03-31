@@ -896,6 +896,38 @@ router.get("/local-channels", function(req, res) {
 	}));
 
 	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getPendingChannels().then(function(pendingChannelsResponse) {
+			res.locals.pendingChannelsResponse = pendingChannelsResponse;
+
+			res.locals.pendingOpenChannels = pendingChannelsResponse.pending_open_channels;
+			res.locals.pendingCloseChannels = pendingChannelsResponse.pending_closing_channels;
+			res.locals.pendingForceCloseChannels = pendingChannelsResponse.pending_force_closing_channels;
+
+			// aggregate into single array for ease of use
+			res.locals.pendingChannels = [];
+
+			res.locals.pendingOpenChannels.forEach(function(chan) {
+				res.locals.pendingChannels.push(chan);
+			});
+
+			res.locals.pendingCloseChannels.forEach(function(chan) {
+				res.locals.pendingChannels.push(chan);
+			});
+
+			res.locals.pendingForceCloseChannels.forEach(function(chan) {
+				res.locals.pendingChannels.push(chan);
+			});
+
+			resolve();
+
+		}).catch(function(err) {
+			utils.logError("23r83n2whw", err);
+
+			reject(err);
+		});
+	}));
+
+	promises.push(new Promise(function(resolve, reject) {
 		rpcApi.getClosedChannels().then(function(closedChannels) {
 			res.locals.closedChannels = closedChannels;
 
@@ -913,6 +945,10 @@ router.get("/local-channels", function(req, res) {
 		
 		res.locals.localChannels.channels.forEach(function(chan) {
 			allChannels.push(chan);
+		});
+
+		res.locals.pendingChannels.forEach(function(openingChan) {
+			allChannels.push(openingChan);
 		});
 
 		res.locals.closedChannels.channels.forEach(function(chan) {
@@ -935,6 +971,9 @@ router.get("/local-channels", function(req, res) {
 				if (status == "active") {
 					return res.locals.localChannels.channels.includes(chan);
 
+				} else if (status == "pending") {
+					return res.locals.pendingChannels.includes(chan);
+
 				} else if (status == "closed") {
 					return res.locals.closedChannels.channels.includes(chan);
 				}
@@ -954,7 +993,7 @@ router.get("/local-channels", function(req, res) {
 					return res.locals.localChannels.channels.includes(chan) && chan.local_balance > 0;
 
 				} else if (localbalance == "no") {
-					return res.locals.closedChannels.channels.includes(chan) || chan.local_balance <= 0;
+					return res.locals.closedChannels.channels.includes(chan) || res.locals.pendingChannels.includes(chan) || chan.local_balance <= 0;
 				}
 
 				// should never happen
@@ -972,7 +1011,7 @@ router.get("/local-channels", function(req, res) {
 					return res.locals.localChannels.channels.includes(chan) && chan.remote_balance > 0;
 
 				} else if (remotebalance == "no") {
-					return res.locals.closedChannels.channels.includes(chan) || chan.remote_balance <= 0;
+					return res.locals.closedChannels.channels.includes(chan) || res.locals.pendingChannels.includes(chan) ||chan.remote_balance <= 0;
 				}
 
 				// should never happen

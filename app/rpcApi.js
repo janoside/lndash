@@ -178,6 +178,26 @@ function getClosedChannels() {
 	});
 }
 
+function getPendingChannels() {
+	return new Promise(function(resolve, reject) {
+		lndRpc.PendingChannels({}, function(err, pendingChannelsResponse) {
+			if (err) {
+				utils.logError("32r08hdsf0h8s", err);
+			}
+
+			if (pendingChannelsResponse == null) {
+				utils.logError("320r8hsd08hsds", "null PendingChannels response");
+
+				reject("null PendingChannels response");
+
+				return;
+			}
+
+			resolve(pendingChannelsResponse);
+		});
+	});
+}
+
 function refreshLocalChannels() {
 	var startTime = new Date();
 
@@ -186,11 +206,11 @@ function refreshLocalChannels() {
 	return new Promise(function(resolve_1, reject_1) {
 		lndRpc.ListChannels({}, function(err, listChannelsResponse) {
 			if (err) {
-				utils.logError("23179egwqeufgsd: ", err);
+				utils.logError("23179egwqeufgsd", err);
 			}
 
 			if (listChannelsResponse == null) {
-				utils.logError("76dfhg12328: null listChannels response");
+				utils.logError("76dfhg12328", "null listChannels response");
 
 				resolve_1();
 
@@ -228,11 +248,11 @@ function refreshLocalClosedChannels() {
 	return new Promise(function(resolve_1, reject_1) {
 		lndRpc.ClosedChannels({}, function(err, closedChannelsResponse) {
 			if (err) {
-				utils.logError("23r07wehf7dsf: ", err);
+				utils.logError("23r07wehf7dsf", err);
 			}
 
 			if (closedChannelsResponse == null) {
-				utils.logError("2183ryu243r7034w: null listChannels response");
+				utils.logError("2183ryu243r7034w", "null listChannels response");
 
 				resolve_1();
 
@@ -570,6 +590,8 @@ module.exports = {
 
 	getClosedChannels: getClosedChannels,
 	refreshLocalClosedChannels: refreshLocalClosedChannels,
+
+	getPendingChannels: getPendingChannels,
 
 	connectToPeer: connectToPeer,
 	disconnectFromPeer: disconnectFromPeer,

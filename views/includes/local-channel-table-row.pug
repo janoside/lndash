@@ -6,17 +6,44 @@ tr(class="text-monospace word-wrap")
 				- var channel_id = channel.chan_id;
 				include ./channel-id.pug
 
-		else
+		else if (channel.chan_id)
 			span
 				- var channel_id = channel.chan_id;
 				include ./channel-id.pug
-			
+
+		else
+			span -
+
 	td
 		if (channel.active)
 			span.text-success Active
-		else
+
+		else if (channel.chan_id)
 			div.text-danger Closed
 			div.text-muted #{channel.close_type}
+
+		else
+			if (pendingOpenChannels.includes(channel))
+				div.text-warning Opening
+				
+				- var btc_txid = channel.channel.channel_point.substring(0, channel.channel.channel_point.indexOf(":"));
+				- var outpoint_output_index = channel.channel.channel_point.substring(channel.channel.channel_point.indexOf(":") + 1);
+
+				if (config.blockExplorerUrl)
+					a(href=`${config.blockExplorerUrl}/tx/${btc_txid}` target="_blank" title=btc_txid data-toggle="tooltip")
+						include ./btc-txid.pug
+					span  [#{outpoint_output_index}]
+
+				else
+					span(title=btc_txid data-toggle="tooltip")
+						include ./btc-txid.pug
+					span  [#{outpoint_output_index}]
+
+			if (pendingCloseChannels.includes(channel))
+				div.text-warning Closing
+
+			if (pendingForceCloseChannels.includes(channel))
+				div.text-warning Force Closing
 
 	td
 		- var card_node_pubkey = channel.remote_pubkey;
@@ -54,6 +81,11 @@ tr(class="text-monospace word-wrap")
 			- var currencyValue = new Decimal(channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 			include ./value-display.pug
 
+		else if (channel.channel != null)
+			div.text-muted
+				- var currencyValue = new Decimal(channel.channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+				include ./value-display.pug
+
 		else
 			span -
 
@@ -77,6 +109,11 @@ tr(class="text-monospace word-wrap")
 				div.progress.mt-2(style="height: 6px;")
 					div(class="progress-bar", role="progressbar", style=("width: " + fullPercent + "%;"), aria-valuenow=parseInt(fullPercent), aria-valuemin="0", aria-valuemax="100")
 
+		else if (channel.channel != null)
+			div.text-muted
+				- var currencyValue = new Decimal(channel.channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+				include ./value-display.pug
+
 		else
 			span -
 		
@@ -85,6 +122,11 @@ tr(class="text-monospace word-wrap")
 		if (channel.active)
 			- var currencyValue = new Decimal(channel.capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 			include ./value-display.pug
+
+		else if (channel.channel != null)
+			div.text-muted
+				- var currencyValue = new Decimal(channel.channel.capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+				include ./value-display.pug
 
 		else
 			span -
