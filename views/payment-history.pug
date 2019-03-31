@@ -105,6 +105,9 @@ block content
 
 		if (true)
 			if (allFilteredPayments.length > 0)
+				each payment, paymentIndex in pagedFilteredPayments
+					include includes/payment-details-modal.pug
+
 				div(class="table-responsive")
 					table(class="table table-bordered border-top")
 						thead.bg-light
@@ -117,11 +120,13 @@ block content
 								th(class="text-right") Hops
 								th(class="text-right") Fee
 								th(class="text-right") Value
+
+								th Details
 						
 						tbody
-							each payment, index in pagedFilteredPayments
+							each payment, paymentIndex in pagedFilteredPayments
 								tr.text-monospace.word-wrap
-									th.text-right #{(index + 1).toLocaleString()}
+									th.text-right #{(paymentIndex + 1).toLocaleString()}
 									
 									if (false)
 										td
@@ -154,3 +159,6 @@ block content
 									td(class="table-col-currencyvalue text-right")
 										- var currencyValue = new Decimal(payment.value_msat).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(1000);
 										include ./includes/value-display.pug
+
+									td
+										a(href="javascript:void(0)" data-toggle="modal" data-target=("#paymentModal-" + paymentIndex)) Details
