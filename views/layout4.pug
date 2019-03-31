@@ -15,7 +15,6 @@ head
 	meta(name='keyword' content='Bootstrap,Admin,Template,Open,Source,jQuery,CSS,HTML,RWD,Dashboard')
 
 	link(rel="stylesheet", href="/css/highlight.min.css", integrity="sha384-zhIsEafzyQWHSoMCQ4BfT8ZlRXQyIFwAHAJn32PNdsb8n6tVysGZSLpEEIvCskw4")
-	link(rel="stylesheet", href="/css/dataTables.bootstrap4.min.css", integrity="sha384-EkHEUZ6lErauT712zSr0DZ2uuCmi3DoQj6ecNdHQXpMpFNGAQ48WjfXCE5n20W+R")
 
 	
 	// Main styles for this application
@@ -373,17 +372,10 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 
 	script(src="/js/jdenticon.min.js" integrity="")
 
-	script(src="/js/jquery.dataTables.min.js", integrity="sha384-rgWRqC0OFPisxlUvl332tiM/qmaNxnlY46eksSZD84t+s2vZlqGeHrncwIRX7CGp")
-	script(src="/js/dataTables.bootstrap4.min.js", integrity="sha384-uiSTMvD1kcI19sAHJDVf68medP9HA2E2PzGis9Efmfsdb8p9+mvbQNgFhzii1MEX")
-
 	script.
 		$(document).ready(function() {
 			$('[data-toggle="tooltip"]').tooltip();
 			$('[data-toggle="popover"]').popover({html:true, container:"body"});
-		});
-
-		$(document).ready(function() {
-			$(".data-table").DataTable();
 		});
 
 		hljs.initHighlightingOnLoad();
