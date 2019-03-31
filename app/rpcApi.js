@@ -2,8 +2,12 @@ var utils = require("./utils.js");
 
 
 var fullNetworkDescription = null;
+var fullNetworkDescriptionDate = null;
+var pendingFNDRequest = false;
+
 var localChannels = null;
 var localClosedChannels = null;
+
 
 function getFullNetworkDescription() {
 	return new Promise(function(resolve, reject) {
@@ -16,7 +20,16 @@ function getFullNetworkDescription() {
 	});
 }
 
-function refreshFullNetworkDescription() {
+function refreshFullNetworkDescription(forceRefresh=false) {
+	if (!forceRefresh && pendingFNDRequest) {
+		// avoid piling up these heavy requests
+		return new Promise(function(resolve, reject) {
+			resolve();
+		});
+	}
+
+	pendingFNDRequest = true;
+
 	var startTime = new Date();
 
 	console.log("Refreshing network description...");
@@ -29,6 +42,8 @@ function refreshFullNetworkDescription() {
 
 			if (describeGraphResponse == null) {
 				console.log("Error 23ufhg024ge: null describeGraph response");
+
+				pendingFNDRequest = false;
 
 				resolve_1();
 
@@ -54,8 +69,11 @@ function refreshFullNetworkDescription() {
 
 			Promise.all(promises).then(function() {
 				fullNetworkDescription = compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey);
+				fullNetworkDescriptionDate = new Date();
 
 				console.log("Finished refreshing network description; elapsed time: " + (new Date().getTime() - startTime.getTime()));
+
+				pendingFNDRequest = false;
 
 				resolve_1();
 			});

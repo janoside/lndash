@@ -701,7 +701,7 @@ router.get("/connect-lnd", function(req, res) {
 			rpcApi.refreshLocalChannels();
 			rpcApi.refreshLocalClosedChannels();
 
-			rpcApi.refreshFullNetworkDescription().then(function() {
+			rpcApi.refreshFullNetworkDescription(true).then(function() {
 				req.session.userMessage = `Switched to LND ${global.lndRpc.internal_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)} ('${global.lndRpc.internal_alias}')`;
 				req.session.userMessageType = "success";
 
