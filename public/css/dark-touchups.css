@@ -2,6 +2,10 @@ hr {
 	background-color: #555555;
 }
 
+.breadcrumb, .app-header {
+	border-bottom: solid 1px #444;
+}
+
 .hljs-attr {
 	color: #eeeeee;
 }

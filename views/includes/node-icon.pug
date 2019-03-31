@@ -1,6 +1,6 @@
 - var hsl = utils.colorHexToHsl(fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.color);
 
-div(class="node-color-circle-wrapper")
-	div(class="node-color-circle-outer", style=("background-color: " +  fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.color + "; width: " + node_icon_size + "; height: " + node_icon_size + "; " + (hsl.s < 0.1 ? "border: solid 1px #ccc;" : "")))
-		div(class="node-color-circle-inner", style="background-color: white;")
-			svg(class="node-icon", data-jdenticon-value=node_pubkey)
+div.node-color-circle-wrapper
+	div.node-color-circle-outer(style=("background-color: " +  fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.color + "; width: " + node_icon_size + "; height: " + node_icon_size + "; " + (hsl.s < 0.1 ? "border: solid 1px #ccc;" : "")))
+		div.node-color-circle-inner(style="background-color: white;")
+			svg.node-icon(data-jdenticon-value=node_pubkey)

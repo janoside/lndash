@@ -17,14 +17,15 @@ head
 	link(rel="stylesheet", href="/css/highlight.min.css", integrity="sha384-zhIsEafzyQWHSoMCQ4BfT8ZlRXQyIFwAHAJn32PNdsb8n6tVysGZSLpEEIvCskw4")
 	link(rel="stylesheet", href="/css/dataTables.bootstrap4.min.css", integrity="sha384-EkHEUZ6lErauT712zSr0DZ2uuCmi3DoQj6ecNdHQXpMpFNGAQ48WjfXCE5n20W+R")
 
+	
+	// Main styles for this application
+	link(href='/css/coreui.css' rel='stylesheet')
+
 	if (session.uiTheme && session.uiTheme == "dark")
 		link(rel="stylesheet", href="/css/bootstrap-dark.css")
 			
 	else
 		link(rel="stylesheet", href="/css/bootstrap.css", integrity="")
-
-	// Main styles for this application
-	link(href='/css/coreui.css' rel='stylesheet')
 
 
 	link(href='/css/styling.css' rel='stylesheet')
@@ -39,14 +40,14 @@ head
 		title #{config.siteInfo.title}
 
 body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
-	header.app-header.navbar.bg-main
+	header.app-header.navbar.bg-main.p-0
 		button.navbar-toggler.sidebar-toggler.d-lg-none.mr-auto(type='button' data-toggle='sidebar-show')
 			span.navbar-toggler-icon
 		a.navbar-brand(href='/')
 			if (session.uiTheme && session.uiTheme == "dark")
 				img.navbar-brand-full(src='/img/logo/app-dark.png' width='82' height='25' alt='LND Admin')
 			else
-			img.navbar-brand-full(src='/img/logo/app.png' width='82' height='25' alt='LND Admin')
+				img.navbar-brand-full(src='/img/logo/app.png' width='82' height='25' alt='LND Admin')
 
 			//span.navbar-brand-full LND Admin
 			img.navbar-brand-minimized(src='/img/logo/app.png' width='82' height='25' alt='LND Admin')
@@ -64,51 +65,69 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 					li.nav-item.px-3
 						a.nav-link(href='#') Settings
 
-				span.ml-4.mr-2 LND Node: 
-				span.mr-2
-					- var node_pubkey = lndRpc.internal_pubkey;
-					- var node_icon_size = "2.25em";
-					include includes/node-icon.pug
-					- var node_icon_size = null;
-				li.nav-item.dropdown
-					
-					a.nav-link(data-toggle='dropdown' href='javascript:void(0)' role='button' aria-haspopup='true' aria-expanded='false')
-						span.text-body.dropdown-toggle #{lndRpc.internal_alias}
+				span.ml-4.mr-2.font-weight-bold LND Node
 
-					.dropdown-menu(style="min-width: 23rem;")
-						each lndIndex, index in lndConnections.indexes
-							if (lndConnections.connectionsByIndex[lndIndex] != null)
-								- var lndConn = lndConnections.connectionsByIndex[lndIndex];
-								- var node_pubkey = lndConn.internal_pubkey;
+				li.nav-item
+					if (true)
+						a.nav-link.btn.btn-light.border.bg-light.px-3.py-1(data-toggle='dropdown' href='javascript:void(0)' role='button' aria-haspopup='true' aria-expanded='false')
+							div.clearfix
+								div.float-left.mr-2
+									- var node_pubkey = lndRpc.internal_pubkey;
+									- var node_icon_size = "2.0em";
+									include includes/node-icon.pug
+									- var node_icon_size = null;
 
-								if (fullNetworkDescription)
-									- var addrs = [];
-									each address in fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.addresses
-										- addrs.push(address.addr);
+								div.float-left.pt-1
+									span.text-body.dropdown-toggle #{lndRpc.internal_alias}
 
-									a.dropdown-item(href=('/connect-lnd?index=' + lndIndex), onclick="$('#switchLndModal').modal()")
-										div.clearfix
-											div.float-left.mr-3
-												include includes/node-icon.pug
+						.dropdown-menu.py-2(style="min-width: 23rem;")
+							each lndIndex, index in lndConnections.indexes
+								small.border-bottom
+									if (lndConnections.connectionsByIndex[lndIndex] != null)
+										- var lndConn = lndConnections.connectionsByIndex[lndIndex];
+										- var node_pubkey = lndConn.internal_pubkey;
 
-											div.float-left
-												span.font-weight-bold #{node_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
-												if (lndConn == lndRpc)
-													i.fas.fa-check.text-success.ml-2
-												br
-												span.font-weight-bold Alias: 
-												span.text-monospace #{lndConn.internal_alias}
-												br
-												span.font-weight-bold Address: 
-												span.text-monospace #{addrs}
-												br
-												span.font-weight-bold Version: 
-												- var versionParts = lndConn.internal_version.split(" ");
-												span.text-monospace.word-wrap #{versionParts[0]}
+										if (fullNetworkDescription)
+											- var addrs = [];
+											each address in fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.addresses
+												- addrs.push(address.addr);
+
+											a.dropdown-item.rounded-0.px-3.py-2(href=('/connect-lnd?index=' + lndIndex), onclick="$('#switchLndModal').modal()")
+												div.clearfix
+													div.float-left.mr-3
+														- var node_icon_size = "2.5rem;"
+														include includes/node-icon.pug
+
+													div.float-left
+														span.font-weight-bold #{node_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
+														if (lndConn == lndRpc)
+															i.fas.fa-check.text-success.ml-2
+														br
+														span.font-weight-bold Alias: 
+														span.text-monospace #{lndConn.internal_alias}
+														br
+														span.font-weight-bold Address: 
+														span.text-monospace #{addrs}
+														br
+														span.font-weight-bold Version: 
+														- var versionParts = lndConn.internal_version.split(" ");
+														span.text-monospace.word-wrap #{versionParts[0]}
+
+											div.dropdown-divider
+
+							a.dropdown-item.rounded-0.px-3.py-2(href='#') Manage Nodes...
 									
 
 
 		ul.nav.navbar-nav.ml-auto.mr-2
+			li.nav-item.d-md-down-none
+				div.d-none.d-md-block(style="width: 350px;")
+				form.mr-3(method="get" action="/search")
+					div.input-group.input-group-sm
+						input.form-control.form-control-sm(type="text", name="query", placeholder="public key, channel id, alias, color, or address", value=query)
+						div.input-group-append
+							button.btn.btn-primary(type="submit")
+								i.fas.fa-search
 			if (false)
 				li.nav-item.d-md-down-none
 					a.nav-link(href='#')
@@ -237,10 +256,10 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 							i.nav-icon.fas.fa-receipt.mr-2
 							|	Pay Invoice
 					if (false)
-					li.nav-item
-						a.nav-link(href='/send-payment')
-							i.nav-icon.fas.fa-money-bill-wave.mr-2
-							|	Send Payment
+						li.nav-item
+							a.nav-link(href='/send-payment')
+								i.nav-icon.fas.fa-money-bill-wave.mr-2
+								|	Send Payment
 					li.nav-item
 						a.nav-link(href='/openchannel')
 							i.nav-icon.fas.fa-plus-square.mr-2
@@ -279,7 +298,7 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 			button.sidebar-minimizer.brand-minimizer(type='button')
 
 		main.main.pb-4
-			ol.breadcrumb.bg-main.text-body
+			ol.breadcrumb.bg-main.text-body.rounded-0
 				block breadcrumb
 					li.breadcrumb-item
 						a(href='/') Admin Home
