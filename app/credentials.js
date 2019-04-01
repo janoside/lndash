@@ -31,7 +31,6 @@ if (process.env.LND_ADMIN_NODE_COUNT) {
 
 module.exports = {
 	rpcConfigs:rpcConfigs,
-
-	adminUsername:process.env.LND_ADMIN_LOGIN_USERNAME || "admin",
+	
 	adminPasswordSha256:pwdHash
 };

@@ -9,11 +9,9 @@ div.alert.alert-primary
 
 	form(method="post", action="/login")
 		div(class="form-group")
-			label(for="username") Username
-			input(type="text", class="form-control", id="username", name="username")
-
-		div(class="form-group")
 			label(for="password") Password
 			input(type="password", class="form-control", id="password", name="password")
 
-		button(type="submit", class="btn btn-primary") Login
+		button.btn.btn-primary(type="submit")
+			i.fas.fa-sign-in-alt.mr-2
+			span Login
