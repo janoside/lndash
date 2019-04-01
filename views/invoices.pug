@@ -54,10 +54,10 @@ block content
 									| Value, Lowest first
 
 						div.dropdown-menu(aria-labelledby="dropdownMenuButton")
-							a.dropdown-item(href=`/invoices?sort=created-desc&settled=${settled}&created=${created}`) Created Date, Newest first
-							a.dropdown-item(href=`/invoices?sort=created-asc&settled=${settled}&created=${created}`) Created Date, Oldest first
-							a.dropdown-item(href=`/invoices?sort=value-desc&settled=${settled}&created=${created}`) Value, Highest first
-							a.dropdown-item(href=`/invoices?sort=value-asc&settled=${settled}&created=${created}`) Value, Lowest first
+							a.dropdown-item(href=`/invoices?sort=created-desc&settled=${settled}&created=${created}&limit=${limit}`) Created Date, Newest first
+							a.dropdown-item(href=`/invoices?sort=created-asc&settled=${settled}&created=${created}&limit=${limit}`) Created Date, Oldest first
+							a.dropdown-item(href=`/invoices?sort=value-desc&settled=${settled}&created=${created}&limit=${limit}`) Value, Highest first
+							a.dropdown-item(href=`/invoices?sort=value-asc&settled=${settled}&created=${created}&limit=${limit}`) Value, Lowest first
 
 					div.mr-4.mb-2.mb-lg-0.float-left
 						div Status
@@ -67,7 +67,7 @@ block content
 								if (settled != null && settled == opt.toLowerCase())
 									span.btn.btn-primary #{opt}
 								else
-									a.btn.btn-light.border(href=`/invoices?sort=${sort}&settled=${opt}&created=${created}`) #{opt}
+									a.btn.btn-light.border(href=`/invoices?sort=${sort}&settled=${opt}&created=${created}&limit=${limit}`) #{opt}
 
 					div.mr-4.mb-2.mb-lg-0.float-left
 						div Time
@@ -77,7 +77,17 @@ block content
 								if (created != null && created == opt.toLowerCase().replace(" ", "-"))
 									span.btn.btn-primary #{opt}
 								else
-									a.btn.btn-light.border(href=`/invoices?sort=${sort}&settled=${settled}&created=${opt.replace(" ", "-")}`) #{opt}
+									a.btn.btn-light.border(href=`/invoices?sort=${sort}&settled=${settled}&created=${opt.replace(" ", "-")}&limit=${limit}`) #{opt}
+
+					div.mr-4.mb-2.mb-lg-0.float-left
+						div Page Size
+						- var pageSizeOptions = ["20", "50", "100"];
+						div.btn-group.mr-2(role="group")
+							each opt in pageSizeOptions
+								if (limit != null && limit == parseInt(opt))
+									span.btn.btn-primary #{opt}
+								else
+									a.btn.btn-light.border(href=`/invoices?sort=${sort}&settled=${settled}&created=${created}&limit=${opt}`) #{opt}
 
 				hr.my-3
 
@@ -113,7 +123,7 @@ block content
 						- pageCount++;
 					- }
 					- var paginationUrlFunction = function(x) {
-						- return paginationBaseUrl + "&limit=" + limit + "&offset=" + ((x - 1) * limit);
+						- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
 					- }
 					
 					div.mt-2.mb-0

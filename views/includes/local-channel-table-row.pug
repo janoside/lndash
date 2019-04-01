@@ -19,8 +19,12 @@ tr(class="text-monospace word-wrap")
 			span.text-success Active
 
 		else if (channel.chan_id)
-			div.text-danger Closed
-			div.text-muted #{channel.close_type}
+			if (channel.close_type)
+				div.text-danger Closed
+				div.text-muted #{channel.close_type}
+
+			else
+				div.text-warning Inactive
 
 		else
 			if (pendingOpenChannels.includes(channel))
