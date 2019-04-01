@@ -132,6 +132,14 @@ block content
 											i.fas.fa-lock
 									
 
+				if (localChannels.byId[channel.channel_id])
+					div.card.mb-3.shadow-sm
+						div.card-header
+							h2.h6.mb-0 Tools
+						div.card-body
+							a.btn.btn-danger.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/close-channel?channelId=${channel.channel_id}`)
+								i.fas.fa-times.mr-2
+								span Close Channel
 
 				div.card.mb-3.shadow-sm
 					div.card-header
