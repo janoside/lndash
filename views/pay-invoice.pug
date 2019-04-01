@@ -71,95 +71,80 @@ block content
 						code.json.bg-light #{JSON.stringify(payInvoiceResponse, null, 4)}
 			else
 				div.alert.alert-success
-					h3.h5 Payment Sent
+					h3.h6 Payment Sent
 
-					- var dest_pubkey = payInvoiceResponse.payment_route.hops[payInvoiceResponse.payment_route.hops.length - 1].pub_key;
-					span Your payment of 
-					span.font-weight-bold #{parseInt(payInvoiceResponse.payment_route.total_amt).toLocaleString()} sat 
-					span was sent to 
-					span.font-weight-bold #{dest_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
-					span  in 
-					span.font-weight-bold #{parseInt(payInvoiceResponse.payment_route.hops.length).toLocaleString()} hop
-					if (payInvoiceResponse.payment_route.hops.length != 1)
-						span.font-weight-bold s
-					span . You paid 
-					span.font-weight-bold #{parseInt(payInvoiceResponse.payment_route.total_fees_msat).toLocaleString()} msat 
-					span in fees.
+					div.mb-3
+						- var dest_pubkey = payInvoiceResponse.payment_route.hops[payInvoiceResponse.payment_route.hops.length - 1].pub_key;
+						span Your payment of 
+						span.font-weight-bold #{parseInt(payInvoiceResponse.payment_route.total_amt).toLocaleString()} sat 
+						span was sent to 
+						span.font-weight-bold #{dest_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
+						span  in 
+						span.font-weight-bold #{parseInt(payInvoiceResponse.payment_route.hops.length).toLocaleString()} hop
+						if (payInvoiceResponse.payment_route.hops.length != 1)
+							span.font-weight-bold s
+						span . You paid 
+						span.font-weight-bold #{parseInt(payInvoiceResponse.payment_route.total_fees_msat).toLocaleString()} msat 
+						span in fees.
 
-					div.clearfix.mt-2.text-monospace(style="overflow: auto; width: 100%;")
-						div.float-left.mr-2
-							div.card.text-body
+					div.clearfix
+						div.card.text-body.shadow-sm.float-left.mr-3
+							div.card-header
+								h3.h6.mb-0
+									i.fas.fa-play-circle.mr-2.fa-lg
+									span Origin
+							div.card-body
+								div.font-weight-bold.mb-2 Node
+								
+								- var card_node_pubkey = lndRpc.internal_pubkey;
+								include includes/node-card.pug
+
+						each hop, hopIndex in payInvoiceResponse.payment_route.hops
+							
+							div.card.text-body.shadow-sm.float-left.mr-3
+								div.card-header
+									h3.h6.mb-0
+										if (hopIndex == (payInvoiceResponse.payment_route.hops - 1))
+											i.fas.fa-check-circle.mr-2.fa-lg
+										else
+											i.fas.fa-arrow-circle-right.mr-2.fa-lg
+
+										span Hop ##{(hopIndex + 1).toLocaleString()}
+
+										if (hopIndex == (payInvoiceResponse.payment_route.hops.length - 1))
+											span  (Destination)
+									
 								div.card-body
-									- var card_node_pubkey = lndRpc.internal_pubkey;
-									include includes/node-card.pug
+									div.mb-3.border-bottom.pb-3
+										div.font-weight-bold.mb-2 Node
+										- var card_node_pubkey = hop.pub_key;
+										include includes/node-card.pug
+										
 
-						div.float-left.mr-2.mt-4
-							i.fas.fa-arrow-right
+									div.mb-2
+										div.font-weight-bold Channel
+										
+										a.text-monospace(href=`/channel/${hop.chan_id}`)
+											- var channel_id = hop.chan_id;
+											include includes/channel-id.pug
 
-						each hop, hopIndex in payInvoiceResponse.payment_route.hops
-							if (hopIndex > 0)
-								div.float-left.mr-2.mt-4
-									i.fas.fa-arrow-right
-
-							div.float-left.mr-2
-								div.card.text-body
-									div.card-body
-										div.pb-3.mb-3.border-bottom
-											- var card_node_pubkey = hop.pub_key;
-											include includes/node-card.pug
-
-										div.mb-2
-											span.font-weight-bold Channel
-											br
-											
-											a(href=`/channel/${hop.chan_id}`)
-												- var channel_id = hop.chan_id;
-												include includes/channel-id.pug
-
-										div
-											span.font-weight-bold Fees
-											br
-											if (parseInt(hop.fee_msat) > 0)
-												span.text-danger +#{hop.fee_msat} msat
-											else
-												span -
-
-						each hop, hopIndex in payInvoiceResponse.payment_route.hops
-							if (hopIndex > -1)
-								div.float-left.mr-2.mt-4
-									i.fas.fa-arrow-right
-
-							div.float-left.mr-2
-								div.card.text-body
-									div.card-body
-										div.pb-3.mb-3.border-bottom
-											- var card_node_pubkey = hop.pub_key;
-											include includes/node-card.pug
-
-										div.mb-2
-											span.font-weight-bold Channel
-											br
-											a(href=`/channel/${hop.chan_id}`)
-												- var channel_id = hop.chan_id;
-												include includes/channel-id.pug
-
-										div
-											span.font-weight-bold Fees
-											br
-											if (parseInt(hop.fee_msat) > 0)
-												span.text-danger +#{hop.fee_msat} msat
-											else
-												span -
+									div
+										div.font-weight-bold Fees
+										
+										if (parseInt(hop.fee_msat) > 0)
+											span.text-danger.text-monospace +#{hop.fee_msat} msat
+										else
+											span.text-monospace.text-success 0
 
 					if (false)
 						pre
 							code.json.bg-light #{JSON.stringify(payInvoiceResponse, null, 4)}
 
 		if (decodedInvoice)
-			div(class="card mb-3 shadow-sm")
-				div(class="card-header")
-					h2(class="h6 mb-0") Payment Details
-				div(class="card-body")
+			div.card.mb-3.shadow-sm
+				div.card-header
+					h2.h6.mb-0 Payment Details
+				div.card-body
 					ul(class='nav nav-tabs mb-3')
 						li(class="nav-item")
 							a(data-toggle="tab", href="#tab-summary", class="nav-link active", role="tab") Summary
