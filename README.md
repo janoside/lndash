@@ -11,6 +11,7 @@ Live demo: https://lnd-admin.chaintools.io
 * Create and pay invoices
 * Open and close channels
 * Configure multiple LND nodes and switch between them
+* Responsive design (but UI is data/table heavy, so works best on large screens)
 
 
 # Getting started

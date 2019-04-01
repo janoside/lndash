@@ -50,7 +50,12 @@ tr(class="text-monospace word-wrap")
 				div.text-warning Force Closing
 
 	td
-		- var card_node_pubkey = channel.remote_pubkey;
+		if (channel.remote_pubkey)
+			- var card_node_pubkey = channel.remote_pubkey;
+			
+		else if (channel.channel.remote_node_pub)
+			- var card_node_pubkey = channel.channel.remote_node_pub;
+
 		include ./node-card.pug
 
 	td.text-right

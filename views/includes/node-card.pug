@@ -26,7 +26,7 @@ else
 				- var node_pubkey = card_node.pubkey;
 				- var node_icon_size = "2.75em";
 				include ./node-icon.pug
-					
+
 		div.float-left
 			if (card_node)
 				a(href=`/node/${card_node.pubkey}`, title=card_node.pubkey, data-toggle="tooltip")
@@ -35,3 +35,9 @@ else
 				br
 				- var node_alias = card_node.alias;
 				include ./node-alias.pug
+
+			else
+				span.text-danger.border-dotted(title=card_node_pubkey data-toggle="tooltip") Unknown Node
+
+- card_node_pubkey = null;
+- card_node = null;
