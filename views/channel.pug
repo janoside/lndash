@@ -43,11 +43,11 @@ block content
 
 		div(class="tab-content")
 			div(id="tab-details", class="tab-pane active", role="tabpanel")
-				div(class="card mb-3 shadow-sm")
-					div(class="card-header")
-						h2(class="h6 mb-0") Summary
+				div.card.mb-3.shadow-sm
+					div.card-header
+						h2.h6.mb-0 Summary
 
-					div(class="card-body")
+					div.card-body
 						div(class="row")
 							div(class="summary-table-label", title="On-chain transaction that opened this channel", data-toggle="tooltip") Channel Point
 							div.summary-table-content.text-monospace
@@ -133,10 +133,10 @@ block content
 									
 
 
-				div(class="card mb-3 shadow-sm")
-					div(class="card-header")
-						h2(class="h6 mb-0") Policies
-					div(class="card-body")
+				div.card.mb-3.shadow-sm
+					div.card-header
+						h2.h6.mb-0 Policies
+					div.card-body
 						table(class="table table-responsive-sm")
 							thead
 								tr
@@ -180,10 +180,10 @@ block content
 										td(class="text-right") ?
 										td(class="text-right") ?
 
-				div(class="card mb-3 shadow-sm")
-					div(class="card-header")
-						h2(class="h6 mb-0") Node Details
-					div(class="card-body")
+				div.card.mb-3.shadow-sm
+					div.card-header
+						h2.h6.mb-0 Node Details
+					div.card-body
 						- var nodes = [ node1, node2 ];
 						- var showTableNumbers = true;
 						include includes/node-details-table.pug

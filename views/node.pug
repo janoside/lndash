@@ -26,11 +26,11 @@ block content
 
 	hr
 
-	div(class="card mb-3 shadow-sm")
-		div(class="card-header")
-			h2(class="h6 mb-0") Summary
+	div.card.mb-3.shadow-sm
+		div.card-header
+			h2.h6.mb-0 Summary
 
-		div(class="card-body")
+		div.card-body
 			div(class="row")
 				div(class="col-md-8")
 					div(class="row")
@@ -102,10 +102,10 @@ block content
 
 
 	if (session.admin)
-		div(class="card mb-3 shadow-sm")
-			div(class="card-header")
-				h2(class="h6 mb-0") Tools
-			div(class="card-body")
+		div.card.mb-3.shadow-sm
+			div.card-header
+				h2.h6.mb-0 Tools
+			div.card-body
 				if (peerPubkeys.includes(nodeInfo.node.pub_key))
 					a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/disconnectPeer?pubkey=${nodeInfo.node.pub_key}`)
 						i.fas.fa-unlink.mr-2

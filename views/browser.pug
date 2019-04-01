@@ -28,15 +28,15 @@ block content
 				hr
 
 				div(class="card bg-light mb-3")
-					div(class="card-header") Help Content for
+					div.card-header Help Content for
 						strong  #{method}
-					div(class="card-body")
+					div.card-body
 						pre #{methodhelp.string}
 				
 				div(class="card bg-light mb-3")
-					div(class="card-header") Execute Command: 
+					div.card-header Execute Command: 
 						strong  #{method}
-					div(class="card-body")
+					div.card-body
 						form(method="get")
 							input(type="hidden", name="method", value=method)
 

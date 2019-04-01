@@ -59,10 +59,10 @@ block content
 
 		div.row
 			div.col-md-6
-				div(class="card mb-3 shadow-sm")
-					div(class="card-header")
-						h2(class="h6 mb-0") My Node Summary
-					div(class="card-body")
+				div.card.mb-3.shadow-sm
+					div.card-header
+						h2.h6.mb-0 My Node Summary
+					div.card-body
 						if (true)
 							div(class="row")
 								div.summary-split-table-label
@@ -205,10 +205,10 @@ block content
 
 			div.col-md-6
 				div(class="card mb-4 shadow-sm")
-					div(class="card-header")
+					div.card-header
 						h2.h6.mb-0
 							span.border-dotted(title="This summary is for the public network from the point of view of your current node." data-toggle="tooltip") Public Network Summary
-					div(class="card-body")
+					div.card-body
 
 						div(class="row")
 							- var currencyValue = new Decimal(totalCapacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
@@ -235,10 +235,10 @@ block content
 
 		if (false)
 			div(class="card mb-4 shadow-sm")
-				div(class="card-header")
+				div.card-header
 					div(class="row")
 						div(class="col")
-							h2(class="h6 mb-0") #{fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()} 
+							h2.h6.mb-0 #{fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()} 
 								if (fullNetworkDescription.nodes.sortedByLastUpdate.length == 1)
 									span Node
 								else
@@ -249,7 +249,7 @@ block content
 								a(href="/nodes")
 									span  Browse Nodes &raquo;
 
-				div(class="card-body")
+				div.card-body
 					div.row
 						div.col-md-4
 							h3.h4 Recently Updated
@@ -269,10 +269,10 @@ block content
 
 		if (false)
 			div(class="card mb-4 shadow-sm")
-				div(class="card-header")
+				div.card-header
 					div(class="row")
 						div(class="col")
-							h2(class="h6 mb-0") #{fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()} 
+							h2.h6.mb-0 #{fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()} 
 								if (fullNetworkDescription.channels.sortedByLastUpdate.length == 1)
 									span Channel
 								else
@@ -283,7 +283,7 @@ block content
 								a(href="/channels")
 									span  Browse Channels &raquo;
 
-				div(class="card-body")
+				div.card-body
 					ul(class='nav nav-tabs')
 						li(class="nav-item")
 							a(data-toggle="tab", href="#tab-channels-sortedByLastUpdate", class="nav-link active", role="tab") Recently Updated

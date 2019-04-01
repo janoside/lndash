@@ -27,10 +27,10 @@ block content
 		div(class="tab-content")
 			div(id="tab-details", class="tab-pane active", role="tabpanel")
 
-				div(class="card mb-3 shadow-sm")
-					div(class="card-header")
-						h2(class="h6 mb-0") Summary
-					div(class="card-body")
+				div.card.mb-3.shadow-sm
+					div.card-header
+						h2.h6.mb-0 Summary
+					div.card-body
 						div(class="row")
 							div(class="col-md-8")
 								div(class="row")
@@ -105,8 +105,8 @@ block content
 										span(class="text-center monospace") URI
 
 
-				div(class="card mb-3 shadow-sm")
-					div(class="card-header")
+				div.card.mb-3.shadow-sm
+					div.card-header
 						h2(class="h6 mb-0")
 							span #{listPeers.peers.length.toLocaleString()} 
 							if (listPeers.peers.length == 1)
@@ -114,7 +114,7 @@ block content
 							else
 								span Peers
 
-					div(class="card-body")
+					div.card-body
 						table(class="table table-responsive-sm")
 							thead
 								tr
