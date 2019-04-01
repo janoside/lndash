@@ -1662,6 +1662,59 @@ router.get("/openchannel", function(req, res) {
 	res.render("openchannel");
 });
 
+router.post("/openchannel", function(req, res) {
+	if (!req.body.pubkey) {
+		res.locals.userMessage = "Must specify the remote node's public key.";
+		res.locals.userMessageType = "danger";
+
+		res.render("openchannel");
+
+		return;
+	}
+
+	var pubkey = req.body.pubkey;
+	var local_balance = 0;
+	var remote_balance = 0;
+
+	if (req.body.local_balance) {
+		local_balance = parseInt(req.body.local_balance);
+	}
+
+	if (req.body.remote_balance) {
+		remote_balance = parseInt(req.body.remote_balance);
+	}
+
+	res.locals.pubkey = req.body.pubkey;
+	res.locals.local_balance = local_balance;
+	res.locals.remote_balance = remote_balance;
+
+	var promises = [];
+
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.openChannel(pubkey, local_balance, remote_balance).then(function(openChannelResponse) {
+			res.locals.openChannelResponse = openChannelResponse;
+
+			resolve();
+
+		}).catch(function(err) {
+			res.locals.openChannelError = err;
+
+			utils.logError("3r97ghsd7gss", err);
+
+			reject(err);
+		});
+	}));
+
+	Promise.all(promises).then(function() {
+		res.render("openchannel");
+
+	}).catch(function(err) {
+		utils.logError("397rgheas907gts7", err);
+
+		res.render("openchannel");
+	});
+});
+
 router.get("/lndconnect", function(req, res) {
 	/*var fs = require('fs');
 

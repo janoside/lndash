@@ -487,7 +487,7 @@ function getInvoices() {
 
 function openChannel(remoteNodePubkey, localAmount, sendAmount) {
 	return new Promise(function(resolve, reject) {
-		lndRpc.OpenChannel({node_pubkey_string:remoteNodePubkey, local_funding_amount:localAmount, push_sat:sendAmount}, function(err, response) {
+		lndRpc.OpenChannelSync({node_pubkey_string:remoteNodePubkey, local_funding_amount:localAmount, push_sat:sendAmount}, function(err, response) {
 			if (err) {
 				utils.logError("04fh23yg432", err);
 
@@ -602,6 +602,8 @@ module.exports = {
 	getChannelBalance,
 	getWalletBalance,
 	getWalletUtxos: getWalletUtxos,
+
+	openChannel: openChannel,
 
 	createInvoice: createInvoice,
 	decodeInvoiceString: decodeInvoiceString,
