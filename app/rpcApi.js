@@ -1,4 +1,6 @@
 var utils = require("./utils.js");
+var fs = require("fs");
+var grpc = require("grpc");
 
 
 var fullNetworkDescription = null;
@@ -7,6 +9,116 @@ var pendingFNDRequest = false;
 
 var localChannels = null;
 var localClosedChannels = null;
+
+function connect(rpcConfig, index) {
+	console.log(`Connecting to LND Node: ${rpcConfig}`);
+
+	return new Promise(function(resolve, reject) {
+		// Ref: https://github.com/lightningnetwork/lnd/blob/master/docs/grpc/javascript.md
+
+		// Due to updated ECDSA generated tls.cert we need to let gprc know that
+		// we need to use that cipher suite otherwise there will be a handhsake
+		// error when we communicate with the lnd rpc server.
+		process.env.GRPC_SSL_CIPHER_SUITES = 'HIGH+ECDSA';
+
+		// Lnd admin macaroon is at ~/.lnd/admin.macaroon on Linux and
+		// ~/Library/Application Support/Lnd/admin.macaroon on Mac
+		var m = fs.readFileSync(rpcConfig.adminMacaroonFilepath);
+		var macaroon = m.toString('hex');
+
+		// build meta data credentials
+		var metadata = new grpc.Metadata();
+		metadata.add('macaroon', macaroon);
+		var macaroonCreds = grpc.credentials.createFromMetadataGenerator((_args, callback) => {
+			callback(null, metadata);
+		});
+
+		//  Lnd cert is at ~/.lnd/tls.cert on Linux and
+		//  ~/Library/Application Support/Lnd/tls.cert on Mac
+		var lndCert = fs.readFileSync(rpcConfig.tlsCertFilepath);
+		var sslCreds = grpc.credentials.createSsl(lndCert);
+
+		// combine the cert credentials and the macaroon auth credentials
+		// such that every call is properly encrypted and authenticated
+		var credentials = grpc.credentials.combineChannelCredentials(sslCreds, macaroonCreds);
+
+		var lnrpcDescriptor = grpc.load("./rpc.proto"); // "rpc.proto"
+		var lnrpc = lnrpcDescriptor.lnrpc;
+
+		// uncomment to print available function of RPC protocol
+		//console.log(lnrpc);
+		
+		var lndConnection = new lnrpc.Lightning(rpcConfig.host + ":" + rpcConfig.port, credentials, {'grpc.max_receive_message_length': 50*1024*1024});
+
+		lndConnection.GetInfo({}, function(err, response) {
+			if (err) {
+				console.log("Error 3208r2ugddsh: Failed connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC: " + err + ", error json: " + JSON.stringify(err));
+
+				return;
+			}
+
+			if (response == null) {
+				console.log("Error 923ehrfheu: Failed connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC: null response");
+				
+				return;
+			}
+
+			if (response != null) {
+				console.log("Connected to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC.\n\nGetInfo=" + JSON.stringify(response, null, 4));
+			}
+
+			global.lndConnections.byIndex[index] = lndConnection;
+			global.lndConnections.byAlias[response.alias] = lndConnection;
+			global.lndConnections.aliases.push(response.alias);
+			global.lndConnections.indexes.push(index);
+
+			if (index == 0) {
+				global.lndRpc = lndConnection;
+			}
+
+			lndConnection.internal_index = index;
+			lndConnection.internal_alias = response.alias;
+			lndConnection.internal_pubkey = response.identity_pubkey;
+			lndConnection.internal_version = response.version;
+
+			resolve({lndConnection:lndConnection, index:index});
+		});
+	});
+}
+
+function connectAllNodes() {
+	return new Promise(function(resolve, reject) {
+		global.lndConnections = {
+			byIndex: {},
+			byAlias: {},
+
+			aliases:[],
+			indexes:[]
+		};
+
+		var index = -1;
+		global.adminCredentials.lndNodes.forEach(function(rpcConfig) {
+			index++;
+
+			connect(rpcConfig, index).then(function(response) {
+				console.log("RPC connected: " + response.index);
+
+				if (response.index == 0) {
+					refreshLocalChannels();
+					refreshLocalClosedChannels();
+
+					refreshFullNetworkDescription().then(function() {
+						resolve();
+						
+					}).catch(function(err) {
+						utils.logError("379regwd9f7gsdgs", err);
+						reject(err);
+					});
+				}
+			});
+		});
+	});
+}
 
 
 function getFullNetworkDescription() {
@@ -582,6 +694,9 @@ function getWalletUtxos(minConfirmations=1, maxConfirmations=100000000) {
 }
 
 module.exports = {
+	connect: connect,
+	connectAllNodes: connectAllNodes,
+
 	getFullNetworkDescription: getFullNetworkDescription,
 	refreshFullNetworkDescription: refreshFullNetworkDescription,
 

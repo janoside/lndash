@@ -1,0 +1,28 @@
+extends layout4
+
+block headContent
+	title Setup
+
+block breadcrumb
+	li.breadcrumb-item Setup
+	li.breadcrumb-item Set Administrative Password
+	
+block content
+
+	h1.h3 Setup &raquo; Set Administrative Password
+	hr
+
+	- var setupStep = 1;
+	include includes/setup-directions-alert.pug
+
+
+	form(method="post" action="/setup")
+		div.form-group
+			label(for="password") Administrative Password
+			input.form-control(id="password" name="password" type="password")
+
+		div.form-group
+			label(for="passwordConfirmation") Repeat Password
+			input.form-control(id="passwordConfirmation" name="passwordConfirmation" type="password")
+
+		button.btn.btn-primary(type="submit") Save Password

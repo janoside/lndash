@@ -1,0 +1,15 @@
+div.lead.mb-4.alert.alert-primary
+	p Let's get your LND Admin app set up, in 2 easy steps:
+
+	ol.mb-0
+		li
+			span(class=(setupStep == 1 ? "font-weight-bold" : null)) Set administrative password
+			if (setupStep == 2)
+				i.fas.fa-check.text-success.ml-2
+			br
+			small This will be used to authenticate your browser sessions, as well as encrypt LND credentials.
+
+		li
+			span(class=(setupStep == 2 ? "font-weight-bold" : null)) Connect to LND
+			br
+			small Connect to your first LND node. You will be able to add more later and switch among them easily.

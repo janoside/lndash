@@ -54,7 +54,7 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 		button.navbar-toggler.sidebar-toggler.d-md-down-none(type='button' data-toggle='sidebar-lg-show')
 			span.navbar-toggler-icon
 
-		if (true)
+		if (lndRpc)
 			ul.nav.navbar-nav.d-md-down-none
 				if (false)
 					li.nav-item.px-3
@@ -67,7 +67,7 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 				span.ml-4.mr-2.font-weight-bold LND Node
 
 				li.nav-item
-					if (true)
+					if (lndRpc)
 						a.nav-link.btn.btn-light.border.bg-light.px-3.py-1(data-toggle='dropdown' href='javascript:void(0)' role='button' aria-haspopup='true' aria-expanded='false')
 							div.clearfix
 								div.float-left.mr-2
@@ -82,8 +82,8 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 						.dropdown-menu.py-2(style="min-width: 23rem;")
 							each lndIndex, index in lndConnections.indexes
 								small.border-bottom
-									if (lndConnections.connectionsByIndex[lndIndex] != null)
-										- var lndConn = lndConnections.connectionsByIndex[lndIndex];
+									if (lndConnections.byIndex[lndIndex] != null)
+										- var lndConn = lndConnections.byIndex[lndIndex];
 										- var node_pubkey = lndConn.internal_pubkey;
 
 										if (fullNetworkDescription)
@@ -118,70 +118,17 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 									
 
 
+
 		ul.nav.navbar-nav.ml-auto.mr-2
-			li.nav-item.d-md-down-none
-				div.d-none.d-md-block(style="width: 350px;")
-				form.mr-3(method="get" action="/search")
-					div.input-group.input-group-sm
-						input.form-control.form-control-sm(type="text", name="query", placeholder="public key, channel id, alias, color, or address", value=query)
-						div.input-group-append
-							button.btn.btn-primary(type="submit")
-								i.fas.fa-search
-			if (false)
+			if (lndRpc)
 				li.nav-item.d-md-down-none
-					a.nav-link(href='#')
-						i.icon-bell
-						span.badge.badge-pill.badge-danger 5
-				li.nav-item.d-md-down-none
-					a.nav-link(href='#')
-						i.icon-list
-				li.nav-item.d-md-down-none
-					a.nav-link(href='#')
-						i.icon-location-pin
-
-			if (false)
-				li.nav-item.dropdown
-					a.nav-link.dropdown-toggle(data-toggle='dropdown' href='javascript:void(0)' role='button' aria-haspopup='true' aria-expanded='false')
-						//img.img-avatar(src='img/avatars/6.jpg' alt='admin@bootstrapmaster.com')
-						if (session.admin)
-							i(class="fas fa-user mr-1") 
-							span  Admin
-						else
-							i(class="far fa-user mr-1") 
-							span  Guest
-
-					.dropdown-menu.dropdown-menu-right
-						.dropdown-header
-							span.font-weight-bold Account
-						if (session.admin)
-							a.dropdown-item(href='/logout')
-								i.fa.fa-sign-out-alt
-								|	Logout
-						else
-							a.dropdown-item(href='/login')
-								i.fa.fa-sign-in-alt
-								|	Login
-						
-
-						if (coinConfig.currencyUnits)
-							span.dropdown-header Currency Units
-							each item in coinConfig.currencyUnits
-								if (item.type == "native" || config.queryExchangeRates)
-									a.dropdown-item(href=("/changeSetting?name=currencyFormatType&value=" + item.values[0]))
-										each valueName in item.values
-											if (currencyFormatType == valueName)
-												i(class="fas fa-check")
-										span  #{item.name}
-
-						span.dropdown-header Theme
-						a.dropdown-item(href="/changeSetting?name=uiTheme&value=light")
-							if (session.uiTheme == "light" || session.uiTheme == "")
-								i.fas.fa-check
-							span  Light
-						a(class="dropdown-item", href="/changeSetting?name=uiTheme&value=dark")
-							if (session.uiTheme == "dark")
-								i.fas.fa-check
-							span  Dark
+					div.d-none.d-md-block(style="width: 350px;")
+					form.mr-3(method="get" action="/search")
+						div.input-group.input-group-sm
+							input.form-control.form-control-sm(type="text", name="query", placeholder="public key, channel id, alias, color, or address", value=query)
+							div.input-group-append
+								button.btn.btn-primary(type="submit")
+									i.fas.fa-search
 					
 
 		if (true)
@@ -198,100 +145,90 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 		.sidebar.bg-dark
 			nav.sidebar-nav
 				ul.nav
-					li.nav-item
-						a.nav-link(href='/')
-							i.nav-icon.fas.fa-2x.fa-home.mr-2
-							|	Dashboard
-
-					li.nav-title My Node
-					li.nav-item
-						a.nav-link(href='/wallet')
-							i.nav-icon.fas.fa-wallet.mr-2
-							|	My Wallet
-					li.nav-item
-						a.nav-link(href='/local-channels')
-							i.nav-icon.fas.fa-exchange-alt.mr-2
-							|	My Channels
-					li.nav-item
-						a.nav-link(href='/peers')
-							i.nav-icon.fas.fa-users.mr-2
-							|	My Peers
-
-					li.nav-title Lightning Payments
-					li.nav-item
-						a.nav-link(href='/invoices')
-							i.nav-icon.fas.fa-sign-in-alt.mr-2
-							|	Invoices
-					li.nav-item
-						a.nav-link(href='/payment-history')
-							i.nav-icon.fas.fa-sign-out-alt.mr-2
-							|	Payments Sent
-					li.nav-item
-						a.nav-link(href='/forwarding-history')
-							i.nav-icon.fas.fa-arrow-right.mr-2
-							|	Forwarding History
-
-					li.nav-title Public Network
-					li.nav-item
-						a.nav-link(href='/nodes')
-							i.nav-icon.fas.fa-network-wired.mr-2
-							|	All Nodes
-					li.nav-item
-						a.nav-link(href='/channels')
-							i.nav-icon.fas.fa-globe-americas.mr-2
-							|	All Channels
-					li.nav-item
-						a.nav-link(href='/search')
-							i.nav-icon.fas.fa-search.mr-2
-							|	Search
-
-					li.nav-title Tools
-					li.nav-item
-						a.nav-link(href='/create-invoice')
-							i.nav-icon.fas.fa-asterisk.mr-2
-							|	Create Invoice
-					li.nav-item
-						a.nav-link(href='/pay-invoice')
-							i.nav-icon.fas.fa-receipt.mr-2
-							|	Pay Invoice
-					if (false)
+					if (!lndRpc)
 						li.nav-item
-							a.nav-link(href='/send-payment')
-								i.nav-icon.fas.fa-money-bill-wave.mr-2
-								|	Send Payment
-					li.nav-item
-						a.nav-link(href='/openchannel')
-							i.nav-icon.fas.fa-plus-square.mr-2
-							|	Open Channel
-					li.nav-item
-						a.nav-link(href='/sign-verify')
-							i.nav-icon.fas.fa-pen-nib.mr-2
-							|	Sign or Verify
-					li.nav-item
-						a.nav-link(href='/query-route')
-							i.nav-icon.fas.fa-route.mr-2
-							|	Query Route
-					li.nav-item
-						a.nav-link(href='/lndconnect')
-							i.nav-icon.fas.fa-mobile-alt.mr-2
-							|	LND Connect
-					
+							a.nav-link(href='/')
+								i.nav-icon.fas.fa-2x.fa-home.mr-2
+								|	Setup
 
-					if (false)
-						li.nav-item.nav-dropdown
-							a.nav-link.nav-dropdown-toggle(href='/local-channels')
-								i.fas.fa-exchange-alt.mr-2
+					else
+						li.nav-item
+							a.nav-link(href='/')
+								i.nav-icon.fas.fa-2x.fa-home.mr-2
+								|	Dashboard
+
+						li.nav-title My Node
+						li.nav-item
+							a.nav-link(href='/wallet')
+								i.nav-icon.fas.fa-wallet.mr-2
+								|	My Wallet
+						li.nav-item
+							a.nav-link(href='/local-channels')
+								i.nav-icon.fas.fa-exchange-alt.mr-2
 								|	My Channels
+						li.nav-item
+							a.nav-link(href='/peers')
+								i.nav-icon.fas.fa-users.mr-2
+								|	My Peers
 
-							ul.nav-dropdown-items
-								li.nav-item
-									a.nav-link(href='base/breadcrumb.html')
-										i.nav-icon.icon-puzzle
-										|	Breadcrumb
-								li.nav-item
-									a.nav-link(href='base/cards.html')
-										i.nav-icon.icon-puzzle
-										|	Cards
+						li.nav-title Lightning Payments
+						li.nav-item
+							a.nav-link(href='/invoices')
+								i.nav-icon.fas.fa-sign-in-alt.mr-2
+								|	Invoices
+						li.nav-item
+							a.nav-link(href='/payment-history')
+								i.nav-icon.fas.fa-sign-out-alt.mr-2
+								|	Payments Sent
+						li.nav-item
+							a.nav-link(href='/forwarding-history')
+								i.nav-icon.fas.fa-arrow-right.mr-2
+								|	Forwarding History
+
+						li.nav-title Public Network
+						li.nav-item
+							a.nav-link(href='/nodes')
+								i.nav-icon.fas.fa-network-wired.mr-2
+								|	All Nodes
+						li.nav-item
+							a.nav-link(href='/channels')
+								i.nav-icon.fas.fa-globe-americas.mr-2
+								|	All Channels
+						li.nav-item
+							a.nav-link(href='/search')
+								i.nav-icon.fas.fa-search.mr-2
+								|	Search
+
+						li.nav-title Tools
+						li.nav-item
+							a.nav-link(href='/create-invoice')
+								i.nav-icon.fas.fa-asterisk.mr-2
+								|	Create Invoice
+						li.nav-item
+							a.nav-link(href='/pay-invoice')
+								i.nav-icon.fas.fa-receipt.mr-2
+								|	Pay Invoice
+						if (false)
+							li.nav-item
+								a.nav-link(href='/send-payment')
+									i.nav-icon.fas.fa-money-bill-wave.mr-2
+									|	Send Payment
+						li.nav-item
+							a.nav-link(href='/openchannel')
+								i.nav-icon.fas.fa-plus-square.mr-2
+								|	Open Channel
+						li.nav-item
+							a.nav-link(href='/sign-verify')
+								i.nav-icon.fas.fa-pen-nib.mr-2
+								|	Sign or Verify
+						li.nav-item
+							a.nav-link(href='/query-route')
+								i.nav-icon.fas.fa-route.mr-2
+								|	Query Route
+						li.nav-item
+							a.nav-link(href='/lndconnect')
+								i.nav-icon.fas.fa-mobile-alt.mr-2
+								|	LND Connect
 							
 			
 			button.sidebar-minimizer.brand-minimizer(type='button')

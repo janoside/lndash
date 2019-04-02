@@ -8,6 +8,7 @@ var utils = require('./../app/utils');
 var bitcoinCore = require("bitcoin-core");
 var rpcApi = require("./../app/rpcApi.js");
 var qrcode = require('qrcode');
+var fs = require("fs");
 
 router.get("/", function(req, res) {
 	var promises = [];
@@ -235,6 +236,41 @@ router.get("/channel/:channelId", function(req, res) {
 
 router.get("/settings", function(req, res) {
 	res.render("settings");
+});
+
+router.get("/setup", function(req, res) {
+	res.render("setup");
+});
+
+router.post("/setup", function(req, res) {
+	var pwd = req.body.password;
+	var pwdConf = req.body.passwordConfirmation;
+
+	if (pwd != pwdConf) {
+		res.locals.userMessage = "Passwords do not match.";
+		res.locals.userMessageType = "danger";
+
+		res.render("setup");
+
+		return;
+	}
+
+	global.adminPassword = pwd;
+
+	// TODO make saving this optional
+	fs.writeFileSync(".unlock", pwd);
+
+	req.session.admin = true;
+
+	req.session.userMessage = "Administrative password set";
+	req.session.userMessageType = "success";
+
+	var pwdSha256 = hashjs.sha256().update(pwd).digest('hex');
+
+	global.adminCredentials = {};
+	global.adminCredentials.adminPasswordSha256 = pwdSha256;
+
+	res.redirect("/manage-nodes?setup=true");
 });
 
 router.get("/create-invoice", function(req, res) {
@@ -556,24 +592,26 @@ router.post("/login", function(req, res) {
 
 	// debug use for setting new password config
 	var pwdHash = hashjs.sha256().update(req.body.password).digest('hex');
+	
 	console.log("password.sha256: " + pwdHash);
 	
-		if (pwdHash == config.credentials.adminPasswordSha256) {
-			req.session.admin = true;
+	if (pwdHash == config.credentials.adminPasswordSha256) {
+		req.session.admin = true;
+		req.session.adminPassword = req.body.password;
 
-			if (req.session.loginRedirect) {
-				res.redirect(req.session.loginRedirect);
-
-				return;
-			}
-
-			res.redirect("/");
+		if (req.session.loginRedirect) {
+			res.redirect(req.session.loginRedirect);
 
 			return;
-		
-		} else {
-			console.log(`Password hash mismatch: ${pwdHash} vs ${config.credentials.adminPasswordSha256}`);
 		}
+
+		res.redirect("/");
+
+		return;
+
+	} else {
+		console.log(`Password hash mismatch: ${pwdHash} vs ${config.credentials.adminPasswordSha256}`);
+	}
 
 	req.session.userMessage = "Login failed.";
 	req.session.userMessageType = "danger";
@@ -693,7 +731,7 @@ router.get("/connect-lnd", function(req, res) {
 		var lndIndex = parseInt(req.query.index);
 
 		if (lndIndex != global.lndRpc.internal_index) {
-			global.lndRpc = global.lndConnections.connectionsByIndex[lndIndex];
+			global.lndRpc = global.lndConnections.byIndex[lndIndex];
 
 			rpcApi.refreshLocalChannels();
 			rpcApi.refreshLocalClosedChannels();
@@ -1187,6 +1225,127 @@ router.get("/search", function(req, res) {
 
 router.get("/about", function(req, res) {
 	res.render("about");
+});
+
+router.get("/manage-nodes", function(req, res) {
+	if (req.query.setup) {
+		res.locals.setupActive = true;
+	}
+
+	res.render("manage-nodes");
+});
+
+router.post("/manage-nodes", function(req, res) {
+	var promises = [];
+
+	if (req.body.inputType == "fileInput") {
+		var host = "localhost";
+		var port = 10009;
+		var adminMacaroonFilepath = "~/.lnd/admin.macaroon";
+		var tlsCertFilepath = "~/.lnd/tls.cert";
+
+		if (req.body.host) {
+			host = req.body.host;
+		}
+
+		if (req.body.port) {
+			port = parseInt(req.body.port);
+		}
+
+		if (req.body.adminMacaroonFilepath) {
+			adminMacaroonFilepath = req.body.adminMacaroonFilepath;
+		}
+
+		if (req.body.tlsCertFilepath) {
+			tlsCertFilepath = req.body.tlsCertFilepath;
+		}
+
+		if (global.adminCredentials.lndNodes == null) {
+			global.adminCredentials.lndNodes = [];
+		}
+
+		var newLndNode = {
+			type: "fileInput",
+			host: host,
+			port: port,
+			adminMacaroonFilepath: adminMacaroonFilepath,
+			tlsCertFilepath: tlsCertFilepath
+		};
+
+		global.adminCredentials.lndNodes.push(newLndNode);
+
+		promises.push(rpcApi.connect(newLndNode, global.adminCredentials.lndNodes.length - 1));
+
+	} else if (req.body.inputType == "rawTextInput") {
+		// TODO
+
+	} else if (req.body.inputType == "lndconnectString") {
+		// TODO
+	}
+
+	Promise.all(promises).then(function() {
+		fs.writeFileSync("credentials.json", JSON.stringify(global.adminCredentials, null, 4));
+
+		res.locals.userMessage = "Successfully added LND Node";
+		res.locals.userMessageType = "success";
+
+		global.setupNeeded = false;
+		global.unlockNeeded = false;
+
+		res.render("manage-nodes");
+
+	}).catch(function(err) {
+		utils.logError("32078rhesdghss", err);
+
+		res.render("manage-nodes");
+	});
+});
+
+router.get("/delete-lnd-node", function(req, res) {
+	if (!req.query.pubkey) {
+		req.session.userMessage = "Must specify the publiey key for the LND Node you want to remove";
+		req.session.userMessageType = "danger";
+
+		res.redirect(req.headers.referer);
+
+	} else {
+		var pubkey = req.query.pubkey;
+
+		var indexToDelete = -1;
+		global.lndConnections.indexes.forEach(function(index) {
+			if (global.lndConnections.byIndex[index].internal_pubkey == pubkey) {
+				indexToDelete = index;
+			}
+		});
+
+		if (indexToDelete == -1) {
+			req.session.userMessage = `Could not find LND Node with pubkey=${pubkey}`;
+			req.session.userMessageType = "danger";
+
+			res.redirect(req.headers.referer);
+
+		} else {
+			global.adminCredentials.lndNodes.splice(indexToDelete, 1);
+
+			fs.writeFileSync("credentials.json", JSON.stringify(global.adminCredentials, null, 4));
+
+			// refresh lndConnections
+			rpcApi.connectAllNodes().then(function() {
+				req.session.userMessage = `Deleted LND Node with pubkey=${pubkey}`;
+				req.session.userMessageType = "success";
+
+				res.redirect(req.headers.referer);
+
+			}).catch(function(err) {
+				req.session.userMessage = `Failed to refresh after deleting LND Node with pubkey=${pubkey}`;
+				req.session.userMessageType = "danger";
+
+				utils.logError("3er79sdhf0sghs", err);
+
+				res.redirect(req.headers.referer);
+			});
+		}
+	}
 });
 
 router.get("/connectToPeer", function(req, res) {

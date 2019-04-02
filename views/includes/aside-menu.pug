@@ -51,8 +51,8 @@ aside.aside-menu.p-3.bg-main.text-body
 		div.mb-3
 			h5.h6 LND Node
 			each lndIndex, index in lndConnections.indexes
-				if (lndConnections.connectionsByIndex[lndIndex] != null)
-					- var lndConn = lndConnections.connectionsByIndex[lndIndex];
+				if (lndConnections.byIndex[lndIndex] != null)
+					- var lndConn = lndConnections.byIndex[lndIndex];
 					- var node_pubkey = lndConn.internal_pubkey;
 
 					if (fullNetworkDescription)

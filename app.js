@@ -68,6 +68,7 @@ function getSourcecodeProjectMetadata() {
 		}
 	};
 
+	// github project metadata
 	request(options, function(error, response, body) {
 		if (error == null && response && response.statusCode && response.statusCode == 200) {
 			var responseBody = JSON.parse(body);
@@ -103,6 +104,7 @@ app.runOnStartup = function() {
 		});
 	}
 
+	// git metadata
 	if (global.sourcecodeVersion == null && fs.existsSync('.git')) {
 		simpleGit(".").log(["-n 1"], function(err, log) {
 			global.sourcecodeVersion = log.all[0].hash;
@@ -112,125 +114,89 @@ app.runOnStartup = function() {
 
 	if (config.demoSite) {
 		getSourcecodeProjectMetadata();
-		setInterval(getSourcecodeProjectMetadata, 3600000);
+		setInterval(getSourcecodeProjectMetadata, 3 * 3600000);
 	}
 
-	if (global.exchangeRates == null) {
-		utils.refreshExchangeRates();
-	}
 
-	// refresh exchange rate periodically
+	// exchange rates
+	utils.refreshExchangeRates();
 	setInterval(utils.refreshExchangeRates, 30 * 60000);
 
+
+	// refresh periodically
+	setInterval(function() {
+		if (global.lndRpc != null) {
+			rpcApi.refreshFullNetworkDescription();
+			rpcApi.refreshLocalChannels();
+			rpcApi.refreshLocalClosedChannels();
+		}
+	}, 60000);
+
+
 	global.lndConnections = {
-		connectionsByIndex: {},
-		connectionsByAlias: {},
+		byIndex: {},
+		byAlias: {},
 
 		aliases:[],
 		indexes:[]
 	};
 
-	// connect and pull down the current network description
-	var index = -1;
-	config.credentials.rpcConfigs.forEach(function(rpcConfig) {
-		index++;
+	if (fs.existsSync('credentials.json')) {
+		var credentialsData = fs.readFileSync('credentials.json', 'utf8');
 
-		global.lndConnections.indexes.push(index);
+		global.adminCredentials = JSON.parse(credentialsData);
 
-		connectViaRpc(rpcConfig, index).then(function(response) {
-			console.log("RPC connected: " + response.index);
-			if (response.index == 0) {
-				global.lndRpc = response.lndConnection;
+		if (global.adminCredentials.lndNodes == null) {
+			global.setupNeeded = true;
 
-				rpcApi.refreshFullNetworkDescription();
-				rpcApi.refreshLocalChannels();
-				rpcApi.refreshLocalClosedChannels();
+			return;
+		}
 
-				// refresh periodically
-				setInterval(rpcApi.refreshFullNetworkDescription, 60000);
-				setInterval(rpcApi.refreshLocalChannels, 60000);
-				setInterval(rpcApi.refreshLocalClosedChannels, 60000);
-			}
-		});
-	});
-};
+		if (fs.existsSync('.unlock')) {
+			global.adminPassword = fs.readFileSync('.unlock', 'utf8');
 
-function connectViaRpc(rpcConfig, index) {
-	return new Promise(function(resolve, reject) {
-		// Ref: https://github.com/lightningnetwork/lnd/blob/master/docs/grpc/javascript.md
+			global.unlockNeeded = false;
+		}
 
-		// Due to updated ECDSA generated tls.cert we need to let gprc know that
-		// we need to use that cipher suite otherwise there will be a handhsake
-		// error when we communicate with the lnd rpc server.
-		process.env.GRPC_SSL_CIPHER_SUITES = 'HIGH+ECDSA';
+		if (global.adminPassword == null) {
+			global.unlockNeeded = true;
 
-		// Lnd admin macaroon is at ~/.lnd/admin.macaroon on Linux and
-		// ~/Library/Application Support/Lnd/admin.macaroon on Mac
-		var m = fs.readFileSync(rpcConfig.adminMacaroonFilepath);
-		var macaroon = m.toString('hex');
+			return;
+		}
 
-		// build meta data credentials
-		var metadata = new grpc.Metadata();
-		metadata.add('macaroon', macaroon);
-		var macaroonCreds = grpc.credentials.createFromMetadataGenerator((_args, callback) => {
-			callback(null, metadata);
-		});
-
-		//  Lnd cert is at ~/.lnd/tls.cert on Linux and
-		//  ~/Library/Application Support/Lnd/tls.cert on Mac
-		var lndCert = fs.readFileSync(rpcConfig.tlsCertFilepath);
-		var sslCreds = grpc.credentials.createSsl(lndCert);
-
-		// combine the cert credentials and the macaroon auth credentials
-		// such that every call is properly encrypted and authenticated
-		var credentials = grpc.credentials.combineChannelCredentials(sslCreds, macaroonCreds);
-
-		var lnrpcDescriptor = grpc.load("./rpc.proto"); // "rpc.proto"
-		var lnrpc = lnrpcDescriptor.lnrpc;
-
-		// uncomment to print available function of RPC protocol
-		//console.log(lnrpc);
+		rpcApi.connectAllNodes();
 		
-		var lndConnection = new lnrpc.Lightning(rpcConfig.host + ":" + rpcConfig.port, credentials, {'grpc.max_receive_message_length': 50*1024*1024});
-
-		lndConnection.GetInfo({}, function(err, response) {
-			if (err) {
-				console.log("Error 3208r2ugddsh: Failed connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC: " + err + ", error json: " + JSON.stringify(err));
-
-				return;
-			}
-
-			if (response == null) {
-				console.log("Error 923ehrfheu: Failed connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC: null response");
-				
-				return;
-			}
-
-			if (response != null) {
-				console.log("Connected to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC.\n\nGetInfo=" + JSON.stringify(response, null, 4));
-			}
-
-			global.lndConnections.connectionsByIndex[index] = lndConnection;
-			global.lndConnections.connectionsByAlias[response.alias] = lndConnection;
-			global.lndConnections.aliases.push(response.alias);
-
-			if (index == 0) {
-				global.lndRpc = lndConnection;
-			}
-
-			lndConnection.internal_index = index;
-			lndConnection.internal_alias = response.alias;
-			lndConnection.internal_pubkey = response.identity_pubkey;
-			lndConnection.internal_version = response.version;
-
-			resolve({lndConnection:lndConnection, index:index});
-		});
-	});
-}
+	} else {
+		global.setupNeeded = true;
+	}
+};
 
 
 
 app.use(function(req, res, next) {
+	if (global.setupNeeded) {
+		if (global.adminPassword != null) {
+			if (!req.path.startsWith("/manage-nodes")) {
+				res.redirect("/manage-nodes?setup=true");
+				
+				return;
+			}
+		} else if (!req.path.startsWith("/setup")) {
+			res.redirect("/setup");
+			
+			return;
+		}
+	} else if (global.unlockNeeded) {
+		if (!req.path.startsWith("/login")) {
+			res.redirect("/login");
+			
+			return;
+		}
+	}
+
+	res.locals.setupNeeded = global.setupNeeded;
+	res.locals.unlockNeeded = global.unlockNeeded;
+
 	// make session available in templates
 	res.locals.session = req.session;
 
@@ -329,24 +295,28 @@ app.use(function(req, res, next) {
 	// make some var available to all request
 	// ex: req.cheeseStr = "cheese";
 
-	rpcApi.getFullNetworkDescription().then(function(fnd) {
-		res.locals.fullNetworkDescription = fnd;
+	if (global.lndRpc != null) {
+		rpcApi.getFullNetworkDescription().then(function(fnd) {
+			res.locals.fullNetworkDescription = fnd;
 
-		rpcApi.getLocalChannels().then(function(localChannels) {
-			res.locals.localChannels = localChannels;
+			rpcApi.getLocalChannels().then(function(localChannels) {
+				res.locals.localChannels = localChannels;
 
-			next();
+				next();
 
+			}).catch(function(err) {
+				utils.logError("37921hdasudfgd", err);
+
+				next();
+			});
 		}).catch(function(err) {
-			utils.logError("37921hdasudfgd", err);
+			utils.logError("3297rhgdgvsf1", err);
 
 			next();
 		});
-	}).catch(function(err) {
-		utils.logError("3297rhgdgvsf1", err);
-
+	} else {
 		next();
-	});
+	}
 });
 
 app.use('/', baseActionsRouter);
