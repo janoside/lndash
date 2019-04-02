@@ -595,7 +595,7 @@ router.post("/login", function(req, res) {
 	
 	console.log("password.sha256: " + pwdHash);
 	
-	if (pwdHash == config.credentials.adminPasswordSha256) {
+	if (pwdHash == global.adminCredentials.adminPasswordSha256) {
 		req.session.admin = true;
 		req.session.adminPassword = req.body.password;
 
@@ -610,7 +610,7 @@ router.post("/login", function(req, res) {
 		return;
 
 	} else {
-		console.log(`Password hash mismatch: ${pwdHash} vs ${config.credentials.adminPasswordSha256}`);
+		console.log(`Password hash mismatch: ${pwdHash} vs ${global.adminCredentials.adminPasswordSha256}`);
 	}
 
 	req.session.userMessage = "Login failed.";

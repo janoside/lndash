@@ -165,7 +165,7 @@ app.runOnStartup = function() {
 		}
 
 		rpcApi.connectAllNodes();
-		
+
 	} else {
 		global.setupNeeded = true;
 	}
@@ -201,20 +201,6 @@ app.use(function(req, res, next) {
 	res.locals.session = req.session;
 
 	req.session.loginRedirect = req.headers.referer;
-	
-	if (config.credentials.rpc) {
-		req.session.host = config.credentials.rpc.host;
-		req.session.port = config.credentials.rpc.port;
-		req.session.username = config.credentials.rpc.username;
-
-		global.client = new bitcoinCore({
-			host: config.credentials.rpc.host,
-			port: config.credentials.rpc.port,
-			username: config.credentials.rpc.username,
-			password: config.credentials.rpc.password,
-			timeout: 5000
-		});
-	}
 
 	res.locals.admin = false;
 
