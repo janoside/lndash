@@ -67,7 +67,7 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 				span.ml-4.mr-2.font-weight-bold LND Node
 
 				li.nav-item
-					if (lndRpc)
+					if (lndRpc && fullNetworkDescription != null)
 						a.nav-link.btn.btn-light.border.bg-light.px-3.py-1(data-toggle='dropdown' href='javascript:void(0)' role='button' aria-haspopup='true' aria-expanded='false')
 							div.clearfix
 								div.float-left.mr-2
@@ -150,6 +150,8 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 							a.nav-link(href='/')
 								i.nav-icon.fas.fa-2x.fa-home.mr-2
 								|	Setup
+
+					else if (fullNetworkDescription == null)
 
 					else
 						li.nav-item
