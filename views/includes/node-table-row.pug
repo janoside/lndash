@@ -1,5 +1,5 @@
-tr(class="text-monospace word-wrap")
-	td.font-weight-bold #{nodeTableIndex.toLocaleString()}
+tr.text-monospace.word-wrap
+	th.text-right #{nodeTableIndex.toLocaleString()}
 	td
 		- var card_node_pubkey = nodeInfo.node.pub_key;
 		include ./node-card.pug
