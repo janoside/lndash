@@ -12,14 +12,29 @@ block content
 	h1(class="h2") Login
 	hr
 
+	if (!global.adminPassword)
+		div.alert.alert-primary.shadow-sm.mb-3
+			span Enter your admin password unlock LND Admin
+
 	form(method="post", action="/login")
-		div(class="form-group")
-			label(for="username") Username
-			input(type="text", class="form-control", id="username", name="username")
-
-		div(class="form-group")
+		div.form-group
 			label(for="password") Password
-			input(type="password", class="form-control", id="password", name="password")
+			input.form-control(type="password" id="password" name="password")
 
-		button.btn.btn-primary(type="submit") Login
+		- var onclick = false;
+		if (!global.adminPassword)
+			- onclick = "$('#unlockModal').modal()";
+			
+		button.btn.btn-primary(type="submit" onclick=onclick)
+			i.fas.fa-sign-in-alt.mr-2
+			span Login
 
+	if (!global.adminPassword)
+		div.modal(id="unlockModal" tabindex="-1" role="dialog" aria-hidden="true")
+			div.modal-dialog.modal-dialog-centered.modal-sm
+				div.modal-content
+					div.modal-body
+						h5 Unlocking LND Admin...
+						span Refreshing the full public network often takes ~5-15 seconds...
+						div.text-center.mb-4.mt-5
+							div.spinner-border.text-primary(role="status" style="width: 3rem; height: 3rem;")

@@ -146,10 +146,17 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 			nav.sidebar-nav
 				ul.nav
 					if (!lndRpc)
-						li.nav-item
-							a.nav-link(href='/')
-								i.nav-icon.fas.fa-2x.fa-home.mr-2
-								|	Setup
+						if (setupNeeded)
+							li.nav-item
+								a.nav-link(href='/')
+									i.nav-icon.fas.fa-2x.fa-cog.mr-2
+									|	Setup
+
+						else
+							li.nav-item
+								a.nav-link(href='/login')
+									i.nav-icon.fas.fa-2x.fa-sign-in-alt.mr-2
+									|	Login
 
 					else if (fullNetworkDescription == null)
 

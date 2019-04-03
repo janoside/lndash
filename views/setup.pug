@@ -5,11 +5,11 @@ block headContent
 
 block breadcrumb
 	li.breadcrumb-item Setup
-	li.breadcrumb-item Set Administrative Password
+	li.breadcrumb-item Set Admin Password
 	
 block content
 
-	h1.h3 Setup &raquo; Set Administrative Password
+	h1.h3 Setup &raquo; Set Admin Password
 	hr
 
 	- var setupStep = 1;
@@ -18,11 +18,13 @@ block content
 
 	form(method="post" action="/setup")
 		div.form-group
-			label(for="password") Administrative Password
+			label(for="password") Admin Password
 			input.form-control(id="password" name="password" type="password")
 
 		div.form-group
 			label(for="passwordConfirmation") Repeat Password
 			input.form-control(id="passwordConfirmation" name="passwordConfirmation" type="password")
 
-		button.btn.btn-primary(type="submit") Save Password
+		button.btn.btn-primary(type="submit")
+			i.fas.fa-key.mr-2
+			span Set Password

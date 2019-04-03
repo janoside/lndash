@@ -257,18 +257,17 @@ router.post("/setup", function(req, res) {
 
 	global.adminPassword = pwd;
 
-	// TODO make saving this optional
-	fs.writeFileSync(".unlock", pwd);
+	var pwdSha256 = hashjs.sha256().update(pwd).digest('hex');
+
+	global.adminCredentials = {};
+	global.adminCredentials.adminPasswordSha256 = pwdSha256;
+
+	utils.saveAdminCredentials(global.adminPassword);
 
 	req.session.admin = true;
 
 	req.session.userMessage = "Administrative password set";
 	req.session.userMessageType = "success";
-
-	var pwdSha256 = hashjs.sha256().update(pwd).digest('hex');
-
-	global.adminCredentials = {};
-	global.adminCredentials.adminPasswordSha256 = pwdSha256;
 
 	res.redirect("/manage-nodes?setup=true");
 });
@@ -590,22 +589,54 @@ router.post("/login", function(req, res) {
 		return;
 	}
 
-	// debug use for setting new password config
 	var pwdHash = hashjs.sha256().update(req.body.password).digest('hex');
 	
-	console.log("password.sha256: " + pwdHash);
-	
 	if (pwdHash == global.adminCredentials.adminPasswordSha256) {
-		req.session.admin = true;
-		req.session.adminPassword = req.body.password;
-
-		if (req.session.loginRedirect) {
-			res.redirect(req.session.loginRedirect);
-
-			return;
+		var connectToLndNeeded = true;
+		if (global.adminPassword) {
+			connectToLndNeeded = false;
 		}
 
-		res.redirect("/");
+		global.adminPassword = req.body.password;
+
+		global.adminCredentials = utils.loadAdminCredentials(global.adminPassword);
+
+		req.session.admin = true;
+
+		if (connectToLndNeeded && global.adminCredentials.lndNodes && global.adminCredentials.lndNodes.length > 0) {
+			rpcApi.connectAllNodes().then(function() {
+				if (req.session.loginRedirect) {
+					res.redirect(req.session.loginRedirect);
+
+					return;
+				}
+
+				res.redirect("/");
+
+			}).catch(function(err) {
+				req.session.userMessage = "Error encountered while connecting to LND. See logs for details.";
+				req.session.userMessageType = "danger";
+
+				utils.logError("23r97gsd97gss", err);
+
+				if (req.session.loginRedirect) {
+					res.redirect(req.session.loginRedirect);
+
+					return;
+				}
+
+				res.redirect("/");
+			});
+
+		} else {
+			if (req.session.loginRedirect) {
+				res.redirect(req.session.loginRedirect);
+
+				return;
+			}
+
+			res.redirect("/");
+		}
 
 		return;
 
@@ -1240,7 +1271,7 @@ router.post("/manage-nodes", function(req, res) {
 
 	if (req.body.inputType == "fileInput") {
 		var host = "localhost";
-		var port = 10009;
+		var port = "10009";
 		var adminMacaroonFilepath = "~/.lnd/admin.macaroon";
 		var tlsCertFilepath = "~/.lnd/tls.cert";
 
@@ -1249,7 +1280,7 @@ router.post("/manage-nodes", function(req, res) {
 		}
 
 		if (req.body.port) {
-			port = parseInt(req.body.port);
+			port = req.body.port;
 		}
 
 		if (req.body.adminMacaroonFilepath) {
@@ -1284,16 +1315,32 @@ router.post("/manage-nodes", function(req, res) {
 	}
 
 	Promise.all(promises).then(function() {
-		fs.writeFileSync("credentials.json", JSON.stringify(global.adminCredentials, null, 4));
+		utils.saveAdminCredentials(global.adminPassword);
 
 		res.locals.userMessage = "Successfully added LND Node";
 		res.locals.userMessageType = "success";
 
-		global.setupNeeded = false;
-		global.unlockNeeded = false;
+		if (global.setupNeeded) {
+			global.setupNeeded = false;
 
-		res.render("manage-nodes");
+			rpcApi.connectAllNodes().then(function() {
+				req.session.userMessage = "<h3 class='h5'>Setup complete</h3><span>Welcome to LND Admin!</span>";
+				req.session.userMessageType = "success";
 
+				res.redirect("/");
+
+			}).catch(function(err) {
+				utils.logError("32r08eus08ys0y8hs", err);
+
+				res.locals.userMessage = "Error while connecting to LND";
+				res.locals.userMessageType = "danger";
+
+				res.render("manage-nodes");
+			});
+
+		} else {
+			res.render("manage-nodes");
+		}
 	}).catch(function(err) {
 		utils.logError("32078rhesdghss", err);
 
@@ -1327,23 +1374,30 @@ router.get("/delete-lnd-node", function(req, res) {
 		} else {
 			global.adminCredentials.lndNodes.splice(indexToDelete, 1);
 
-			fs.writeFileSync("credentials.json", JSON.stringify(global.adminCredentials, null, 4));
+			utils.saveAdminCredentials(global.adminPassword);
 
-			// refresh lndConnections
-			rpcApi.connectAllNodes().then(function() {
-				req.session.userMessage = `Deleted LND Node with pubkey=${pubkey}`;
-				req.session.userMessageType = "success";
+			if (global.adminCredentials.lndNodes.length > 0) {
+				// refresh lndConnections
+				rpcApi.connectAllNodes().then(function() {
+					req.session.userMessage = `Deleted LND Node with pubkey=${pubkey}`;
+					req.session.userMessageType = "success";
 
-				res.redirect(req.headers.referer);
+					res.redirect(req.headers.referer);
 
-			}).catch(function(err) {
-				req.session.userMessage = `Failed to refresh after deleting LND Node with pubkey=${pubkey}`;
-				req.session.userMessageType = "danger";
+				}).catch(function(err) {
+					req.session.userMessage = `Failed to refresh after deleting LND Node with pubkey=${pubkey}`;
+					req.session.userMessageType = "danger";
 
-				utils.logError("3er79sdhf0sghs", err);
+					utils.logError("3er79sdhf0sghs", err);
 
-				res.redirect(req.headers.referer);
-			});
+					res.redirect(req.headers.referer);
+				});
+
+			} else {
+				global.setupNeeded = true;
+
+				res.redirect("/");
+			}
 		}
 	}
 });

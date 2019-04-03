@@ -19,7 +19,7 @@ block content
 
 	hr
 
-	if (!session.admin)
+	if (!setupActive && !session.admin)
 		- var loginRequiredNote = "allow you to add and remove LND nodes.";
 		include includes/login-required-alert.pug
 
@@ -29,51 +29,52 @@ block content
 			- var setupStep = 2;
 			include includes/setup-directions-alert.pug
 
-		div.card.mb-3.shadow-sm
-			div.card-header
-				h3.h6.mb-0 #{lndConnections.indexes.length} LND Node
-					if (lndConnections.indexes.length != 1)
-						span s
-			div.card-body
-				each lndNodeIndex, indexIndex in lndConnections.indexes
-					- var lndNodeDetails = global.adminCredentials.lndNodes[lndNodeIndex];
-					include includes/lnd-node-details-modal.pug
+		if (global.adminCredentials.lndNodes)
+			div.card.mb-3.shadow-sm
+				div.card-header
+					h3.h6.mb-0 #{lndConnections.indexes.length} LND Node
+						if (lndConnections.indexes.length != 1)
+							span s
+				div.card-body
+					each lndNodeIndex, indexIndex in lndConnections.indexes
+						- var lndNodeDetails = global.adminCredentials.lndNodes[lndNodeIndex];
+						include includes/lnd-node-details-modal.pug
 
-				div.table-responsive
-					table.table
-						thead.bg-light
-							tr
-								th.text-right #
-								th Node
-								th Status
-								th Actions
-						
-						tbody
-							each lndNode, lndNodeIndex in global.adminCredentials.lndNodes
-								- var lndNode = lndConnections.byIndex[lndNodeIndex];
+					div.table-responsive
+						table.table
+							thead.bg-light
 								tr
-									th.text-right #{(lndNodeIndex + 1).toLocaleString()}
-									td
-										- var card_node_pubkey = lndNode.internal_pubkey;
-										include includes/node-card.pug
-									td
-										if (lndNode == lndRpc)
-											span.text-success.text-monospace Active
-										else
-											span.text-muted.text-monospace Inactive
-									td
-										
-										div.mb-2
-											if (lndNode != lndRpc)
-												a(href=`/connect-lnd?index=${lndNodeIndex}` onclick="$('#switchLndModal').modal()") Set Active
+									th.text-right #
+									th Node
+									th Status
+									th Actions
+							
+							tbody
+								each lndNode, lndNodeIndex in global.adminCredentials.lndNodes
+									- var lndNode = lndConnections.byIndex[lndNodeIndex];
+									tr
+										th.text-right #{(lndNodeIndex + 1).toLocaleString()}
+										td
+											- var card_node_pubkey = lndNode.internal_pubkey;
+											include includes/node-card.pug
+										td
+											if (lndNode == lndRpc)
+												span.text-success.text-monospace Active
 											else
-												span.text-muted Set Active
+												span.text-muted.text-monospace Inactive
+										td
+											
+											div.mb-2
+												if (lndNode != lndRpc)
+													a(href=`/connect-lnd?index=${lndNodeIndex}` onclick="$('#switchLndModal').modal()") Set Active
+												else
+													span.text-muted Set Active
 
-										div.mb-2
-											a(href="javascript:void(0)" data-toggle="modal" data-target=("#lndNodeDetailsModal-" + lndNodeIndex)) Details
+											div.mb-2
+												a(href="javascript:void(0)" data-toggle="modal" data-target=("#lndNodeDetailsModal-" + lndNodeIndex)) Details
 
-										div.mb-2
-											a.text-danger(href=`/delete-lnd-node?pubkey=${lndNode.internal_pubkey}` onclick="$('#refreshLndModal').modal()") Delete
+											div.mb-2
+												a.text-danger(href=`/delete-lnd-node?pubkey=${lndNode.internal_pubkey}` onclick="$('#refreshLndModal').modal()") Delete
 
 		div.card.shadow-sm
 			div.card-header
@@ -116,7 +117,7 @@ block content
 
 								input.form-control.text-monospace(id="tlsCertFilepath" name="tlsCertFilepath" value=tlsCertFilepath)
 
-							button.btn.btn-primary(type="submit") Add LND Node
+							button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add LND Node
 
 					div.tab-pane(id="tab-raw" role="tabpanel")
 
@@ -145,7 +146,7 @@ block content
 
 								textarea.form-control.text-monospace(id="tlsCert" name="tlsCert" value=tlsCert)
 
-							button.btn.btn-primary(type="submit") Add LND Node
+							button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add LND Node
 
 					div.tab-pane(id="tab-lndconnect" role="tabpanel")
 
@@ -159,13 +160,22 @@ block content
 
 								textarea.form-control.text-monospace(id="lndconnectString" name="lndconnectString" value=lndconnectString)
 
-							button.btn.btn-primary(type="submit") Add LND Node
+							button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add LND Node
+
+		div.modal(id="connectLndModal" tabindex="-1" role="dialog" aria-hidden="true")
+			div.modal-dialog.modal-dialog-centered.modal-sm
+				div.modal-content
+					div.modal-body
+						h5 Connecting...
+						span Refreshing the full public network often takes ~5-15 seconds...
+						div.text-center.mb-4.mt-5
+							div.spinner-border.text-primary(role="status" style="width: 3rem; height: 3rem;")
 
 		div.modal(id="refreshLndModal" tabindex="-1" role="dialog" aria-hidden="true")
 			div.modal-dialog.modal-dialog-centered.modal-sm
 				div.modal-content
 					div.modal-body
-						h5 Refreshing LND Nodes
+						h5 Refreshing...
 						span Refreshing the full public network often takes ~5-15 seconds...
 						div.text-center.mb-4.mt-5
 							div.spinner-border.text-primary(role="status" style="width: 3rem; height: 3rem;")

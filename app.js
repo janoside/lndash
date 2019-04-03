@@ -141,31 +141,21 @@ app.runOnStartup = function() {
 		indexes:[]
 	};
 
-	if (fs.existsSync('credentials.json')) {
-		var credentialsData = fs.readFileSync('credentials.json', 'utf8');
-
-		global.adminCredentials = JSON.parse(credentialsData);
-
-		if (global.adminCredentials.lndNodes == null) {
-			global.setupNeeded = true;
-
-			return;
+	if (fs.existsSync("credentials.json")) {
+		if (fs.existsSync(".debugAdminPassword")) {
+			global.adminPassword = fs.readFileSync(".debugAdminPassword", "utf8");
 		}
 
-		if (fs.existsSync('.unlock')) {
-			global.adminPassword = fs.readFileSync('.unlock', 'utf8');
+		global.adminCredentials = utils.loadAdminCredentials(global.adminPassword);
 
-			global.unlockNeeded = false;
+		if (global.adminPassword) {
+			if (global.adminCredentials.lndNodes == null || global.adminCredentials.lndNodes.length == 0) {
+				global.setupNeeded = true;
+
+			} else {
+				rpcApi.connectAllNodes();
+			}
 		}
-
-		if (global.adminPassword == null) {
-			global.unlockNeeded = true;
-
-			return;
-		}
-
-		rpcApi.connectAllNodes();
-
 	} else {
 		global.setupNeeded = true;
 	}
@@ -186,7 +176,7 @@ app.use(function(req, res, next) {
 			
 			return;
 		}
-	} else if (global.unlockNeeded) {
+	} else if (!global.adminPassword) {
 		if (!req.path.startsWith("/login")) {
 			res.redirect("/login");
 			
@@ -195,7 +185,6 @@ app.use(function(req, res, next) {
 	}
 
 	res.locals.setupNeeded = global.setupNeeded;
-	res.locals.unlockNeeded = global.unlockNeeded;
 
 	// make session available in templates
 	res.locals.session = req.session;

@@ -1,6 +1,8 @@
 var Decimal = require("decimal.js");
 var request = require("request");
 var qrcode = require("qrcode");
+var CryptoJS = require("crypto-js");
+var fs = require("fs");
 
 var config = require("./config.js");
 var coins = require("./coins.js");
@@ -414,6 +416,10 @@ function colorHexToHsl(hex) {
 
 function logError(errorId, err, optionalUserData = null) {
 	console.log("Error " + errorId + ": " + err + ", json: " + JSON.stringify(err) + (optionalUserData != null ? (", userData: " + optionalUserData) : ""));
+	
+	if (err.stack) {
+		console.log("	Stack: " + err.stack);
+	}
 }
 
 function buildQrCodeUrls(strings) {
@@ -459,6 +465,46 @@ function buildQrCodeUrl(str, results) {
 	});
 }
 
+function encryptString(str_utf8, encPassword) {
+	var ciphertext_base64 = CryptoJS.AES.encrypt(str_utf8, encPassword);
+	//var hex = CryptoJS.enc.Hex.stringify(CryptoJS.enc.Base64.parse(ciphertext.toString()));
+
+	return ciphertext_base64.toString();
+}
+
+function decryptString(str_base64, encPassword) {
+	//var b64_fromHex = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(str));
+	var bytes = CryptoJS.AES.decrypt(str_base64, encPassword);
+
+	return bytes.toString(CryptoJS.enc.Utf8);
+}
+
+function saveAdminCredentials(encPassword) {
+	var enc = JSON.parse(JSON.stringify(global.adminCredentials));
+
+	if (enc.lndNodes) {
+		enc.lndNodesData = encryptString(JSON.stringify(enc.lndNodes), encPassword);
+	}
+	
+	delete enc.lndNodes;
+
+	fs.writeFileSync("credentials.json", JSON.stringify(enc, null, 4));
+}
+
+function loadAdminCredentials(encPassword) {
+	var credentialsData = fs.readFileSync("credentials.json", "utf8");
+	var adminCredentials = JSON.parse(credentialsData);
+
+	if (encPassword) {
+		if (adminCredentials.lndNodesData != null) {
+			adminCredentials.lndNodes = JSON.parse(decryptString(adminCredentials.lndNodesData, encPassword));
+			delete adminCredentials.lndNodesData;
+		}
+	}
+
+	return adminCredentials;
+}
+
 
 module.exports = {
 	hex2ascii: hex2ascii,
@@ -484,5 +530,9 @@ module.exports = {
 	colorHexToRgb: colorHexToRgb,
 	colorHexToHsl: colorHexToHsl,
 	logError: logError,
-	buildQrCodeUrls: buildQrCodeUrls
+	buildQrCodeUrls: buildQrCodeUrls,
+	encryptString: encryptString,
+	decryptString: decryptString,
+	saveAdminCredentials: saveAdminCredentials,
+	loadAdminCredentials: loadAdminCredentials
 };
