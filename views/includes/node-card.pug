@@ -22,10 +22,14 @@ if (node_card_include_wrapper)
 else
 	div.clearfix.text-monospace
 		div.float-left.mr-2
+			- var node_icon_size = "2.75em";
+
 			if (card_node)
 				- var node_pubkey = card_node.pubkey;
-				- var node_icon_size = "2.75em";
-				include ./node-icon.pug
+			else
+				- var node_pubkey = card_node_pubkey;
+
+			include ./node-icon.pug
 
 		div.float-left
 			if (card_node)
@@ -37,7 +41,11 @@ else
 				include ./node-alias.pug
 
 			else
-				span.text-danger.border-dotted(title=card_node_pubkey data-toggle="tooltip") Unknown Node
+				a(href=`/node/${card_node_pubkey}`, title=card_node_pubkey, data-toggle="tooltip")
+					include ./node-pubkey.pug
+
+				br
+				span.text-danger.border-dotted(title="Details for this node's public key seem to be unavailable." data-toggle="tooltip") Unknown Node
 
 - card_node_pubkey = null;
 - card_node = null;
