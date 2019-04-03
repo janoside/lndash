@@ -10,32 +10,15 @@ block breadcrumb
 	li.breadcrumb-item All Channels
 	
 block content
-	div.clearfix
-		div.float-left
-			h1.h3 #{fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()} 
-				if (fullNetworkDescription.channels.sortedByLastUpdate.length == 1)
-					span Channel
-				else
-					span Channels
-
-		div.float-right
-			div.dropdown
-				button.btn.btn-primary.dropdown-toggle(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-					span Sort: 
-					span.font-weight-bold
-						if (sort == "last_update-desc")
-							| Last Update
-						else if (sort == "capacity-desc")
-							| Capacity
-				div.dropdown-menu.dropdown-menu-right(aria-labelledby="dropdownMenuButton")
-					a.dropdown-item(href="/channels?sort=last_update-desc") Last Update
-					a.dropdown-item(href="/channels?sort=capacity-desc") Capacity
+	h1.h3 #{fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()} 
+		if (fullNetworkDescription.channels.sortedByLastUpdate.length == 1)
+			span Channel
+		else
+			span Channels
 
 	hr
 
-	if (session.hideChannelsNetworkNote)
-		// show nothing
-	else
+	if (!session.hideChannelsNetworkNote)
 		div.alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
 			h3.h5 Note
 			div.mb-2
@@ -50,21 +33,73 @@ block content
 			a(href="/changeSetting?name=hideChannelsNetworkNote&value=true", class="close", aria-label="Close", style="text-decoration: none;")
 				span(aria-hidden="true") &times;
 
+	div.card.mb-3.shadow-sm
+		div.card-body
+			div.clearfix
+				div.dropdown.mr-4.float-left
+					div Sort
+					button.btn.btn-primary.dropdown-toggle.mb-2.mb-lg-0(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+						span
+							if (sort == null || sort == "last_update-desc")
+								| Last Update
+							else if (sort == "capacity-desc")
+								| Capacity
+
+					div.dropdown-menu(aria-labelledby="dropdownMenuButton")
+						a.dropdown-item(href=`/channels?sort=last_update-desc&limit=${limit}`) Last Update
+						a.dropdown-item(href=`/channels?sort=capacity-desc&limit=${limit}`) Capacity
+
+				div.mr-4.mb-2.mb-lg-0.float-left
+					div Page Size
+					- var pageSizeOptions = ["20", "50", "100"];
+					div.btn-group.mr-2(role="group")
+						each opt in pageSizeOptions
+							if (limit != null && limit == parseInt(opt))
+								span.btn.btn-primary #{opt}
+							else
+								a.btn.btn-light.border(href=`/channels?sort=${sort}&limit=${opt}`) #{opt}
+
+			hr.my-3
+
+			div
+				if (allFilteredChannels.length > limit)
+					span Showing 
+					span.font-weight-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredChannels.length).toLocaleString()} 
+					span of 
+					span.font-weight-bold #{allFilteredChannels.length.toLocaleString()} 
+					if (allChannels.length > allFilteredChannels.length)
+						span filtered 
+					span channel
+					if (allFilteredChannels.length != 1)
+						span s
+
+				else if (allFilteredChannels.length > 0)
+					span Showing 
+					span.font-weight-bold #{allFilteredChannels.length.toLocaleString()} 
+					if (allChannels.length > allFilteredChannels.length)
+						span filtered 
+
+					span channel
+					if (allFilteredChannels.length > 1)
+						span s
+				else
+					div.alert.alert-warning.shadow-sm.mb-0 No matching channels
+
+			- var itemCount = allFilteredChannels.length;
+			if (itemCount > limit)
+				- var pageNumber = offset / limit + 1;
+				- var pageCount = Math.floor(itemCount / limit);
+				- if (pageCount * limit < itemCount) {
+					- pageCount++;
+				- }
+				- var paginationUrlFunction = function(x) {
+					- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
+				- }
+				
+				div.mt-2.mb-0
+					include includes/pagination.pug
+
 	- var channelTableIndexOffset = offset;
+	- var channels = pagedFilteredChannels;
 	include includes/channel-table.pug
 
-
-	- var channelCount = fullNetworkDescription.channels.sortedByLastUpdate.length;
-	if (channelCount > limit)
-		- var pageNumber = offset / limit + 1;
-		- var pageCount = Math.floor(channelCount / limit);
-		- if (pageCount * limit < channelCount) {
-			- pageCount++;
-		- }
-		- var paginationUrlFunction = function(x) {
-			- return paginationBaseUrl + "?limit=" + limit + "&offset=" + ((x - 1) * limit + "&sort=" + sort);
-		- }
-		
-		div.mt-4.d-flex.justify-content-center
-			- var paginationClass = "pagination-lg";
-			include includes/pagination.pug

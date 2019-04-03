@@ -944,7 +944,7 @@ router.get("/channels", function(req, res) {
 	res.locals.limit = limit;
 	res.locals.offset = offset;
 	res.locals.sort = sort;
-	res.locals.paginationBaseUrl = "/channels";
+	res.locals.paginationBaseUrl = `/channels?sort=${sort}`;
 
 	var sortProperty = sort.substring(0, sort.indexOf("-"));
 	var sortDirection = sort.substring(sort.indexOf("-") + 1);
@@ -952,17 +952,27 @@ router.get("/channels", function(req, res) {
 	rpcApi.getFullNetworkDescription().then(function(fnd) {
 		res.locals.fullNetworkDescription = fnd;
 
+		var allChannels = fnd.channels.sortedByLastUpdate;
+		var allFilteredChannels = fnd.channels.sortedByLastUpdate;
+
 		if (sortProperty == "last_update") {
-			res.locals.channels = fnd.channels.sortedByLastUpdate;
+			allFilteredChannels = fnd.channels.sortedByLastUpdate;
 
 		} else if (sortProperty == "capacity") {
-			res.locals.channels = fnd.channels.sortedByCapacity;
+			allFilteredChannels = fnd.channels.sortedByCapacity;
 
 		} else {
-			res.locals.channels = fnd.channels.sortedByLastUpdate;
+			allFilteredChannels = fnd.channels.sortedByLastUpdate;
 		}
 
-		res.locals.channels = res.locals.channels.slice(offset, offset + limit);
+		var pagedFilteredChannels = [];
+		for (var i = offset; i < Math.min(offset + limit, allFilteredChannels.length); i++) {
+			pagedFilteredChannels.push(allFilteredChannels[i]);
+		}
+
+		res.locals.allChannels = allChannels;
+		res.locals.allFilteredChannels = allFilteredChannels;
+		res.locals.pagedFilteredChannels = pagedFilteredChannels;
 
 		res.render("channels");
 
