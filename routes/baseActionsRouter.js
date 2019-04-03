@@ -1694,7 +1694,8 @@ router.get("/pay-invoice", function(req, res) {
 	}).catch(function(err) {
 		req.session.userErrors.push(err);
 
-		req.session.userMessage = "Unable to decode payment request: " + err + " (" + JSON.stringify(err) + ")";
+		res.locals.userMessage = "Unable to decode payment request: " + err + " (" + JSON.stringify(err) + ")";
+		res.locals.userMessageType = "warning";
 
 		utils.logError("4379t2347g", err);
 

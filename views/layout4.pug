@@ -159,6 +159,10 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 									|	Login
 
 					else if (fullNetworkDescription == null)
+						li.nav-item
+							a.nav-link(href='javascript:void(0)')
+								div.spinner-border.spinner-border-sm.text-light.mr-2(role="status")
+								|	Loading...
 
 					else
 						li.nav-item
