@@ -2066,9 +2066,10 @@ router.post("/openchannel", function(req, res) {
 
 router.get("/error-log", function(req, res) {
 	res.locals.errorLog = [];
-	
+
 	if (global.errorLog) {
-		res.locals.errorLog = global.errorLog;
+		res.locals.errorLog = global.errorLog.slice();
+		res.locals.errorLog.reverse();
 	}
 	
 	res.render("error-log");

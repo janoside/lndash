@@ -22,34 +22,42 @@ block content
 		if (errorLog.length == 0)
 			div.alert.alert-warning No recent errors found
 
-		div.table-responsive
-			table.table.table-bordered.border-top
-				thead.bg-light
-					tr
-						th.text-right #
-						th Date
-						th
-							span.border-dotted(title="This identifies the error in the source code for LND Admin." data-toggle="tooltip") ID
+		else
 
-						th Details
-						th Stacktrace
-				
-				tbody
-					each error, errorIndex in errorLog
-						tr.text-monospace
-							th.text-right #{(errorIndex + 1).toLocaleString()}
-							td
-								- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(error.date)));
-								- var dateTimeUtc = moment.utc(error.date).format("Y-MM-DD HH:mm:ss");
+			each error, errorIndex in errorLog
+				include includes/error-details-modal.pug
 
-								div #{timeAgo.humanize()} ago
-								div.text-muted #{dateTimeUtc} utc
+			div.table-responsive
+				table.table.table-bordered.border-top
+					thead.bg-light
+						tr
+							th.text-right #
+							th Date
+							th
+								span.border-dotted(title="This identifies the error in the source code for LND Admin." data-toggle="tooltip") ID
 
-							td #{error.errorId}
-							td
-								pre
-									code.json.bg-light #{JSON.stringify(error.error, null, 4)}
+							th Error
+							th Stacktrace
+							th Details
+					
+					tbody
+						each error, errorIndex in errorLog
+							tr.text-monospace
+								th.text-right #{(errorIndex + 1).toLocaleString()}
+								td
+									- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(error.date)));
+									- var dateTimeUtc = moment.utc(error.date).format("Y-MM-DD HH:mm:ss");
 
-							td
-								pre
-									code.json.bg-light #{JSON.stringify(error.error.stack, null, 4)}
+									div #{timeAgo.humanize()} ago
+									div.text-muted #{dateTimeUtc} utc
+
+								td #{error.errorId}
+								td #{error.error}
+								td
+									if (error.error.stack)
+										span.text-success Yes
+									else
+										span.text-muted No
+
+								td
+									a(href="javascript:void(0)" data-toggle="modal" data-target=("#errorModal-" + errorIndex)) Details

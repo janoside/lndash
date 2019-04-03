@@ -1,0 +1,23 @@
+div.modal.fade(id=("errorModal-" + errorIndex) role="dialog" aria-hidden="true")
+	div.modal-dialog.modal-xl(role="document")
+		div.modal-content
+			div.modal-header
+				h5.modal-title.text-monospace
+					span Error ##{(errorIndex + 1).toLocaleString()}
+				button.close(type="button" data-dismiss="modal" aria-label="Close")
+					span(aria-hidden="true") &times;
+
+			div.modal-body
+				h3.h6 Error Details
+				pre
+					code.json.bg-light #{JSON.stringify(error.error, null, 4)}
+
+				if (error.error.stack)
+					hr
+
+					h4.h6 Stacktrace
+					pre
+						code.json.bg-light #{error.error.stack}
+
+			div.modal-footer
+				button.btn.btn-secondary(type="button" class="" data-dismiss="modal") Close
