@@ -693,6 +693,24 @@ function getWalletUtxos(minConfirmations=1, maxConfirmations=100000000) {
 	});
 }
 
+function getNewDepositAddress(addressType) {
+	var valuesByTypeString = {"p2wkh":0, "np2wkh":1};
+
+	return new Promise(function(resolve, reject) {
+		lndRpc.NewAddress({type:valuesByTypeString[addressType]}, function(err, response) {
+			if (err) {
+				utils.logError("243w087hsd0uhs", err);
+
+				reject(err);
+
+				return;
+			}
+
+			resolve(response);
+		});
+	});
+}
+
 module.exports = {
 	connect: connect,
 	connectAllNodes: connectAllNodes,
@@ -733,5 +751,7 @@ module.exports = {
 	verifyMessage:verifyMessage,
 
 	queryRoute: queryRoute,
-	getForwardingHistory: getForwardingHistory
+	getForwardingHistory: getForwardingHistory,
+
+	getNewDepositAddress: getNewDepositAddress
 };

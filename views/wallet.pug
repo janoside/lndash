@@ -58,7 +58,7 @@ block content
 			div.card-header
 				h2.h6.mb-0 Tools
 			div.card-body
-				a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)")
+				a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-toggle="modal" data-target="#newDepositAddressModal")
 					i.fas.fa-qrcode.mr-2
 					span New Deposit Address
 				a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)")
@@ -280,6 +280,7 @@ block content
 												a(href="javascript:void(0)" data-toggle="modal" data-target=("#txModal-" + txIndex)) Details
 
 
+		include includes/new-deposit-address-modal.pug
 
 		if (false)
 			pre

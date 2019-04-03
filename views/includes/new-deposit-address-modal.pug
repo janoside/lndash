@@ -1,0 +1,55 @@
+div.modal.fade(id=("newDepositAddressModal") role="dialog" aria-hidden="true")
+	div.modal-dialog.modal-lg(role="document")
+		div.modal-content
+			div.modal-header
+				h5.modal-title New Deposit Address
+
+				button.close(type="button" data-dismiss="modal" aria-label="Close")
+					span(aria-hidden="true") &times;
+
+			div.modal-body
+				script.
+					function newAddress(addressType) {
+						$.ajax({url: `/new-deposit-address?addressType=${addressType}`, success: function(result) {
+							
+							if (result.address) {
+								//alert(JSON.stringify(result));
+
+								$("#newAddressResult_text").text(result.address);
+								$("#newAddressResult_image").attr("src", `/qrcode?data=${result.address}`);
+
+								$("#newAddressResult").show();
+							}
+						}});
+					}
+
+				div.clearfix.mb-3
+					div.float-left.mr-3
+						div.mb-2
+							span.border-dotted(title="Pay to witness key hash, i.e. Native SegWit address. Preferred, if your wallet supports it. Begins with 'bc1...'" data-toggle="tooltip") Pay to Witness Key Hash
+
+						a.btn.btn-primary(href="javascript:void(0)" onclick="javascript:newAddress('p2wkh')")
+							i.fas.fa-qrcode.mr-2
+							span New Deposit Address (p2wkh)
+
+					div.float-left
+						div.mb-2
+							span.border-dotted(title="Nested pay to witness key hash. Begins with '3...'" data-toggle="tooltip") Nested Pay to Witness Key Hash
+						
+						a.btn.btn-primary(href="javascript:void(0)" onclick="javascript:newAddress('np2wkh')")
+							i.fas.fa-qrcode.mr-2
+							span New Deposit Address (np2wkh)
+
+				
+				div(id="newAddressResult" style="display: none;")
+					hr
+
+					h4.h6 Generated Address
+					div.mb-3
+						span.text-monospace(id="newAddressResult_text")
+
+					div
+						img(id="newAddressResult_image" style="width: 250px; height: 250px;")
+
+			div.modal-footer
+				button.btn.btn-secondary(type="button" class="" data-dismiss="modal") Close

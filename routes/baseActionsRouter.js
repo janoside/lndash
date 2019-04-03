@@ -9,6 +9,7 @@ var bitcoinCore = require("bitcoin-core");
 var rpcApi = require("./../app/rpcApi.js");
 var qrcode = require('qrcode');
 var fs = require("fs");
+var qrImage = require('qr-image');
 
 router.get("/", function(req, res) {
 	var promises = [];
@@ -1751,6 +1752,48 @@ router.get("/send-payment", function(req, res) {
 	})
 });
 
+router.get("/new-deposit-address", function(req, res) {
+	var promises = [];
+
+	var addressType = "p2wkh";
+	if (req.query.addressType) {
+		addressType = req.query.addressType;
+	}
+
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getNewDepositAddress(addressType).then(function(newDepositAddressResponse) {
+			res.locals.newDepositAddressResponse = newDepositAddressResponse;
+
+			resolve();
+
+		}).catch(function(err) {
+			res.locals.newDepositAddressError = err;
+
+			utils.logError("2397rgse9fgs9dg", err);
+
+			reject(err);
+		});
+	}));
+
+	Promise.all(promises).then(function() {
+		if (res.locals.newDepositAddressResponse) {
+			res.json(res.locals.newDepositAddressResponse);
+
+		} else if (res.locals.newDepositAddressError) {
+			res.json(res.locals.newDepositAddressError);
+
+		} else {
+			utils.logError("3297rgsd97gs", `Unknown error when trying to generate new deposit address: type=${addressType}`);
+
+			res.json({success:false, error:"Unknown", errorId:"3297rgsd97gs"});
+		}
+	}).catch(function(err) {
+		utils.logError("20ddd8rhsd8hs", err);
+
+		res.json({success:false, error:err, errorId:"20ddd8rhsd8hs"});
+	})
+});
+
 router.post("/send-payment", function(req, res) {
 	var promises = [];
 
@@ -2029,6 +2072,19 @@ router.get("/error-log", function(req, res) {
 	}
 	
 	res.render("error-log");
+});
+
+router.get("/qrcode", function(req, res) {
+	var data = "";
+
+	if (req.query.data) {
+		data = req.query.data;
+	}
+
+	var code = qrImage.image(data, { type: 'svg' });
+	res.type('svg');
+
+	code.pipe(res);
 });
 
 router.get("/lndconnect", function(req, res) {
