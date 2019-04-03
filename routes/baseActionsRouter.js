@@ -2021,6 +2021,16 @@ router.post("/openchannel", function(req, res) {
 	});
 });
 
+router.get("/error-log", function(req, res) {
+	res.locals.errorLog = [];
+	
+	if (global.errorLog) {
+		res.locals.errorLog = global.errorLog;
+	}
+	
+	res.render("error-log");
+});
+
 router.get("/lndconnect", function(req, res) {
 	/*var fs = require('fs');
 

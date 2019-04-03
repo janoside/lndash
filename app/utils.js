@@ -415,10 +415,19 @@ function colorHexToHsl(hex) {
 }
 
 function logError(errorId, err, optionalUserData = null) {
+	if (!global.errorLog) {
+		global.errorLog = [];
+	}
+
+	global.errorLog.push({errorId:errorId, error:err, userData:optionalUserData, date:new Date()});
+	while (global.errorLog.length > 100) {
+		global.errorLog.splice(0, 1);
+	}
+
 	console.log("Error " + errorId + ": " + err + ", json: " + JSON.stringify(err) + (optionalUserData != null ? (", userData: " + optionalUserData) : ""));
 	
 	if (err.stack) {
-		console.log("	Stack: " + err.stack);
+		console.log("Stack: " + err.stack);
 	}
 }
 
