@@ -19,23 +19,6 @@ block content
 		else
 			span Nodes
 
-		if (false)
-			div.float-right
-				div.dropdown
-					button.btn.btn-primary.dropdown-toggle(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-						span Sort: 
-						span.font-weight-bold
-							if (sort == "last_update-desc")
-								| Last Update
-							else if (sort == "num_channels-desc")
-								| Channel Count
-							else if (sort == "channel_capacity-desc")
-								| Capacity
-					div.dropdown-menu.dropdown-menu-right(aria-labelledby="dropdownMenuButton")
-						a.dropdown-item(href="/nodes?sort=last_update-desc") Last Update
-						a.dropdown-item(href="/nodes?sort=num_channels-desc") Channel Count
-						a.dropdown-item(href="/nodes?sort=channel_capacity-desc") Capacity
-
 	hr
 
 	if (!session.hideNodesNetworkNote)
@@ -127,20 +110,3 @@ block content
 	- var nodeTableIndexOffset = offset;
 	- var nodeInfos = pagedFilteredNodes;
 	include includes/node-table.pug
-
-
-	if (false)
-		- var nodeCount = allFilteredNodes.length;
-		if (nodeCount > limit)
-			- var pageNumber = offset / limit + 1;
-			- var pageCount = Math.floor(nodeCount / limit);
-			- if (pageCount * limit < nodeCount) {
-				- pageCount++;
-			- }
-			- var paginationUrlFunction = function(x) {
-				- return paginationBaseUrl + "?limit=" + limit + "&offset=" + ((x - 1) * limit + "&sort=" + sort);
-			- }
-			
-			div.mt-4.d-flex.justify-content-center
-				- var paginationClass = "pagination-lg";
-				include includes/pagination.pug
