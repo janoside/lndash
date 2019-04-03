@@ -2089,6 +2089,28 @@ router.get("/qrcode", function(req, res) {
 	code.pipe(res);
 });
 
+router.post("/withdraw-funds", function(req, res) {
+	var withdrawType = req.body.withdrawType;
+
+	if (withdrawType == "single") {
+		var address = req.body.address;
+		var sendAll = req.body.sendAll;
+		var amountSat = parseInt(req.body.amountSat);
+		var speedType = req.body.speedType;
+		var speedValue = req.body.speedValue;
+
+		var sendStr = `${address}:${(amountSat > 0 ? amountSat : "all")}`;
+
+		rpcApi.sendCoins(sendStr, speedType, speedValue).then(function(response) {
+			res.json(response);
+
+		}).catch(function(err) {
+			res.json(err);
+		});
+	} else if (withdrawType == "multi") {
+	}
+});
+
 router.get("/lndconnect", function(req, res) {
 	/*var fs = require('fs');
 

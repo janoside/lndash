@@ -711,6 +711,68 @@ function getNewDepositAddress(addressType) {
 	});
 }
 
+/**
+ - addressValueStr: bc1address1a2b3c:[all|12345],...
+ - speedType: [target_conf|sat_per_byte]
+*/
+function sendCoins(addressValueStr, speedType, speedValue) {
+	return new Promise(function(resolve, reject) {
+		var rpcParams = {};
+		rpcParams[speedType] = parseInt(speedValue);
+
+		var addressValues = addressValueStr.split(",");
+
+		if (addressValues.length == 1) {
+			var parts = addressValues[0].split(":");
+			var address = parts[0];
+			var amt = parts[1];
+
+			rpcParams["addr"] = address;
+
+			if (amt == "all") {
+				rpcParams["send_all"] = true;
+
+			} else {
+				rpcParams["amount"] = parseInt(amt);
+			}
+
+			lndRpc.SendCoins(rpcParams, function(err, response) {
+				if (err) {
+					utils.logError("32r97sdys7gs", err);
+
+					reject(err);
+
+					return;
+				}
+				
+				resolve(response);
+			});
+
+		} else {
+			var AddrToAmount = {};
+
+			addressValues.forEach(function(str) {
+				var parts = str.split(":");
+				AddrToAmount[parts[0]] = parseInt(parts[1]);
+			});
+
+			rpcParams["AddrToAmount"] = AddrToAmount;
+
+			lndRpc.SendCoins(rpcParams, function(err, response) {
+				if (err) {
+					utils.logError("23r07hsd07sgh", err);
+
+					reject(err);
+
+					return;
+				}
+
+				resolve(response);
+			});
+		}
+	});
+}
+
 module.exports = {
 	connect: connect,
 	connectAllNodes: connectAllNodes,
@@ -753,5 +815,6 @@ module.exports = {
 	queryRoute: queryRoute,
 	getForwardingHistory: getForwardingHistory,
 
-	getNewDepositAddress: getNewDepositAddress
+	getNewDepositAddress: getNewDepositAddress,
+	sendCoins: sendCoins
 };
