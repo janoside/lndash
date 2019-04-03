@@ -890,7 +890,7 @@ router.get("/nodes", function(req, res) {
 	res.locals.limit = limit;
 	res.locals.offset = offset;
 	res.locals.sort = sort;
-	res.locals.paginationBaseUrl = "/nodes";
+	res.locals.paginationBaseUrl = `/nodes?sort=${sort}`;
 
 	var sortProperty = sort.substring(0, sort.indexOf("-"));
 	var sortDirection = sort.substring(sort.indexOf("-") + 1);
@@ -898,20 +898,27 @@ router.get("/nodes", function(req, res) {
 	rpcApi.getFullNetworkDescription().then(function(fnd) {
 		res.locals.fullNetworkDescription = fnd;
 
+		var allNodes = fnd.nodes.sortedByLastUpdate;
+		var allFilteredNodes = allNodes;
+
 		if (sortProperty == "last_update") {
-			res.locals.nodeInfos = fnd.nodes.sortedByLastUpdate;
+			allFilteredNodes = fnd.nodes.sortedByLastUpdate;
 
 		} else if (sortProperty == "num_channels") {
-			res.locals.nodeInfos = fnd.nodes.sortedByChannelCount;
+			allFilteredNodes = fnd.nodes.sortedByChannelCount;
 
 		} else if (sortProperty == "channel_capacity") {
-			res.locals.nodeInfos = fnd.nodes.sortedByTotalCapacity;
-
-		} else {
-			res.locals.nodeInfos = fnd.nodes.sortedByLastUpdate;
+			allFilteredNodes = fnd.nodes.sortedByTotalCapacity;
 		}
 
-		res.locals.nodeInfos = res.locals.nodeInfos.slice(offset, offset + limit);
+		var pagedFilteredNodes = [];
+		for (var i = offset; i < Math.min(offset + limit, allFilteredNodes.length); i++) {
+			pagedFilteredNodes.push(allFilteredNodes[i]);
+		}
+
+		res.locals.allNodes = allNodes;
+		res.locals.allFilteredNodes = allFilteredNodes;
+		res.locals.pagedFilteredNodes = pagedFilteredNodes;
 
 		res.render("nodes");
 	});
