@@ -45,7 +45,8 @@ module.exports = {
 		txidMaxDisplayLength: 22,
 
 		pageSizes:{
-			invoices: 20
+			invoices: 20,
+			peers: 20
 		}
 	},
 

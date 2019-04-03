@@ -499,39 +499,30 @@ router.get("/node-status", function(req, res) {
 });
 
 router.get("/peers", function(req, res) {
+	var limit = config.site.pageSizes.peers;
+	var offset = 0;
+	var sort = "pubkey-asc";
+	
+	if (req.query.limit) {
+		limit = parseInt(req.query.limit);
+	}
+
+	if (req.query.offset) {
+		offset = parseInt(req.query.offset);
+	}
+
+	if (req.query.sort) {
+		sort = req.query.sort;
+	}
+
+	res.locals.limit = limit;
+	res.locals.offset = offset;
+	res.locals.sort = sort;
+	res.locals.paginationBaseUrl = `/peers?sort=${sort}`;
+
+
+
 	var promises = [];
-
-	promises.push(new Promise(function(resolve, reject) {
-		lndRpc.getInfo({}, function(err, response) {
-			if (err) {
-				utils.logError("3u1rh2yugfew0fwe", err);
-
-				reject(err);
-
-				return;
-			}
-
-			res.locals.getInfo = response;
-			res.locals.qrcodeUrls = {};
-
-			var qrcodeStrings = [response.identity_pubkey];
-			if (response.uris && response.uris.length > 0) {
-				qrcodeStrings.push(response.uris[0]);
-			}
-
-			utils.buildQrCodeUrls(qrcodeStrings).then(function(qrcodeUrls) {
-				res.locals.qrcodeUrls = qrcodeUrls;
-
-				resolve();
-
-			}).catch(function(err) {
-				utils.logError("37ufdhewfhedd", err);
-
-				// no need to reject, we can fail gracefully without qrcodes
-				resolve();
-			});
-		});
-	}));
 
 	promises.push(new Promise(function(resolve, reject) {
 		lndRpc.listPeers({}, function(err, response) {
@@ -554,12 +545,97 @@ router.get("/peers", function(req, res) {
 			res.locals.fullNetworkDescription = fnd;
 
 			resolve();
+
+		}).catch(function(err) {
+			utils.logError("3297rhgdgvsf1", err);
+
+			reject(err);
 		});
 	}));
 
 	Promise.all(promises).then(function() {
+		var allPeers = res.locals.listPeers.peers;
+		var allFilteredPeers = [];
+
+		var predicates = [
+			function(peer) {
+				return true;
+			},
+		];
+
+		for (var i = 0; i < allPeers.length; i++) {
+			var peer = allPeers[i];
+
+			var excluded = false;
+			for (var j = 0; j < predicates.length; j++) {
+				if (!predicates[j](peer)) {
+					excluded = true;
+
+					break;
+				}
+			}
+
+			if (!excluded) {
+				allFilteredPeers.push(peer);
+			}
+		}
+
+		allFilteredPeers.sort(function(a, b) {
+			if (sort == "pubkey-asc") {
+				return ('' + a.pub_key).localeCompare(b.pub_key);
+
+			} else if (sort == "alias-asc") {
+				var aNode = res.locals.fullNetworkDescription.nodeInfoByPubkey[a.pub_key];
+				var bNode = res.locals.fullNetworkDescription.nodeInfoByPubkey[b.pub_key];
+
+				var aAlias = (aNode ? aNode.node.alias.toLowerCase() : "Unknown");
+				var bAlias = (bNode ? bNode.node.alias.toLowerCase() : "Unknown");
+
+				return ('' + aAlias).localeCompare(bAlias);
+
+			} else if (sort == "ip-asc") {
+				return ('' + a.address).localeCompare(b.address);
+
+			} else if (sort == "valuetransfer-desc") {
+				var aVal = parseInt(a.sat_sent) + parseInt(a.sat_recv);
+				var bVal = parseInt(b.sat_sent) + parseInt(b.sat_recv);
+				var diff = bVal - aVal;
+
+				if (diff == 0) {
+					return ('' + a.pub_key).localeCompare(b.pub_key);
+
+				} else {
+					return diff;
+				}
+			} else if (sort == "datatransfer-desc") {
+				var aVal = parseInt(a.bytes_sent) + parseInt(a.bytes_recv);
+				var bVal = parseInt(b.bytes_sent) + parseInt(b.bytes_recv);
+				var diff = bVal - aVal;
+
+				if (diff == 0) {
+					return ('' + a.pub_key).localeCompare(b.pub_key);
+
+				} else {
+					return diff;
+				}
+			} else {
+				return ('' + a.pub_key).localeCompare(b.pub_key);
+			}
+		});
+
+
+
+		var pagedFilteredPeers = [];
+		for (var i = offset; i < Math.min(offset + limit, allFilteredPeers.length); i++) {
+			pagedFilteredPeers.push(allFilteredPeers[i]);
+		}
+
+		res.locals.allPeers = allPeers;
+		res.locals.allFilteredPeers = allFilteredPeers;
+		res.locals.pagedFilteredPeers = pagedFilteredPeers;
+
+
 		res.render("peers");
-		res.end();
 
 	}).catch(function(err) {
 		req.session.userErrors.push(err);
