@@ -42,6 +42,7 @@ module.exports = {
 		pubkeyMaxDisplayLength: 22,
 		aliasMaxDisplayLength: 22,
 		addressMaxDisplayLength: 22,
+		networkAddressMaxDisplayLength: 22,
 		txidMaxDisplayLength: 22,
 
 		pageSizes:{

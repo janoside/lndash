@@ -98,15 +98,24 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 														include includes/node-icon.pug
 
 													div.float-left
-														span.font-weight-bold #{node_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
+														span.font-weight-bold
+															include includes/node-pubkey.pug
 														if (lndConn == lndRpc)
 															i.fas.fa-check.text-success.ml-2
 														br
 														span.font-weight-bold Alias: 
-														span.text-monospace #{lndConn.internal_alias}
+														span.text-monospace 
+															- var node_alias = lndConn.internal_alias;
+															include includes/node-alias.pug
 														br
 														span.font-weight-bold Address: 
-														span.text-monospace #{addrs}
+														span.text-monospace
+															each networkAddress, networkAddressIndex in fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.addresses
+																if (networkAddressIndex > 0)
+																	br
+
+																- var node_network_address = networkAddress.addr;
+																include includes/node-network-address.pug
 														br
 														span.font-weight-bold Version: 
 														- var versionParts = lndConn.internal_version.split(" ");
