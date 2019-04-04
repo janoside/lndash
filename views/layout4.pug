@@ -339,7 +339,7 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 
 	script.
 		$(document).ready(function() {
-			$('[data-toggle="tooltip"]').tooltip();
+			$('[data-toggle="tooltip"]').tooltip({placement:"top"});
 			$('[data-toggle="popover"]').popover({html:true, container:"body"});
 		});
 
