@@ -1839,45 +1839,6 @@ router.post("/send-payment", function(req, res) {
 	});
 });
 
-router.get("/on-chain-transactions", function(req, res) {
-	var promises = [];
-
-	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getLocalChannels().then(function(localChannels) {
-			res.locals.localChannels = localChannels;
-
-			resolve();
-		});
-	}));
-
-	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getClosedChannels().then(function(closedChannels) {
-			res.locals.closedChannels = closedChannels;
-
-			resolve();
-		});
-	}));
-
-	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getOnChainTransactions().then(function(onChainTransactionsResponse) {
-			res.locals.onChainTransactions = onChainTransactionsResponse;
-
-			resolve();
-		});
-	}));
-
-	Promise.all(promises).then(function() {
-		res.render("on-chain-transactions");
-
-	}).catch(function(err) {
-		req.session.userErrors.push(err);
-
-		utils.logError("32u7rthwe96yfg", err);
-
-		res.render("on-chain-transactions");
-	});
-});
-
 router.get("/invoices", function(req, res) {
 	var limit = config.site.pageSizes.invoices;
 	var offset = 0;
