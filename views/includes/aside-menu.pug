@@ -23,18 +23,18 @@ aside.aside-menu.p-3.bg-main.text-body
 	div.mb-3
 		h5.h6 Currency Format
 		div.btn-group.mr-2(role="group")
-			each item in coinConfig.currencyUnits
-				if (item.type == "native" || config.queryExchangeRates)
-					if (item.active)
-						- var currencySelected = false;
-						each valueName in item.values
-							if (currencyFormatType == valueName)
-								- currencySelected = true;
+			each currencyId in ["sat", "BTC"]
+				- var currencyUnit = coinConfig.currencyUnitsByName[currencyId];
+				if (currencyUnit.type == "native" || config.queryExchangeRates)
+					- var currencySelected = false;
+					each valueName in currencyUnit.values
+						if (currencyFormatType == valueName)
+							- currencySelected = true;
 
-						if (currencySelected)
-							span.btn.btn-primary #{item.name}
-						else
-							a.btn.btn-light.border(href=`/changeSetting?name=currencyFormatType&value=${item.values[0]}`) #{item.name}
+					if (currencySelected)
+						span.btn.btn-primary #{currencyUnit.name}
+					else
+						a.btn.btn-light.border(href=`/changeSetting?name=currencyFormatType&value=${currencyUnit.values[0]}`) #{currencyUnit.name}
 
 	div.mb-3
 		h5.h6 Theme

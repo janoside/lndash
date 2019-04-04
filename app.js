@@ -201,44 +201,26 @@ app.use(function(req, res, next) {
 	res.locals.host = req.session.host;
 	res.locals.port = req.session.port;
 
+	var userSettings = [
+		{name:"currencyFormatType", default:"sat"},
+		{name:"uiTheme", default:""},
+		{name:"hideHomepageBanner", default:""},
+	];
 
-	// currency format type
-	if (!req.session.currencyFormatType) {
-		var cookieValue = req.cookies['user-setting-currencyFormatType'];
+	userSettings.forEach(function(userSetting) {
+		if (!req.session[userSetting.name]) {
+			var cookieValue = req.cookies[`user-setting-${userSetting.name}`];
 
-		if (cookieValue) {
-			req.session.currencyFormatType = cookieValue;
+			if (cookieValue) {
+				req.session[userSetting.name] = cookieValue;
 
-		} else {
-			req.session.currencyFormatType = "";
+			} else {
+				req.session[userSetting] = userSetting.default;
+			}
 		}
-	}
 
-	// theme
-	if (!req.session.uiTheme) {
-		var cookieValue = req.cookies['user-setting-uiTheme'];
-
-		if (cookieValue) {
-			req.session.uiTheme = cookieValue;
-
-		} else {
-			req.session.uiTheme = "";
-		}
-	}
-
-	// homepage banner
-	if (!req.session.hideHomepageBanner) {
-		var cookieValue = req.cookies['user-setting-hideHomepageBanner'];
-
-		if (cookieValue) {
-			req.session.hideHomepageBanner = cookieValue;
-
-		} else {
-			req.session.hideHomepageBanner = "false";
-		}
-	}
-
-	res.locals.currencyFormatType = req.session.currencyFormatType;
+		res.locals[userSetting.name] = req.session[userSetting.name];
+	});
 
 	
 	if (req.session.userMessage) {
