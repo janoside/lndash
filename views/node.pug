@@ -22,8 +22,10 @@ block content
 				- var node_icon_size = "1.25em";
 				include ./includes/node-icon.pug
 		
-		small.text-monospace.word-wrap(style="width: 100%;") #{nodeInfo.node.pub_key}
+		small.text-monospace.word-wrap.mr-2(style="width: 100%;") #{nodeInfo.node.pub_key}
 
+		if (nodeInfo.node.pub_key == lndRpc.internal_pubkey)
+			small.badge.badge-primary(title="These are the public node details for your active LND node" data-toggle="tooltip") Active Node
 	hr
 
 	div.card.mb-3.shadow-sm
@@ -147,11 +149,11 @@ block content
 		div.card.mb-3.shadow-sm
 			div.card-header
 				h2.h6.mb-0
-					span #{sharedLocalChannels.length.toLocaleString()} 
-					if (sharedLocalChannels.length == 1)
-						span Local Channel
-					else
-						span Local Channels
+					span.border-dotted(title="These are the channels shared between your current LND node and this node" data-toggle="tooltip") #{sharedLocalChannels.length.toLocaleString()} 
+						if (sharedLocalChannels.length == 1)
+							span Local Channel
+						else
+							span Local Channels
 
 			div.card-body
 				- var channels = sharedLocalChannels;
@@ -159,17 +161,18 @@ block content
 				- var channelTableIndexOffset = 0;
 				include includes/channel-table.pug
 
-	div.card.mb-3.shadow-sm
-		div.card-header
-			h2.h6.mb-0
-				span #{unsharedChannels.length.toLocaleString()} 
-				if (unsharedChannels.length == 1)
-					span Channel
-				else
-					span Channels
+	if (nodeChannels.length > sharedLocalChannels.length)
+		div.card.mb-3.shadow-sm
+			div.card-header
+				h2.h6.mb-0
+					span #{unsharedChannels.length.toLocaleString()} 
+					if (unsharedChannels.length == 1)
+						span Channel
+					else
+						span Channels
 
-		div.card-body
-			- var channels = unsharedChannels;
-			- var channelTableNotBordered = true;
-			- var channelTableIndexOffset = 0;
-			include includes/channel-table.pug
+			div.card-body
+				- var channels = unsharedChannels;
+				- var channelTableNotBordered = true;
+				- var channelTableIndexOffset = 0;
+				include includes/channel-table.pug
