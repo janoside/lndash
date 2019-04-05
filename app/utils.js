@@ -548,7 +548,21 @@ function parseLndconnectString(lndconnectString) {
 }
 
 function formatLndconnectString(lndconnectData) {
+	var certLines = lndconnectData.tlsCertAscii.split(/\n/);
+	
+	// remove line breaks
+	certLines = certLines.filter(line => line != "");
 
+	// remove ---BEGIN--- line
+	certLines.pop();
+
+	// remove ---END--- line
+	certLines.shift();
+
+	var cert = base64url.fromBase64(certLines.join(''));
+	var macaroon = base64url(Buffer.from(lndconnectData.adminMacaroonHex, 'hex'));
+
+	return `lndconnect://${lndconnectData.host}:${lndconnectData.port}?cert=${cert}&macaroon=${macaroon}`;
 }
 
 

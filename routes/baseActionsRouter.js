@@ -1438,7 +1438,7 @@ router.post("/manage-nodes", function(req, res) {
 		}
 
 		var adminMacaroonHex = req.body.adminMacaroonHex;
-		var tlsCertAscii = req.body.tlsCertAscii;
+		var tlsCertAscii = req.body.tlsCertAscii.replace(/\r\n/g, "\n");
 
 		userFormParams.adminMacaroonHex = adminMacaroonHex;
 		userFormParams.tlsCertAscii = tlsCertAscii;
@@ -2173,29 +2173,45 @@ router.post("/withdraw-funds", function(req, res) {
 });
 
 router.get("/lndconnect", function(req, res) {
-	/*var fs = require('fs');
+	var securityNoteAccepted = false;
+	if (req.query.securityNoteAccepted) {
+		securityNoteAccepted = (req.query.securityNoteAccepted == "true");
+	}
 
-	fs.open('file.txt', 'r', function(status, fd) {
-		if (status) {
-			console.log(status.message);
-			return;
+	res.locals.securityNoteAccepted = securityNoteAccepted;
+
+	if (securityNoteAccepted) {
+		var lndNodeIndex = lndRpc.internal_index;
+		var lndConfig = global.adminCredentials.lndNodes[lndNodeIndex];
+
+		var lndconnectString = null;
+
+		if (lndConfig.type == "fileInput") {
+			var tlsCertAscii = fs.readFileSync(lndConfig.tlsCertFilepath);
+			var macaroon = fs.readFileSync(lndConfig.adminMacaroonFilepath);
+
+			lndconnectString = utils.formatLndconnectString({
+				host:lndConfig.host,
+				port:lndConfig.port,
+				adminMacaroonHex:macaroon.toString("hex"),
+				tlsCertAscii:tlsCertAscii.toString("utf-8")
+			});
+
+		} else if (lndConfig.type == "rawTextInput") {
+			lndconnectString = utils.formatLndconnectString({
+				host:lndConfig.host,
+				port:lndConfig.port,
+				adminMacaroonHex:lndConfig.adminMacaroonHex,
+				tlsCertAscii:lndConfig.tlsCertAscii
+			});
+
+		} else if (lndConfig.type == "lndconnectString") {
+			lndconnectString = lndConfig.lndconnectString;
 		}
-		var buffer = Buffer.alloc(100);
-		fs.read(fd, buffer, 0, 100, 0, function(err, num) {
-			console.log(buffer.toString('utf8', 0, num));
-		});
-	});
 
-	utils.buildQrCodeUrls(qrcodeStrings).then(function(qrcodeUrls) {
-		res.locals.qrcodeUrls = qrcodeUrls;
+		res.locals.lndconnectString = lndconnectString;
+	}
 
-		res.render("lndconnect");
-
-	}).catch(function(err) {
-		utils.logError("3e0ufhdhfsdss", err);
-		
-		res.render("lndconnect");
-	});*/
 	res.render("lndconnect");
 });
 

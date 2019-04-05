@@ -19,5 +19,65 @@ block content
 
 	else
 
-		div.alert.alert-primary Coming soon...
+		if (!securityNoteAccepted)
+			div.alert.alert-danger.alert-dismissible.shadow-sm(role="alert")
+				h3.h5 Important
+				div.mb-2
+					a(href="https://github.com/LN-Zap/lndconnect" target="_blank") LND Connect
+					span  is a protocol for connecting to LND Nodes, often from mobile wallets.
 
+				div.mb-2
+					span It is convenient, but 
+					span.font-weight-bold dangerous
+					span ! This page will display a QR code that embeds the 
+					span.font-weight-bold admin credentials
+					span  of your LND Node.
+
+				hr
+
+				div.mb-3
+					h4.h6.font-weight-bold Anyone who sees or captures this QR code can control your LND Node, including stealing funds from its internal wallet.
+
+				div
+					a.btn.btn-danger(href="/lndconnect?securityNoteAccepted=true")
+						i.fas.fa-exclamation-triangle.mr-2
+						span I Understand - Continue
+
+		
+		else
+
+			div.alert.alert-primary.shadow-sm(id="hiddenAlert" style="display: none;") The sensitive data on this page has been hidden. Simply refresh the page to see it again.
+
+			div(id="secureContent")
+				div.alert.alert-primary.shadow-sm The sensitive data below will be hidden after 60 seconds: 
+					span(id="hideTimer")
+
+				div.form-group.mb-3
+					label QR Code
+					div
+						img(src=`/qrcode?data=${encodeURIComponent(lndconnectString)}` style="width: 300px; height: 300px;")
+
+				div.form-group
+					label(for="lndconnectString") LND Connect String
+					textarea.form-control.text-monospace(id="lndconnectString" name="lndconnectString" rows="8") #{lndconnectString}
+
+block endOfBody
+	if (securityNoteAccepted)
+		script.
+			function securePage() {
+
+			}
+			$(document).ready(function() {
+				var hideSeconds = 60;
+				var endTime = new Date(new Date().getTime() + hideSeconds * 1000);
+
+				setTimeout(function() {
+					$("#hiddenAlert").show();
+					$("#secureContent").hide();
+
+				}, hideSeconds * 1000);
+
+				setInterval(function() {
+					$("#hideTimer").text(parseInt((endTime.getTime() - new Date().getTime()) / 1000) + " sec");
+				}, 200);
+			});
