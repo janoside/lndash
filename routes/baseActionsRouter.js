@@ -1129,7 +1129,10 @@ router.get("/local-channels", function(req, res) {
 				}
 
 				if (status == "active") {
-					return res.locals.localChannels.channels.includes(chan);
+					return res.locals.localChannels.channels.includes(chan) && chan.active;
+
+				} else if (status == "inactive") {
+					return res.locals.localChannels.channels.includes(chan) && !chan.active;
 
 				} else if (status == "pending") {
 					return res.locals.pendingChannels.includes(chan);

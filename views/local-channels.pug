@@ -48,15 +48,15 @@ block content
 									| Updated Date (recent first)
 
 						div.dropdown-menu(aria-labelledby="dropdownMenuButton")
-							a.dropdown-item(href=`/local-channels?sort=capacity-desc&status=${opt}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Total Capacity (highest first)
-							a.dropdown-item(href=`/local-channels?sort=localbalance-desc&status=${opt}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Local Balance (highest first)
-							a.dropdown-item(href=`/local-channels?sort=remotebalance-desc&status=${opt}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Remote Balance (highest first)
-							a.dropdown-item(href=`/local-channels?sort=valuetransfer-desc&status=${opt}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Value Transferred (highest first)
-							a.dropdown-item(href=`/local-channels?sort=updated-desc&status=${opt}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Updated Date (recent first)
+							a.dropdown-item(href=`/local-channels?sort=capacity-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Total Capacity (highest first)
+							a.dropdown-item(href=`/local-channels?sort=localbalance-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Local Balance (highest first)
+							a.dropdown-item(href=`/local-channels?sort=remotebalance-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Remote Balance (highest first)
+							a.dropdown-item(href=`/local-channels?sort=valuetransfer-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Value Transferred (highest first)
+							a.dropdown-item(href=`/local-channels?sort=updated-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Updated Date (recent first)
 
 					div.mr-4.mb-2.mb-lg-0.float-left
 						div Status
-						- var statusFilterOptions = ["Active", "Pending", "Closed", "All"];
+						- var statusFilterOptions = ["Active", "Inactive", "Pending", "Closed", "All"];
 						div.btn-group.mr-2(role="group")
 							each opt in statusFilterOptions
 								if (status != null && status == opt.toLowerCase())
@@ -154,7 +154,7 @@ block content
 									span.mr-2 Value Transfer
 									i.fas.fa-arrow-down
 								else
-									a(href=`/local-channels?sort=valuetransfer-desc&status=${opt}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-toggle="tooltip")
+									a(href=`/local-channels?sort=valuetransfer-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-toggle="tooltip")
 										span Value Transfer
 								
 							th.text-right
@@ -162,7 +162,7 @@ block content
 									span.mr-2 Local Balance
 									i.fas.fa-arrow-down
 								else
-									a(href=`/local-channels?sort=localbalance-desc&status=${opt}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-toggle="tooltip")
+									a(href=`/local-channels?sort=localbalance-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-toggle="tooltip")
 										span Local Balance
 
 							th.text-right
@@ -170,7 +170,7 @@ block content
 									span.mr-2 Remote Balance
 									i.fas.fa-arrow-down
 								else
-									a(href=`/local-channels?sort=remotebalance-desc&status=${opt}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-toggle="tooltip")
+									a(href=`/local-channels?sort=remotebalance-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-toggle="tooltip")
 										span Remote Balance
 
 							th.text-right
@@ -178,7 +178,7 @@ block content
 									span.mr-2 Capacity
 									i.fas.fa-arrow-down
 								else
-									a(href=`/local-channels?sort=capacity-desc&status=${opt}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-toggle="tooltip")
+									a(href=`/local-channels?sort=capacity-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-toggle="tooltip")
 										span Capacity
 
 							th Last Update
