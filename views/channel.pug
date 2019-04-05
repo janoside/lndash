@@ -24,7 +24,10 @@ block content
 
 	h1.h3 Channel
 		br
-		small.text-monospace.word-wrap #{channelId}
+		small.text-monospace.word-wrap.mr-2 #{channelId}
+
+		if (localChannels.byId && localChannels.byId[channel.channel_id])
+			small.h6.rounded.bg-primary.text-white.px-2.py-1(title="Your LND node is one of the participants in this channel" data-toggle="tooltip") Local Channel
 	hr
 
 	if (channel == null)
