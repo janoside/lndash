@@ -30,51 +30,54 @@ block content
 			include includes/setup-directions-alert.pug
 
 		if (global.adminCredentials.lndNodes)
-			div.card.mb-3.shadow-sm
-				div.card-header
-					h3.h6.mb-0 #{lndConnections.indexes.length} LND Node
-						if (lndConnections.indexes.length != 1)
-							span s
-				div.card-body
-					each lndNodeIndex, indexIndex in lndConnections.indexes
-						- var lndNodeDetails = global.adminCredentials.lndNodes[lndNodeIndex];
-						include includes/lnd-node-details-modal.pug
+			if (true)
+				div.card.mb-3.shadow-sm
+					div.card-header
+						h3.h6.mb-0 #{global.adminCredentials.lndNodes.length} LND Node
+							if (global.adminCredentials.lndNodes.length != 1)
+								span s
 
-					div.table-responsive
-						table.table
-							thead.bg-light
-								tr
-									th.text-right #
-									th Node
-									th Status
-									th Actions
-							
-							tbody
-								each lndNode, lndNodeIndex in global.adminCredentials.lndNodes
-									- var lndNode = lndConnections.byIndex[lndNodeIndex];
+					div.card-body
+						each lndNodeConfig, lndNodeIndex in global.adminCredentials.lndNodes
+							- var lndNodeDetails = lndNodeConfig;
+							include includes/lnd-node-details-modal.pug
+
+						div.table-responsive
+							table.table
+								thead.bg-light
 									tr
-										th.text-right #{(lndNodeIndex + 1).toLocaleString()}
-										td
-											- var card_node_pubkey = lndNode.internal_pubkey;
-											include includes/node-card.pug
-										td
-											if (lndNode == lndRpc)
-												span.text-success.text-monospace Active
-											else
-												span.text-muted.text-monospace Inactive
-										td
-											
-											div.mb-2
-												if (lndNode != lndRpc)
-													a(href=`/connect-lnd?index=${lndNodeIndex}` onclick="$('#switchLndModal').modal()") Set Active
+										th.text-right #
+										th Node
+										th Status
+										th Configuration
+										th Actions
+								
+								tbody.text-monospace
+									each lndNodeConfig, lndNodeIndex in global.adminCredentials.lndNodes
+										- var lndNode = lndConnections.byIndex[lndNodeIndex];
+										tr
+											th.text-right #{(lndNodeIndex + 1).toLocaleString()}
+											td
+												if (lndNode)
+													- var card_node_pubkey = lndNode.internal_pubkey;
+													
 												else
-													span.text-muted Set Active
+													- var card_node_pubkey = "Unknown";
 
-											div.mb-2
+												include includes/node-card.pug
+											td
+												if (lndNode == lndRpc)
+													span.text-success.text-monospace Active
+												else
+													span.text-muted.text-monospace Inactive
+											
+											td
 												a(href="javascript:void(0)" data-toggle="modal" data-target=("#lndNodeDetailsModal-" + lndNodeIndex)) Details
-
-											div.mb-2
-												a.text-danger(href=`/delete-lnd-node?pubkey=${lndNode.internal_pubkey}` onclick="$('#refreshLndModal').modal()") Delete
+											td
+												if (lndNode != lndRpc)
+													div.mb-2
+														a(href=`/connect-lnd?index=${lndNodeIndex}` onclick="$('#switchLndModal').modal()") Set Active
+												a.text-danger(href=`/delete-lnd-node?index=${lndNodeIndex}` onclick="$('#refreshLndModal').modal()") Delete
 
 		div.card.shadow-sm
 			div.card-header
@@ -83,14 +86,14 @@ block content
 
 				ul.nav.nav-tabs.mb-3
 					li.nav-item
-						a.nav-link.active(data-toggle="tab" href="#tab-file" role="tab") File Input
+						a.nav-link(data-toggle="tab" href="#tab-file" role="tab" class=(inputType == "fileInput" ? "active" : false)) File Input
 					li.nav-item
-						a.nav-link(data-toggle="tab" href="#tab-raw" role="tab") Raw Text Input
+						a.nav-link(data-toggle="tab" href="#tab-raw" role="tab" class=(inputType == "rawTextInput" ? "active" : false)) Raw Text Input
 					li.nav-item
-						a.nav-link(data-toggle="tab" href="#tab-lndconnect" role="tab") LND Connect
+						a.nav-link(data-toggle="tab" href="#tab-lndconnect" role="tab" class=(inputType == "lndconnectString" ? "active" : false)) LND Connect
 
 				div.tab-content
-					div.tab-pane.active(id="tab-file" role="tabpanel")
+					div.tab-pane(id="tab-file" role="tabpanel" class=(inputType == "fileInput" ? "active" : false))
 
 						form(method="post")
 							input(type="hidden" name="inputType" value="fileInput")
@@ -119,7 +122,7 @@ block content
 
 							button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add LND Node
 
-					div.tab-pane(id="tab-raw" role="tabpanel")
+					div.tab-pane(id="tab-raw" role="tabpanel" class=(inputType == "rawTextInput" ? "active" : false))
 
 						form(method="post")
 							input(type="hidden" name="inputType" value="rawTextInput")
@@ -137,18 +140,18 @@ block content
 									span.mr-2 Admin Macaroon (hex)
 									i.fas.fa-asterisk.text-danger(title="Required if using Raw Text Input" data-toggle="tooltip")
 
-								textarea.form-control.text-monospace(id="adminMacaroonHex" name="adminMacaroonHex" value=adminMacaroonHex)
+								textarea.form-control.text-monospace(id="adminMacaroonHex" name="adminMacaroonHex") #{adminMacaroonHex}
 
 							div.form-group
-								label(for="tlsCert")
+								label(for="tlsCertAscii")
 									span.mr-2 TLS Certificate (ascii)
 									i.fas.fa-asterisk.text-danger(title="Required if using Raw Text Input" data-toggle="tooltip")
 
-								textarea.form-control.text-monospace(id="tlsCert" name="tlsCert" value=tlsCert)
+								textarea.form-control.text-monospace(id="tlsCertAscii" name="tlsCertAscii") #{tlsCertAscii}
 
 							button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add LND Node
 
-					div.tab-pane(id="tab-lndconnect" role="tabpanel")
+					div.tab-pane(id="tab-lndconnect" role="tabpanel" class=(inputType == "lndconnectString" ? "active" : false))
 
 						form(method="post")
 							input(type="hidden" name="inputType" value="lndconnectString")
@@ -158,7 +161,11 @@ block content
 									span.mr-2 LND Connect String
 									i.fas.fa-asterisk.text-danger(title="Required if using LND Connect...obviously" data-toggle="tooltip")
 
-								textarea.form-control.text-monospace(id="lndconnectString" name="lndconnectString" value=lndconnectString)
+								textarea.form-control.text-monospace(id="lndconnectString" name="lndconnectString" rows="6") #{lndconnectString}
+
+							div.mb-3
+								span More info about 
+								a(href="https://github.com/LN-Zap/lndconnect" target="_blank") LND Connect
 
 							button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add LND Node
 

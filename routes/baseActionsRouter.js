@@ -1356,6 +1356,8 @@ router.get("/about", function(req, res) {
 });
 
 router.get("/manage-nodes", function(req, res) {
+	res.locals.inputType = "fileInput";
+
 	if (req.query.setup) {
 		res.locals.setupActive = true;
 	}
@@ -1366,7 +1368,14 @@ router.get("/manage-nodes", function(req, res) {
 router.post("/manage-nodes", function(req, res) {
 	var promises = [];
 
-	if (req.body.inputType == "fileInput") {
+	var inputType = req.body.inputType;
+
+	res.locals.inputType = inputType;
+
+	// copied to res.locals on error, so form can be re-filled
+	var userFormParams = {};
+
+	if (inputType == "fileInput") {
 		var host = "localhost";
 		var port = "10009";
 		var adminMacaroonFilepath = "~/.lnd/admin.macaroon";
@@ -1374,18 +1383,26 @@ router.post("/manage-nodes", function(req, res) {
 
 		if (req.body.host) {
 			host = req.body.host;
+
+			userFormParams.host = host;
 		}
 
 		if (req.body.port) {
 			port = req.body.port;
+
+			userFormParams.port = port;
 		}
 
 		if (req.body.adminMacaroonFilepath) {
 			adminMacaroonFilepath = req.body.adminMacaroonFilepath;
+
+			userFormParams.adminMacaroonFilepath = adminMacaroonFilepath;
 		}
 
 		if (req.body.tlsCertFilepath) {
 			tlsCertFilepath = req.body.tlsCertFilepath;
+
+			userFormParams.tlsCertFilepath = tlsCertFilepath;
 		}
 
 		if (global.adminCredentials.lndNodes == null) {
@@ -1404,11 +1421,100 @@ router.post("/manage-nodes", function(req, res) {
 
 		promises.push(rpcApi.connect(newLndNode, global.adminCredentials.lndNodes.length - 1));
 
-	} else if (req.body.inputType == "rawTextInput") {
-		// TODO
+	} else if (inputType == "rawTextInput") {
+		var host = "localhost";
+		var port = "10009";
 
-	} else if (req.body.inputType == "lndconnectString") {
-		// TODO
+		if (req.body.host) {
+			host = req.body.host;
+
+			userFormParams.host = host;
+		}
+
+		if (req.body.port) {
+			port = req.body.port;
+
+			userFormParams.port = port;
+		}
+
+		var adminMacaroonHex = req.body.adminMacaroonHex;
+		var tlsCertAscii = req.body.tlsCertAscii;
+
+		userFormParams.adminMacaroonHex = adminMacaroonHex;
+		userFormParams.tlsCertAscii = tlsCertAscii;
+
+		var missingParams = false;
+		if (!adminMacaroonHex) {
+			res.locals.userMessage = "Missing required value: Admin Macaroon (hex)";
+			res.locals.userMessageType = "danger";
+
+			missingParams = true;
+		}
+
+		if (!tlsCertAscii) {
+			res.locals.userMessage = "Missing required value: TLS Certificate (ascii)";
+			res.locals.userMessageType = "danger";
+
+			missingParams = true;
+		}
+
+		if (missingParams) {
+			for (var prop in userFormParams) {
+				if (userFormParams.hasOwnProperty(prop)) {
+					res.locals[prop] = userFormParams[prop];
+				}
+			}
+
+			res.render("manage-nodes");
+
+			return;
+		}
+
+		if (global.adminCredentials.lndNodes == null) {
+			global.adminCredentials.lndNodes = [];
+		}
+
+		var newLndNode = {
+			type: "rawTextInput",
+			host: host,
+			port: port,
+			adminMacaroonHex: adminMacaroonHex,
+			tlsCertAscii: tlsCertAscii
+		};
+
+		global.adminCredentials.lndNodes.push(newLndNode);
+
+		promises.push(rpcApi.connect(newLndNode, global.adminCredentials.lndNodes.length - 1));
+
+	} else if (inputType == "lndconnectString") {
+		var lndconnectString = req.body.lndconnectString;
+
+		userFormParams.lndconnectString = lndconnectString;
+		
+		if (!lndconnectString) {
+			for (var prop in userFormParams) {
+				if (userFormParams.hasOwnProperty(prop)) {
+					res.locals[prop] = userFormParams[prop];
+				}
+			}
+
+			res.render("manage-nodes");
+
+			return;
+		}
+
+		if (global.adminCredentials.lndNodes == null) {
+			global.adminCredentials.lndNodes = [];
+		}
+
+		var newLndNode = {
+			type: "lndconnectString",
+			lndconnectString: lndconnectString
+		};
+
+		global.adminCredentials.lndNodes.push(newLndNode);
+
+		promises.push(rpcApi.connect(newLndNode, global.adminCredentials.lndNodes.length - 1));
 	}
 
 	Promise.all(promises).then(function() {
@@ -1441,60 +1547,51 @@ router.post("/manage-nodes", function(req, res) {
 	}).catch(function(err) {
 		utils.logError("32078rhesdghss", err);
 
+		for (var prop in userFormParams) {
+			if (userFormParams.hasOwnProperty(prop)) {
+				res.locals[prop] = userFormParams[prop];
+			}
+		}
+
 		res.render("manage-nodes");
 	});
 });
 
 router.get("/delete-lnd-node", function(req, res) {
-	if (!req.query.pubkey) {
-		req.session.userMessage = "Must specify the publiey key for the LND Node you want to remove";
+	if (!req.query.index) {
+		req.session.userMessage = "Must specify the index of the configuration you want to remove";
 		req.session.userMessageType = "danger";
 
 		res.redirect(req.headers.referer);
 
 	} else {
-		var pubkey = req.query.pubkey;
+		var indexToDelete = parseInt(req.query.index);
 
-		var indexToDelete = -1;
-		global.lndConnections.indexes.forEach(function(index) {
-			if (global.lndConnections.byIndex[index].internal_pubkey == pubkey) {
-				indexToDelete = index;
-			}
-		});
+		global.adminCredentials.lndNodes.splice(indexToDelete, 1);
 
-		if (indexToDelete == -1) {
-			req.session.userMessage = `Could not find LND Node with pubkey=${pubkey}`;
-			req.session.userMessageType = "danger";
+		utils.saveAdminCredentials(global.adminPassword);
 
-			res.redirect(req.headers.referer);
+		if (global.adminCredentials.lndNodes.length > 0) {
+			// refresh lndConnections
+			rpcApi.connectAllNodes().then(function() {
+				req.session.userMessage = `Deleted LND Node #${indexToDelete + 1}`;
+				req.session.userMessageType = "success";
+
+				res.redirect(req.headers.referer);
+
+			}).catch(function(err) {
+				req.session.userMessage = `Failed to refresh after deleting LND Node #${indexToDelete + 1}`;
+				req.session.userMessageType = "danger";
+
+				utils.logError("3er79sdhf0sghs", err);
+
+				res.redirect(req.headers.referer);
+			});
 
 		} else {
-			global.adminCredentials.lndNodes.splice(indexToDelete, 1);
+			global.setupNeeded = true;
 
-			utils.saveAdminCredentials(global.adminPassword);
-
-			if (global.adminCredentials.lndNodes.length > 0) {
-				// refresh lndConnections
-				rpcApi.connectAllNodes().then(function() {
-					req.session.userMessage = `Deleted LND Node with pubkey=${pubkey}`;
-					req.session.userMessageType = "success";
-
-					res.redirect(req.headers.referer);
-
-				}).catch(function(err) {
-					req.session.userMessage = `Failed to refresh after deleting LND Node with pubkey=${pubkey}`;
-					req.session.userMessageType = "danger";
-
-					utils.logError("3er79sdhf0sghs", err);
-
-					res.redirect(req.headers.referer);
-				});
-
-			} else {
-				global.setupNeeded = true;
-
-				res.redirect("/");
-			}
+			res.redirect("/");
 		}
 	}
 });

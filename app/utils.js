@@ -3,6 +3,8 @@ var request = require("request");
 var qrcode = require("qrcode");
 var CryptoJS = require("crypto-js");
 var fs = require("fs");
+var url = require("url");
+var base64url = require('base64url');
 
 var config = require("./config.js");
 var coins = require("./coins.js");
@@ -514,6 +516,41 @@ function loadAdminCredentials(encPassword) {
 	return adminCredentials;
 }
 
+function chunkString(str, maxChunkSize) {
+	const numChunks = Math.ceil(str.length / maxChunkSize)
+	const chunks = new Array(numChunks)
+
+	for (let i = 0, o = 0; i < numChunks; ++i, o += maxChunkSize) {
+		chunks[i] = str.substr(o, maxChunkSize)
+	}
+
+	return chunks;
+}
+
+function parseLndconnectString(lndconnectString) {
+	var parsedUrl = url.parse(lndconnectString, true);
+
+	var tlsCertAscii = "-----BEGIN CERTIFICATE-----\r\n";
+	tlsCertAscii += chunkString(base64url.toBase64(parsedUrl.query.cert), 64).join("\r\n");
+	tlsCertAscii += "\r\n-----END CERTIFICATE-----";
+
+	var adminMacaroonHex = base64url.toBase64(parsedUrl.query.macaroon);
+	adminMacaroonHex = Buffer.from(adminMacaroonHex, 'base64').toString('hex');
+
+	var parsedData = {
+		host:parsedUrl.hostname,
+		port:parsedUrl.port,
+		tlsCertAscii:tlsCertAscii,
+		adminMacaroonHex:adminMacaroonHex
+	};
+
+	return parsedData;
+}
+
+function formatLndconnectString(lndconnectData) {
+
+}
+
 
 module.exports = {
 	hex2ascii: hex2ascii,
@@ -543,5 +580,7 @@ module.exports = {
 	encryptString: encryptString,
 	decryptString: decryptString,
 	saveAdminCredentials: saveAdminCredentials,
-	loadAdminCredentials: loadAdminCredentials
+	loadAdminCredentials: loadAdminCredentials,
+	parseLndconnectString: parseLndconnectString,
+	formatLndconnectString: formatLndconnectString
 };

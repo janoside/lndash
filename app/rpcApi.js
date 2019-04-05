@@ -21,68 +21,115 @@ function connect(rpcConfig, index) {
 		// error when we communicate with the lnd rpc server.
 		process.env.GRPC_SSL_CIPHER_SUITES = 'HIGH+ECDSA';
 
-		// Lnd admin macaroon is at ~/.lnd/admin.macaroon on Linux and
-		// ~/Library/Application Support/Lnd/admin.macaroon on Mac
-		var m = fs.readFileSync(rpcConfig.adminMacaroonFilepath);
-		var macaroon = m.toString('hex');
+		var host = null;
+		var port = 10009;
 
-		// build meta data credentials
-		var metadata = new grpc.Metadata();
-		metadata.add('macaroon', macaroon);
-		var macaroonCreds = grpc.credentials.createFromMetadataGenerator((_args, callback) => {
-			callback(null, metadata);
-		});
+		var macaroon = null;
+		var lndCert = null;
 
-		//  Lnd cert is at ~/.lnd/tls.cert on Linux and
-		//  ~/Library/Application Support/Lnd/tls.cert on Mac
-		var lndCert = fs.readFileSync(rpcConfig.tlsCertFilepath);
-		var sslCreds = grpc.credentials.createSsl(lndCert);
+		if (rpcConfig.type == "fileInput") {
+			host = rpcConfig.host;
+			port = rpcConfig.port;
 
-		// combine the cert credentials and the macaroon auth credentials
-		// such that every call is properly encrypted and authenticated
-		var credentials = grpc.credentials.combineChannelCredentials(sslCreds, macaroonCreds);
+			// Lnd admin macaroon is at ~/.lnd/admin.macaroon on Linux and
+			// ~/Library/Application Support/Lnd/admin.macaroon on Mac
+			var m = fs.readFileSync(rpcConfig.adminMacaroonFilepath);
+			macaroon = m.toString('hex');
 
-		var lnrpcDescriptor = grpc.load("./rpc.proto"); // "rpc.proto"
-		var lnrpc = lnrpcDescriptor.lnrpc;
+			//console.log("macHex: " + macaroon);
 
-		// uncomment to print available function of RPC protocol
-		//console.log(lnrpc);
-		
-		var lndConnection = new lnrpc.Lightning(rpcConfig.host + ":" + rpcConfig.port, credentials, {'grpc.max_receive_message_length': 50*1024*1024});
+			//  Lnd cert is at ~/.lnd/tls.cert on Linux and
+			//  ~/Library/Application Support/Lnd/tls.cert on Mac
+			lndCert = fs.readFileSync(rpcConfig.tlsCertFilepath);
 
-		lndConnection.GetInfo({}, function(err, response) {
-			if (err) {
-				console.log("Error 3208r2ugddsh: Failed connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC: " + err + ", error json: " + JSON.stringify(err));
+			//console.log("fileInput.cert: " + lndCert);
 
-				return;
-			}
+		} else if (rpcConfig.type == "rawTextInput") {
+			host = rpcConfig.host;
+			port = rpcConfig.port;
 
-			if (response == null) {
-				console.log("Error 923ehrfheu: Failed connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC: null response");
-				
-				return;
-			}
+			macaroon = rpcConfig.adminMacaroonHex;
+			lndCert = Buffer.from(rpcConfig.tlsCertAscii, 'utf-8');
 
-			if (response != null) {
-				console.log("Connected to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC.\n\nGetInfo=" + JSON.stringify(response, null, 4));
-			}
+		} else if (rpcConfig.type == "lndconnectString") {
+			var lndconnectString = rpcConfig.lndconnectString;
+			var parsedData = utils.parseLndconnectString(lndconnectString);
 
-			global.lndConnections.byIndex[index] = lndConnection;
-			global.lndConnections.byAlias[response.alias] = lndConnection;
-			global.lndConnections.aliases.push(response.alias);
-			global.lndConnections.indexes.push(index);
+			//console.log("lndconnectString.cert: " + parsedData.tlsCertAscii);
 
-			if (index == 0) {
-				global.lndRpc = lndConnection;
-			}
+			host = parsedData.host;
+			port = parsedData.port;
+			macaroon = parsedData.adminMacaroonHex;
+			lndCert = Buffer.from(parsedData.tlsCertAscii, 'utf-8');
+		}
 
-			lndConnection.internal_index = index;
-			lndConnection.internal_alias = response.alias;
-			lndConnection.internal_pubkey = response.identity_pubkey;
-			lndConnection.internal_version = response.version;
+		try {
+			// build meta data credentials
+			var metadata = new grpc.Metadata();
+			metadata.add('macaroon', macaroon);
+			var macaroonCreds = grpc.credentials.createFromMetadataGenerator((_args, callback) => {
+				callback(null, metadata);
+			});
 
-			resolve({lndConnection:lndConnection, index:index});
-		});
+			var sslCreds = grpc.credentials.createSsl(lndCert);
+
+			// combine the cert credentials and the macaroon auth credentials
+			// such that every call is properly encrypted and authenticated
+			var credentials = grpc.credentials.combineChannelCredentials(sslCreds, macaroonCreds);
+
+			var lnrpcDescriptor = grpc.load("./rpc.proto"); // "rpc.proto"
+			var lnrpc = lnrpcDescriptor.lnrpc;
+
+			// uncomment to print available function of RPC protocol
+			//console.log(lnrpc);
+
+			var lndConnection = new lnrpc.Lightning(`${host}:${port}`, credentials, {'grpc.max_receive_message_length': 50*1024*1024});
+
+			lndConnection.GetInfo({}, function(err, response) {
+				if (err) {
+					console.log("Error 3208r2ugddsh: Failed connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC: " + err + ", error json: " + JSON.stringify(err));
+
+					reject(err);
+
+					return;
+				}
+
+				if (response == null) {
+					console.log("Error 923ehrfheu: Failed connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC: null response");
+
+					reject("No response for node.getInfo()");
+					
+					return;
+				}
+
+				if (response != null) {
+					console.log("Connected to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC.\n\nGetInfo=" + JSON.stringify(response, null, 4));
+				}
+
+				global.lndConnections.byIndex[index] = lndConnection;
+				global.lndConnections.byAlias[response.alias] = lndConnection;
+				global.lndConnections.aliases.push(response.alias);
+				global.lndConnections.indexes.push(index);
+
+				if (index == 0) {
+					global.lndRpc = lndConnection;
+				}
+
+				lndConnection.internal_index = index;
+				lndConnection.internal_alias = response.alias;
+				lndConnection.internal_pubkey = response.identity_pubkey;
+				lndConnection.internal_version = response.version;
+
+				resolve({lndConnection:lndConnection, index:index});
+			});
+
+		} catch (err) {
+			utils.logError("973gsgd90sgfsgs", err);
+
+			reject(err);
+
+			return;
+		}
 	});
 }
 
@@ -96,26 +143,44 @@ function connectAllNodes() {
 			indexes:[]
 		};
 
+		var promises = [];
+
 		var index = -1;
 		global.adminCredentials.lndNodes.forEach(function(rpcConfig) {
 			index++;
 
-			connect(rpcConfig, index).then(function(response) {
-				console.log("RPC connected: " + response.index);
+			promises.push(new Promise(function(resolveInner, rejectInner) {
+				connect(rpcConfig, index).then(function(response) {
+					console.log("RPC connected: " + response.index);
 
-				if (response.index == 0) {
-					refreshLocalChannels();
-					refreshLocalClosedChannels();
+					if (response.index == 0) {
+						refreshLocalChannels();
+						refreshLocalClosedChannels();
 
-					refreshFullNetworkDescription().then(function() {
-						resolve();
-						
-					}).catch(function(err) {
-						utils.logError("379regwd9f7gsdgs", err);
-						reject(err);
-					});
-				}
-			});
+						refreshFullNetworkDescription().then(function() {
+							resolveInner();
+							
+						}).catch(function(err) {
+							utils.logError("379regwd9f7gsdgs", err);
+
+							rejectInner(err);
+						});
+					}
+				}).catch(function(err) {
+					utils.logError("2397rgsd9gsgs", err);
+
+					rejectInner(err);
+				});
+			}));
+		});
+
+		Promise.all(promises).then(function() {
+			resolve();
+
+		}).catch(function(err) {
+			utils.logError("23r97sdg97sgs", err);
+
+			reject(err);
 		});
 	});
 }
