@@ -4,7 +4,7 @@ var grpc = require("grpc");
 
 
 var fullNetworkDescription = null;
-var fullNetworkDescriptionDate = null;
+var fullNetworkDescriptionDate = new Date(0);
 var pendingFNDRequest = false;
 
 var localChannels = null;
@@ -163,20 +163,27 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 			}
 
 			var nodeInfoByPubkey = {};
+			if (fullNetworkDescription && fullNetworkDescription.nodeInfoByPubkey) {
+				nodeInfoByPubkey = fullNetworkDescription.nodeInfoByPubkey;
+			}
 
 			var promises = [];
 			describeGraphResponse.nodes.forEach(function(node) {
-				promises.push(new Promise(function(resolve_2, reject_2) {
-					lndRpc.getNodeInfo({pub_key:node.pub_key}, function(err2, nodeInfoResponse) {
-						if (err2) {
-							console.log("Error 312r9ygef9y: " + err2);
-						}
+				if (node.last_update * 1000 > fullNetworkDescriptionDate.getTime()) {
+					//console.log("Refreshing node details: " + node.last_update + " - " + fullNetworkDescriptionDate.getTime());
 
-						nodeInfoByPubkey[node.pub_key] = nodeInfoResponse;
+					promises.push(new Promise(function(resolve_2, reject_2) {
+						lndRpc.getNodeInfo({pub_key:node.pub_key}, function(err2, nodeInfoResponse) {
+							if (err2) {
+								console.log("Error 312r9ygef9y: " + err2);
+							}
 
-						resolve_2();
-					});
-				}));
+							nodeInfoByPubkey[node.pub_key] = nodeInfoResponse;
+
+							resolve_2();
+						});
+					}));
+				}
 			});
 
 			Promise.all(promises).then(function() {
