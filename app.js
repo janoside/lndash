@@ -197,9 +197,6 @@ app.use(function(req, res, next) {
 
 	res.locals.config = global.config;
 	res.locals.coinConfig = global.coinConfig;
-	
-	res.locals.host = req.session.host;
-	res.locals.port = req.session.port;
 
 	var userSettings = [
 		{name:"currencyFormatType", default:"sat"},
