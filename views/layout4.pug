@@ -33,7 +33,7 @@ head
 		link(rel="stylesheet", href="/css/dark-touchups.css", integrity="")
 
 
-	link(rel="icon", type="image/png", href="/img/logo/lightning.png")
+	link(rel="icon", type="image/png", href="/img/logo/app-minimized.png")
 
 	block headContent
 		title #{config.siteInfo.title}
@@ -44,12 +44,12 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 			span.navbar-toggler-icon
 		a.navbar-brand(href='/')
 			if (session.uiTheme && session.uiTheme == "dark")
-				img.navbar-brand-full(src='/img/logo/app-dark.png' width='82' height='25' alt='LND Admin')
+				img.navbar-brand-full(src='/img/logo/app-dark.png' width='96' height='32' alt='LND Admin')
 			else
-				img.navbar-brand-full(src='/img/logo/app.png' width='82' height='25' alt='LND Admin')
+				img.navbar-brand-full(src='/img/logo/app.png' width='96' height='32' alt='LND Admin')
 
 			//span.navbar-brand-full LND Admin
-			img.navbar-brand-minimized(src='/img/logo/app.png' width='82' height='25' alt='LND Admin')
+			img.navbar-brand-minimized(src='/img/logo/app-minimized.png' width='32' height='32' alt='LND Admin')
 
 		button.navbar-toggler.sidebar-toggler.d-md-down-none(type='button' data-toggle='sidebar-lg-show')
 			span.navbar-toggler-icon
