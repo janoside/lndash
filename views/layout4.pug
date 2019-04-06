@@ -39,7 +39,7 @@ head
 		title #{config.siteInfo.title}
 
 body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
-	header.app-header.navbar.bg-main.p-0
+	header.app-header.navbar.bg-main.p-0(class=((session.uiTheme && session.uiTheme == "dark") ? "bg-dark" : false))
 		button.navbar-toggler.sidebar-toggler.d-lg-none.mr-auto(type='button' data-toggle='sidebar-show')
 			span.navbar-toggler-icon
 		a.navbar-brand(href='/')
