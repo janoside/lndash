@@ -232,6 +232,39 @@ block content
 							div.summary-split-table-content.text-monospace
 								include ./includes/value-display.pug
 
+						div(class="row")
+							div.summary-split-table-label Out Degree
+							div.summary-split-table-content.text-monospace
+								div.clearfix
+									div.float-left.mr-5
+										div.font-weight-bold Average
+										div #{new Decimal(networkInfo.avg_out_degree).toDP(2)}
+									div.float-left.mr-5
+										div.font-weight-bold Max
+										div #{new Decimal(networkInfo.max_out_degree).toDP(2)}
+
+						div(class="row")
+							div.summary-split-table-label Channel Size
+							div.summary-split-table-content.text-monospace
+								div.clearfix
+									div.float-left.mr-5
+										div.font-weight-bold Min
+										div
+											- var currencyValue = new Decimal(networkInfo.min_channel_size).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+											include includes/value-display.pug
+
+									div.float-left.mr-5
+										div.font-weight-bold Max
+										div
+											- var currencyValue = new Decimal(networkInfo.max_channel_size).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+											include includes/value-display.pug
+
+						if (false)
+							hr
+
+							pre
+								code.json #{JSON.stringify(networkInfo, null, 4)}
+
 
 		if (false)
 			div(class="card mb-4 shadow-sm")

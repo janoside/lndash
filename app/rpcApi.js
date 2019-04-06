@@ -535,7 +535,7 @@ function listPayments() {
 	});
 }
 
-function getNetworkStats() {
+function getNetworkInfo() {
 	return new Promise(function(resolve, reject) {
 		lndRpc.GetNetworkInfo({}, function(err, response) {
 			if (err) {
@@ -864,7 +864,7 @@ module.exports = {
 	disconnectFromPeer: disconnectFromPeer,
 
 	listPayments: listPayments,
-	getNetworkStats: getNetworkStats,
+	getNetworkInfo: getNetworkInfo,
 
 	getChannelBalance,
 	getWalletBalance,

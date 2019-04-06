@@ -25,24 +25,21 @@ router.get("/", function(req, res) {
 			}
 
 			res.locals.getInfo = response;
-			res.locals.qrcodeUrls = {};
+			
+			resolve();
+		});
+	}));
 
-			var qrcodeStrings = [response.identity_pubkey];
-			if (response.uris && response.uris.length > 0) {
-				qrcodeStrings.push(response.uris[0]);
-			}
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getNetworkInfo().then(function(networkInfoResponse) {
+			res.locals.networkInfo = networkInfoResponse;
 
-			utils.buildQrCodeUrls(qrcodeStrings).then(function(qrcodeUrls) {
-				res.locals.qrcodeUrls = qrcodeUrls;
-
-				resolve();
-
-			}).catch(function(err) {
-				utils.logError("37ufdhewfhedd", err);
-
-				// no need to reject, we can fail gracefully without qrcodes
-				resolve();
-			});
+			resolve();
+		
+		}).catch(function(err) {
+			utils.logError("234r078sdh907gsdgs", err);
+			
+			reject(err);
 		});
 	}));
 
