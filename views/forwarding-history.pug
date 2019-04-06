@@ -1,7 +1,7 @@
 extends layout4
 
 block headContent
-	title Routing History
+	title Forwarding History
 
 block breadcrumb
 	li.breadcrumb-item
@@ -24,6 +24,60 @@ block content
 			div.alert.alert-warning.shadow-sm Your node has not forwarded any payments
 
 		else
-			pre
-				code.json.bg-light #{JSON.stringify(forwardingHistoryResponse, null, 4)}
+
+			each forwardingEvent, forwardingEventIndex in forwardingHistoryResponse.forwarding_events
+				include includes/forwarding-event-details-modal.pug
+
+			div.table-responsive
+				table.table
+					thead.bg-light
+						tr
+							th.text-right #
+							th Date
+							th Incoming Channel
+							th Outgoing Channel
+							th Incoming Amount
+							th Outgoing Amount
+							th Fee
+							th Details
+
+					tbody
+						each forwardingEvent, forwardingEventIndex in forwardingHistoryResponse.forwarding_events
+							tr
+								th.text-right #{(forwardingEventIndex + 1).toLocaleString()}
+								td
+									- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(forwardingEvent.timestamp) * 1000))));
+									- var dateTimeUtc = moment.utc(new Date(parseInt(forwardingEvent.timestamp) * 1000)).format("Y-MM-DD HH:mm:ss");
+
+									div #{dateTimeUtc} utc
+									div #{timeAgo.humanize()}
+
+								td
+									a(href=("/channel/" + forwardingEvent.chan_id_in))
+										- var channel_id = forwardingEvent.chan_id_in;
+										include includes/channel-id.pug
+
+								td
+									a(href=("/channel/" + forwardingEvent.chan_id_out))
+										- var channel_id = forwardingEvent.chan_id_out;
+										include includes/channel-id.pug
+
+								td
+									- var currencyValue = new Decimal(forwardingEvent.amt_in).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+									include includes/value-display.pug
+								
+								td
+									- var currencyValue = new Decimal(forwardingEvent.amt_out).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+									include includes/value-display.pug
+
+								td
+									- var currencyValue = new Decimal(forwardingEvent.fee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+									include includes/value-display.pug
+
+								td
+									a(href="javascript:void(0)" data-toggle="modal" data-target=("#forwardingEventModal-" + forwardingEventIndex)) Details
+
+			if (true)					
+				pre
+					code.json.bg-light #{JSON.stringify(forwardingHistoryResponse, null, 4)}
 			
