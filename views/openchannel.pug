@@ -20,7 +20,7 @@ block content
 	else
 
 		if (openChannelError)
-			div.alert.alert-danger
+			div.alert.alert-danger.shadow-sm
 				h4.h5 Error
 
 				if (openChannelError.details)
@@ -34,7 +34,7 @@ block content
 						code.json.bg-light #{JSON.stringify(openChannelError)}
 
 		if (openChannelResponse)
-			div.alert.alert-success
+			div.alert.alert-success.shadow-sm
 				h4.h5 Success
 
 				pre

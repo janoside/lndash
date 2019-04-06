@@ -103,38 +103,46 @@ block content
 								span.text-center.text-monospace URI
 
 
-	if (session.admin)
+	if (nodeInfo.node.pub_key != lndRpc.internal_pubkey)
 		div.card.mb-3.shadow-sm
 			div.card-header
 				h2.h6.mb-0 Tools
 			div.card-body
-				if (peerPubkeys.includes(nodeInfo.node.pub_key))
-					a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/disconnectPeer?pubkey=${nodeInfo.node.pub_key}`)
-						i.fas.fa-unlink.mr-2
-						span Disconnect from Peer
+				if (session.admin)
+					if (peerPubkeys.includes(nodeInfo.node.pub_key))
+						a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/disconnectPeer?pubkey=${nodeInfo.node.pub_key}`)
+							i.fas.fa-unlink.mr-2
+							span Disconnect from Peer
+
+						a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/openchannel?pubkey=${nodeInfo.node.pub_key}`)
+							i.fas.fa-exchange-alt.mr-2
+							span Open Channel
+
+					else
+						if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
+							a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/connectToPeer?pubkey=${nodeInfo.node.pub_key}&address=${nodeInfo.node.addresses[0].addr}`)
+								i.fas.fa-link.mr-2
+								span Connect as Peer
+						else
+							a.btn.btn-secondary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href="javascript:void(0)" title="Unable to connect. No addresses found." data-toggle="tooltip" disabled)
+								i.fas.fa-link.mr-2
+								span Connect as Peer
+
+						a.btn.btn-secondary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`javascript:void(0)` title="Your LND Node must be connected to this node as a peer before you can open a channel to it." data-toggle="tooltip" disabled)
+							i.fas.fa-exchange-alt.mr-2
+							span Open Channel
+
+					a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/query-route?pubkey=${nodeInfo.node.pub_key}`)
+						i.fas.fa-route.mr-2
+						span Query Route Here
+
+					if (false)
+						a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/send-payment?destPubkey=${nodeInfo.node.pub_key}`)
+							i.fas.fa-money-bill-wave.mr-2
+							span Send Payment
 
 				else
-					if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
-						a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/connectToPeer?pubkey=${nodeInfo.node.pub_key}&address=${nodeInfo.node.addresses[0].addr}`)
-							i.fas.fa-link.mr-2
-							span Connect as Peer
-					else
-						a.btn.btn-secondary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href="javascript:void(0)", class="", title="Unable to connect. No addresses found.", data-toggle="tooltip", disabled)
-							i.fas.fa-link.mr-2
-							span Connect as Peer
-
-				a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/openchannel?pubkey=${nodeInfo.node.pub_key}`)
-					i.fas.fa-exchange-alt.mr-2
-					span Open Channel
-
-				a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/query-route?pubkey=${nodeInfo.node.pub_key}`)
-					i.fas.fa-route.mr-2
-					span Query Route Here
-
-				if (false)
-					a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/send-payment?destPubkey=${nodeInfo.node.pub_key}`)
-						i.fas.fa-money-bill-wave.mr-2
-						span Send Payment
+					span Login required
 
 	- var sharedLocalChannels = [];
 	- var unsharedChannels = [];
