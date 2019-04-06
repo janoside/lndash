@@ -215,7 +215,7 @@ app.use(function(req, res, next) {
 				req.session[userSetting.name] = cookieValue;
 
 			} else {
-				req.session[userSetting] = userSetting.default;
+				req.session[userSetting.name] = userSetting.default;
 			}
 		}
 
