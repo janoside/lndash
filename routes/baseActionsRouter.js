@@ -1373,6 +1373,7 @@ router.post("/manage-nodes", function(req, res) {
 	var inputType = req.body.inputType;
 
 	res.locals.inputType = inputType;
+	res.locals.setupActive = (!global.adminCredentials.lndNodes || global.adminCredentials.lndNodes.length == 0);
 
 	// copied to res.locals on error, so form can be re-filled
 	var userFormParams = {};
