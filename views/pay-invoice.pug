@@ -205,7 +205,9 @@ block content
 					form(method="post")
 						input(type="hidden", name="invoice", value=invoice)
 
-						button(type="submit", class="btn btn-primary") Send Payment
+						button.btn.btn-primary(type="submit")
+							i.fas.fa-sign-out-alt.mr-2
+							span Send Payment
 
 		else
 			form(method="get")
@@ -213,4 +215,6 @@ block content
 					label(for="invoice") Encoded Payment Request / Invoice
 					textarea.form-control.form-control-lg.text-monospace(rows="4" id="invoice" name="invoice")
 
-				button(type="submit", class="btn btn-primary") Decode
+				button.btn.btn-primary(type="submit")
+					i.fas.fa-file-alt.mr-2
+					span Decode
