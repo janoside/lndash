@@ -1977,10 +1977,6 @@ router.get("/invoices", function(req, res) {
 	res.locals.paginationBaseUrl = `/invoices?sort=${sort}&settled=${settled}&created=${created}`;
 
 	rpcApi.getInvoices().then(function(invoicesResponse) {
-		if (sort == "created-desc") {
-			invoicesResponse.invoices.reverse();
-		}
-
 		var allInvoices = invoicesResponse.invoices;
 		var allFilteredInvoices = [];
 
@@ -2036,6 +2032,36 @@ router.get("/invoices", function(req, res) {
 				allFilteredInvoices.push(invoice);
 			}
 		}
+
+		allFilteredInvoices.sort(function(a, b) {
+			if (sort == "created-desc") {
+				return parseInt(b.creation_date) - parseInt(a.creation_date);
+
+			} else if (sort == "created-asc") {
+				return parseInt(a.creation_date) - parseInt(b.creation_date);
+
+			} else if (sort == "value-desc") {
+				var diff = parseInt(b.value) - parseInt(a.value);
+
+				if (diff == 0) {
+					return parseInt(b.creation_date) - parseInt(a.creation_date);
+
+				} else {
+					return diff;
+				}
+			} else if (sort == "value-asc") {
+				var diff = parseInt(a.value) - parseInt(b.value);
+
+				if (diff == 0) {
+					return parseInt(b.creation_date) - parseInt(a.creation_date);
+
+				} else {
+					return diff;
+				}
+			} else {
+				return parseInt(b.creation_date) - parseInt(a.creation_date);
+			}
+		});
 
 		var pagedFilteredInvoices = [];
 		for (var i = offset; i < Math.min(offset + limit, allFilteredInvoices.length); i++) {
