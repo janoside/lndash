@@ -8,7 +8,7 @@ div.modal.fade(id=("invoiceModal-" + invoice_index) role="dialog" aria-hidden="t
 					span(aria-hidden="true") &times;
 
 			div.modal-body
-				- var jsonX = allInvoices[invoice_index];
+				- var jsonX = invoice;
 				- jsonX.r_preimage_base64 = Buffer.from(jsonX.r_preimage).toString("base64");
 				- jsonX.r_preimage_hex = Buffer.from(jsonX.r_preimage).toString("hex");
 				- jsonX.r_hash_base64 = Buffer.from(jsonX.r_hash).toString("base64");
