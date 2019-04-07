@@ -12,7 +12,9 @@ block content
 
 	if (fullNetworkDescription)
 		if (session.hideHomepageBanner != "true")
-			div(class="alert alert-primary alert-dismissible shadow-sm", role="alert")
+			include includes/donation-modal.pug
+
+			div.alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
 				p
 					span.font-weight-bold LND Admin
 					span  is 
@@ -24,19 +26,24 @@ block content
 					span  for a list of features and instructions for running.
 
 				if (global.sourcecodeProjectMetadata)
-					div(class="mt-2")
-						a(href="https://github.com/janoside/lnd-admin", class="btn btn-primary mr-3 mb-1")
-							i(class="fas fa-star mr-2")
-							span(class="mr-2") Star 
-							span(class="badge bg-white text-dark") #{global.sourcecodeProjectMetadata.stargazers_count}
+					div.mt-2
+						a.btn.btn-primary.mr-3.mb-1(href="https://github.com/janoside/lnd-admin")
+							i.fas.fa-star.mr-2
+							span.mr-2 Star 
+							span.badge.bg-white.text-dark #{global.sourcecodeProjectMetadata.stargazers_count}
 
-						a(href="https://github.com/janoside/lnd-admin/fork", class="btn btn-primary mr-3 mb-1")
-							i(class="fas fa-code-branch mr-2")
-							span(class="mr-2") Fork 
-							span(class="badge bg-white text-dark") #{global.sourcecodeProjectMetadata.forks_count}
+						a.btn.btn-primary.mr-3.mb-1(href="https://github.com/janoside/lnd-admin/fork")
+							i.fas.fa-code-branch.mr-2
+							span.mr-2 Fork 
+							span.badge.bg-white.text-dark #{global.sourcecodeProjectMetadata.forks_count}
+
+						button.btn.btn-primary.btn.btn-primary.mb-1(type="button" data-toggle="modal" data-target="#donationModal")
+							i(class="fas fa-heart mr-2")
+							span Donate via 
+							span(class="font-weight-light") BTCPay
 
 
-				a(href="/changeSetting?name=hideHomepageBanner&value=true", class="close", aria-label="Close", style="text-decoration: none;")
+				a.close(href="/changeSetting?name=hideHomepageBanner&value=true" aria-label="Close" style="text-decoration: none;")
 					span(aria-hidden="true") &times;
 				
 		

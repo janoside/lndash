@@ -1,0 +1,71 @@
+#donationModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='exampleModalCenterTitle' aria-hidden='true')
+	.modal-dialog.modal-lg.modal-dialog-centered(role='document')
+		.modal-content
+			.modal-header
+				h5#exampleModalCenterTitle.modal-title Support Development
+				button.close(type='button' data-dismiss='modal' aria-label='Close')
+					span(aria-hidden='true') &times;
+			.modal-body
+				p Any and all support is greatly appreciated!
+
+				if (config.donations.btcpayserver)
+					h6
+						span(class="mr-2") Donate via  
+						img(src="/img/logo/btcpay.png", alt="BTCPay", style="height: 30px;", class="mr-2")
+						a(href="https://github.com/btcpayserver/btcpayserver") BTCPay
+					- var amounts = [1, 10, 25, 100];
+					- var icons = [ "fas fa-thumbs-up", "far fa-grin", "far fa-grin-beam", "far fa-grin-stars" ];
+					div(class="mb-2")
+						form(method="POST" action=(config.donations.btcpayserver.host + "/api/v1/invoices"), style="display: inline;")
+							input(type='hidden' name='storeId' value=config.donations.btcpayserver.storeId)
+							input(type='hidden' name='price' value="0.00000001")
+							input(type='hidden' name='currency' value='BTC')
+							input(type='hidden' name='notifyEmail' value=config.donations.btcpayserver.notifyEmail)
+
+							button.btn.btn-primary.btn-lg(type='submit', class="mr-2 mb-2")
+								i.fas.fa-bolt.mr-2.fa-lg
+								span 1 satoshi
+
+						each amount, amtIndex in amounts
+							form(method="POST" action=(config.donations.btcpayserver.host + "/api/v1/invoices"), style="display: inline;")
+								input(type='hidden' name='storeId' value=config.donations.btcpayserver.storeId)
+								input(type='hidden' name='price' value=amount)
+								input(type='hidden' name='currency' value='USD')
+								input(type='hidden' name='notifyEmail' value=config.donations.btcpayserver.notifyEmail)
+
+								button.btn.btn-primary.btn-lg(type='submit', class="mr-2 mb-2")
+									i.mr-2.fa-lg(class=icons[amtIndex])
+									span $#{amount.toLocaleString()}
+
+					script.
+						function showDonateByAddress(link) {
+							var donateByAddressDiv = document.getElementById("donate-by-address");
+							donateByAddressDiv.classList.remove("d-none");
+							link.classList.add("d-none");
+						}
+
+					a(href="javascript:void(0)", onclick="showDonateByAddress(this);") Or donate by address
+
+				div(id="donate-by-address", class="d-none mt-4")
+					h6 Donate by address
+
+					div(class="mb-3")
+						each coin, index in config.donations.addresses.coins
+							div.text-monospace
+								if (coinConfig.ticker == coin)
+									span #{coin}: 
+									a(href=("/address/" + config.donations.addresses[coin].address), class="text-wrap") #{config.donations.addresses[coin].address}
+								else
+									span #{coin}: 
+									a(href=(config.donations.addresses.sites[coin] + "/address/" + config.donations.addresses[coin].address), class="text-wrap") #{config.donations.addresses[coin].address}
+
+					each coin, index in config.donations.addresses.coins
+						div.text-center.mb-3.word-wrap.text-monospace(style="display: inline-block; max-width: 150px;" class=(index > 0 ? "ml-md-3" : false))
+							img(src=`/qrcode?data=${config.donations.addresses[coin].address}` style="border: solid 1px #ccc; width: 150px; height: 150px;")
+							br
+							span #{coin}
+
+			.modal-footer
+				button.btn.btn-secondary(type='button' data-dismiss='modal') Close
+
+

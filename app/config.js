@@ -42,11 +42,18 @@ module.exports = {
 		}
 	},
 
-	donationAddresses:{
-		coins:["BTC", "LTC"],
+	donations:{
+		addresses:{
+			coins:["BTC"],
+			sites:{"BTC":"https://btc.chaintools.io"},
 
-		"BTC":{address:"3NPGpNyLLmVKCEcuipBs7G4KpQJoJXjDGe", urlPrefix:"bitcoin:"},
-		"LTC":{address:"ME4pXiXuWfEi1ANBDo9irUJVcZBhsTx14i", urlPrefix:"litecoin:"}
+			"BTC":{address:"3NPGpNyLLmVKCEcuipBs7G4KpQJoJXjDGe"}
+		},
+		btcpayserver:{
+			host:"https://btcpay.chaintools.io",
+			storeId:"DUUExHMvKNAFukrJZHCShMhwZvfPq87QnkUhvE6h5kh2",
+			notifyEmail:"chaintools.io@gmail.com"
+		}
 	},
 
 	blockExplorerUrl: process.env.LND_ADMIN_BLOCK_EXPLORER_URL || "https://btc.chaintools.io",
@@ -55,7 +62,6 @@ module.exports = {
 		title:"Related Sites",
 		links:[
 			{name: "Bitcoin Explorer", url:"https://btc.chaintools.io", imgUrl:"/img/logo/btc.svg"},
-			{name: "Litecoin Explorer", url:"https://ltc.chaintools.io", imgUrl:"/img/logo/ltc.svg"},
 			{name: "LND Admin", url:"https://lnd-admin.chaintools.io", imgUrl:"/img/logo/lightning.svg"},
 		]
 	}

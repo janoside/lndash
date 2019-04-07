@@ -26,6 +26,9 @@ var qrcode = require("qrcode");
 var rpcApi = require("./app/rpcApi.js");
 
 
+var crawlerBotUserAgentStrings = [ "Googlebot", "Bingbot", "Slurp", "DuckDuckBot", "Baiduspider", "YandexBot", "Sogou", "Exabot", "facebot", "ia_archiver" ];
+
+
 var baseActionsRouter = require('./routes/baseActionsRouter');
 
 var app = express();
@@ -193,6 +196,14 @@ app.use(function(req, res, next) {
 
 	res.locals.config = global.config;
 	res.locals.coinConfig = global.coinConfig;
+
+	var userAgent = req.headers['user-agent'];
+	for (var i = 0; i < crawlerBotUserAgentStrings.length; i++) {
+		if (userAgent.indexOf(crawlerBotUserAgentStrings[i]) != -1) {
+			res.locals.crawlerBot = true;
+		}
+	}
+	
 
 	var userSettings = [
 		{name:"currencyFormatType", default:"sat"},
