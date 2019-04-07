@@ -141,8 +141,9 @@ block content
 								th.text-right #
 								th Memo
 								th Created
-								th Settled
-								th(class="text-right") Value
+								th
+									span.border-dotted(title="Whether a payment has been recieved for the invoice" data-toggle="tooltip") Settled
+								th.text-right Value
 								th Details
 						
 						tbody
@@ -150,13 +151,13 @@ block content
 								tr.text-monospace.word-wrap
 									th.text-right #{(sort == "desc" ? (invoiceCount - invoice_index) : (offset + invoice_index + 1)).toLocaleString()}
 
-									td(class="table-col-text")
+									td
 										if (invoice.memo)
 											span #{invoice.memo}
 										else
 											span -
 
-									td(class="table-col-time")
+									td
 										- var createdAtTime = parseInt(invoice.creation_date);
 										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(createdAtTime) * 1000))));
 										- var dateTimeUtc = moment.utc(new Date(parseInt(createdAtTime) * 1000)).format("Y-MM-DD HH:mm:ss");
@@ -165,20 +166,29 @@ block content
 										br
 										span.text-muted #{timeAgo.humanize()} ago
 
-									td(class="table-col-int")
+									td
 										if (invoice.settled)
-											- var settleTime = parseInt(invoice.settle_date);
-											- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(settleTime) * 1000))));
-											- var dateTimeUtc = moment.utc(new Date(parseInt(settleTime) * 1000)).format("Y-MM-DD HH:mm:ss");
+											i.fas.fa-check.text-success.mr-2
+											span.text-success Yes
 
-											span #{dateTimeUtc} utc
-											br
-											span.text-muted #{timeAgo.humanize()} ago
+
+											if (false)
+												div.clearfix
+													div.float-left.mr-4
+														
+													div.float-left
+														- var settleTime = parseInt(invoice.settle_date);
+														- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(settleTime) * 1000))));
+														- var dateTimeUtc = moment.utc(new Date(parseInt(settleTime) * 1000)).format("Y-MM-DD HH:mm:ss");
+
+														span #{dateTimeUtc} utc
+														br
+														span.text-muted #{timeAgo.humanize()} ago
 
 										else
-											span(class="text-danger") Unsettled
+											span.text-muted -
 
-									td(class="table-col-currencyvalue text-right")
+									td.text-right
 										span
 											- var currencyValue = new Decimal(invoice.value).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 											include ./includes/value-display.pug
