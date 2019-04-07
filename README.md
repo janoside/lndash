@@ -23,18 +23,21 @@ Live demo: https://lnd-admin.chaintools.io
 
 # Getting started
 
-## Instructions
+### Install via NPM
+
+0. [Install LND](https://github.com/lightningnetwork/lnd/blob/master/docs/INSTALL.md)
+1. `npm install -g lnd-admin`
+2. `lnd-admin`
+3. Open [http://127.0.0.1:3004/](http://127.0.0.1:3004/)
+
+### Install from source
 
 0. [Install LND](https://github.com/lightningnetwork/lnd/blob/master/docs/INSTALL.md)
 1. `git clone git@github.com:janoside/lnd-admin.git`
 2. `cd lnd-admin; npm install`
-3. Configure via environment variables or `.env` file. See [configuration](#configuration).
+3. Configure via environment variables or `.env` file. See [docs/configuration](docs/configuration.md).
 4. `npm start`
 5. Open [http://127.0.0.1:3004/](http://127.0.0.1:3004/)
-
-### Configuration
-
-Configuration options may be passed as environment variables or by creating a `.env` file in the root directory. See [.env-sample](.env-sample) for a list of the options and details for formatting `.env`.
 
 
 # Credits
