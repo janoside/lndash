@@ -111,11 +111,9 @@ app.runOnStartup = function() {
 			global.sourcecodeDate = log.all[0].date;
 		});
 	}
-
-	if (config.demoSite) {
-		getSourcecodeProjectMetadata();
-		setInterval(getSourcecodeProjectMetadata, 3 * 3600000);
-	}
+	
+	getSourcecodeProjectMetadata();
+	setInterval(getSourcecodeProjectMetadata, 3 * 3600000);
 
 
 	// exchange rates

@@ -11,7 +11,7 @@ block content
 		pre #{JSON.stringify(channelBalance, null, 4)}
 
 	if (fullNetworkDescription)
-		if (config.demoSite && session.hideHomepageBanner != "true")
+		if (session.hideHomepageBanner != "true")
 			div(class="alert alert-primary alert-dismissible shadow-sm", role="alert")
 				p
 					span.font-weight-bold LND Admin

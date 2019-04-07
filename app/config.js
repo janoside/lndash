@@ -5,7 +5,7 @@ var currentCoin = process.env.LND_ADMIN_COIN || "BTC";
 
 var cookieSecret = process.env.LND_ADMIN_COOKIE_SECRET || "0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f";
 
-["LND_ADMIN_DEMO"].forEach(function(item) {
+[].forEach(function(item) {
 	if (process.env[item] === undefined) {
 		process.env[item] = "false";
 	}
@@ -26,15 +26,6 @@ module.exports = {
 		sourceUrl: "https://github.com/janoside/lnd-admin",
 		demoSiteUrl: "https://lnd-admin.chaintools.io"
 	},
-
-	demoSite: (process.env.LND_ADMIN_DEMO.toLowerCase() == "true"),
-
-	rpcBlacklist:
-	  process.env.LND_ADMIN_RPC_ALLOWALL  ? []
-	: process.env.LND_ADMIN_RPC_BLACKLIST ? process.env.LND_ADMIN_RPC_BLACKLIST.split(',').filter(Boolean)
-	: [
-		"stop"
-	],
 
 	credentials: credentials,
 
