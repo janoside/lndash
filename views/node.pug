@@ -25,7 +25,7 @@ block content
 		small.text-monospace.word-wrap.mr-2(style="width: 100%;") #{nodeInfo.node.pub_key}
 
 		if (nodeInfo.node.pub_key == lndRpc.internal_pubkey)
-			small.h6.rounded.bg-primary.text-white.px-2.py-1(title="These are the public node details for your active LND node" data-toggle="tooltip") Active Node
+			i.fas.fa-certificate.fa-xs.text-primary(title="These are the public node details for your active LND node" data-toggle="tooltip")
 	hr
 
 	div.card.mb-3.shadow-sm

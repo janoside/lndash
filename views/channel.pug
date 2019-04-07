@@ -27,7 +27,7 @@ block content
 		small.text-monospace.word-wrap.mr-2 #{channelId}
 
 		if (channel && localChannels.byId && localChannels.byId[channel.channel_id])
-			small.h6.rounded.bg-primary.text-white.px-2.py-1(title="Your LND node is one of the participants in this channel" data-toggle="tooltip") Local Channel
+			i.fas.fa-certificate.fa-xs.text-primary(title="Your LND node is one of the participants in this channel" data-toggle="tooltip")
 	hr
 
 	if (channel == null)
@@ -158,9 +158,9 @@ block content
 						div.card-header
 							h2.h6.mb-0 Tools
 						div.card-body
-							a.btn.btn-danger.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/close-channel?channelId=${channel.channel_id}`)
+							a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/close-channel?channelId=${channel.channel_id}`)
 								i.fas.fa-times.mr-2
-								span Close Channel
+								span Close Channel (TODO)
 
 				div.card.mb-3.shadow-sm
 					div.card-header

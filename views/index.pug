@@ -244,7 +244,8 @@ block content
 										div #{new Decimal(networkInfo.max_out_degree).toDP(2)}
 
 						div(class="row")
-							div.summary-split-table-label Channel Size
+							div.summary-split-table-label
+								span.border-dotted(title="Min/max allowable channel sizes" data-toggle="tooltip") Channel Sizes
 							div.summary-split-table-content.text-monospace
 								div.clearfix
 									div.float-left.mr-5
