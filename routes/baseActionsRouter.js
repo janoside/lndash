@@ -1407,6 +1407,24 @@ router.post("/manage-nodes", function(req, res) {
 			userFormParams.tlsCertFilepath = tlsCertFilepath;
 		}
 
+		if (!fs.existsSync(adminMacaroonFilepath)) {
+			res.locals.userMessage = `Unable to open admin macaroon file: '${adminMacaroonFilepath}'`;
+			res.locals.userMessageType = "danger";
+
+			res.render("manage-nodes");
+
+			return;
+		}
+
+		if (!fs.existsSync(tlsCertFilepath)) {
+			res.locals.userMessage = `Unable to open tls certificate file: '${tlsCertFilepath}'`;
+			res.locals.userMessageType = "danger";
+
+			res.render("manage-nodes");
+
+			return;
+		}
+
 		if (global.adminCredentials.lndNodes == null) {
 			global.adminCredentials.lndNodes = [];
 		}
