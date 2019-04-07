@@ -17,12 +17,17 @@ block content
 		div.alert.alert-success
 			h3.h5 Success
 
-			div.mb-3 Your invoice was created successfully!
+			div.mb-3 Your invoice was created successfully
 
 			div.form-group
 				label.font-weight-bold(for="payment_request") Payment Request
 				div.input-group
 					textarea.form-control.text-monospace #{createInvoiceResponse.payment_request}
+
+			div.mb-3
+				label.font-weight-bold QR Code
+				div.input-group
+					img(src=`/qrcode?data=${createInvoiceResponse.payment_request}` style="width: 300px; height: 300px;")
 
 			div.mb-3
 				span.font-weight-bold Hash (hex)
