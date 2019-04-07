@@ -32,6 +32,7 @@
     "hash.js": "1.1.7",
     "influx": "5.0.7",
     "jstransformer-markdown-it": "^2.0.0",
+    "meow": "^5.0.0",
     "moment": "^2.24.0",
     "moment-duration-format": "2.2.2",
     "morgan": "^1.9.1",
