@@ -6,11 +6,14 @@ Live demo: https://lnd-admin.chaintools.io
 
 # Features
 
+* UI for connecting to LND - requires host/port/admin.macaroon/tls.cert, which can be supplied in various ways, including using LND Connect strings
 * Browse and search the public lightning network
-* View invoices, payments
+* View invoices, payments, and forwarded payments
 * Create and pay invoices
-* Open and close channels
-* Configure multiple LND nodes and switch between them
+* Open channels (close=TODO)
+* Connect to multiple LND nodes and switch between them
+* Simple/intuitive sorting filtering for most data
+* Tools for sign/very, query route, generate LND Connect strings
 * Responsive design (but UI is data/table heavy, so works best on large screens)
 
 
