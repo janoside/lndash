@@ -9,6 +9,7 @@ var rpcApi = require("./../app/rpcApi.js");
 var qrcode = require('qrcode');
 var fs = require("fs");
 var qrImage = require('qr-image');
+var untildify = require("untildify");
 
 router.get("/", function(req, res) {
 	var promises = [];
@@ -1397,13 +1398,13 @@ router.post("/manage-nodes", function(req, res) {
 		}
 
 		if (req.body.adminMacaroonFilepath) {
-			adminMacaroonFilepath = req.body.adminMacaroonFilepath;
+			adminMacaroonFilepath = untildify(req.body.adminMacaroonFilepath);
 
 			userFormParams.adminMacaroonFilepath = adminMacaroonFilepath;
 		}
 
 		if (req.body.tlsCertFilepath) {
-			tlsCertFilepath = req.body.tlsCertFilepath;
+			tlsCertFilepath = untildify(req.body.tlsCertFilepath);
 
 			userFormParams.tlsCertFilepath = tlsCertFilepath;
 		}
