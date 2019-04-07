@@ -52,10 +52,28 @@ block content
 
 					div.card-body
 						div(class="row")
-							div(class="summary-table-label", title="On-chain transaction that opened this channel", data-toggle="tooltip") Channel Point
+							div(class="summary-table-label")
+								span.border-dotted(title="The height of the block that confirmed the channel's opening transaction" data-toggle="tooltip") Opening Block
 							div.summary-table-content.text-monospace
 								if (config.blockExplorerUrl)
-									a(href=(config.blockExplorerUrl + "/tx/" + channel.chan_point.substring(0, channel.chan_point.indexOf(":"))), target="_blank") #{channel.chan_point}
+									a(href=`${config.blockExplorerUrl}/block-height/${blockHeight}` target="_blank") #{blockHeight.toLocaleString()}
+								else
+									span #{channel.chan_point}
+
+						div(class="row")
+							div(class="summary-table-label")
+								span.border-dotted(title="On-chain transaction:output-index that opened this channel" data-toggle="tooltip") Channel Point
+							div.summary-table-content.text-monospace
+								- var channelPointParts = channel.chan_point.split(":");
+								- var channelPointTxid = channelPointParts[0];
+								- var channelPointIndex = channelPointParts[1];
+
+								if (config.blockExplorerUrl)
+									a(href=`${config.blockExplorerUrl}/tx/${channelPointTxid}`, target="_blank")
+										- var btc_txid = channelPointTxid;
+										include includes/btc-txid.pug
+
+									span  [#{channelPointIndex}]
 								else
 									span #{channel.chan_point}
 

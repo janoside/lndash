@@ -205,6 +205,12 @@ router.get("/channel/:channelId", function(req, res) {
 
 	res.locals.channelId = channelId;
 
+	var channelIdBinary = utils.decimalToBinary(channelId).padStart(64, "0");
+
+	res.locals.blockHeight = parseInt(utils.binaryToDecimal(channelIdBinary.substring(0, 24)));
+	res.locals.blockTxIndex = parseInt(utils.binaryToDecimal(channelIdBinary.substring(24, 48)));
+	res.locals.txOutputIndex = parseInt(utils.binaryToDecimal(channelIdBinary.substring(48)));
+
 	rpcApi.getFullNetworkDescription().then(function(fnd) {
 		res.locals.fullNetworkDescription = fnd;
 

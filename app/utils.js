@@ -565,6 +565,14 @@ function formatLndconnectString(lndconnectData) {
 	return `lndconnect://${lndconnectData.host}:${lndconnectData.port}?cert=${cert}&macaroon=${macaroon}`;
 }
 
+function decimalToBinary(dec){
+	return parseInt(dec, 10).toString(2);
+}
+
+function binaryToDecimal(dec){
+	return parseInt(dec, 2).toString(10);
+}
+
 
 module.exports = {
 	hex2ascii: hex2ascii,
@@ -596,5 +604,7 @@ module.exports = {
 	saveAdminCredentials: saveAdminCredentials,
 	loadAdminCredentials: loadAdminCredentials,
 	parseLndconnectString: parseLndconnectString,
-	formatLndconnectString: formatLndconnectString
+	formatLndconnectString: formatLndconnectString,
+	decimalToBinary: decimalToBinary,
+	binaryToDecimal: binaryToDecimal
 };
