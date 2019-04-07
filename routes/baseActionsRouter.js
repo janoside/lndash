@@ -5,7 +5,6 @@ var router = express.Router();
 var util = require('util');
 var moment = require('moment');
 var utils = require('./../app/utils');
-var bitcoinCore = require("bitcoin-core");
 var rpcApi = require("./../app/rpcApi.js");
 var qrcode = require('qrcode');
 var fs = require("fs");

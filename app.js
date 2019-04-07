@@ -16,7 +16,6 @@ var simpleGit = require('simple-git');
 var utils = require("./app/utils.js");
 var moment = require("moment");
 var Decimal = require('decimal.js');
-var bitcoinCore = require("bitcoin-core");
 var grpc = require("grpc");
 var fs = require("fs");
 var pug = require("pug");
@@ -25,7 +24,6 @@ var coins = require("./app/coins.js");
 var request = require("request");
 var qrcode = require("qrcode");
 var rpcApi = require("./app/rpcApi.js");
-var Influx = require("influx");
 
 
 var baseActionsRouter = require('./routes/baseActionsRouter');
