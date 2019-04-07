@@ -1,6 +1,10 @@
 # LND Admin
 
-Admin web interface for [LND](https://github.com/lightningnetwork/lnd), via gRPC. Built with Node.js, express, bootstrap-v4, coreui.
+[![npm version][npm-ver-img]][npm-ver-url] [![NPM downloads][npm-dl-img]][npm-dl-url]
+
+Admin web interface for [LND](https://github.com/lightningnetwork/lnd), via gRPC. Built with Node.js, express, bootstrap-v4.
+
+![](docs/screenshots/dashboard.png)
 
 Live demo: https://lnd-admin.chaintools.io
 
@@ -43,3 +47,9 @@ To support continued development of this tool and/or to support the hosting of t
 
 * [Bitcoin](bitcoin:3NPGpNyLLmVKCEcuipBs7G4KpQJoJXjDGe): 3NPGpNyLLmVKCEcuipBs7G4KpQJoJXjDGe
 
+
+
+[npm-ver-img]: https://img.shields.io/npm/v/lnd-admin.svg?style=flat
+[npm-ver-url]: https://www.npmjs.com/package/lnd-admin
+[npm-dl-img]: http://img.shields.io/npm/dm/lnd-admin.svg?style=flat
+[npm-dl-url]: https://npmcharts.com/compare/lnd-admin?minimal=true
