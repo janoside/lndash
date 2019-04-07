@@ -2,7 +2,9 @@ div.modal.fade(id=("invoiceModal-" + invoice_index) role="dialog" aria-hidden="t
 	div.modal-dialog.modal-xl(role="document")
 		div.modal-content
 			div.modal-header
-				h5.modal-title.text-monospace Invoice ##{(invoice_index + 1).toLocaleString()}
+				h5.modal-title.text-monospace Invoice
+					br
+					span #{Buffer.from(invoice.r_hash).toString("hex")}
 
 				button.close(type="button" data-dismiss="modal" aria-label="Close")
 					span(aria-hidden="true") &times;
