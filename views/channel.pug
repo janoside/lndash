@@ -86,7 +86,7 @@ block content
 											div.font-weight-bold Local
 
 											- var currencyValue = new Decimal(localChannel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-											- var localBalancePercent = new Decimal(localChannel.local_balance).dividedBy(localChannel.local_balance + localChannel.remote_balance).times(100);
+											- var localBalancePercent = new Decimal(localChannel.local_balance).dividedBy(parseInt(localChannel.local_balance) + parseInt(localChannel.remote_balance)).times(100);
 											div.text-monospace
 												include includes/value-display.pug
 
@@ -96,7 +96,7 @@ block content
 											div.font-weight-bold Remote
 
 											- var currencyValue = new Decimal(localChannel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-											- var remoteBalancePercent = new Decimal(localChannel.remote_balance).dividedBy(localChannel.local_balance + localChannel.remote_balance).times(100);
+											- var remoteBalancePercent = new Decimal(localChannel.remote_balance).dividedBy(parseInt(localChannel.local_balance) + parseInt(localChannel.remote_balance)).times(100);
 
 											div.text-monospace
 												include includes/value-display.pug
