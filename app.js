@@ -128,6 +128,7 @@ app.runOnStartup = function() {
 			rpcApi.refreshFullNetworkDescription();
 			rpcApi.refreshLocalChannels();
 			rpcApi.refreshLocalClosedChannels();
+			rpcApi.refreshLocalPendingChannels();
 		}
 	}, 60000);
 
@@ -257,21 +258,65 @@ app.use(function(req, res, next) {
 	// ex: req.cheeseStr = "cheese";
 
 	if (global.lndRpc != null) {
-		rpcApi.getFullNetworkDescription().then(function(fnd) {
-			res.locals.fullNetworkDescription = fnd;
+		var promises = [];
 
-			rpcApi.getLocalChannels().then(function(localChannels) {
+		promises.push(new Promise(function(resolve, reject) {
+			rpcApi.getFullNetworkDescription(true).then(function(fnd) {
+				res.locals.fullNetworkDescription = fnd;
+
+				resolve();
+
+			}).catch(function(err) {
+				utils.logError("3297rhgdgvsf1", err);
+
+				reject(err);
+			});
+		}));
+
+		promises.push(new Promise(function(resolve, reject) {
+			rpcApi.getLocalChannels(true).then(function(localChannels) {
 				res.locals.localChannels = localChannels;
 
-				next();
+				resolve();
 
 			}).catch(function(err) {
 				utils.logError("37921hdasudfgd", err);
 
-				next();
+				reject(err);
 			});
+		}));
+
+		promises.push(new Promise(function(resolve, reject) {
+			rpcApi.getLocalClosedChannels(true).then(function(localClosedChannels) {
+				res.locals.localClosedChannels = localClosedChannels;
+
+				resolve();
+
+			}).catch(function(err) {
+				utils.logError("37921hdasudfgd", err);
+
+				reject(err);
+			});
+		}));
+
+		promises.push(new Promise(function(resolve, reject) {
+			rpcApi.getLocalPendingChannels(true).then(function(localPendingChannels) {
+				res.locals.localPendingChannels = localPendingChannels;
+
+				resolve();
+
+			}).catch(function(err) {
+				utils.logError("37921hdasudfgd", err);
+
+				reject(err);
+			});
+		}));
+
+		Promise.all(promises).then(function() {
+			next();
+
 		}).catch(function(err) {
-			utils.logError("3297rhgdgvsf1", err);
+			utils.logError("asdf97g32gss", err);
 
 			next();
 		});

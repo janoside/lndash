@@ -49,6 +49,9 @@ tr(class="text-monospace word-wrap")
 			if (pendingForceCloseChannels.includes(channel))
 				div.text-warning Force Closing
 
+			if (waitingCloseChannels.includes(channel))
+				div.text-warning Waiting to Close
+
 	td
 		if (channel.remote_pubkey)
 			- var card_node_pubkey = channel.remote_pubkey;

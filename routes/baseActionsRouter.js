@@ -44,20 +44,7 @@ router.get("/", function(req, res) {
 	}));
 
 	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getFullNetworkDescription().then(function(fnd) {
-			res.locals.fullNetworkDescription = fnd;
-
-			resolve();
-		
-		}).catch(function(err) {
-			utils.logError("23r08dsh0shg", err);
-			
-			reject(err);
-		});
-	}));
-
-	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getLocalChannels().then(function(localChannelsResponse) {
+		rpcApi.getLocalChannels(false).then(function(localChannelsResponse) {
 			res.locals.localChannelsResponse = localChannelsResponse;
 
 			var totalLocalBalance = 0;
@@ -118,8 +105,10 @@ router.get("/", function(req, res) {
 	});
 });
 
-router.get("/node/:nodePubKey", function(req, res) {
-	var nodePubKey = req.params.nodePubKey;
+router.get("/node/:nodePubkey", function(req, res) {
+	var nodePubkey = req.params.nodePubkey;
+
+	res.locals.nodePubkey = nodePubkey;
 
 	var promises = [];
 
@@ -147,24 +136,24 @@ router.get("/node/:nodePubKey", function(req, res) {
 	}));
 
 	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getFullNetworkDescription().then(function(fnd) {
+		rpcApi.getFullNetworkDescription(true).then(function(fnd) {
 			res.locals.fullNetworkDescription = fnd;
-			res.locals.nodeInfo = fnd.nodeInfoByPubkey[nodePubKey];
+			res.locals.nodeInfo = fnd.nodeInfoByPubkey[nodePubkey];
 
 			res.locals.nodeChannels = [];
 			fnd.channels.sortedByLastUpdate.forEach(function(channel) {
-				if (channel.node1_pub == nodePubKey || channel.node2_pub == nodePubKey) {
+				if (channel.node1_pub == nodePubkey || channel.node2_pub == nodePubkey) {
 					res.locals.nodeChannels.push(channel);
 				}
 			});
 
 			var qrcodeStrings = [];
-			qrcodeStrings.push(nodePubKey);
+			qrcodeStrings.push(nodePubkey);
 
 			if (res.locals.nodeInfo.node.addresses) {
 				for (var i = 0; i < res.locals.nodeInfo.node.addresses.length; i++) {
 					if (res.locals.nodeInfo.node.addresses[i].network == "tcp") {
-						res.locals.nodeUri = nodePubKey + "@" + res.locals.nodeInfo.node.addresses[i].addr;
+						res.locals.nodeUri = nodePubkey + "@" + res.locals.nodeInfo.node.addresses[i].addr;
 
 						qrcodeStrings.push(res.locals.nodeUri);
 
@@ -211,7 +200,7 @@ router.get("/channel/:channelId", function(req, res) {
 	res.locals.blockTxIndex = parseInt(utils.binaryToDecimal(channelIdBinary.substring(24, 48)));
 	res.locals.txOutputIndex = parseInt(utils.binaryToDecimal(channelIdBinary.substring(48)));
 
-	rpcApi.getFullNetworkDescription().then(function(fnd) {
+	rpcApi.getFullNetworkDescription(true).then(function(fnd) {
 		res.locals.fullNetworkDescription = fnd;
 
 		res.locals.channel = fnd.channelsById[channelId];
@@ -382,7 +371,7 @@ router.get("/wallet", function(req, res) {
 	}));
 
 	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getClosedChannels().then(function(closedChannels) {
+		rpcApi.getLocalClosedChannels().then(function(closedChannels) {
 			res.locals.closedChannels = closedChannels;
 
 			resolve();
@@ -482,7 +471,7 @@ router.get("/node-status", function(req, res) {
 	}));
 
 	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getFullNetworkDescription().then(function(fnd) {
+		rpcApi.getFullNetworkDescription(true).then(function(fnd) {
 			res.locals.fullNetworkDescription = fnd;
 
 			resolve();
@@ -541,19 +530,6 @@ router.get("/peers", function(req, res) {
 			res.locals.listPeers = response;
 
 			resolve();
-		});
-	}));
-
-	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getFullNetworkDescription().then(function(fnd) {
-			res.locals.fullNetworkDescription = fnd;
-
-			resolve();
-
-		}).catch(function(err) {
-			utils.logError("3297rhgdgvsf1", err);
-
-			reject(err);
 		});
 	}));
 
@@ -846,6 +822,7 @@ router.get("/connect-lnd", function(req, res) {
 
 			rpcApi.refreshLocalChannels();
 			rpcApi.refreshLocalClosedChannels();
+			rpcApi.refreshLocalPendingChannels();
 
 			rpcApi.refreshFullNetworkDescription(true).then(function() {
 				req.session.userMessage = `Switched to LND ${global.lndRpc.internal_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)} ('${global.lndRpc.internal_alias}')`;
@@ -899,7 +876,7 @@ router.get("/nodes", function(req, res) {
 	var sortProperty = sort.substring(0, sort.indexOf("-"));
 	var sortDirection = sort.substring(sort.indexOf("-") + 1);
 
-	rpcApi.getFullNetworkDescription().then(function(fnd) {
+	rpcApi.getFullNetworkDescription(true).then(function(fnd) {
 		res.locals.fullNetworkDescription = fnd;
 
 		var allNodes = fnd.nodes.sortedByLastUpdate;
@@ -953,7 +930,7 @@ router.get("/channels", function(req, res) {
 	var sortProperty = sort.substring(0, sort.indexOf("-"));
 	var sortDirection = sort.substring(sort.indexOf("-") + 1);
 
-	rpcApi.getFullNetworkDescription().then(function(fnd) {
+	rpcApi.getFullNetworkDescription(true).then(function(fnd) {
 		res.locals.fullNetworkDescription = fnd;
 
 		var allChannels = fnd.channels.sortedByLastUpdate;
@@ -1033,19 +1010,6 @@ router.get("/local-channels", function(req, res) {
 	var promises = [];
 
 	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getFullNetworkDescription().then(function(fnd) {
-			res.locals.fullNetworkDescription = fnd;
-
-			resolve();
-
-		}).catch(function(err) {
-			utils.logError("397rgdsfgsds", err);
-
-			reject(err);
-		});
-	}));
-
-	promises.push(new Promise(function(resolve, reject) {
 		rpcApi.getLocalChannels().then(function(localChannels) {
 			res.locals.localChannels = localChannels;
 
@@ -1059,27 +1023,16 @@ router.get("/local-channels", function(req, res) {
 	}));
 
 	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getPendingChannels().then(function(pendingChannelsResponse) {
-			res.locals.pendingChannelsResponse = pendingChannelsResponse;
+		rpcApi.getLocalPendingChannels().then(function(localPendingChannels) {
+			res.locals.localPendingChannels = localPendingChannels;
 
-			res.locals.pendingOpenChannels = pendingChannelsResponse.pending_open_channels;
-			res.locals.pendingCloseChannels = pendingChannelsResponse.pending_closing_channels;
-			res.locals.pendingForceCloseChannels = pendingChannelsResponse.pending_force_closing_channels;
+			res.locals.pendingOpenChannels = localPendingChannels.pendingOpenChannels;
+			res.locals.pendingCloseChannels = localPendingChannels.pendingCloseChannels;
+			res.locals.pendingForceCloseChannels = localPendingChannels.pendingForceCloseChannels;
+			res.locals.waitingCloseChannels = localPendingChannels.waitingCloseChannels;
 
 			// aggregate into single array for ease of use
-			res.locals.pendingChannels = [];
-
-			res.locals.pendingOpenChannels.forEach(function(chan) {
-				res.locals.pendingChannels.push(chan);
-			});
-
-			res.locals.pendingCloseChannels.forEach(function(chan) {
-				res.locals.pendingChannels.push(chan);
-			});
-
-			res.locals.pendingForceCloseChannels.forEach(function(chan) {
-				res.locals.pendingChannels.push(chan);
-			});
+			res.locals.pendingChannels = localPendingChannels.allChannels;
 
 			resolve();
 
@@ -1091,7 +1044,7 @@ router.get("/local-channels", function(req, res) {
 	}));
 
 	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getClosedChannels().then(function(closedChannels) {
+		rpcApi.getLocalClosedChannels().then(function(closedChannels) {
 			res.locals.closedChannels = closedChannels;
 
 			resolve();
@@ -1304,7 +1257,7 @@ router.get("/search", function(req, res) {
 
 	res.locals.query = query;
 
-	rpcApi.getFullNetworkDescription().then(function(fnd) {
+	rpcApi.getFullNetworkDescription(true).then(function(fnd) {
 		res.locals.fullNetworkDescription = fnd;
 
 		if (fnd.nodeInfoByPubkey[query]) {
@@ -1325,23 +1278,29 @@ router.get("/search", function(req, res) {
 
 
 		fnd.nodes.sortedByLastUpdate.forEach(function(nodeInfo) {
-			if (nodeInfo.node.alias.toLowerCase().indexOf(query) > -1) {
-				res.locals.searchResults.nodes.push(nodeInfo);
-			}
-
-			if (nodeInfo.node.pub_key.toLowerCase().indexOf(query) > -1) {
-				res.locals.searchResults.nodes.push(nodeInfo);
-			}
-
-			if (nodeInfo.node.color.indexOf(query) > -1) {
-				res.locals.searchResults.nodes.push(nodeInfo);
-			}
-
-			nodeInfo.node.addresses.forEach(function(address) {
-				if (address.addr.indexOf(query) > -1) {
+			try {
+				if (nodeInfo.node.alias.toLowerCase().indexOf(query) > -1) {
 					res.locals.searchResults.nodes.push(nodeInfo);
 				}
-			});
+
+				if (nodeInfo.node.pub_key.toLowerCase().indexOf(query) > -1) {
+					res.locals.searchResults.nodes.push(nodeInfo);
+				}
+
+				if (nodeInfo.node.color.indexOf(query) > -1) {
+					res.locals.searchResults.nodes.push(nodeInfo);
+				}
+
+				nodeInfo.node.addresses.forEach(function(address) {
+					if (address.addr.indexOf(query) > -1) {
+						res.locals.searchResults.nodes.push(nodeInfo);
+					}
+				});
+			} catch(err) {
+				console.log("Error handling nodeInfo: " + JSON.stringify(nodeInfo));
+
+				utils.logError("3297rgsd7gs7s", err);
+			}
 		});
 
 		fnd.channels.sortedByLastUpdate.forEach(function(channelInfo) {

@@ -9,6 +9,7 @@ var pendingFNDRequest = false;
 
 var localChannels = null;
 var localClosedChannels = null;
+var localPendingChannels = null;
 
 function connect(rpcConfig, index) {
 	console.log(`Connecting to LND Node: ${rpcConfig}`);
@@ -156,6 +157,7 @@ function connectAllNodes() {
 					if (response.index == 0) {
 						refreshLocalChannels();
 						refreshLocalClosedChannels();
+						refreshLocalPendingChannels();
 
 						refreshFullNetworkDescription().then(function() {
 							resolveInner();
@@ -186,14 +188,21 @@ function connectAllNodes() {
 }
 
 
-function getFullNetworkDescription() {
+function getFullNetworkDescription(acceptCachedValues=false) {
 	return new Promise(function(resolve, reject) {
-		// try a manual refresh here, but don't wait for it
-		if (fullNetworkDescription == null) {
-			refreshFullNetworkDescription();
-		}
+		if (acceptCachedValues && fullNetworkDescription) {
+			resolve(fullNetworkDescription);
 
-		resolve(fullNetworkDescription);
+		} else {
+			refreshFullNetworkDescription().then(function(response) {
+				resolve(response);
+
+			}).catch(function(err) {
+				utils.logError("43208hesdhds", err);
+
+				reject(err);
+			});
+		}
 	});
 }
 
@@ -211,10 +220,14 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 
 	console.log("Refreshing network description...");
 	
-	return new Promise(function(resolve_1, reject_1) {
+	return new Promise(function(resolve, reject) {
 		lndRpc.describeGraph({include_unannounced:true}, function(err, describeGraphResponse) {
 			if (err) {
 				console.log("Error 2397gr2039rf6g2: " + err + ", error json: " + JSON.stringify(err));
+
+				reject(err);
+
+				return;
 			}
 
 			if (describeGraphResponse == null) {
@@ -222,22 +235,25 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 
 				pendingFNDRequest = false;
 
-				resolve_1();
+				reject("null describeGraph response");
 
 				return;
 			}
 
 			var nodeInfoByPubkey = {};
-			if (fullNetworkDescription && fullNetworkDescription.nodeInfoByPubkey) {
-				nodeInfoByPubkey = fullNetworkDescription.nodeInfoByPubkey;
+
+			if (!forceRefresh) {
+				if (fullNetworkDescription && fullNetworkDescription.nodeInfoByPubkey) {
+					//nodeInfoByPubkey = fullNetworkDescription.nodeInfoByPubkey;
+				}
 			}
 
 			var promises = [];
 			describeGraphResponse.nodes.forEach(function(node) {
-				if (node.last_update * 1000 > fullNetworkDescriptionDate.getTime()) {
+				if (true || forceRefresh || node.last_update * 1000 > fullNetworkDescriptionDate.getTime()) {
 					//console.log("Refreshing node details: " + node.last_update + " - " + fullNetworkDescriptionDate.getTime());
 
-					promises.push(new Promise(function(resolve_2, reject_2) {
+					promises.push(new Promise(function(resolveInner, rejectInner) {
 						lndRpc.getNodeInfo({pub_key:node.pub_key}, function(err2, nodeInfoResponse) {
 							if (err2) {
 								console.log("Error 312r9ygef9y: " + err2);
@@ -245,7 +261,7 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 
 							nodeInfoByPubkey[node.pub_key] = nodeInfoResponse;
 
-							resolve_2();
+							resolveInner();
 						});
 					}));
 				}
@@ -259,7 +275,7 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 
 				pendingFNDRequest = false;
 
-				resolve_1();
+				resolve(fullNetworkDescription);
 			});
 		});
 	});
@@ -340,45 +356,57 @@ function compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey) 
 
 
 
-function getLocalChannels() {
+function getLocalChannels(acceptCachedValues=false) {
 	return new Promise(function(resolve, reject) {
-		// try a manual refresh here, but don't wait for it
-		if (localChannels == null) {
-			refreshLocalChannels();
-		}
+		if (acceptCachedValues && localChannels) {
+			resolve(localChannels);
 
-		resolve(localChannels);
+		} else {
+			refreshLocalChannels().then(function(response) {
+				resolve(response);
+
+			}).catch(function(err) {
+				utils.logError("asdf79234gwss", err);
+
+				reject(err);
+			});
+		}
 	});
 }
 
-function getClosedChannels() {
+function getLocalClosedChannels(acceptCachedValues=false) {
 	return new Promise(function(resolve, reject) {
-		// try a manual refresh here, but don't wait for it
-		if (localClosedChannels == null) {
-			refreshLocalClosedChannels();
-		}
+		if (acceptCachedValues && localClosedChannels) {
+			resolve(localClosedChannels);
 
-		resolve(localClosedChannels);
+		} else {
+			refreshLocalClosedChannels().then(function(response) {
+				resolve(response);
+
+			}).catch(function(err) {
+				utils.logError("23097hfsd07ghs", err);
+
+				reject(err);
+			});
+		}
 	});
 }
 
-function getPendingChannels() {
+function getLocalPendingChannels(acceptCachedValues=false) {
 	return new Promise(function(resolve, reject) {
-		lndRpc.PendingChannels({}, function(err, pendingChannelsResponse) {
-			if (err) {
-				utils.logError("32r08hdsf0h8s", err);
-			}
+		if (acceptCachedValues && localPendingChannels) {
+			resolve(localPendingChannels);
 
-			if (pendingChannelsResponse == null) {
-				utils.logError("320r8hsd08hsds", "null PendingChannels response");
+		} else {
+			refreshLocalPendingChannels().then(function(response) {
+				resolve(response);
 
-				reject("null PendingChannels response");
+			}).catch(function(err) {
+				utils.logError("2340xr8hwe07hus", err);
 
-				return;
-			}
-
-			resolve(pendingChannelsResponse);
-		});
+				reject(err);
+			});
+		}
 	});
 }
 
@@ -387,16 +415,20 @@ function refreshLocalChannels() {
 
 	console.log("Refreshing local channels...");
 	
-	return new Promise(function(resolve_1, reject_1) {
+	return new Promise(function(resolve, reject) {
 		lndRpc.ListChannels({}, function(err, listChannelsResponse) {
 			if (err) {
 				utils.logError("23179egwqeufgsd", err);
+
+				reject(err);
+
+				return;
 			}
 
 			if (listChannelsResponse == null) {
 				utils.logError("76dfhg12328", "null listChannels response");
 
-				resolve_1();
+				reject("null listChannels response");
 
 				return;
 			}
@@ -419,7 +451,7 @@ function refreshLocalChannels() {
 
 			console.log("Finished refreshing local channels; elapsed time: " + (new Date().getTime() - startTime.getTime()));
 
-			resolve_1();
+			resolve(localChannels);
 		});
 	});
 }
@@ -429,16 +461,20 @@ function refreshLocalClosedChannels() {
 
 	console.log("Refreshing closed channels...");
 	
-	return new Promise(function(resolve_1, reject_1) {
+	return new Promise(function(resolve, reject) {
 		lndRpc.ClosedChannels({}, function(err, closedChannelsResponse) {
 			if (err) {
 				utils.logError("23r07wehf7dsf", err);
+
+				reject(err);
+
+				return;
 			}
 
 			if (closedChannelsResponse == null) {
 				utils.logError("2183ryu243r7034w", "null listChannels response");
 
-				resolve_1();
+				reject("null ClosedChannels response");
 
 				return;
 			}
@@ -463,7 +499,69 @@ function refreshLocalClosedChannels() {
 
 			console.log("Finished refreshing closed channels; elapsed time: " + (new Date().getTime() - startTime.getTime()));
 
-			resolve_1();
+			resolve(localClosedChannels);
+		});
+	});
+}
+
+function refreshLocalPendingChannels() {
+	var startTime = new Date();
+
+	console.log("Refreshing pending channels...");
+	
+	return new Promise(function(resolve, reject) {
+		lndRpc.PendingChannels({}, function(err, pendingChannelsResponse) {
+			if (err) {
+				utils.logError("32r08hdsf0h8s", err);
+
+				reject(err);
+
+				return;
+			}
+
+			if (pendingChannelsResponse == null) {
+				utils.logError("320r8hsd08hsds", "null PendingChannels response");
+
+				reject("null PendingChannels response");
+
+				return;
+			}
+
+			var pendingOpenChannels = pendingChannelsResponse.pending_open_channels;
+			var pendingCloseChannels = pendingChannelsResponse.pending_closing_channels;
+			var pendingForceCloseChannels = pendingChannelsResponse.pending_force_closing_channels;
+			var waitingCloseChannels = pendingChannelsResponse.waiting_close_channels;
+
+			// aggregate into single array for ease of use
+			var pendingChannels = {};
+			pendingChannels.allChannels = [];
+			pendingChannels.pendingOpenChannels = pendingOpenChannels;
+			pendingChannels.pendingCloseChannels = pendingCloseChannels;
+			pendingChannels.pendingForceCloseChannels = pendingForceCloseChannels;
+			pendingChannels.waitingCloseChannels = waitingCloseChannels;
+
+
+			pendingOpenChannels.forEach(function(chan) {
+				pendingChannels.allChannels.push(chan);
+			});
+
+			pendingCloseChannels.forEach(function(chan) {
+				pendingChannels.allChannels.push(chan);
+			});
+
+			pendingForceCloseChannels.forEach(function(chan) {
+				pendingChannels.allChannels.push(chan);
+			});
+
+			waitingCloseChannels.forEach(function(chan) {
+				pendingChannels.allChannels.push(chan);
+			});
+
+			localPendingChannels = pendingChannels;
+
+			console.log("Finished refreshing pending channels; elapsed time: " + (new Date().getTime() - startTime.getTime()));
+
+			resolve(localPendingChannels);
 		});
 	});
 }
@@ -881,10 +979,11 @@ module.exports = {
 	getLocalChannels: getLocalChannels,
 	refreshLocalChannels: refreshLocalChannels,
 
-	getClosedChannels: getClosedChannels,
+	getLocalClosedChannels: getLocalClosedChannels,
 	refreshLocalClosedChannels: refreshLocalClosedChannels,
 
-	getPendingChannels: getPendingChannels,
+	getLocalPendingChannels: getLocalPendingChannels,
+	refreshLocalPendingChannels: refreshLocalPendingChannels,
 
 	connectToPeer: connectToPeer,
 	disconnectFromPeer: disconnectFromPeer,

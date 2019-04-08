@@ -26,9 +26,29 @@ block content
 		br
 		small.text-monospace.word-wrap.mr-2 #{channelId}
 
-		if (channel && localChannels.byId && localChannels.byId[channel.channel_id])
-			i.fas.fa-certificate.fa-xs.text-primary(title="Your LND node is one of the participants in this channel" data-toggle="tooltip")
+		if (channel)
+			- var localChannel = localChannels.byId && localChannels.byId[channel.channel_id];
+			- var localChannelStatus = null;
+
+			if (localChannels.byId[channel.channel_id] && !localChannels.byId[channel.channel_id].active)
+				- localChannelStatus = "Inactive";
+			
+			if (!localChannel)
+				- localChannel = localClosedChannels.byId && localClosedChannels.byId[channel.channel_id];
+
+			if (!localChannel)
+				each waitingCloseChannel in localPendingChannels.waitingCloseChannels
+					if (waitingCloseChannel.channel.channel_point == channel.chan_point)
+						- localChannel = true;
+						- localChannelStatus = "Waiting to Close";
+
+			if (localChannel)
+				i.fas.fa-certificate.fa-xs.text-primary(title="Your LND node is one of the participants in this channel" data-toggle="tooltip")
 	hr
+
+	if (false)
+		pre
+			code.json #{JSON.stringify(localPendingChannels, null, 4)}
 
 	if (channel == null)
 		div.alert.alert-warning.shadow-sm
@@ -51,6 +71,14 @@ block content
 						h2.h6.mb-0 Summary
 
 					div.card-body
+						if (localChannelStatus)
+							div(class="row")
+								div(class="summary-table-label")
+									span Status
+								div.summary-table-content.text-monospace
+									if (localChannelStatus == "Waiting to Close" || localChannelStatus == "Inactive")
+										span.text-warning #{localChannelStatus}
+
 						div(class="row")
 							div(class="summary-table-label")
 								span.border-dotted(title="The height of the block that confirmed the channel's opening transaction" data-toggle="tooltip") Opening Block
@@ -58,7 +86,7 @@ block content
 								if (config.blockExplorerUrl)
 									a(href=`${config.blockExplorerUrl}/block-height/${blockHeight}` target="_blank") #{blockHeight.toLocaleString()}
 								else
-									span #{channel.chan_point}
+									span #{blockHeight.toLocaleString()}
 
 						div(class="row")
 							div(class="summary-table-label")
