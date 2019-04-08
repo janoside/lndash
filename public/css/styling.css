@@ -78,6 +78,14 @@ table.dataTable {
 	font-size: 1rem;
 }
 
+.sidebar .nav-link {
+	padding: 0.45rem 0.65rem;
+}
+
+.sidebar .nav-link .nav-icon {
+	margin-right: 0.325rem !important;
+}
+
 
 
 .tab-content, .tab-pane {
