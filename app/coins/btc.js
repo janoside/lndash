@@ -8,7 +8,7 @@ var currencyUnits = [
 		multiplier:1,
 		default:true,
 		active:true,
-		values:["", "btc", "BTC"],
+		values:["btc", "BTC"],
 		decimalPlaces:8
 	},
 	{
