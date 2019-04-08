@@ -685,6 +685,32 @@ function openChannel(remoteNodePubkey, localAmount, sendAmount) {
 	});
 }
 
+function closeChannel(txid, txOutput, forceClose, speedType, speedValue) {
+	return new Promise(function(resolve, reject) {
+		var params = {
+			channel_point:{
+				funding_txid_str:txid,
+				output_index:txOutput
+			},
+			force:forceClose
+		};
+
+		params[speedType] = parseInt(speedValue);
+		
+		lndRpc.CloseChannel(params, function(err, response) {
+			if (err) {
+				utils.logError("0s7dfy0asdgf7gasdf", err);
+
+				reject(err);
+
+				return;
+			}
+
+			resolve(response);
+		});
+	});
+}
+
 function signMessage(msg) {
 	return new Promise(function(resolve, reject) {
 		lndRpc.SignMessage({msg:msg}, function(err, response) {
@@ -871,6 +897,7 @@ module.exports = {
 	getWalletUtxos: getWalletUtxos,
 
 	openChannel: openChannel,
+	closeChannel: closeChannel,
 
 	createInvoice: createInvoice,
 	decodeInvoiceString: decodeInvoiceString,

@@ -158,13 +158,20 @@ block content
 						div.card-header
 							h2.h6.mb-0 Tools
 						div.card-body
-							a.btn.btn-secondary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`javascript:void(0)` title="TODO Issue #16" data-toggle="tooltip" disabled)
-								i.fas.fa-times.mr-2
-								span Close Channel
+							if (session.admin)
+								include includes/close-channel-modal.pug
 
-							a.btn.btn-secondary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`javascript:void(0)` title="TODO Issue #17" data-toggle="tooltip" disabled)
-								i.fas.fa-edit.mr-2
-								span Update Policies
+								a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-toggle="modal" data-target="#closeChannelModal")
+									i.fas.fa-times.mr-2
+									span Close Channel
+
+								a.btn.btn-secondary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`javascript:void(0)` title="TODO Issue #17" data-toggle="tooltip" disabled)
+									i.fas.fa-edit.mr-2
+									span Update Policies
+
+							else
+								- var loginRequiredFullNote = "You must be logged in to make changes to your channels.";
+								include includes/login-required-alert.pug
 
 				div.card.mb-3.shadow-sm
 					div.card-header

@@ -14,7 +14,7 @@ Live demo: https://lnd-admin.chaintools.io
 * Browse and search the public lightning network
 * View invoices, payments, and forwarded payments
 * Create and pay invoices
-* Open channels (close=TODO)
+* Open and close channels
 * Connect to multiple LND nodes and switch between them
 * Simple/intuitive sorting filtering for most data
 * Tools for sign/very, query route, generate LND Connect strings

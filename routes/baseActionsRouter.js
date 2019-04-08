@@ -2174,6 +2174,27 @@ router.post("/openchannel", function(req, res) {
 	});
 });
 
+router.post("/close-channel", function(req, res) {
+	var txid = req.body.txid;
+	var txOutput = parseInt(req.body.txOutput);
+	var forceClose = (req.body.forceClose == "true");
+	var speedType = req.body.speedType;
+	var speedValue = req.body.speedValue;
+
+	rpcApi.closeChannel(txid, txOutput, forceClose, speedType, speedValue).then(function(response) {
+		console.log("closeChannelResponse: " + JSON.stringify(response));
+
+		res.json(response);
+
+	}).catch(function(err) {
+		utils.logError("sadfh9g3249r6ywegs", err);
+
+		console.log("closeChannelError: " + JSON.stringify(err));
+
+		res.json(err);
+	});
+});
+
 router.get("/error-log", function(req, res) {
 	res.locals.errorLog = [];
 

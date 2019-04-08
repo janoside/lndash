@@ -1,0 +1,96 @@
+div.modal.fade(id="closeChannelModal" role="dialog" aria-hidden="true")
+	div.modal-dialog.modal-xl(role="document")
+		div.modal-content
+			div.modal-header
+				h5.modal-title
+					span Close Channel
+
+				button.close(type="button" data-dismiss="modal" aria-label="Close")
+					span(aria-hidden="true") &times;
+
+			div.modal-body
+				script.
+					function closeChannel() {
+						$("#responseAlertCloseChannel").hide();
+
+						var data = {};
+						data.txid = "#{channelPointTxid}";
+						data.txOutput = #{channelPointIndex};
+						data.forceClose = $("#forceCloseChannelCheckbox").is(':checked');
+						data.speedType = $("#speedTypeValue").val();
+						data.speedValue = $("#speedValue").val();
+
+						console.log("data: " + JSON.stringify(data));
+
+						$.ajax({
+							type: "POST",
+							url: `/close-channel`,
+							data: data,
+							success: function(response) {
+								if (response.code && response.details) {
+									$("#responseAlertCloseChannel").removeClass("alert-success").addClass("alert-danger");
+									$("#responseAlertCloseChannel").text(response.details);
+									$("#responseAlertCloseChannel").show();
+
+								} else {
+									$("#responseAlertCloseChannel").removeClass("alert-danger").addClass("alert-success");
+									$("#responseAlertCloseChannel").text("Success");
+									$("#responseAlertCloseChannel").show();
+								}
+
+								console.log("response: " + JSON.stringify(response));
+							}
+						});
+
+						return false;
+					}
+
+				form(onsubmit="return closeChannel();")
+					div.alert(id="responseAlertCloseChannel" style="display: none;")
+
+					div.form-group
+						label(for="speedValue") Speed
+
+						input(id="speedTypeValue" type="hidden" name="speedType" value="target_conf")
+
+						div.mb-3
+							.custom-control.custom-radio.custom-control-inline
+								input#customRadioInline1.custom-control-input(type='radio' name='speedTypeRadio' value="target_conf" checked="checked")
+								label.custom-control-label(for='customRadioInline1') Try to confirm in 
+									span.border-dotted(for='customRadioInline1' title="LND will compute a fee rate for your on-chain transaction based on the current state of the network. Note that there is no guarantee that your transaction will be confirmed by the network based on what you set here." data-toggle="tooltip") N or fewer blocks
+							.custom-control.custom-radio.custom-control-inline
+								input#customRadioInline2.custom-control-input(type='radio' name='speedTypeRadio' value="sat_per_byte")
+								label.custom-control-label(for='customRadioInline2') Manual fee (sat/byte)
+
+						input.form-control.text-monospace(id="speedValue" name="speedValue")
+						small#closeChannelSpeedNote.text-muted Number of blocks to try to confirm within
+
+					div.form-group
+						div.custom-control.custom-checkbox
+							input.custom-control-input(type="checkbox" id="forceCloseChannelCheckbox")
+							label.custom-control-label(for="forceCloseChannelCheckbox")
+								span.border-dotted(title="If set, then the channel will be closed forcibly. This means the current commitment transaction will be signed and broadcast." data-toggle="tooltip") Force close
+					
+					div.mt-5
+						button.btn.btn-primary(type="submit")
+							i.fas.fa-times.mr-2
+							span Close Channel
+
+
+			div.modal-footer
+				button.btn.btn-secondary(type="button" class="" data-dismiss="modal") Close
+
+block endOfBody
+	script.
+		$(document).ready(function() {
+			$(document).on('change', 'input:radio[name="speedTypeRadio"]', function(event) {
+				$("#speedTypeValue").val($(event.target).val());
+
+				if ($(event.target).val() == "target_conf") {
+					$("#closeChannelSpeedNote").text("Number of blocks to try to confirm within");
+
+				} else if ($(event.target).val() == "sat_per_byte") {
+					$("#closeChannelSpeedNote").text("Fee rate, sat / byte");
+				}
+			});
+		});
