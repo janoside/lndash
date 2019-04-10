@@ -87,6 +87,7 @@ function getSourcecodeProjectMetadata() {
 
 
 app.runOnStartup = function() {
+	global.rootDir = __dirname;
 	global.config = config;
 	global.coinConfig = coins[config.coin];
 	global.coinConfigs = coins;
@@ -141,9 +142,9 @@ app.runOnStartup = function() {
 		indexes:[]
 	};
 
-	if (fs.existsSync(path.join(__dirname, "credentials.json"))) {
-		if (fs.existsSync(path.join(__dirname, ".debugAdminPassword"))) {
-			global.adminPassword = fs.readFileSync(path.join(__dirname, ".debugAdminPassword"), "utf8");
+	if (fs.existsSync(path.join(global.rootDir, "credentials.json"))) {
+		if (fs.existsSync(path.join(global.rootDir, ".debugAdminPassword"))) {
+			global.adminPassword = fs.readFileSync(path.join(global.rootDir, ".debugAdminPassword"), "utf8");
 		}
 
 		global.adminCredentials = utils.loadAdminCredentials(global.adminPassword);

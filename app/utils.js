@@ -500,11 +500,11 @@ function saveAdminCredentials(encPassword) {
 	
 	delete enc.lndNodes;
 
-	fs.writeFileSync(path.join(__dirname, "credentials.json"), JSON.stringify(enc, null, 4));
+	fs.writeFileSync(path.join(global.rootDir, "credentials.json"), JSON.stringify(enc, null, 4));
 }
 
 function loadAdminCredentials(encPassword) {
-	var credentialsData = fs.readFileSync(path.join(__dirname, "credentials.json"), "utf8");
+	var credentialsData = fs.readFileSync(path.join(global.rootDir, "credentials.json"), "utf8");
 	var adminCredentials = JSON.parse(credentialsData);
 
 	if (encPassword) {
