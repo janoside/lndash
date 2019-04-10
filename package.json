@@ -2,6 +2,7 @@
   "name": "lnd-admin",
   "version": "0.9.0",
   "private": false,
+  "bin": "bin/cli.js",
   "scripts": {
     "start": "node ./bin/www"
   },
