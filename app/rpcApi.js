@@ -79,7 +79,7 @@ function connect(rpcConfig, index) {
 			// such that every call is properly encrypted and authenticated
 			var credentials = grpc.credentials.combineChannelCredentials(sslCreds, macaroonCreds);
 
-			var lnrpcDescriptor = grpc.load(path.join(process.cwd(), 'rpc.proto')); // "rpc.proto"
+			var lnrpcDescriptor = grpc.load(path.join(__dirname, 'rpc.proto')); // "rpc.proto"
 			var lnrpc = lnrpcDescriptor.lnrpc;
 
 			// uncomment to print available function of RPC protocol
