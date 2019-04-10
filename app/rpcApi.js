@@ -1,6 +1,7 @@
 var utils = require("./utils.js");
 var fs = require("fs");
 var grpc = require("grpc");
+var path = require('path');
 
 
 var fullNetworkDescription = null;
