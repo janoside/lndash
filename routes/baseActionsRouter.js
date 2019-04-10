@@ -764,12 +764,69 @@ router.post("/query-route", function(req, res) {
 });
 
 router.get("/forwarding-history", function(req, res) {
-	var startTime = new Date().getTime() - 24 * 60 * 60;
-	var endTime = new Date().getTime();
+	var startTime = new Date().getTime() / 1000 - 30 * 24 * 60 * 60;
+	var endTime = new Date().getTime() / 1000;
 	var limit = 20;
 	var offset = 0;
+	var sort = "date-desc";
+	var daterange = "30d";
+
+	if (req.query.limit) {
+		limit = parseInt(req.query.limit);
+	}
+
+	if (req.query.offset) {
+		offset = parseInt(req.query.offset);
+	}
+
+	if (req.query.sort) {
+		sort = req.query.sort;
+	}
+
+	if (req.query.daterange) {
+		daterange = req.query.daterange;
+	}
+
+	res.locals.limit = limit;
+	res.locals.offset = offset;
+	res.locals.sort = sort;
+	res.locals.daterange = daterange;
+
+	if (daterange == "all") {
+		startTime = 1491766829;
+		endTime = new Date().getTime() / 1000;
+
+	} else {
+		var times = [{abbr:"m", dur:60}, {abbr:"h", dur:60*60}, {abbr:"d", dur:24*60*60}];
+		for (var i = 0; i < times.length; i++) {
+			if (daterange.endsWith(times[i].abbr)) {
+				var t = parseInt(daterange.substring(0, daterange.length - 1));
+				t *= times[i].dur;
+
+				startTime = new Date().getTime() / 1000 - t;
+				endTime = new Date().getTime() / 1000;
+
+				break;
+			}
+		}
+	}
+	
 
 	var promises = [];
+
+	// TODO summary stats for all events
+	/*promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getForwardingHistory(1491766829, new Date(), limit, offset).then(function(forwardingHistoryResponse) {
+			res.locals.fullForwardingHistoryResponse = forwardingHistoryResponse;
+
+			resolve();
+
+		}).catch(function(err) {
+			utils.logError("703yrwegfddsg", err);
+
+			reject(err);
+		});
+	}));*/
 
 	promises.push(new Promise(function(resolve, reject) {
 		rpcApi.getForwardingHistory(startTime, endTime, limit, offset).then(function(forwardingHistoryResponse) {
@@ -787,6 +844,58 @@ router.get("/forwarding-history", function(req, res) {
 	}));
 
 	Promise.all(promises).then(function() {
+		var allEvents = res.locals.forwardingHistoryResponse.forwarding_events;
+		var allFilteredEvents = allEvents;
+
+
+		allFilteredEvents.sort(function(a, b) {
+			var tA = parseInt(a.timestamp);
+			var tB = parseInt(b.timestamp);
+			var tDiff = tA - tB;
+
+			var vA = parseInt(a.amt_in);
+			var vB = parseInt(b.amt_in);
+			var vDiff = vA - vB;
+
+			if (sort == "date-desc") {
+				if (tDiff == 0) {
+					return vA - vB;
+
+				} else {
+					return -tDiff;
+				}
+			} else if (sort == "date-asc") {
+				if (tDiff == 0) {
+					return vDiff;
+
+				} else {
+					return tDiff;
+				}
+			} else if (sort == "value-desc") {
+				if (vDiff == 0) {
+					return tDiff;
+
+				} else {
+					return -vDiff;
+				}
+			} else if (sort == "value-asc") {
+				if (vDiff == 0) {
+					return tDiff;
+
+				} else {
+					return vDiff;
+				}
+			}
+
+			return tDiff;
+		});
+
+		var pagedFilteredEvents = allEvents;
+
+		res.locals.allEvents = allEvents;
+		res.locals.allFilteredEvents = allFilteredEvents;
+		res.locals.pagedFilteredEvents = pagedFilteredEvents;
+
 		res.render("forwarding-history");
 
 	}).catch(function(err) {

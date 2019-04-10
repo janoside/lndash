@@ -20,64 +20,164 @@ block content
 
 	else
 
-		if (forwardingHistoryResponse.forwarding_events.length == 0)
-			div.alert.alert-warning.shadow-sm Your node has not forwarded any payments
+		div.card.mb-3.shadow-sm
+			div.card-body
+				div.clearfix
+					div.dropdown.mr-4.float-left
+						div Sort
+						button.btn.btn-primary.dropdown-toggle.mb-2.mb-lg-0(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+							span
+								if (sort == null || sort == "date-desc")
+									| Date, Newest first
+								else if (sort == "date-asc")
+									| Date, Oldest first
+								else if (sort == "value-desc")
+									| Value, Highest first
+								else if (sort == "value-asc")
+									| Value, Lowest first
 
-		else
+						div.dropdown-menu(aria-labelledby="dropdownMenuButton")
+							a.dropdown-item(href=`/forwarding-history?sort=date-desc&daterange=${daterange}&limit=${limit}`) Date, Newest first
+							a.dropdown-item(href=`/forwarding-history?sort=date-asc&daterange=${daterange}&limit=${limit}`) Date, Oldest first
+							a.dropdown-item(href=`/forwarding-history?sort=value-desc&daterange=${daterange}&limit=${limit}`) Value, Highest first
+							a.dropdown-item(href=`/forwarding-history?sort=value-asc&daterange=${daterange}&limit=${limit}`) Value, Lowest first
 
+					div.mr-4.mb-2.mb-lg-0.float-left
+						div Time
+						- var createdFilterOptions = [{disp:"60 min", val:"60m"}, {disp:"24 hr", val:"24h"}, {disp:"7 day", val:"7d"}, {disp:"30 day", val:"30d"}, {disp:"All", val:"all"}];
+						div.btn-group.mr-2(role="group")
+							each opt in createdFilterOptions
+								if (daterange != null && daterange == opt.val)
+									span.btn.btn-primary #{opt.disp}
+								else
+									a.btn.btn-light.border(href=`/forwarding-history?sort=${sort}&daterange=${opt.val}&limit=${limit}`) #{opt.disp}
+
+					div.mr-4.mb-2.mb-lg-0.float-left
+						div Page Size
+						- var pageSizeOptions = ["20", "50", "100"];
+						div.btn-group.mr-2(role="group")
+							each opt in pageSizeOptions
+								if (limit != null && limit == parseInt(opt))
+									span.btn.btn-primary #{opt}
+								else
+									a.btn.btn-light.border(href=`/forwarding-history?sort=${sort}&settled=${settled}&created=${created}&limit=${opt}`) #{opt}
+
+				hr.my-3
+
+				div
+					if (allFilteredEvents.length > limit)
+						span Showing 
+						span.font-weight-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredEvents.length).toLocaleString()} 
+						span of 
+						span.font-weight-bold #{allFilteredEvents.length.toLocaleString()} 
+						if (allEvents.length > allFilteredEvents.length)
+							span filtered 
+						span event
+						if (allFilteredEvents.length != 1)
+							span s
+
+					else if (allFilteredEvents.length > 0)
+						span Showing 
+						span.font-weight-bold #{allFilteredEvents.length.toLocaleString()} 
+						if (allEvents.length > allFilteredEvents.length)
+							span filtered 
+
+						span event
+						if (allFilteredEvents.length > 1)
+							span s
+					else
+						div.alert.alert-warning.shadow-sm.mb-0 No matching events
+
+				- var itemCount = allFilteredEvents.length;
+				if (itemCount > limit)
+					- var pageNumber = offset / limit + 1;
+					- var pageCount = Math.floor(itemCount / limit);
+					- if (pageCount * limit < itemCount) {
+						- pageCount++;
+					- }
+					- var paginationUrlFunction = function(x) {
+						- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
+					- }
+					
+					div.mt-2.mb-0
+						include includes/pagination.pug
+
+
+		if (forwardingHistoryResponse.forwarding_events && forwardingHistoryResponse.forwarding_events.length > 0)
 			each forwardingEvent, forwardingEventIndex in forwardingHistoryResponse.forwarding_events
 				include includes/forwarding-event-details-modal.pug
 
 			div.table-responsive
-				table.table
+				table.table.table-bordered.border-top
 					thead.bg-light
 						tr
 							th.text-right #
 							th Date
 							th Incoming Channel
 							th Outgoing Channel
-							th Incoming Amount
-							th Outgoing Amount
-							th Fee
+							th.text-right Incoming Amount
+							th.text-right Outgoing Amount
+							th.text-right Fee
 							th Details
 
 					tbody
 						each forwardingEvent, forwardingEventIndex in forwardingHistoryResponse.forwarding_events
 							tr
 								th.text-right #{(forwardingEventIndex + 1).toLocaleString()}
-								td
+								td.text-monospace
 									- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(forwardingEvent.timestamp) * 1000))));
 									- var dateTimeUtc = moment.utc(new Date(parseInt(forwardingEvent.timestamp) * 1000)).format("Y-MM-DD HH:mm:ss");
 
 									div #{dateTimeUtc} utc
-									div #{timeAgo.humanize()}
+									div.text-muted #{timeAgo.humanize()} ago
 
-								td
-									a(href=("/channel/" + forwardingEvent.chan_id_in))
+								td.text-monospace
+									a(href=`/channel/${forwardingEvent.chan_id_in}`)
 										- var channel_id = forwardingEvent.chan_id_in;
 										include includes/channel-id.pug
 
-								td
-									a(href=("/channel/" + forwardingEvent.chan_id_out))
+									hr
+
+									- var channelInfo = fullNetworkDescription.channelsById[channel_id];
+									- var card_node_pubkey = channelInfo.node1_pub;
+									if (card_node_pubkey == lndRpc.internal_pubkey)
+										- card_node_pubkey = channelInfo.node2_pub;
+
+									include includes/node-card.pug
+
+								td.text-monospace
+									a(href=`/channel/${forwardingEvent.chan_id_out}`)
 										- var channel_id = forwardingEvent.chan_id_out;
 										include includes/channel-id.pug
 
-								td
+									hr
+
+									- var channelInfo = fullNetworkDescription.channelsById[channel_id];
+									- var card_node_pubkey = channelInfo.node1_pub;
+									if (card_node_pubkey == lndRpc.internal_pubkey)
+										- card_node_pubkey = channelInfo.node2_pub;
+
+									include includes/node-card.pug
+
+								td.text-right
 									- var currencyValue = new Decimal(forwardingEvent.amt_in).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 									include includes/value-display.pug
 								
-								td
+								td.text-right
 									- var currencyValue = new Decimal(forwardingEvent.amt_out).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 									include includes/value-display.pug
 
-								td
-									- var currencyValue = new Decimal(forwardingEvent.fee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-									include includes/value-display.pug
+								td.text-right
+									div.text-success
+										span +
+
+										- var currencyValue = new Decimal(forwardingEvent.fee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+										include includes/value-display.pug
 
 								td
 									a(href="javascript:void(0)" data-toggle="modal" data-target=("#forwardingEventModal-" + forwardingEventIndex)) Details
 
-			if (true)					
+			if (false)					
 				pre
 					code.json.bg-light #{JSON.stringify(forwardingHistoryResponse, null, 4)}
-			
+				
