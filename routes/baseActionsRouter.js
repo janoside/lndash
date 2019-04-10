@@ -1333,6 +1333,17 @@ router.get("/local-channels", function(req, res) {
 
 
 
+		// this handles the case where user is viewing page with offset > 0
+		// and switches LND nodes to one where the total number of items
+		// is less than the current offset
+		while (offset >= allFilteredChannels.length) {
+			offset -= limit;
+		}
+
+		res.locals.offset = offset;
+
+
+
 
 
 
