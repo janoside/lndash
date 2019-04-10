@@ -1,7 +1,7 @@
 //- var hsl = utils.colorHexToHsl(fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.color);
 
 - var node_icon_color = "#000000";
-if (fullNetworkDescription.nodeInfoByPubkey[node_pubkey])
+if (fullNetworkDescription && fullNetworkDescription.nodeInfoByPubkey[node_pubkey])
 	- var node_icon_color = fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.color;
 
 div.node-color-circle-wrapper

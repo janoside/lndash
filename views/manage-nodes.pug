@@ -25,11 +25,22 @@ block content
 
 	else
 
+		if (lndConnectError)
+			div.alert.alert-danger.shadow-sm.mb-3
+				h5.h6 Error
+				p Error while connecting to LND. Check your RPC connection credentials and see below for details about the error.
+				pre.mb-2
+					code.json.bg-light #{JSON.stringify(lndConnectError, null, 4)}
+
+				if (lndConnectError.stack)
+					pre
+						code.json.bg-light #{lndConnectError.stack}
+
 		if (setupActive)
 			- var setupStep = 2;
 			include includes/setup-directions-alert.pug
 
-		if (global.adminCredentials.lndNodes)
+		if (global.adminCredentials.lndNodes && global.adminCredentials.lndNodes.length > 0)
 			if (true)
 				div.card.mb-3.shadow-sm
 					div.card-header

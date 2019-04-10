@@ -685,6 +685,10 @@ router.post("/login", function(req, res) {
 			});
 
 		} else {
+			if (!global.adminCredentials.lndNodes || global.adminCredentials.lndNodes.length == 0) {
+				global.setupNeeded = true;
+			}
+
 			if (req.session.loginRedirect) {
 				res.redirect(req.session.loginRedirect);
 
@@ -1472,6 +1476,7 @@ router.post("/manage-nodes", function(req, res) {
 	// copied to res.locals on error, so form can be re-filled
 	var userFormParams = {};
 
+	var newLndNode = null;
 	if (inputType == "fileInput") {
 		var host = "localhost";
 		var port = "10009";
@@ -1524,15 +1529,13 @@ router.post("/manage-nodes", function(req, res) {
 			global.adminCredentials.lndNodes = [];
 		}
 
-		var newLndNode = {
+		newLndNode = {
 			type: "fileInput",
 			host: host,
 			port: port,
 			adminMacaroonFilepath: adminMacaroonFilepath,
 			tlsCertFilepath: tlsCertFilepath
 		};
-
-		global.adminCredentials.lndNodes.push(newLndNode);
 
 		promises.push(rpcApi.connect(newLndNode, global.adminCredentials.lndNodes.length - 1));
 
@@ -1589,15 +1592,13 @@ router.post("/manage-nodes", function(req, res) {
 			global.adminCredentials.lndNodes = [];
 		}
 
-		var newLndNode = {
+		newLndNode = {
 			type: "rawTextInput",
 			host: host,
 			port: port,
 			adminMacaroonHex: adminMacaroonHex,
 			tlsCertAscii: tlsCertAscii
 		};
-
-		global.adminCredentials.lndNodes.push(newLndNode);
 
 		promises.push(rpcApi.connect(newLndNode, global.adminCredentials.lndNodes.length - 1));
 
@@ -1622,26 +1623,26 @@ router.post("/manage-nodes", function(req, res) {
 			global.adminCredentials.lndNodes = [];
 		}
 
-		var newLndNode = {
+		newLndNode = {
 			type: "lndconnectString",
 			lndconnectString: lndconnectString
 		};
-
-		global.adminCredentials.lndNodes.push(newLndNode);
 
 		promises.push(rpcApi.connect(newLndNode, global.adminCredentials.lndNodes.length - 1));
 	}
 
 	Promise.all(promises).then(function() {
+		global.adminCredentials.lndNodes.push(newLndNode);
+
 		utils.saveAdminCredentials(global.adminPassword);
 
 		res.locals.userMessage = "Successfully added LND Node";
 		res.locals.userMessageType = "success";
 
 		if (global.setupNeeded) {
-			global.setupNeeded = false;
-
 			rpcApi.connectAllNodes().then(function() {
+				global.setupNeeded = false;
+
 				req.session.userMessage = "<h3 class='h5'>Setup complete</h3><span>Welcome to LND Admin!</span>";
 				req.session.userMessageType = "success";
 
@@ -1660,6 +1661,8 @@ router.post("/manage-nodes", function(req, res) {
 			res.render("manage-nodes");
 		}
 	}).catch(function(err) {
+		res.locals.lndConnectError = err;
+
 		utils.logError("32078rhesdghss", err);
 
 		for (var prop in userFormParams) {

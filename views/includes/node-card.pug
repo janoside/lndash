@@ -1,4 +1,4 @@
-if (fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey])
+if (fullNetworkDescription && fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey])
 	- var card_node = {pubkey:card_node_pubkey, alias:fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey].node.alias, color:fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey].node.color};
 
 if (node_card_include_wrapper)
