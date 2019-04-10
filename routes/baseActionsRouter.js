@@ -1859,11 +1859,16 @@ router.get("/payment-history", function(req, res) {
 router.get("/pay-invoice", function(req, res) {
 	var promises = [];
 
-	if (req.query.invoice) {
-		res.locals.invoice = req.query.invoice;
+	var invoice = req.query.invoice;
+	if (invoice) {
+		if (invoice.startsWith("lightning:")) {
+			invoice = invoice.substring("lightning:".length);
+		}
+
+		res.locals.invoice = invoice;
 
 		promises.push(new Promise(function(resolve, reject) {
-			rpcApi.decodeInvoiceString(req.query.invoice).then(function(decodeInvoiceResponse) {
+			rpcApi.decodeInvoiceString(invoice).then(function(decodeInvoiceResponse) {
 				res.locals.decodedInvoice = decodeInvoiceResponse;
 
 				resolve();
@@ -1894,7 +1899,13 @@ router.get("/pay-invoice", function(req, res) {
 });
 
 router.post("/pay-invoice", function(req, res) {
-	rpcApi.payInvoice(req.query.invoice).then(function(response) {
+	var invoice = req.query.invoice;
+
+	if (invoice.startsWith("lightning:")) {
+		invoice = invoice.substring("lightning:".length);
+	}
+
+	rpcApi.payInvoice(invoice).then(function(response) {
 		res.locals.payInvoiceResponse = response;
 
 		response.payment_preimage_base64 = Buffer.from(response.payment_preimage).toString("base64");
