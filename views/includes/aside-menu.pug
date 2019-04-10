@@ -85,11 +85,12 @@ aside.aside-menu.p-3.bg-main.text-body
 
 	h5.h5 Status
 
-	div.mb-3
-		h5.h6 App Version
-		a(href=`https://github.com/janoside/lnd-admin/commit/${sourcecodeVersion}`) ##{sourcecodeVersion.substring(0, 16)}
-		br
-		span.text-muted #{sourcecodeDate}
+	if (sourcecodeVersion && sourcecodeDate)
+		div.mb-3
+			h5.h6 App Version
+			a(href=`https://github.com/janoside/lnd-admin/commit/${sourcecodeVersion}`) ##{sourcecodeVersion.substring(0, 16)}
+			br
+			span.text-muted #{sourcecodeDate}
 
 	if (false)
 		ul.nav.nav-tabs(role='tablist')
