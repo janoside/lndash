@@ -87,7 +87,13 @@ function getSourcecodeProjectMetadata() {
 
 
 app.runOnStartup = function() {
-	global.rootDir = __dirname;
+	global.packageRootDir = __dirname;
+	global.userDataDir = path.join(os.homedir(), ".lnd-admin");
+
+	if (!fs.existsSync(global.userDataDir)){
+		fs.mkdirSync(global.userDataDir);
+	}
+
 	global.config = config;
 	global.coinConfig = coins[config.coin];
 	global.coinConfigs = coins;
@@ -142,9 +148,9 @@ app.runOnStartup = function() {
 		indexes:[]
 	};
 
-	if (fs.existsSync(path.join(global.rootDir, "credentials.json"))) {
-		if (fs.existsSync(path.join(global.rootDir, ".debugAdminPassword"))) {
-			global.adminPassword = fs.readFileSync(path.join(global.rootDir, ".debugAdminPassword"), "utf8");
+	if (fs.existsSync(path.join(global.userDataDir, "credentials.json"))) {
+		if (fs.existsSync(path.join(global.userDataDir, ".debugAdminPassword"))) {
+			global.adminPassword = fs.readFileSync(path.join(global.userDataDir, ".debugAdminPassword"), "utf8");
 		}
 
 		global.adminCredentials = utils.loadAdminCredentials(global.adminPassword);
