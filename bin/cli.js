@@ -19,8 +19,7 @@ const args = require('meow')(`
 		$ LND_ADMIN_PORT=8080
 
 
-`, { flags: { port: {alias:'p'}, host: {alias:'i'}, 
-			, demo: {type:'boolean'}, 
+`, { flags: { port: {alias:'p'}, host: {alias:'i'}, demo: {type:'boolean'}
 			, nodeEnv: {alias:'e', default:'production'}
 			} }
 ).flags;
