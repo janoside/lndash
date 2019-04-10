@@ -104,6 +104,32 @@ block content
 
 
 		if (forwardingHistoryResponse.forwarding_events && forwardingHistoryResponse.forwarding_events.length > 0)
+			div.card.mb-3.shadow-sm
+				div.card-header
+					h4.h6.mb-0 Summary
+				div.card-body
+					div.row
+						div.summary-table-label Total Fees
+						div.summary-table-content.text-monospace
+							- var currencyValue = new Decimal(totalFees).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+							include includes/value-display.pug
+
+						div.summary-table-label Average Fee
+						div.summary-table-content.text-monospace
+							- var currencyValue = new Decimal(avgFee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+							include includes/value-display.pug
+
+						div.summary-table-label Total Value Transferred
+						div.summary-table-content.text-monospace
+							- var currencyValue = new Decimal(totalValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+							include includes/value-display.pug
+
+						div.summary-table-label Avg Value Transferred
+						div.summary-table-content.text-monospace
+							- var currencyValue = new Decimal(avgValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+							include includes/value-display.pug
+
+
 			each forwardingEvent, forwardingEventIndex in forwardingHistoryResponse.forwarding_events
 				include includes/forwarding-event-details-modal.pug
 

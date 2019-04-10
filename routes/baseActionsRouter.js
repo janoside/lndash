@@ -896,6 +896,20 @@ router.get("/forwarding-history", function(req, res) {
 		res.locals.allFilteredEvents = allFilteredEvents;
 		res.locals.pagedFilteredEvents = pagedFilteredEvents;
 
+
+		var totalFees = 0;
+		var totalValueTransferred = 0;
+		allEvents.forEach(function(event) {
+			totalValueTransferred += parseInt(event.amt_in);
+			totalFees += parseInt(event.fee);
+		});
+
+		res.locals.totalFees = totalFees;
+		res.locals.totalValueTransferred = totalValueTransferred;
+		res.locals.avgFee = totalFees / allEvents.length;
+		res.locals.avgValueTransferred = totalValueTransferred / allEvents.length;
+
+
 		res.render("forwarding-history");
 
 	}).catch(function(err) {
