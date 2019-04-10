@@ -5,6 +5,7 @@ var CryptoJS = require("crypto-js");
 var fs = require("fs");
 var url = require("url");
 var base64url = require('base64url');
+var path = require('path');
 
 var config = require("./config.js");
 var coins = require("./coins.js");
