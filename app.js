@@ -141,9 +141,9 @@ app.runOnStartup = function() {
 		indexes:[]
 	};
 
-	if (fs.existsSync("credentials.json")) {
-		if (fs.existsSync(".debugAdminPassword")) {
-			global.adminPassword = fs.readFileSync(".debugAdminPassword", "utf8");
+	if (fs.existsSync(path.join(process.cwd(), "credentials.json"))) {
+		if (fs.existsSync(path.join(process.cwd(), ".debugAdminPassword"))) {
+			global.adminPassword = fs.readFileSync(path.join(process.cwd(), ".debugAdminPassword"), "utf8");
 		}
 
 		global.adminCredentials = utils.loadAdminCredentials(global.adminPassword);
