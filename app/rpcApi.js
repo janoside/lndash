@@ -89,7 +89,9 @@ function connect(rpcConfig, index) {
 
 			lndConnection.GetInfo({}, function(err, response) {
 				if (err) {
-					console.log("Error 3208r2ugddsh: Failed connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC: " + err + ", error json: " + JSON.stringify(err));
+					utils.logError("3208r2ugddsh", err, {rpcConfig:rpcConfig, rpcConfigIndex:index});
+
+					console.log("Error 3208r2ugddsh: Failed connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port);
 
 					reject(err);
 
@@ -97,8 +99,8 @@ function connect(rpcConfig, index) {
 				}
 
 				if (response == null) {
-					console.log("Error 923ehrfheu: Failed connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC: null response");
-
+					utils.logError("923ehrfheu", `Failed connecting to LND @ ${rpcConfig.host}:${rpcConfig.port} via RPC: null GetInfo response`);
+					
 					reject("No response for node.getInfo()");
 					
 					return;
@@ -224,15 +226,15 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 	return new Promise(function(resolve, reject) {
 		lndRpc.describeGraph({include_unannounced:true}, function(err, describeGraphResponse) {
 			if (err) {
-				console.log("Error 2397gr2039rf6g2: " + err + ", error json: " + JSON.stringify(err));
-
+				utils.logError("2397gr2039rf6g2", err);
+				
 				reject(err);
 
 				return;
 			}
 
 			if (describeGraphResponse == null) {
-				console.log("Error 23ufhg024ge: null describeGraph response");
+				utils.logError("23ufhg024ge", "null describeGraph response");
 
 				pendingFNDRequest = false;
 
@@ -257,7 +259,7 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 					promises.push(new Promise(function(resolveInner, rejectInner) {
 						lndRpc.getNodeInfo({pub_key:node.pub_key}, function(err2, nodeInfoResponse) {
 							if (err2) {
-								console.log("Error 312r9ygef9y: " + err2);
+								utils.logError("312r9ygef9y", err2);
 							}
 
 							nodeInfoByPubkey[node.pub_key] = nodeInfoResponse;
