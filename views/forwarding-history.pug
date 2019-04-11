@@ -381,7 +381,6 @@ block content
 											th Channel
 											th.text-right Payments
 											th.text-right Value Transferred
-											th.text-right Fees Collected
 											
 
 									tbody
@@ -407,13 +406,6 @@ block content
 												td.text-right
 													- var currencyValue = new Decimal(channelForwardingInfo.totalValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 													include includes/value-display.pug
-
-												td.text-right
-													div.text-success
-														span +
-
-														- var currencyValue = new Decimal(channelForwardingInfo.totalFees).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-														include includes/value-display.pug
 
 
 		else

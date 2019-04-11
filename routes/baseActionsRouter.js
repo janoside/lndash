@@ -963,18 +963,19 @@ router.get("/forwarding-history", function(req, res) {
 		var inChannelsById = {};
 		var outChannelsById = {};
 		allFilteredEvents.forEach(function(event) {
-			var valueTransferred = parseInt(event.amt_in);
+			var valueTransferredIn = parseInt(event.amt_in);
+			var valueTransferredOut = parseInt(event.amt_out);
 			var fee = parseInt(event.fee);
 
-			totalValueTransferred += valueTransferred;
+			totalValueTransferred += valueTransferredIn;
 			totalFees += fee;
 
 			if (fee > maxFee) {
 				maxFee = fee;
 			}
 
-			if (valueTransferred > maxValueTransferred) {
-				maxValueTransferred = valueTransferred;
+			if (valueTransferredIn > maxValueTransferred) {
+				maxValueTransferred = valueTransferredIn;
 			}
 
 
@@ -983,7 +984,7 @@ router.get("/forwarding-history", function(req, res) {
 			}
 
 			inChannelsById[event.chan_id_in].totalFees += fee;
-			inChannelsById[event.chan_id_in].totalValueTransferred += valueTransferred;
+			inChannelsById[event.chan_id_in].totalValueTransferred += valueTransferredIn;
 			inChannelsById[event.chan_id_in].eventCount++;
 
 
@@ -992,7 +993,7 @@ router.get("/forwarding-history", function(req, res) {
 			}
 
 			outChannelsById[event.chan_id_out].totalFees += fee;
-			outChannelsById[event.chan_id_out].totalValueTransferred += valueTransferred;
+			outChannelsById[event.chan_id_out].totalValueTransferred += valueTransferredOut;
 			outChannelsById[event.chan_id_out].eventCount++;
 		});
 
