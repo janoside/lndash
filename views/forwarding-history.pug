@@ -99,19 +99,19 @@ block content
 								div.summary-table-label Fees Collected
 								div.summary-table-content
 									div.clearfix
-										div.float-left.mr-5
+										div.float-left(style="width: 6rem;")
 											div.font-weight-bold Total
 											div.text-monospace
 												- var currencyValue = new Decimal(totalFees).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 												include includes/value-display.pug
 
-										div.float-left.mr-5
+										div.float-left(style="width: 6rem;")
 											div.font-weight-bold Max
 											div.text-monospace
 												- var currencyValue = new Decimal(maxFee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 												include includes/value-display.pug
 
-										div.float-left.mr-5
+										div.float-left(style="width: 6rem;")
 											div.font-weight-bold Average
 											div.text-monospace
 												- var currencyValue = new Decimal(avgFee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
@@ -120,19 +120,19 @@ block content
 								div.summary-table-label Value Transferred
 								div.summary-table-content
 									div.clearfix
-										div.float-left.mr-5
+										div.float-left(style="width: 6rem;")
 											div.font-weight-bold Total
 											div.text-monospace
 												- var currencyValue = new Decimal(totalValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 												include includes/value-display.pug
 
-										div.float-left.mr-5
+										div.float-left(style="width: 6rem;")
 											div.font-weight-bold Max
 											div.text-monospace
 												- var currencyValue = new Decimal(maxValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 												include includes/value-display.pug
 
-										div.float-left.mr-5
+										div.float-left(style="width: 6rem;")
 											div.font-weight-bold Average
 											div.text-monospace
 												- var currencyValue = new Decimal(avgValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);

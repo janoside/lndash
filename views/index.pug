@@ -182,7 +182,7 @@ block content
 								div.summary-split-table-content
 									div.clearfix
 										
-										div.float-left.mr-5
+										div.float-left(style="width: 8rem;")
 											div.font-weight-bold Local
 
 											div.text-monospace
@@ -192,7 +192,7 @@ block content
 												include includes/value-display.pug
 												div.text-muted #{localBalancePercent.toDP(1)}%
 
-										div.float-left.mr-5
+										div.float-left(style="width: 8rem;")
 											div.font-weight-bold Remote
 
 											div.text-monospace
@@ -243,10 +243,10 @@ block content
 							div.summary-split-table-label Out Degree
 							div.summary-split-table-content.text-monospace
 								div.clearfix
-									div.float-left.mr-5
+									div.float-left(style="width: 8rem;")
 										div.font-weight-bold Average
 										div #{new Decimal(networkInfo.avg_out_degree).toDP(2)}
-									div.float-left.mr-5
+									div.float-left(style="width: 8rem;")
 										div.font-weight-bold Max
 										div #{new Decimal(networkInfo.max_out_degree).toDP(2)}
 
@@ -255,13 +255,13 @@ block content
 								span.border-dotted(title="Min/max allowable channel sizes" data-toggle="tooltip") Channel Sizes
 							div.summary-split-table-content.text-monospace
 								div.clearfix
-									div.float-left.mr-5
+									div.float-left(style="width: 8rem;")
 										div.font-weight-bold Min
 										div
 											- var currencyValue = new Decimal(networkInfo.min_channel_size).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 											include includes/value-display.pug
 
-									div.float-left.mr-5
+									div.float-left(style="width: 8rem;")
 										div.font-weight-bold Max
 										div
 											- var currencyValue = new Decimal(networkInfo.max_channel_size).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
