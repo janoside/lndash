@@ -58,14 +58,14 @@ block content
 
 	else
 
-		ul(class='nav nav-tabs mb-3')
-			li(class="nav-item")
-				a(data-toggle="tab", href="#tab-details", class="nav-link active", role="tab") Details
-			li(class="nav-item")
-				a(data-toggle="tab", href="#tab-json", class="nav-link", role="tab") JSON
+		ul.nav.nav-tabs.mb-3
+			li.nav-item
+				a.nav-link.active(data-toggle="tab" href="#tab-details" role="tab") Details
+			li.nav-item
+				a.nav-link(data-toggle="tab"  href="#tab-json" role="tab") JSON
 
-		div(class="tab-content")
-			div(id="tab-details", class="tab-pane active", role="tabpanel")
+		div.tab-content
+			div.tab-pane.active(id="tab-details" role="tabpanel")
 				div.card.mb-3.shadow-sm
 					div.card-header
 						h2.h6.mb-0 Summary
