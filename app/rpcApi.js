@@ -1,3 +1,6 @@
+var debug = require("debug");
+var debugLog = debug("lnd-admin:rpc");
+
 var utils = require("./utils.js");
 var fs = require("fs");
 var grpc = require("grpc");
@@ -13,7 +16,7 @@ var localClosedChannels = null;
 var localPendingChannels = null;
 
 function connect(rpcConfig, index) {
-	console.log(`Connecting to LND Node: ${rpcConfig}`);
+	debugLog(`Connecting to LND Node: ${rpcConfig}`);
 
 	return new Promise(function(resolve, reject) {
 		// Ref: https://github.com/lightningnetwork/lnd/blob/master/docs/grpc/javascript.md
@@ -38,13 +41,13 @@ function connect(rpcConfig, index) {
 			var m = fs.readFileSync(rpcConfig.adminMacaroonFilepath);
 			macaroon = m.toString('hex');
 
-			//console.log("macHex: " + macaroon);
+			//debugLog("macHex: " + macaroon);
 
 			//  Lnd cert is at ~/.lnd/tls.cert on Linux and
 			//  ~/Library/Application Support/Lnd/tls.cert on Mac
 			lndCert = fs.readFileSync(rpcConfig.tlsCertFilepath);
 
-			//console.log("fileInput.cert: " + lndCert);
+			//debugLog("fileInput.cert: " + lndCert);
 
 		} else if (rpcConfig.type == "rawTextInput") {
 			host = rpcConfig.host;
@@ -57,7 +60,7 @@ function connect(rpcConfig, index) {
 			var lndconnectString = rpcConfig.lndconnectString;
 			var parsedData = utils.parseLndconnectString(lndconnectString);
 
-			//console.log("lndconnectString.cert: " + parsedData.tlsCertAscii);
+			//debugLog("lndconnectString.cert: " + parsedData.tlsCertAscii);
 
 			host = parsedData.host;
 			port = parsedData.port;
@@ -83,7 +86,7 @@ function connect(rpcConfig, index) {
 			var lnrpc = lnrpcDescriptor.lnrpc;
 
 			// uncomment to print available function of RPC protocol
-			//console.log(lnrpc);
+			//debugLog(lnrpc);
 
 			var lndConnection = new lnrpc.Lightning(`${host}:${port}`, credentials, {'grpc.max_receive_message_length': 50*1024*1024});
 
@@ -91,7 +94,7 @@ function connect(rpcConfig, index) {
 				if (err) {
 					utils.logError("3208r2ugddsh", err, {rpcConfig:rpcConfig, rpcConfigIndex:index});
 
-					console.log("Error 3208r2ugddsh: Failed connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port);
+					debugLog("Error 3208r2ugddsh: Failed connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port);
 
 					reject(err);
 
@@ -107,7 +110,7 @@ function connect(rpcConfig, index) {
 				}
 
 				if (response != null) {
-					console.log("Connected to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC.\n\nGetInfo=" + JSON.stringify(response, null, 4));
+					debugLog("Connected to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC.\n\nGetInfo=" + JSON.stringify(response, null, 4));
 				}
 
 				global.lndConnections.byIndex[index] = lndConnection;
@@ -155,7 +158,7 @@ function connectAllNodes() {
 
 			promises.push(new Promise(function(resolveInner, rejectInner) {
 				connect(rpcConfig, index).then(function(response) {
-					console.log("RPC connected: " + response.index);
+					debugLog("RPC connected: " + response.index);
 
 					if (response.index == 0) {
 						refreshLocalChannels();
@@ -221,7 +224,7 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 
 	var startTime = new Date();
 
-	console.log("Refreshing network description...");
+	debugLog("Refreshing network description...");
 	
 	return new Promise(function(resolve, reject) {
 		lndRpc.describeGraph({include_unannounced:true}, function(err, describeGraphResponse) {
@@ -254,7 +257,7 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 			var promises = [];
 			describeGraphResponse.nodes.forEach(function(node) {
 				if (true || forceRefresh || node.last_update * 1000 > fullNetworkDescriptionDate.getTime()) {
-					//console.log("Refreshing node details: " + node.last_update + " - " + fullNetworkDescriptionDate.getTime());
+					//debugLog("Refreshing node details: " + node.last_update + " - " + fullNetworkDescriptionDate.getTime());
 
 					promises.push(new Promise(function(resolveInner, rejectInner) {
 						lndRpc.getNodeInfo({pub_key:node.pub_key}, function(err2, nodeInfoResponse) {
@@ -274,7 +277,7 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 				fullNetworkDescription = compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey);
 				fullNetworkDescriptionDate = new Date();
 
-				console.log("Finished refreshing network description; elapsed time: " + (new Date().getTime() - startTime.getTime()));
+				debugLog("Finished refreshing network description; elapsed time: " + (new Date().getTime() - startTime.getTime()));
 
 				pendingFNDRequest = false;
 
@@ -416,7 +419,7 @@ function getLocalPendingChannels(acceptCachedValues=false) {
 function refreshLocalChannels() {
 	var startTime = new Date();
 
-	console.log("Refreshing local channels...");
+	debugLog("Refreshing local channels...");
 	
 	return new Promise(function(resolve, reject) {
 		lndRpc.ListChannels({}, function(err, listChannelsResponse) {
@@ -452,7 +455,7 @@ function refreshLocalChannels() {
 			localChannels.byId = byId;
 			localChannels.byTxid = byTxid;
 
-			console.log("Finished refreshing local channels; elapsed time: " + (new Date().getTime() - startTime.getTime()));
+			debugLog("Finished refreshing local channels; elapsed time: " + (new Date().getTime() - startTime.getTime()));
 
 			resolve(localChannels);
 		});
@@ -462,7 +465,7 @@ function refreshLocalChannels() {
 function refreshLocalClosedChannels() {
 	var startTime = new Date();
 
-	console.log("Refreshing closed channels...");
+	debugLog("Refreshing closed channels...");
 	
 	return new Promise(function(resolve, reject) {
 		lndRpc.ClosedChannels({}, function(err, closedChannelsResponse) {
@@ -498,9 +501,9 @@ function refreshLocalClosedChannels() {
 			localClosedChannels.byId = byId;
 			localClosedChannels.byTxid = byTxid;
 
-			//console.log("Closed channels: " + JSON.stringify(localClosedChannels, null, 4));
+			//debugLog("Closed channels: " + JSON.stringify(localClosedChannels, null, 4));
 
-			console.log("Finished refreshing closed channels; elapsed time: " + (new Date().getTime() - startTime.getTime()));
+			debugLog("Finished refreshing closed channels; elapsed time: " + (new Date().getTime() - startTime.getTime()));
 
 			resolve(localClosedChannels);
 		});
@@ -510,7 +513,7 @@ function refreshLocalClosedChannels() {
 function refreshLocalPendingChannels() {
 	var startTime = new Date();
 
-	console.log("Refreshing pending channels...");
+	debugLog("Refreshing pending channels...");
 	
 	return new Promise(function(resolve, reject) {
 		lndRpc.PendingChannels({}, function(err, pendingChannelsResponse) {
@@ -562,7 +565,7 @@ function refreshLocalPendingChannels() {
 
 			localPendingChannels = pendingChannels;
 
-			console.log("Finished refreshing pending channels; elapsed time: " + (new Date().getTime() - startTime.getTime()));
+			debugLog("Finished refreshing pending channels; elapsed time: " + (new Date().getTime() - startTime.getTime()));
 
 			resolve(localPendingChannels);
 		});
@@ -669,7 +672,7 @@ function decodeInvoiceString(invoiceStr) {
 }
 
 function payInvoice(invoiceStr) {
-	console.log("Sending payment for invoice: " + invoiceStr);
+	debugLog("Sending payment for invoice: " + invoiceStr);
 
 	return new Promise(function(resolve, reject) {
 		lndRpc.SendPaymentSync({payment_request:invoiceStr}, function(err, response) {
@@ -687,7 +690,7 @@ function payInvoice(invoiceStr) {
 }
 
 function sendPayment(destPubkey, amountSat) {
-	console.log("Sending payment: dest=" + destPubkey + ", amt=" + amountSat);
+	debugLog("Sending payment: dest=" + destPubkey + ", amt=" + amountSat);
 
 	return new Promise(function(resolve, reject) {
 		lndRpc.SendPaymentSync({dest_string:destPubkey, amt:amountSat}, function(err, response) {
@@ -877,6 +880,8 @@ function queryRoute(targetPubkey, amountSat) {
 }
 
 function getForwardingHistory(startTime, endTime, limit, offset) {
+	debugLog("getForwardingHistory(%d, %d, %d, %d)", startTime, endTime, limit, offset);
+
 	return new Promise(function(resolve, reject) {
 		lndRpc.ForwardingHistory({start_time:startTime, end_time:endTime, index_offset:offset, num_max_events:limit}, function(err, response) {
 			if (err) {
@@ -930,7 +935,7 @@ function updateChannelPolicies(txid, txOutputIndex, newPolicies) {
 	var params = JSON.parse(JSON.stringify(newPolicies));
 	params.chan_point = {funding_txid_str:txid, output_index:txOutputIndex};
 
-	console.log("policies: " + JSON.stringify(params, null, 4));
+	debugLog("policies: " + JSON.stringify(params, null, 4));
 
 	return new Promise(function(resolve, reject) {
 		lndRpc.UpdateChannelPolicy(params, function(err, response) {

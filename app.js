@@ -2,11 +2,23 @@
 
 'use strict';
 
-require('dotenv').config();
-
 var os = require('os');
-var express = require('express');
 var path = require('path');
+var dotenv = require("dotenv");
+var fs = require('fs');
+
+var configPaths = [ path.join(os.homedir(), '.lnd-admin', '.env'), path.join(process.cwd(), '.env') ];
+configPaths.filter(fs.existsSync).forEach(path => {
+	console.log('Loading env file:', path);
+	dotenv.config({ path });
+});
+
+// debug module is already loaded by the time we do dotenv.config
+// so refresh the status of DEBUG env var
+var debug = require("debug");
+debug.enable(process.env.DEBUG);
+
+var express = require('express');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
@@ -18,7 +30,6 @@ var utils = require("./app/utils.js");
 var moment = require("moment");
 var Decimal = require('decimal.js');
 var grpc = require("grpc");
-var fs = require("fs");
 var pug = require("pug");
 var momentDurationFormat = require("moment-duration-format");
 var coins = require("./app/coins.js");

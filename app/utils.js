@@ -1,3 +1,7 @@
+var debug = require("debug");
+var debugLog = debug("lnd-admin:app");
+var debugLogError = debug("lnd-admin:error");
+
 var Decimal = require("decimal.js");
 var request = require("request");
 var qrcode = require("qrcode");
@@ -173,7 +177,7 @@ function logMemoryUsage() {
 	var mbTotal = process.memoryUsage().heapTotal / 1024 / 1024;
 	mbTotal = Math.round(mbTotal * 100) / 100;
 
-	//console.log("memoryUsage: heapUsed=" + mbUsed + ", heapTotal=" + mbTotal + ", ratio=" + parseInt(mbUsed / mbTotal * 100));
+	//debugLog("memoryUsage: heapUsed=" + mbUsed + ", heapTotal=" + mbTotal + ", ratio=" + parseInt(mbUsed / mbTotal * 100));
 }
 
 function getMinerFromCoinbaseTx(tx) {
@@ -233,7 +237,7 @@ function getTxTotalInputOutputValues(tx, txInputs, blockHeight) {
 							totalInputValue = totalInputValue.plus(new Decimal(vout.value));
 						}
 					} catch (err) {
-						console.log("Error getting tx.totalInputValue: err=" + err + ", txid=" + tx.txid + ", index=tx.vin[" + i + "]");
+						debugLog("Error getting tx.totalInputValue: err=" + err + ", txid=" + tx.txid + ", index=tx.vin[" + i + "]");
 					}
 				}
 			}
@@ -243,7 +247,7 @@ function getTxTotalInputOutputValues(tx, txInputs, blockHeight) {
 			totalOutputValue = totalOutputValue.plus(new Decimal(tx.vout[i].value));
 		}
 	} catch (err) {
-		console.log("Error computing total input/output values for tx: err=" + err + ", tx=" + JSON.stringify(tx) + ", txInputs=" + JSON.stringify(txInputs) + ", blockHeight=" + blockHeight);
+		debugLog("Error computing total input/output values for tx: err=" + err + ", tx=" + JSON.stringify(tx) + ", txInputs=" + JSON.stringify(txInputs) + ", blockHeight=" + blockHeight);
 	}
 
 	return {input:totalInputValue, output:totalOutputValue};
@@ -278,16 +282,16 @@ function refreshExchangeRates() {
 					global.exchangeRates = exchangeRates;
 					global.exchangeRatesUpdateTime = new Date();
 
-					console.log("Using exchange rates: " + JSON.stringify(global.exchangeRates) + " starting at " + global.exchangeRatesUpdateTime);
+					debugLog("Using exchange rates: " + JSON.stringify(global.exchangeRates) + " starting at " + global.exchangeRatesUpdateTime);
 
 				} else {
-					console.log("Unable to get exchange rate data");
+					debugLog("Unable to get exchange rate data");
 				}
 			} else {
-				console.log("Error:");
-				console.log(error);
-				console.log("Response:");
-				console.log(response);
+				debugLog("Error 320hsd0uhsg07gs07:");
+				debugLog(error);
+				debugLog("Response:");
+				debugLog(response);
 			}
 		});
 	}
@@ -427,10 +431,10 @@ function logError(errorId, err, optionalUserData = null) {
 		global.errorLog.splice(0, 1);
 	}
 
-	console.log("Error " + errorId + ": " + err + ", json: " + JSON.stringify(err) + (optionalUserData != null ? (", userData: " + optionalUserData + " (json: " + JSON.stringify(optionalUserData) + ")") : ""));
+	debugLogError("Error " + errorId + ": " + err + ", json: " + JSON.stringify(err) + (optionalUserData != null ? (", userData: " + optionalUserData + " (json: " + JSON.stringify(optionalUserData) + ")") : ""));
 	
 	if (err.stack) {
-		console.log("Stack: " + err.stack);
+		debugLogError("Stack: " + err.stack);
 	}
 }
 
