@@ -40,6 +40,9 @@ else
 				- var node_alias = card_node.alias;
 				include ./node-alias.pug
 
+				if (card_node.pubkey == lndRpc.internal_pubkey)
+					i.fa.fa-certificate.ml-2.text-primary(title="This is your LND Node" data-toggle="tooltip")
+
 			else
 				a(href=`/node/${card_node_pubkey}`, title=card_node_pubkey, data-toggle="tooltip")
 					include ./node-pubkey.pug
