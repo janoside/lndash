@@ -1,6 +1,6 @@
 {
   "name": "lnd-admin",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "private": false,
   "bin": "bin/cli.js",
   "scripts": {
