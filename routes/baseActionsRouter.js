@@ -200,30 +200,71 @@ router.get("/channel/:channelId", function(req, res) {
 	res.locals.blockTxIndex = parseInt(utils.binaryToDecimal(channelIdBinary.substring(24, 48)));
 	res.locals.txOutputIndex = parseInt(utils.binaryToDecimal(channelIdBinary.substring(48)));
 
-	rpcApi.getFullNetworkDescription(true).then(function(fnd) {
-		res.locals.fullNetworkDescription = fnd;
+	var promises = [];
 
-		res.locals.channel = fnd.channelsById[channelId];
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getChannelInfo(channelId).then(function(channelInfo) {
+			res.locals.channel = channelInfo;
 
-		if (res.locals.channel == null) {
-			res.render("channel");
+			if (res.locals.channel.node1_pub == lndRpc.internal_pubkey) {
+				res.locals.baseFeeMsat = res.locals.channel.node1_policy.fee_base_msat;
+				res.locals.feeRateMilliMsat = res.locals.channel.node1_policy.fee_rate_milli_msat;
+				res.locals.timeLockDelta = res.locals.channel.node1_policy.time_lock_delta;
 
-			return;
-		}
+			} else if (res.locals.channel.node2_pub == lndRpc.internal_pubkey) {
+				res.locals.baseFeeMsat = res.locals.channel.node2_policy.fee_base_msat;
+				res.locals.feeRateMilliMsat = res.locals.channel.node2_policy.fee_rate_milli_msat;
+				res.locals.timeLockDelta = res.locals.channel.node2_policy.time_lock_delta;
+			}
 
-		res.locals.node1 = fnd.nodeInfoByPubkey[res.locals.channel.node1_pub];
-		res.locals.node2 = fnd.nodeInfoByPubkey[res.locals.channel.node2_pub];
+			resolve();
 
+		}).catch(function(err) {
+			utils.logError("2308hwdcshs", err);
+
+			reject(err);
+		});
+	}));
+
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getFullNetworkDescription(true).then(function(fnd) {
+			res.locals.fullNetworkDescription = fnd;
+
+			resolve();
+
+		}).catch(function(err) {
+			utils.logError("329r7h07gsss", err);
+
+			reject(err);
+		});
+	}));
+
+	promises.push(new Promise(function(resolve, reject) {
 		rpcApi.getLocalChannels().then(function(localChannels) {
 			res.locals.localChannels = localChannels;
 
-			res.render("channel");
+			resolve();
 
 		}).catch(function(err) {
 			utils.logError("37921hdasudfgd", err);
 
-			res.render("channel");
+			reject(err);
 		});
+	}));
+	
+
+	Promise.all(promises).then(function() {
+		if (res.locals.channel != null) {
+			res.locals.node1 = res.locals.fullNetworkDescription.nodeInfoByPubkey[res.locals.channel.node1_pub];
+			res.locals.node2 = res.locals.fullNetworkDescription.nodeInfoByPubkey[res.locals.channel.node2_pub];
+		}
+
+		res.render("channel");
+
+	}).catch(function(err) {
+		utils.logError("397hgsd90gs7gs", err);
+
+		res.render("channel");
 	});
 });
 
@@ -2297,6 +2338,54 @@ router.post("/close-channel", function(req, res) {
 		utils.logError("sadfh9g3249r6ywegs", err);
 
 		console.log("closeChannelError: " + JSON.stringify(err));
+
+		res.json(err);
+	});
+});
+
+router.post("/update-channel-policies", function(req, res) {
+	var txid = req.body.txid;
+	var txOutput = parseInt(req.body.txOutput);
+
+	if (!req.body.baseFeeMsat) {
+		res.json({success:false, error:"Missing required parameter: Base fee"});
+
+		return;
+	}
+
+	if (!req.body.feeRateMilliMsat) {
+		res.json({success:false, error:"Missing required parameter: Fee rate"});
+
+		return;
+	}
+
+	if (!req.body.timeLockDelta) {
+		res.json({success:false, error:"Missing required parameter: Time lock delta"});
+
+		return;
+	}
+
+	var baseFeeMsat = parseInt(req.body.baseFeeMsat);
+	var feeRateMilliMsat = parseInt(req.body.feeRateMilliMsat);
+	var timeLockDelta = parseInt(req.body.timeLockDelta);
+
+	var channelPolicies = {
+		base_fee_msat: baseFeeMsat,
+		fee_rate: feeRateMilliMsat * 0.000001,
+		time_lock_delta: timeLockDelta
+	};
+
+	rpcApi.updateChannelPolicies(txid, txOutput, channelPolicies).then(function(response) {
+		rpcApi.refreshLocalChannels();
+
+		console.log("updateChannelPoliciesResponse: " + JSON.stringify(response));
+
+		res.json(response);
+
+	}).catch(function(err) {
+		utils.logError("sadfh9g3249r6ywegs", err);
+
+		console.log("updateChannelPoliciesError: " + JSON.stringify(err));
 
 		res.json(err);
 	});

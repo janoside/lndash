@@ -736,6 +736,22 @@ function getChannelBalance() {
 	});
 }
 
+function getChannelInfo(channelId) {
+	return new Promise(function(resolve, reject) {
+		lndRpc.GetChanInfo({chan_id:channelId}, function(err, response) {
+			if (err) {
+				utils.logError("32r97sdghsgsss", err);
+
+				reject(err);
+
+				return;
+			}
+
+			resolve(response);
+		});
+	});
+}
+
 function getOnChainTransactions() {
 	return new Promise(function(resolve, reject) {
 		lndRpc.GetTransactions({}, function(err, response) {
@@ -908,6 +924,27 @@ function getNewDepositAddress(addressType) {
 	});
 }
 
+function updateChannelPolicies(txid, txOutputIndex, newPolicies) {
+	var params = JSON.parse(JSON.stringify(newPolicies));
+	params.chan_point = {funding_txid_str:txid, output_index:txOutputIndex};
+
+	console.log("policies: " + JSON.stringify(params, null, 4));
+
+	return new Promise(function(resolve, reject) {
+		lndRpc.UpdateChannelPolicy(params, function(err, response) {
+			if (err) {
+				utils.logError("0y78df078hgd0asdf", err);
+
+				reject(err);
+
+				return;
+			}
+
+			resolve(response);
+		});
+	});
+}
+
 /**
  - addressValueStr: bc1address1a2b3c:[all|12345],...
  - speedType: [target_conf|sat_per_byte]
@@ -992,8 +1029,9 @@ module.exports = {
 	listPayments: listPayments,
 	getNetworkInfo: getNetworkInfo,
 
-	getChannelBalance,
-	getWalletBalance,
+	getChannelBalance: getChannelBalance,
+	getChannelInfo: getChannelInfo,
+	getWalletBalance: getWalletBalance,
 	getWalletUtxos: getWalletUtxos,
 
 	openChannel: openChannel,
@@ -1015,5 +1053,7 @@ module.exports = {
 	getForwardingHistory: getForwardingHistory,
 
 	getNewDepositAddress: getNewDepositAddress,
-	sendCoins: sendCoins
+	sendCoins: sendCoins,
+
+	updateChannelPolicies: updateChannelPolicies
 };
