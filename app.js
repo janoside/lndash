@@ -151,7 +151,7 @@ app.runOnStartup = function() {
 
 	if (fs.existsSync(path.join(global.userDataDir, "credentials.json"))) {
 		if (fs.existsSync(path.join(global.userDataDir, ".debugAdminPassword"))) {
-			global.adminPassword = fs.readFileSync(path.join(global.userDataDir, ".debugAdminPassword"), "utf8");
+			global.adminPassword = fs.readFileSync(path.join(global.userDataDir, ".debugAdminPassword"), "utf8").trim();
 		}
 
 		global.adminCredentials = utils.loadAdminCredentials(global.adminPassword);
