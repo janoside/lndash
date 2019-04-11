@@ -1,23 +1,24 @@
 - var cutoffs = [12, 16];
+- var aliasChars = runes(node_alias);
 
-if (node_alias.length > 0)
-	if (node_alias.length > cutoffs[0])
-		if (node_alias.length > cutoffs[1])
-			if (node_alias.length > config.site.aliasMaxDisplayLength)
+if (aliasChars.length > 0)
+	if (aliasChars.length > cutoffs[0])
+		if (aliasChars.length > cutoffs[1])
+			if (aliasChars.length > config.site.aliasMaxDisplayLength)
 				span.mr-1
-					span #{node_alias.substring(0, cutoffs[0])}
-					span.d-none.d-lg-inline #{node_alias.substring(cutoffs[0], cutoffs[1])}
-					span.d-none.d-xl-inline #{node_alias.substring(cutoffs[1], config.site.aliasMaxDisplayLength)}
+					span #{aliasChars.slice(0, cutoffs[0]).join("")}
+					span.d-none.d-lg-inline #{aliasChars.slice(cutoffs[0], cutoffs[1]).join("")}
+					span.d-none.d-xl-inline #{aliasChars.slice(cutoffs[1], config.site.aliasMaxDisplayLength).join("")}
 
 				i.fas.fa-ellipsis-h(title=node_alias, data-toggle="tooltip")
 
 			else
-				span #{node_alias.substring(0, cutoffs[0])}
-				span.d-none.d-lg-inline #{node_alias.substring(cutoffs[0], cutoffs[1])}
-				span.d-none.d-xl-inline #{node_alias.substring(cutoffs[1])}
+				span #{aliasChars.slice(0, cutoffs[0]).join("")}
+				span.d-none.d-lg-inline #{aliasChars.slice(cutoffs[0], cutoffs[1]).join("")}
+				span.d-none.d-xl-inline #{aliasChars.slice(cutoffs[1]).join("")}
 		else
-			span #{node_alias.substring(0, cutoffs[0])}
-			span.d-none.d-lg-inline #{node_alias.substring(cutoffs[0])}
+			span #{aliasChars.slice(0, cutoffs[0]).join("")}
+			span.d-none.d-lg-inline #{aliasChars.slice(cutoffs[0]).join("")}
 	else
 		span #{node_alias}
 	

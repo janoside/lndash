@@ -36,6 +36,7 @@ var coins = require("./app/coins.js");
 var request = require("request");
 var qrcode = require("qrcode");
 var rpcApi = require("./app/rpcApi.js");
+var runes = require("runes");
 
 
 var crawlerBotUserAgentStrings = [ "Googlebot", "Bingbot", "Slurp", "DuckDuckBot", "Baiduspider", "YandexBot", "Sogou", "Exabot", "facebot", "ia_archiver" ];
@@ -380,6 +381,7 @@ app.use(function(err, req, res, next) {
 app.locals.moment = moment;
 app.locals.Decimal = Decimal;
 app.locals.utils = utils;
+app.locals.runes = runes;
 
 
 
