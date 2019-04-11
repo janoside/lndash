@@ -809,12 +809,11 @@ router.post("/query-route", function(req, res) {
 });
 
 router.get("/forwarding-history", function(req, res) {
-	var startTime = new Date().getTime() / 1000 - 30 * 24 * 60 * 60;
-	var endTime = new Date().getTime() / 1000;
 	var limit = 20;
 	var offset = 0;
 	var sort = "date-desc";
 	var daterange = "30d";
+	var tab = "summary";
 
 	if (req.query.limit) {
 		limit = parseInt(req.query.limit);
@@ -832,17 +831,26 @@ router.get("/forwarding-history", function(req, res) {
 		daterange = req.query.daterange;
 	}
 
+	if (req.query.tab) {
+		tab = req.query.tab;
+	}
+
 	res.locals.limit = limit;
 	res.locals.offset = offset;
 	res.locals.sort = sort;
 	res.locals.daterange = daterange;
+	res.locals.tab = tab;
+	res.locals.paginationBaseUrl = `/forwarding-history?sort=${sort}&daterange=${daterange}&tab=${tab}`;
+
+	var startTime = new Date().getTime() / 1000 - 30 * 24 * 60 * 60;
+	var endTime = new Date().getTime() / 1000;
 
 	if (daterange == "all") {
-		startTime = 1491766829;
+		startTime = 1491766829; // magic #, before LN existed
 		endTime = new Date().getTime() / 1000;
 
 	} else {
-		var times = [{abbr:"m", dur:60}, {abbr:"h", dur:60*60}, {abbr:"d", dur:24*60*60}];
+		var times = [{abbr:"m", dur:60}, {abbr:"h", dur:60*60}, {abbr:"d", dur:24*60*60}, {abbr:"M", dur:30*24*60*60}, {abbr:"y", dur:365*24*60*60}];
 		for (var i = 0; i < times.length; i++) {
 			if (daterange.endsWith(times[i].abbr)) {
 				var t = parseInt(daterange.substring(0, daterange.length - 1));
@@ -874,7 +882,7 @@ router.get("/forwarding-history", function(req, res) {
 	}));*/
 
 	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getForwardingHistory(startTime, endTime, limit, offset).then(function(forwardingHistoryResponse) {
+		rpcApi.getForwardingHistory(startTime, endTime, 50000, 0).then(function(forwardingHistoryResponse) {
 			res.locals.forwardingHistoryResponse = forwardingHistoryResponse;
 
 			resolve();
@@ -935,24 +943,127 @@ router.get("/forwarding-history", function(req, res) {
 			return tDiff;
 		});
 
-		var pagedFilteredEvents = allEvents;
+		var pagedFilteredEvents = [];
+		for (var i = offset; i < Math.min(offset + limit, allFilteredEvents.length); i++) {
+			pagedFilteredEvents.push(allFilteredEvents[i]);
+		}
 
 		res.locals.allEvents = allEvents;
 		res.locals.allFilteredEvents = allFilteredEvents;
 		res.locals.pagedFilteredEvents = pagedFilteredEvents;
+		res.locals.allFilteredEventsCount = res.locals.forwardingHistoryResponse.last_offset_index;
 
 
 		var totalFees = 0;
 		var totalValueTransferred = 0;
-		allEvents.forEach(function(event) {
-			totalValueTransferred += parseInt(event.amt_in);
-			totalFees += parseInt(event.fee);
+		
+		var maxFee = 0;
+		var maxValueTransferred = 0;
+
+		var inChannelsById = {};
+		var outChannelsById = {};
+		allFilteredEvents.forEach(function(event) {
+			var valueTransferred = parseInt(event.amt_in);
+			var fee = parseInt(event.fee);
+
+			totalValueTransferred += valueTransferred;
+			totalFees += fee;
+
+			if (fee > maxFee) {
+				maxFee = fee;
+			}
+
+			if (valueTransferred > maxValueTransferred) {
+				maxValueTransferred = valueTransferred;
+			}
+
+
+			if (!inChannelsById[event.chan_id_in]) {
+				inChannelsById[event.chan_id_in] = {channelId:event.chan_id_in, totalFees:0, totalValueTransferred:0, eventCount:0};
+			}
+
+			inChannelsById[event.chan_id_in].totalFees += fee;
+			inChannelsById[event.chan_id_in].totalValueTransferred += valueTransferred;
+			inChannelsById[event.chan_id_in].eventCount++;
+
+
+			if (!outChannelsById[event.chan_id_out]) {
+				outChannelsById[event.chan_id_out] = {channelId:event.chan_id_out, totalFees:0, totalValueTransferred:0, eventCount:0};
+			}
+
+			outChannelsById[event.chan_id_out].totalFees += fee;
+			outChannelsById[event.chan_id_out].totalValueTransferred += valueTransferred;
+			outChannelsById[event.chan_id_out].eventCount++;
+		});
+
+		var inChannels = [];
+		for (var chanId in inChannelsById) {
+			if (inChannelsById.hasOwnProperty(chanId)) {
+				inChannels.push(inChannelsById[chanId]);
+			}
+		}
+
+		var outChannels = [];
+		for (var chanId in outChannelsById) {
+			if (outChannelsById.hasOwnProperty(chanId)) {
+				outChannels.push(outChannelsById[chanId]);
+			}
+		}
+
+		inChannels.sort(function(a, b) {
+			var aVal = a.totalValueTransferred;
+			var bVal = b.totalValueTransferred;
+			var valDiff = bVal - aVal;
+
+			var aFee = a.totalFees;
+			var bFee = b.totalFees;
+			var feeDiff = bFee - aFee;
+
+			var aEvents = a.eventCount;
+			var bEvents = b.eventCount;
+			var eventsDiff = bEvents - aEvents;
+
+			var chanIdDiff = ('' + a.channelId).localeCompare(b.channelId);
+
+			var sortFunc = function(val1, val2, val3) {
+				if (val1 == 0) {
+					if (val2 == 0) {
+						return val3;
+
+					} else {
+						return val2;
+					}
+				} else {
+					return val1;
+				}
+			};
+
+			if (sort == "valuetransfer-desc") {
+				return sortFunc(valDiff, feeDiff, chanIdDiff);
+
+			} else if (sort == "fees-desc") {
+				return sortFunc(feeDiff, valDiff, chanIdDiff);
+
+			} else if (sort == "eventcount-desc") {
+				return sortFunc(eventsDiff, valDiff, chanIdDiff);
+
+			} else if (sort == "channelId-asc") {
+				return sortFunc(chanIdDiff, valDiff, feeDiff);
+
+			} else {
+				return sortFunc(valDiff, feeDiff, chanIdDiff);
+			}
 		});
 
 		res.locals.totalFees = totalFees;
 		res.locals.totalValueTransferred = totalValueTransferred;
 		res.locals.avgFee = totalFees / allEvents.length;
 		res.locals.avgValueTransferred = totalValueTransferred / allEvents.length;
+		res.locals.maxFee = maxFee;
+		res.locals.maxValueTransferred = maxValueTransferred;
+
+		res.locals.inChannels = inChannels;
+		res.locals.outChannels = outChannels;
 
 
 		res.render("forwarding-history");
