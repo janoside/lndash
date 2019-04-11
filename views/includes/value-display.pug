@@ -1,7 +1,12 @@
-- var currencyFormatInfo = utils.getCurrencyFormatInfo(currencyFormatType);
+- var activeCurrencyFormatType = currencyFormatType;
+if (tempCurrencyFormatType)
+	- activeCurrencyFormatType = tempCurrencyFormatType;
+	- tempCurrencyFormatType = null;
+
+- var currencyFormatInfo = utils.getCurrencyFormatInfo(activeCurrencyFormatType);
 
 if (currencyValue > 0)
-	- var parts = utils.formatCurrencyAmount(currencyValue, currencyFormatType).split(" ");
+	- var parts = utils.formatCurrencyAmount(currencyValue, activeCurrencyFormatType).split(" ");
 
 	span.text-monospace #{parts[0]}
 		if (currencyFormatInfo.type == "native")

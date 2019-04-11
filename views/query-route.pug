@@ -62,36 +62,45 @@ block content
 		else if (queryRouteResponse)
 			hr.my-3
 
+			if (false)
+				pre
+					code.json #{JSON.stringify(queryRouteResponse, null, 4)}
+
 			div.alert.alert-success.shadow-sm Route Found
+
+			- var route = queryRouteResponse.routes[0];
+
+			div.card.shadow-sm.text-body.mb-3
+				div.card-header
+					h3.h6.mb-0 Summary
+				div.card-body
+					div.row
+						div.summary-table-label
+							span.border-dotted(title="The total amount to be transferred in milli-satoshis (the native unit on the lightning network), followed by the amount in your chosen unit" data-toggle="tooltip") Total Cost
+						div.summary-table-content.text-monospace
+							- var currencyValue = new Decimal(route.total_amt_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
+							- var tempCurrencyFormatType = "msat";
+							include includes/value-display.pug
+							br
+							span.text-muted
+								include includes/value-display.pug
+
+						div.summary-table-label Total Fees
+						div.summary-table-content.text-monospace.text-danger
+							- var currencyValue = new Decimal(route.total_fees_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
+							- var tempCurrencyFormatType = "msat";
+							include includes/value-display.pug
+
+						div.summary-table-label Total Timelock
+						div.summary-table-content.text-monospace #{route.total_time_lock.toLocaleString()}
+
+						div.summary-table-label Hops
+						div.summary-table-content.text-monospace #{route.hops.length.toLocaleString()}
 
 			div.card.shadow-sm.text-body
 				div.card-header
-					h3.h6.mb-0 Route
+					h3.h6.mb-0 Details
 				div.card-body
-
-					- var route = queryRouteResponse.routes[0];
-
-					div.clearfix
-						div.float-left.mr-4
-							span.font-weight-bold Total Cost: 
-							- var currencyValue = new Decimal(route.total_amt).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-							include includes/value-display.pug
-
-						div.float-left.mr-4
-							span.font-weight-bold Total Fees: 
-							- var currencyValue = new Decimal(route.total_fees).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-							include includes/value-display.pug
-
-						div.float-left.mr-4
-							span.font-weight-bold Total Timelock: 
-							span.text-monospace #{route.total_time_lock.toLocaleString()}
-
-						div.float-left.mr-4
-							span.font-weight-bold Hops: 
-							span.text-monospace #{route.hops.length.toLocaleString()}
-
-					hr.my-3(style="border-top: 1px solid rgba(0, 0, 0, 0.1);")
-
 					div.clearfix
 						div.card.text-body.shadow-sm.float-left.mr-3
 							div.card-header
@@ -137,6 +146,9 @@ block content
 										div.font-weight-bold Fees
 										
 										if (parseInt(hop.fee_msat) > 0)
-											span.text-danger.text-monospace +#{hop.fee_msat} msat
+											span.text-danger.text-monospace +
+												- var currencyValue = new Decimal(hop.fee_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
+												- var tempCurrencyFormatType = "msat";
+												include includes/value-display.pug
 										else
 											span.text-monospace.text-success 0

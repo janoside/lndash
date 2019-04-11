@@ -36,6 +36,22 @@ var currencyUnits = [
 		decimalPlaces:0
 	},
 	{
+		type:"native",
+		name:"msat",
+		active:true,
+		multiplier:100000000000,
+		values:["msat", "millisatoshi"],
+		decimalPlaces:0
+	},
+	{
+		type:"native",
+		name:"milli-msat",
+		active:true,
+		multiplier:100000000000000,
+		values:["milli-msat"],
+		decimalPlaces:0
+	},
+	{
 		type:"exchanged",
 		name:"USD",
 		multiplier:"usd",
@@ -68,7 +84,7 @@ module.exports = {
 	],
 	maxBlockWeight: 4000000,
 	currencyUnits:currencyUnits,
-	currencyUnitsByName:{"BTC":currencyUnits[0], "mBTC":currencyUnits[1], "bits":currencyUnits[2], "sat":currencyUnits[3]},
+	currencyUnitsByName:{"BTC":currencyUnits[0], "mBTC":currencyUnits[1], "bits":currencyUnits[2], "sat":currencyUnits[3], "msat":currencyUnits[4], "milli-msat":currencyUnits[5]},
 	baseCurrencyUnit:currencyUnits[3],
 	defaultCurrencyUnit:currencyUnits[0],
 	feeSatoshiPerByteBucketMaxima: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 50, 75, 100, 150],
