@@ -121,9 +121,11 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 														br
 														span.font-weight-bold Version: 
 														- var versionParts = lndConn.internal_version.split(" ");
-														span.text-monospace.word-wrap #{versionParts[0]}
+
 														if (versionParts.length > 0)
-															i.ml-1.fas.fa-ellipsis-h(title=lndConn.internal_version data-toggle="tooltip")
+															span.text-monospace.word-wrap.border-dotted(title=lndConn.internal_version data-toggle="tooltip") #{versionParts[0]}
+														else
+															span.text-monospace.word-wrap #{versionParts[0]}
 
 											div.dropdown-divider
 
