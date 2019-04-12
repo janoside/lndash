@@ -18,7 +18,7 @@ block content
 	if (session.hideSearchNote)
 		// show nothing
 	else
-		div(class="alert alert-primary alert-dismissible shadow-sm", role="alert")
+		div.alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
 			h3.h5 Note
 			div.mb-2
 				div.mb-2 Searching here will find all public nodes and/or channels visible to your node. It will match on public keys, aliases, addresses, colors, and channel ids.
@@ -28,10 +28,10 @@ block content
 				span property can be set to any value by node owners - even to impersonate a person or company you might be familiar with. Use caution when evaluating nodes.
 
 			div
-				a(href="/changeSetting?name=hideNodesNetworkNote&value=true") Don't show this note again
+				a(href="/changeSetting?name=hideSearchNote&value=true") Don't show this note again
 				
 
-			a(href="/changeSetting?name=hideNodesNetworkNote&value=true", class="close", aria-label="Close", style="text-decoration: none;")
+			a(href="/changeSetting?name=hideSearchNote&value=true", class="close", aria-label="Close", style="text-decoration: none;")
 				span(aria-hidden="true") &times;
 
 	form.mb-4(method="get")
