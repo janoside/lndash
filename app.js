@@ -92,7 +92,12 @@ function getSourcecodeProjectMetadata() {
 			//console.log(`SourcecodeProjectMetadata: ${JSON.stringify(global.sourcecodeProjectMetadata)}`);
 
 		} else {
-			console.log(`Error 3208fh3ew7eghfg: ${error}, StatusCode: ${response != null ? response.statusCode : "?"}, Response: ${JSON.stringify(response)}`);
+			if (error) {
+				utils.logError("239r7hsdgss", error);
+
+			} else {
+				utils.logError("3208fh3ew7eghfg", `Error 3208fh3ew7eghfg: ${error}, StatusCode: ${response != null ? response.statusCode : "?"}, Response: ${JSON.stringify(response)}`);
+			}
 		}
 	});
 }

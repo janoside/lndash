@@ -1,3 +1,6 @@
+var debug = require("debug");
+var debugLog = debug("lnd-admin:router");
+
 const hashjs = require('hash.js');
 
 var express = require('express');
@@ -99,7 +102,7 @@ router.get("/", function(req, res) {
 		res.render("index");
 
 	}).catch(function(err) {
-		console.log("Error 3972hrwe07fgedwfds: " + err);
+		utils.logError("3972hrwe07fgedwfds", err);
 
 		res.render("index");
 	});
@@ -742,7 +745,7 @@ router.post("/login", function(req, res) {
 		return;
 
 	} else {
-		console.log(`Password hash mismatch: ${pwdHash} vs ${global.adminCredentials.adminPasswordSha256}`);
+		debugLog(`Password hash mismatch: ${pwdHash} vs ${global.adminCredentials.adminPasswordSha256}`);
 	}
 
 	req.session.userMessage = "Login failed.";
@@ -1378,7 +1381,7 @@ router.get("/local-channels", function(req, res) {
 				}
 
 				// should never happen
-				console.log(`Error 23r087hwfed0hsd: Unexpected filter value: status=${status}`);
+				utils.logError("23r087hwfed0hsd", `Unexpected filter value: status=${status}`);
 
 				return true;
 			},
@@ -1396,7 +1399,7 @@ router.get("/local-channels", function(req, res) {
 				}
 
 				// should never happen
-				console.log(`Error 432t07hsd0fghs: Unexpected filter value: localbalance=${localbalance}`);
+				utils.logError("432t07hsd0fghs", `Unexpected filter value: localbalance=${localbalance}`);
 
 				return true;
 			},
@@ -1414,7 +1417,7 @@ router.get("/local-channels", function(req, res) {
 				}
 
 				// should never happen
-				console.log(`Error 23r9uyewhb0s9gys: Unexpected filter value: remotebalance=${remotebalance}`);
+				utils.logError("23r9uyewhb0s9gys", `Unexpected filter value: remotebalance=${remotebalance}`);
 
 				return true;
 			},
@@ -1588,9 +1591,7 @@ router.get("/search", function(req, res) {
 					}
 				});
 			} catch(err) {
-				console.log("Error handling nodeInfo: " + JSON.stringify(nodeInfo));
-
-				utils.logError("3297rgsd7gs7s", err);
+				utils.logError("3297rgsd7gs7s", err, {nodeInfo:nodeInfo});
 			}
 		});
 
@@ -2276,7 +2277,7 @@ router.get("/invoices", function(req, res) {
 				}
 
 				// should never happen
-				console.log(`Error 237rh2340r7yfre: Unexpected filter value: settled=${settled}`);
+				utils.logError("237rh2340r7yfre", `Unexpected filter value: settled=${settled}`);
 
 				return true;
 			},
@@ -2442,14 +2443,14 @@ router.post("/close-channel", function(req, res) {
 	var speedValue = req.body.speedValue;
 
 	rpcApi.closeChannel(txid, txOutput, forceClose, speedType, speedValue).then(function(response) {
-		console.log("closeChannelResponse: " + JSON.stringify(response));
+		debugLog("closeChannelResponse: " + JSON.stringify(response));
 
 		res.json(response);
 
 	}).catch(function(err) {
 		utils.logError("sadfh9g3249r6ywegs", err);
 
-		console.log("closeChannelError: " + JSON.stringify(err));
+		debugLog("closeChannelError: " + JSON.stringify(err));
 
 		res.json(err);
 	});
@@ -2490,14 +2491,14 @@ router.post("/update-channel-policies", function(req, res) {
 	rpcApi.updateChannelPolicies(txid, txOutput, channelPolicies).then(function(response) {
 		rpcApi.refreshLocalChannels();
 
-		console.log("updateChannelPoliciesResponse: " + JSON.stringify(response));
+		debugLog("updateChannelPoliciesResponse: " + JSON.stringify(response));
 
 		res.json(response);
 
 	}).catch(function(err) {
 		utils.logError("sadfh9g3249r6ywegs", err);
 
-		console.log("updateChannelPoliciesError: " + JSON.stringify(err));
+		debugLog("updateChannelPoliciesError: " + JSON.stringify(err));
 
 		res.json(err);
 	});
