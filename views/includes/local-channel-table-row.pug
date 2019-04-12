@@ -1,5 +1,5 @@
 tr(class="text-monospace word-wrap")
-	th.text-right #{(channel_index + 1).toLocaleString()}
+	th.text-right #{(channel_index + offset + 1).toLocaleString()}
 	td(class="table-col-channelid")
 		if (channel.active)
 			a(href=("/channel/" + channel.chan_id))

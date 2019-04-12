@@ -136,7 +136,7 @@ block content
 						tbody
 							each payment, paymentIndex in pagedFilteredPayments
 								tr.text-monospace.word-wrap
-									th.text-right #{(paymentIndex + 1).toLocaleString()}
+									th.text-right #{(paymentIndex + offset + 1).toLocaleString()}
 									
 									if (false)
 										td

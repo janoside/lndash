@@ -119,7 +119,7 @@ block content
 				tbody.text-monospace
 					each item, item_index in pagedFilteredPeers
 						tr
-							th.text-right #{(item_index + 1).toLocaleString()}
+							th.text-right #{(item_index + offset + 1).toLocaleString()}
 							td
 								- var card_node_pubkey = item.pub_key;
 								include ./includes/node-card.pug
