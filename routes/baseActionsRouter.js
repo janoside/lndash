@@ -746,15 +746,21 @@ router.post("/login", function(req, res) {
 
 	} else {
 		debugLog(`Password hash mismatch: ${pwdHash} vs ${global.adminCredentials.adminPasswordSha256}`);
+
+		req.session.userMessage = "Login failed.";
+		req.session.userMessageType = "danger";
+
+		res.locals.userMessage = "Login failed.";
+		res.locals.userMessageType = "danger";
+
+		if (req.session.loginRedirect) {
+			res.redirect(req.session.loginRedirect);
+
+			return;
+		}
+
+		res.render("login");
 	}
-
-	req.session.userMessage = "Login failed.";
-	req.session.userMessageType = "danger";
-
-	res.locals.userMessage = "Login failed.";
-	res.locals.userMessageType = "danger";
-
-	res.render("login");
 });
 
 router.get("/query-route", function(req, res) {
