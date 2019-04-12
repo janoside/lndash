@@ -6,8 +6,6 @@ var url = require('url');
 
 var pwdHash = hashjs.sha256().update(process.env.LND_ADMIN_LOGIN_PASSWORD || "admin").digest('hex');
 
-console.log("pwdHash: " + pwdHash);
-
 var rpcConfigs = [];
 
 if (process.env.LND_ADMIN_NODE_COUNT) {
