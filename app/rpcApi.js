@@ -173,6 +173,8 @@ function connectAllNodes() {
 
 							rejectInner(err);
 						});
+					} else {
+						resolveInner();
 					}
 				}).catch(function(err) {
 					utils.logError("2397rgsd9gsgs", err);
@@ -263,6 +265,10 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 						lndRpc.getNodeInfo({pub_key:node.pub_key}, function(err2, nodeInfoResponse) {
 							if (err2) {
 								utils.logError("312r9ygef9y", err2);
+
+								rejectInner(err2);
+
+								return;
 							}
 
 							nodeInfoByPubkey[node.pub_key] = nodeInfoResponse;
