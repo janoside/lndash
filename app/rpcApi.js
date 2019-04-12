@@ -666,7 +666,7 @@ function listPayments() {
 
 function getNetworkInfo(acceptCachedValues=false) {
 	debugLog("getNetworkInfo");
-	
+
 	if (acceptCachedValues && networkInfo != null) {
 		return new Promise(function(resolve, reject) {
 			resolve(networkInfo);
@@ -1052,6 +1052,7 @@ function sendCoins(addressValueStr, speedType, speedValue) {
 module.exports = {
 	connect: connect,
 	connectAllNodes: connectAllNodes,
+	refreshCachedValues: refreshCachedValues,
 
 	getFullNetworkDescription: getFullNetworkDescription,
 	refreshFullNetworkDescription: refreshFullNetworkDescription,
