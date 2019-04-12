@@ -34,7 +34,7 @@ router.get("/", function(req, res) {
 	}));
 
 	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getNetworkInfo().then(function(networkInfoResponse) {
+		rpcApi.getNetworkInfo(true).then(function(networkInfoResponse) {
 			res.locals.networkInfo = networkInfoResponse;
 
 			resolve();
@@ -66,19 +66,6 @@ router.get("/", function(req, res) {
 		}).catch(function(err) {
 			utils.logError("325078whs0d7hg8s", err);
 			
-			reject(err);
-		});
-	}));
-
-	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getChannelBalance().then(function(channelBalanceResponse) {
-			res.locals.channelBalance = channelBalanceResponse;
-
-			resolve();
-
-		}).catch(function(err) {
-			utils.logError("397rehsdf90gs", err);
-
 			reject(err);
 		});
 	}));
@@ -1109,11 +1096,7 @@ router.get("/connect-lnd", function(req, res) {
 		if (lndIndex != global.lndRpc.internal_index) {
 			global.lndRpc = global.lndConnections.byIndex[lndIndex];
 
-			rpcApi.refreshLocalChannels();
-			rpcApi.refreshLocalClosedChannels();
-			rpcApi.refreshLocalPendingChannels();
-
-			rpcApi.refreshFullNetworkDescription(true).then(function() {
+			rpcApi.refreshCachedValues(true).then(function() {
 				req.session.userMessage = `Switched to LND ${global.lndRpc.internal_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)} ('${global.lndRpc.internal_alias}')`;
 				req.session.userMessageType = "success";
 

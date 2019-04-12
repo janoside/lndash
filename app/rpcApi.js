@@ -6,7 +6,7 @@ var fs = require("fs");
 var grpc = require("grpc");
 var path = require('path');
 
-
+var networkInfo = null;
 var fullNetworkDescription = null;
 var fullNetworkDescriptionDate = new Date(0);
 var pendingFNDRequest = false;
@@ -161,18 +161,15 @@ function connectAllNodes() {
 					debugLog("RPC connected: " + response.index);
 
 					if (response.index == 0) {
-						refreshLocalChannels();
-						refreshLocalClosedChannels();
-						refreshLocalPendingChannels();
-
-						refreshFullNetworkDescription().then(function() {
+						refreshCachedValues().then(function() {
 							resolveInner();
-							
+
 						}).catch(function(err) {
 							utils.logError("379regwd9f7gsdgs", err);
 
 							rejectInner(err);
 						});
+
 					} else {
 						resolveInner();
 					}
@@ -189,6 +186,28 @@ function connectAllNodes() {
 
 		}).catch(function(err) {
 			utils.logError("23r97sdg97sgs", err);
+
+			reject(err);
+		});
+	});
+}
+
+
+function refreshCachedValues(forceFullRefresh=false) {
+	return new Promise(function(resolve, reject) {
+		var promises = [];
+
+		promises.push(refreshFullNetworkDescription(forceFullRefresh));
+		promises.push(refreshLocalChannels());
+		promises.push(refreshLocalPendingChannels());
+		promises.push(refreshLocalClosedChannels());
+		promises.push(getNetworkInfo());
+
+		Promise.all(promises).then(function() {
+			resolve();
+
+		}).catch(function(err) {
+			utils.logError("327rhsd0ghssE", err);
 
 			reject(err);
 		});
@@ -645,7 +664,15 @@ function listPayments() {
 	});
 }
 
-function getNetworkInfo() {
+function getNetworkInfo(acceptCachedValues=false) {
+	debugLog("getNetworkInfo");
+	
+	if (acceptCachedValues && networkInfo != null) {
+		return new Promise(function(resolve, reject) {
+			resolve(networkInfo);
+		});
+	}
+
 	return new Promise(function(resolve, reject) {
 		lndRpc.GetNetworkInfo({}, function(err, response) {
 			if (err) {
@@ -655,6 +682,8 @@ function getNetworkInfo() {
 
 				return;
 			}
+
+			networkInfo = response;
 
 			resolve(response);
 		});

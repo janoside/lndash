@@ -150,10 +150,7 @@ app.runOnStartup = function() {
 	// refresh periodically
 	setInterval(function() {
 		if (global.lndRpc != null) {
-			rpcApi.refreshFullNetworkDescription();
-			rpcApi.refreshLocalChannels();
-			rpcApi.refreshLocalClosedChannels();
-			rpcApi.refreshLocalPendingChannels();
+			rpcApi.refreshCachedValues();
 		}
 	}, 60000);
 
