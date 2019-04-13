@@ -18,6 +18,8 @@ configPaths.filter(fs.existsSync).forEach(path => {
 var debug = require("debug");
 debug.enable(process.env.DEBUG);
 
+var debugLog = debug("lnd-admin:app");
+
 var express = require('express');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -37,6 +39,11 @@ var request = require("request");
 var qrcode = require("qrcode");
 var rpcApi = require("./app/rpcApi.js");
 var runes = require("runes");
+
+var package_json = require('./package.json');
+global.appVersion = package_json.version;
+
+debugLog(`Starting LND Admin, v${global.appVersion}`);
 
 
 var crawlerBotUserAgentStrings = [ "Googlebot", "Bingbot", "Slurp", "DuckDuckBot", "Baiduspider", "YandexBot", "Sogou", "Exabot", "facebot", "ia_archiver" ];
@@ -134,7 +141,7 @@ app.runOnStartup = function() {
 	if (global.sourcecodeVersion == null && fs.existsSync('.git')) {
 		simpleGit(".").log(["-n 1"], function(err, log) {
 			global.sourcecodeVersion = log.all[0].hash;
-			global.sourcecodeDate = log.all[0].date;
+			global.sourcecodeDate = moment.utc(log.all[0].date, "YYYY-MM-DD HH:mm:ss Z");
 		});
 	}
 	

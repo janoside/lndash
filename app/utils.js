@@ -1,5 +1,5 @@
 var debug = require("debug");
-var debugLog = debug("lnd-admin:app");
+var debugLog = debug("lnd-admin:utils");
 var debugLogError = debug("lnd-admin:error");
 
 var Decimal = require("decimal.js");

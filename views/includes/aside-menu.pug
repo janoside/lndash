@@ -85,12 +85,28 @@ aside.aside-menu.p-3.bg-main.text-body
 
 	h5.h5 Status
 
-	if (sourcecodeVersion && sourcecodeDate)
-		div.mb-3
-			h5.h6 App Version
-			a(href=`https://github.com/janoside/lnd-admin/commit/${sourcecodeVersion}`) ##{sourcecodeVersion.substring(0, 16)}
-			br
-			span.text-muted #{sourcecodeDate}
+	div.mb-3
+		h5.h6 App Version
+		
+		if (global.sourcecodeVersion)
+			div.mb-2
+				div Commit
+				div
+					a.text-monospace(href=`https://github.com/janoside/lnd-admin/commit/${sourcecodeVersion}`) ##{sourcecodeVersion.substring(0, 8)}
+		
+		if (global.sourcecodeDate)
+			- var timeAgo = moment.duration(moment.utc(new Date()).diff(global.sourcecodeDate));
+			- var dateTimeUtc = moment.utc(global.sourcecodeDate).format("Y-MM-DD HH:mm");
+
+			div.mb-2
+				div Date
+				div.text-monospace #{dateTimeUtc} utc
+				div.text-monospace.text-muted #{timeAgo.humanize()} ago
+
+		if (global.appVersion)
+			div.mb-2
+				div Version
+				div.text-monospace v#{global.appVersion}
 
 	if (false)
 		ul.nav.nav-tabs(role='tablist')
