@@ -176,7 +176,7 @@ function connectAllNodes() {
 					debugLog("RPC connected: " + response.index);
 
 					if (response.index == 0) {
-						refreshCachedValues().then(function() {
+						refreshCachedValues(true).then(function() {
 							resolveInner();
 
 						}).catch(function(err) {
@@ -266,6 +266,8 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 		lndRpc.describeGraph({include_unannounced:true}, function(err, describeGraphResponse) {
 			if (err) {
 				utils.logError("2397gr2039rf6g2", err);
+
+				pendingFNDRequest = false;
 				
 				reject(err);
 
@@ -286,14 +288,16 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 
 			if (!forceRefresh) {
 				if (fullNetworkDescription && fullNetworkDescription.nodeInfoByPubkey) {
-					//nodeInfoByPubkey = fullNetworkDescription.nodeInfoByPubkey;
+					nodeInfoByPubkey = fullNetworkDescription.nodeInfoByPubkey;
 				}
 			}
 
 			var promises = [];
+			var refreshedNodeCount = 0;
 			describeGraphResponse.nodes.forEach(function(node) {
-				if (true || forceRefresh || node.last_update * 1000 > fullNetworkDescriptionDate.getTime()) {
+				if (forceRefresh || node.last_update * 1000 > fullNetworkDescriptionDate.getTime()) {
 					//debugLog("Refreshing node details: " + node.last_update + " - " + fullNetworkDescriptionDate.getTime());
+					refreshedNodeCount++;
 
 					promises.push(new Promise(function(resolveInner, rejectInner) {
 						lndRpc.getNodeInfo({pub_key:node.pub_key}, function(err2, nodeInfoResponse) {
@@ -313,15 +317,20 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 				}
 			});
 
-			Promise.all(promises).then(function() {
+			Promise.all(promises.map(utils.reflectPromise)).then(function() {
 				fullNetworkDescription = compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey);
 				fullNetworkDescriptionDate = new Date();
 
-				debugLog("Finished refreshing network description; elapsed time: " + (new Date().getTime() - startTime.getTime()));
+				debugLog(`Finished refreshing network description (refreshed nodes: ${refreshedNodeCount}); Elapsed time: ${(new Date().getTime() - startTime.getTime())}`);
 
 				pendingFNDRequest = false;
 
 				resolve(fullNetworkDescription);
+
+			}).catch(function(err) {
+				utils.logError("20978ghw07ysgs", err);
+
+				reject(err);
 			});
 		});
 	});
