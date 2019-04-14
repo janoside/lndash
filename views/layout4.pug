@@ -291,14 +291,14 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 			
 			.container-fluid.mx-0.px-2.px-lg-3.px-xl-4
 				if (userMessage)
-					div.alert.alert-dismissable.shadow-sm.mb-4(class=(userMessageType ? ("alert-"  + userMessageType) : "alert-info"), role="alert")
+					div.alert.alert-dismissable.shadow-sm.mb-3(class=(userMessageType ? ("alert-"  + userMessageType) : "alert-info"), role="alert")
 						span !{userMessage}
 
 						a.close(href="javascript:void(0)" aria-label="Close" data-dismiss="alert" style="text-decoration: none;")
 							span(aria-hidden="true") &times;
 
 				else if (session.userMessage)
-					div.alert.alert-dismissable.shadow-sm.mb-4(class=(session.userMessageType ? ("alert-"  + session.userMessageType) : "alert-info"), role="alert")
+					div.alert.alert-dismissable.shadow-sm.mb-3(class=(session.userMessageType ? ("alert-"  + session.userMessageType) : "alert-info"), role="alert")
 						span !{session.userMessage}
 
 						a.close(href="javascript:void(0)" aria-label="Close" data-dismiss="alert" style="text-decoration: none;")
