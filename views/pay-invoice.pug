@@ -151,13 +151,13 @@ block content
 		if (decodedInvoice)
 			div.card.mb-3.shadow-sm
 				div.card-header
-					h2.h6.mb-0 Payment Details
+					h2.h6.mb-0 Invoice Details
 				div.card-body
 					ul(class='nav nav-tabs mb-3')
 						li(class="nav-item")
-							a(data-toggle="tab", href="#tab-summary", class="nav-link active", role="tab") Summary
+							a.nav-link.active(data-toggle="tab" href="#tab-summary" role="tab") Summary
 						li(class="nav-item")
-							a(data-toggle="tab", href="#tab-json", class="nav-link", role="tab") JSON
+							a.nav-link(data-toggle="tab" href="#tab-json" role="tab") JSON
 
 					div(class="tab-content")
 						div(id="tab-summary", class="tab-pane active", role="tabpanel")
@@ -165,8 +165,11 @@ block content
 								div(class="row")
 									div(class="summary-table-label") Destination
 									div.summary-table-content.text-monospace
-										- var card_node_pubkey = decodedInvoice.destination;
-										include ./includes/node-card.pug
+										div.clearfix
+										div.card.float-left
+											div.card-body
+												- var card_node_pubkey = decodedInvoice.destination;
+												include ./includes/node-card.pug
 
 								div(class="row")
 									div(class="summary-table-label") Description
@@ -214,8 +217,8 @@ block content
 						input(type="hidden", name="invoice", value=invoice)
 
 						button.btn.btn-primary(type="submit")
-							i.fas.fa-sign-out-alt.mr-2
-							span Send Payment
+							i.fas.fa-receipt.mr-2
+							span Pay Invoice
 
 		else
 			form(method="get")
