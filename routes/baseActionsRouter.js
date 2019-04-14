@@ -128,38 +128,43 @@ router.get("/node/:nodePubkey", function(req, res) {
 			res.locals.fullNetworkDescription = fnd;
 			res.locals.nodeInfo = fnd.nodeInfoByPubkey[nodePubkey];
 
-			res.locals.nodeChannels = [];
-			fnd.channels.sortedByLastUpdate.forEach(function(channel) {
-				if (channel.node1_pub == nodePubkey || channel.node2_pub == nodePubkey) {
-					res.locals.nodeChannels.push(channel);
-				}
-			});
+			if (res.locals.nodeInfo) {
+				res.locals.nodeChannels = [];
+				fnd.channels.sortedByLastUpdate.forEach(function(channel) {
+					if (channel.node1_pub == nodePubkey || channel.node2_pub == nodePubkey) {
+						res.locals.nodeChannels.push(channel);
+					}
+				});
 
-			var qrcodeStrings = [];
-			qrcodeStrings.push(nodePubkey);
+				var qrcodeStrings = [];
+				qrcodeStrings.push(nodePubkey);
 
-			if (res.locals.nodeInfo.node.addresses) {
-				for (var i = 0; i < res.locals.nodeInfo.node.addresses.length; i++) {
-					if (res.locals.nodeInfo.node.addresses[i].network == "tcp") {
-						res.locals.nodeUri = nodePubkey + "@" + res.locals.nodeInfo.node.addresses[i].addr;
+				if (res.locals.nodeInfo.node.addresses) {
+					for (var i = 0; i < res.locals.nodeInfo.node.addresses.length; i++) {
+						if (res.locals.nodeInfo.node.addresses[i].network == "tcp") {
+							res.locals.nodeUri = nodePubkey + "@" + res.locals.nodeInfo.node.addresses[i].addr;
 
-						qrcodeStrings.push(res.locals.nodeUri);
+							qrcodeStrings.push(res.locals.nodeUri);
 
-						break;
+							break;
+						}
 					}
 				}
+
+				utils.buildQrCodeUrls(qrcodeStrings).then(function(qrcodeUrls) {
+					res.locals.qrcodeUrls = qrcodeUrls;
+
+					resolve();
+
+				}).catch(function(err) {
+					res.locals.pageErrors.push(utils.logError("3e0ufhdhfsdss", err));
+					
+					resolve();
+				});
+			} else {
+				// node-not-found page
+				resolve();
 			}
-
-			utils.buildQrCodeUrls(qrcodeStrings).then(function(qrcodeUrls) {
-				res.locals.qrcodeUrls = qrcodeUrls;
-
-				resolve();
-
-			}).catch(function(err) {
-				res.locals.pageErrors.push(utils.logError("3e0ufhdhfsdss", err));
-				
-				resolve();
-			});
 		}).catch(function(err) {
 			res.locals.pageErrors.push(utils.logError("349e7ghwef96werg", err));
 
