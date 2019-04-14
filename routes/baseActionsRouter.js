@@ -105,7 +105,7 @@ router.get("/node/:nodePubkey", function(req, res) {
 	promises.push(new Promise(function(resolve, reject) {
 		lndRpc.listPeers({}, function(err, response) {
 			if (err) {
-				utils.logError("u3rhgqfdygews", err);
+				res.locals.pageErrors.push(utils.logError("u3rhgqfdygews", err));
 
 				reject(err);
 
@@ -158,12 +158,12 @@ router.get("/node/:nodePubkey", function(req, res) {
 				resolve();
 
 			}).catch(function(err) {
-				utils.logError("3e0ufhdhfsdss", err);
+				res.locals.pageErrors.push(utils.logError("3e0ufhdhfsdss", err));
 				
 				resolve();
 			});
 		}).catch(function(err) {
-			utils.logError("349e7ghwef96werg", err);
+			res.locals.pageErrors.push(utils.logError("349e7ghwef96werg", err));
 
 			reject(err);
 		});
@@ -173,7 +173,7 @@ router.get("/node/:nodePubkey", function(req, res) {
 		res.render("node");
 
 	}).catch(function(err) {
-		utils.logError("230rhsd0gds", err);
+		res.locals.pageErrors.push(utils.logError("230rhsd0gds", err));
 		
 		res.render("node");
 	});
@@ -210,7 +210,7 @@ router.get("/channel/:channelId", function(req, res) {
 			resolve();
 
 		}).catch(function(err) {
-			utils.logError("2308hwdcshs", err);
+			res.locals.pageErrors.push(utils.logError("2308hwdcshs", err));
 
 			reject(err);
 		});
@@ -223,7 +223,7 @@ router.get("/channel/:channelId", function(req, res) {
 			resolve();
 
 		}).catch(function(err) {
-			utils.logError("329r7h07gsss", err);
+			res.locals.pageErrors.push(utils.logError("329r7h07gsss", err));
 
 			reject(err);
 		});
@@ -236,7 +236,7 @@ router.get("/channel/:channelId", function(req, res) {
 			resolve();
 
 		}).catch(function(err) {
-			utils.logError("37921hdasudfgd", err);
+			res.locals.pageErrors.push(utils.logError("37921hdasudfgd", err));
 
 			reject(err);
 		});
@@ -252,7 +252,7 @@ router.get("/channel/:channelId", function(req, res) {
 		res.render("channel");
 
 	}).catch(function(err) {
-		utils.logError("397hgsd90gs7gs", err);
+		res.locals.pageErrors.push(utils.logError("397hgsd90gs7gs", err));
 
 		res.render("channel");
 	});
@@ -316,7 +316,7 @@ router.post("/create-invoice", function(req, res) {
 		res.render("create-invoice");
 
 	}).catch(function(err) {
-		utils.logError("23598yrgwe9fygwe9", err);
+		res.locals.pageErrors.push(utils.logError("23598yrgwe9fygwe9", err));
 
 		res.render("create-invoice");
 	});
@@ -340,7 +340,7 @@ router.post("/sign-verify", function(req, res) {
 			res.render("sign-verify");
 
 		}).catch(function(err) {
-			utils.logError("29378rg30gfbd", err);
+			res.locals.pageErrors.push(utils.logError("29378rg30gfbd", err));
 
 			res.render("sign-verify");
 		});
@@ -352,7 +352,7 @@ router.post("/sign-verify", function(req, res) {
 			res.render("sign-verify");
 
 		}).catch(function(err) {
-			utils.logError("2397rgwefbcduhj", err);
+			res.locals.pageErrors.push(utils.logError("2397rgwefbcduhj", err));
 
 			res.render("sign-verify");
 		});
@@ -456,7 +456,7 @@ router.get("/node-status", function(req, res) {
 	promises.push(new Promise(function(resolve, reject) {
 		lndRpc.getInfo({}, function(err, response) {
 			if (err) {
-				utils.logError("3u1rh2yugfew0fwe", err);
+				res.locals.pageErrors.push(utils.logError("3u1rh2yugfew0fwe", err));
 
 				reject(err);
 
@@ -477,7 +477,7 @@ router.get("/node-status", function(req, res) {
 				resolve();
 
 			}).catch(function(err) {
-				utils.logError("37ufdhewfhedd", err);
+				res.locals.pageErrors.push(utils.logError("37ufdhewfhedd", err));
 
 				// no need to reject, we can fail gracefully without qrcodes
 				resolve();
@@ -488,7 +488,7 @@ router.get("/node-status", function(req, res) {
 	promises.push(new Promise(function(resolve, reject) {
 		lndRpc.listPeers({}, function(err, response) {
 			if (err) {
-				utils.logError("u3rhgqfdygews", err);
+				res.locals.pageErrors.push(utils.logError("u3rhgqfdygews", err));
 
 				reject(err);
 
@@ -516,7 +516,7 @@ router.get("/node-status", function(req, res) {
 	}).catch(function(err) {
 		req.session.userErrors.push(err);
 
-		utils.logError("322u0rh2urf", err);
+		res.locals.pageErrors.push(utils.logError("322u0rh2urf", err));
 
 		res.render("node-status");
 	});
@@ -551,7 +551,7 @@ router.get("/peers", function(req, res) {
 	promises.push(new Promise(function(resolve, reject) {
 		lndRpc.listPeers({}, function(err, response) {
 			if (err) {
-				utils.logError("u3rhgqfdygews", err);
+				res.locals.pageErrors.push(utils.logError("u3rhgqfdygews", err));
 
 				reject(err);
 
@@ -651,7 +651,7 @@ router.get("/peers", function(req, res) {
 	}).catch(function(err) {
 		req.session.userErrors.push(err);
 
-		utils.logError("322u0rh2urf", err);
+		res.locals.pageErrors.push(utils.logError("322u0rh2urf", err));
 
 		res.render("peers");
 	});
@@ -704,7 +704,8 @@ router.post("/login", function(req, res) {
 				req.session.userMessage = "Error encountered while connecting to LND. See logs for details.";
 				req.session.userMessageType = "danger";
 
-				utils.logError("23r97gsd97gss", err);
+				// TODO pageErrors won't save across redirect
+				res.locals.pageErrors.push(utils.logError("23r97gsd97gss", err));
 
 				if (req.session.loginRedirect) {
 					res.redirect(req.session.loginRedirect);
@@ -788,7 +789,7 @@ router.post("/query-route", function(req, res) {
 		}).catch(function(err) {
 			res.locals.queryRouteError = err;
 
-			utils.logError("3y9rewfgefge", err);
+			res.locals.pageErrors.push(utils.logError("3y9rewfgefge", err));
 
 			reject(err);
 		});
@@ -798,7 +799,7 @@ router.post("/query-route", function(req, res) {
 		res.render("query-route");
 
 	}).catch(function(err) {
-		utils.logError("23rey9gwefdsg", err);
+		res.locals.pageErrors.push(utils.logError("23rey9gwefdsg", err));
 
 		res.render("query-route");
 	});
@@ -886,7 +887,7 @@ router.get("/forwarding-history", function(req, res) {
 		}).catch(function(err) {
 			res.locals.forwardingHistoryError = err;
 
-			utils.logError("703yrwegfddsg", err);
+			res.locals.pageErrors.push(utils.logError("703yrwegfddsg", err));
 
 			reject(err);
 		});
@@ -1066,7 +1067,7 @@ router.get("/forwarding-history", function(req, res) {
 		res.render("forwarding-history");
 
 	}).catch(function(err) {
-		utils.logError("932hr9y7wgdfcd", err);
+		res.locals.pageErrors.push(utils.logError("932hr9y7wgdfcd", err));
 
 		res.render("forwarding-history");
 	});
@@ -1103,7 +1104,7 @@ router.get("/connect-lnd", function(req, res) {
 				res.redirect(req.headers.referer);
 
 			}).catch(function(err) {
-				utils.logError("230uhfwequfghewfuew", err);
+				res.locals.pageErrors.push(utils.logError("230uhfwequfghewfuew", err));
 
 				req.session.userMessage = `Error switching to LND ${global.lndRpc.internal_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)} ('${global.lndRpc.internal_alias}')`;
 				req.session.userMessageType = "danger";
@@ -1230,7 +1231,7 @@ router.get("/channels", function(req, res) {
 		res.render("channels");
 
 	}).catch(function(err) {
-		utils.logError("239yrg239r", err);
+		res.locals.pageErrors.push(utils.logError("297wh0sghs", err));
 
 		res.render("channels");
 	});
@@ -1288,7 +1289,7 @@ router.get("/local-channels", function(req, res) {
 			resolve();
 
 		}).catch(function(err) {
-			utils.logError("2308rhsd0u7fhgsd", err);
+			res.locals.pageErrors.push(utils.logError("2308rhsd0u7fhgsd", err));
 
 			reject(err);
 		});
@@ -1309,7 +1310,7 @@ router.get("/local-channels", function(req, res) {
 			resolve();
 
 		}).catch(function(err) {
-			utils.logError("23r83n2whw", err);
+			res.locals.pageErrors.push(utils.logError("23r83n2whw", err));
 
 			reject(err);
 		});
@@ -1322,7 +1323,7 @@ router.get("/local-channels", function(req, res) {
 			resolve();
 
 		}).catch(function(err) {
-			utils.logError("23r0789h7dsss", err);
+			res.locals.pageErrors.push(utils.logError("23r0789h7dsss", err));
 
 			reject(err);
 		});
@@ -1523,7 +1524,7 @@ router.get("/local-channels", function(req, res) {
 		res.render("local-channels");
 
 	}).catch(function(err) {
-		utils.logError("23r97hwef7usdgdsf", err);
+		res.locals.pageErrors.push(utils.logError("23r97hwef7usdgdsf", err));
 
 		res.render("local-channels");
 	});
@@ -1580,7 +1581,7 @@ router.get("/search", function(req, res) {
 					}
 				});
 			} catch(err) {
-				utils.logError("3297rgsd7gs7s", err, {nodeInfo:nodeInfo});
+				res.locals.pageErrors.push(utils.logError("3297rgsd7gs7s", err, {nodeInfo:nodeInfo}));
 			}
 		});
 
@@ -1792,7 +1793,7 @@ router.post("/manage-nodes", function(req, res) {
 				res.redirect("/");
 
 			}).catch(function(err) {
-				utils.logError("32r08eus08ys0y8hs", err);
+				res.locals.pageErrors.push(utils.logError("32r08eus08ys0y8hs", err));
 
 				res.locals.userMessage = "Error while connecting to LND";
 				res.locals.userMessageType = "danger";
@@ -1806,7 +1807,7 @@ router.post("/manage-nodes", function(req, res) {
 	}).catch(function(err) {
 		res.locals.lndConnectError = err;
 
-		utils.logError("32078rhesdghss", err);
+		res.locals.pageErrors.push(utils.logError("32078rhesdghss", err));
 
 		for (var prop in userFormParams) {
 			if (userFormParams.hasOwnProperty(prop)) {
@@ -1844,7 +1845,7 @@ router.get("/delete-lnd-node", function(req, res) {
 				req.session.userMessage = `Failed to refresh after deleting LND Node #${indexToDelete + 1}`;
 				req.session.userMessageType = "danger";
 
-				utils.logError("3er79sdhf0sghs", err);
+				res.locals.pageErrors.push(utils.logError("3er79sdhf0sghs", err));
 
 				res.redirect(req.headers.referer);
 			});
@@ -1879,7 +1880,7 @@ router.get("/connectToPeer", function(req, res) {
 	}).catch(function(err) {
 		req.session.userErrors.push(err);
 
-		utils.logError("397gedgfgggsgsgs", err);
+		res.locals.pageErrors.push(utils.logError("397gedgfgggsgsgs", err));
 
 		req.session.userMessage = "Error connecting to peer: " + err + "(" + JSON.stringify(err) + ")";
 		req.session.userMessageType = "danger";
@@ -1904,7 +1905,7 @@ router.get("/disconnectPeer", function(req, res) {
 	}).catch(function(err) {
 		req.session.userErrors.push(err);
 
-		utils.logError("23407ht40werhg", err);
+		res.locals.pageErrors.push(utils.logError("23407ht40werhg", err));
 
 		req.session.userMessage = "Error disconnecting from peer: " + err + "(" + JSON.stringify(err) + ")";
 		req.session.userMessageType = "danger";
@@ -2021,7 +2022,7 @@ router.get("/payment-history", function(req, res) {
 	}).catch(function(err) {
 		req.session.userErrors.push(err);
 
-		utils.logError("397gedgfgggsgsgs", err);
+		res.locals.pageErrors.push(utils.logError("397gedgfgggsgsgs", err));
 
 		res.render("payment-history");
 	});
@@ -2047,7 +2048,7 @@ router.get("/pay-invoice", function(req, res) {
 			}).catch(function(err) {
 				req.session.userErrors.push(err);
 
-				utils.logError("8yf0342ywe", err);
+				res.locals.pageErrors.push(utils.logError("8yf0342ywe", err));
 
 				reject(err);
 			});
@@ -2063,7 +2064,7 @@ router.get("/pay-invoice", function(req, res) {
 		res.locals.userMessage = "Unable to decode payment request: " + err + " (" + JSON.stringify(err) + ")";
 		res.locals.userMessageType = "warning";
 
-		utils.logError("4379t2347g", err);
+		res.locals.pageErrors.push(utils.logError("4379t2347g", err));
 
 		res.render("pay-invoice");
 	})
@@ -2096,7 +2097,7 @@ router.post("/pay-invoice", function(req, res) {
 		req.session.userMessage = "Error sending payment: " + err + " (" + JSON.stringify(err) + ")";
 		req.session.userMessageType = "danger";
 
-		utils.logError("8usedghvcf072g", err);
+		res.locals.pageErrors.push(utils.logError("8usedghvcf072g", err));
 
 		res.render("pay-invoice");
 	});
@@ -2119,7 +2120,7 @@ router.get("/send-payment", function(req, res) {
 	}).catch(function(err) {
 		req.session.userErrors.push(err);
 
-		utils.logError("24308trhw4078hrwhs", err);
+		res.locals.pageErrors.push(utils.logError("24308trhw4078hrwhs", err));
 
 		res.render("send-payment");
 	})
@@ -2142,7 +2143,7 @@ router.get("/new-deposit-address", function(req, res) {
 		}).catch(function(err) {
 			res.locals.newDepositAddressError = err;
 
-			utils.logError("2397rgse9fgs9dg", err);
+			res.locals.pageErrors.push(utils.logError("2397rgse9fgs9dg", err));
 
 			reject(err);
 		});
@@ -2156,12 +2157,12 @@ router.get("/new-deposit-address", function(req, res) {
 			res.json(res.locals.newDepositAddressError);
 
 		} else {
-			utils.logError("3297rgsd97gs", `Unknown error when trying to generate new deposit address: type=${addressType}`);
+			res.locals.pageErrors.push(utils.logError("3297rgsd97gs", `Unknown error when trying to generate new deposit address: type=${addressType}`));
 
 			res.json({success:false, error:"Unknown", errorId:"3297rgsd97gs"});
 		}
 	}).catch(function(err) {
-		utils.logError("20ddd8rhsd8hs", err);
+		res.locals.pageErrors.push(utils.logError("20ddd8rhsd8hs", err));
 
 		res.json({success:false, error:err, errorId:"20ddd8rhsd8hs"});
 	})
@@ -2193,7 +2194,7 @@ router.post("/send-payment", function(req, res) {
 		}).catch(function(err) {
 			res.locals.sendPaymentError = err;
 
-			utils.logError("973hrwdgfs", err);
+			res.locals.pageErrors.push(utils.logError("973hrwdgfs", err));
 
 			reject(err);
 		});
@@ -2205,7 +2206,7 @@ router.post("/send-payment", function(req, res) {
 	}).catch(function(err) {
 		req.session.userErrors.push(err);
 
-		utils.logError("3290r7ghsd9gsd", err);
+		res.locals.pageErrors.push(utils.logError("3290r7ghsd9gsd", err));
 
 		res.render("send-payment");
 	});
@@ -2359,7 +2360,7 @@ router.get("/invoices", function(req, res) {
 	}).catch(function(err) {
 		req.session.userErrors.push(err);
 
-		utils.logError("3214r97y2gwefy", err);
+		res.locals.pageErrors.push(utils.logError("3214r97y2gwefy", err));
 
 		res.render("invoices");
 	});
@@ -2408,7 +2409,7 @@ router.post("/openchannel", function(req, res) {
 		}).catch(function(err) {
 			res.locals.openChannelError = err;
 
-			utils.logError("3r97ghsd7gss", err);
+			res.locals.pageErrors.push(utils.logError("3r97ghsd7gss", err));
 
 			reject(err);
 		});
@@ -2418,7 +2419,7 @@ router.post("/openchannel", function(req, res) {
 		res.render("openchannel");
 
 	}).catch(function(err) {
-		utils.logError("397rgheas907gts7", err);
+		res.locals.pageErrors.push(utils.logError("397rgheas907gts7", err));
 
 		res.render("openchannel");
 	});
@@ -2437,7 +2438,7 @@ router.post("/close-channel", function(req, res) {
 		res.json(response);
 
 	}).catch(function(err) {
-		utils.logError("sadfh9g3249r6ywegs", err);
+		res.locals.pageErrors.push(utils.logError("sadfh9g3249r6ywegs", err));
 
 		debugLog("closeChannelError: " + JSON.stringify(err));
 
@@ -2485,7 +2486,7 @@ router.post("/update-channel-policies", function(req, res) {
 		res.json(response);
 
 	}).catch(function(err) {
-		utils.logError("sadfh9g3249r6ywegs", err);
+		res.locals.pageErrors.push(utils.logError("sadfh9g3249r6ywegs", err));
 
 		debugLog("updateChannelPoliciesError: " + JSON.stringify(err));
 
@@ -2533,6 +2534,8 @@ router.post("/withdraw-funds", function(req, res) {
 			res.json(response);
 
 		}).catch(function(err) {
+			res.locals.pageErrors.push(utils.logError("2397rgsughse", err));
+			
 			res.json(err);
 		});
 	} else if (withdrawType == "multi") {
