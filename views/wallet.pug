@@ -36,10 +36,14 @@ block content
 					div.summary-table-label
 						span.border-dotted(data-toggle="tooltip" title="The value in your wallet that's not currently committed to any payment channels.") Balance
 					div.summary-table-content.text-monospace
-						- var currencyValue = new Decimal(walletBalance.confirmed_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-						include includes/value-display.pug
+						if (walletBalance)
+							- var currencyValue = new Decimal(walletBalance.confirmed_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+							include includes/value-display.pug
 
-					if (walletBalance.unconfirmed_balance > 0)
+						else
+							span.border-dotted.text-warning(title="Failed to get wallet balance. See the Error Log for possible details." data-toggle="tooltip") Unknown
+
+					if (walletBalance && walletBalance.unconfirmed_balance > 0)
 						div.summary-table-label
 							span.border-dotted(data-toggle="tooltip" title="The value in your wallet that's unconfirmed on the blockchain.") Unconfirmed Balance
 						div.summary-table-content.text-monospace
@@ -48,7 +52,12 @@ block content
 
 					div.summary-table-label
 						span.border-dotted(title="Number of unspent transactions outputs." data-toggle="tooltip") UTXOs
-					div.summary-table-content.text-monospace #{walletUtxosResponse.utxos.length.toLocaleString()}
+					div.summary-table-content.text-monospace
+						if (walletUtxosResponse)
+							span #{walletUtxosResponse.utxos.length.toLocaleString()}
+
+						else
+							span.border-dotted.text-warning(title="Failed to get wallet UTXOs. See the Error Log for possible details." data-toggle="tooltip") Unknown
 
 					div.summary-table-label Transactions
 					div.summary-table-content.text-monospace #{confirmedTxCount.toLocaleString()}
