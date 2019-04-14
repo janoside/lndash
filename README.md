@@ -23,23 +23,27 @@ Live demo: https://lnd-admin.chaintools.io
 
 # Getting started
 
-### Prerequisite
+### 1. Install/Run LND
 
-1. [Install LND](https://github.com/lightningnetwork/lnd/blob/master/docs/INSTALL.md)
+* [Install LND](https://github.com/lightningnetwork/lnd/blob/master/docs/INSTALL.md)
 
-### Install via NPM
+### 2a. Install LND Admin (via NPM)
 
-1. `npm install -g lnd-admin`
-2. `lnd-admin`
-3. Open [http://127.0.0.1:3004/](http://127.0.0.1:3004/)
+* `npm install -g lnd-admin`
+* `lnd-admin`
+* Open [http://127.0.0.1:3004/](http://127.0.0.1:3004/)
 
-### Install from source
+### 2b. Install LND Admin (from source)
 
-1. `git clone git@github.com:janoside/lnd-admin.git`
-2. `cd lnd-admin; npm install`
-3. Configure via environment variables or `.env` file. See [docs/configuration](docs/configuration.md).
-4. `npm start`
-5. Open [http://127.0.0.1:3004/](http://127.0.0.1:3004/)
+* `git clone git@github.com:janoside/lnd-admin.git`
+* `cd lnd-admin; npm install`
+* Configure via environment variables or `.env` file. See [docs/configuration](docs/configuration.md).
+* `npm start`
+* Open [http://127.0.0.1:3004/](http://127.0.0.1:3004/)
+
+### 3. Setup LND Admin via UI
+
+Once started, LND Admin's UI will guide you to set an admin password and then to connect to any LND nodes you're running. Your hashed password and your LND credentials (encrypted with your password), will be stored in the file `~/.lnd-admin/credentials.json`. If you restart the app after setup, you'll need to "unlock" with your same admin password (in order to decrypt LND credentials). Deleting this file at any time and restarting will prompt you to go through the setup process again.
 
 
 # Credits
