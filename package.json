@@ -29,6 +29,7 @@
     "express": "^4.16.4",
     "express-session": "1.15.6",
     "grpc": "1.19.0",
+    "@grpc/proto-loader": "0.5.0",
     "hash.js": "1.1.7",
     "meow": "^5.0.0",
     "moment": "^2.24.0",

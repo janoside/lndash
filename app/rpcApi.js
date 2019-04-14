@@ -4,6 +4,7 @@ var debugLog = debug("lnd-admin:rpc");
 var utils = require("./utils.js");
 var fs = require("fs");
 var grpc = require("grpc");
+var protoLoader = require('@grpc/proto-loader');
 var path = require('path');
 
 var networkInfo = null;
@@ -82,8 +83,22 @@ function connect(rpcConfig, index) {
 			// such that every call is properly encrypted and authenticated
 			var credentials = grpc.credentials.combineChannelCredentials(sslCreds, macaroonCreds);
 
-			var lnrpcDescriptor = grpc.load(path.join(global.packageRootDir, 'rpc.proto')); // "rpc.proto"
-			var lnrpc = lnrpcDescriptor.lnrpc;
+			var protoFilepath = path.join(global.packageRootDir, 'rpc.proto');
+
+			var packageDefinition = protoLoader.loadSync(
+				protoFilepath,
+				{
+					keepCase: true,
+					longs: String,
+					enums: String,
+					defaults: true,
+					oneofs: true
+				}
+			);
+
+			var protoDescriptor = grpc.loadPackageDefinition(packageDefinition);
+
+			var lnrpc = protoDescriptor.lnrpc;
 
 			// uncomment to print available function of RPC protocol
 			//debugLog(lnrpc);
