@@ -1150,30 +1150,30 @@ router.get("/nodes", function(req, res) {
 	var promises = [];
 
 	promises.push(new Promise(function(resolve, reject) {
-	rpcApi.getFullNetworkDescription(true).then(function(fnd) {
-		res.locals.fullNetworkDescription = fnd;
+		rpcApi.getFullNetworkDescription(true).then(function(fnd) {
+			res.locals.fullNetworkDescription = fnd;
 
-		var allNodes = fnd.nodes.sortedByLastUpdate;
-		var allFilteredNodes = allNodes;
+			var allNodes = fnd.nodes.sortedByLastUpdate;
+			var allFilteredNodes = allNodes;
 
-		if (sortProperty == "last_update") {
-			allFilteredNodes = fnd.nodes.sortedByLastUpdate;
+			if (sortProperty == "last_update") {
+				allFilteredNodes = fnd.nodes.sortedByLastUpdate;
 
-		} else if (sortProperty == "num_channels") {
-			allFilteredNodes = fnd.nodes.sortedByChannelCount;
+			} else if (sortProperty == "num_channels") {
+				allFilteredNodes = fnd.nodes.sortedByChannelCount;
 
-		} else if (sortProperty == "channel_capacity") {
-			allFilteredNodes = fnd.nodes.sortedByTotalCapacity;
-		}
+			} else if (sortProperty == "channel_capacity") {
+				allFilteredNodes = fnd.nodes.sortedByTotalCapacity;
+			}
 
-		var pagedFilteredNodes = [];
-		for (var i = offset; i < Math.min(offset + limit, allFilteredNodes.length); i++) {
-			pagedFilteredNodes.push(allFilteredNodes[i]);
-		}
+			var pagedFilteredNodes = [];
+			for (var i = offset; i < Math.min(offset + limit, allFilteredNodes.length); i++) {
+				pagedFilteredNodes.push(allFilteredNodes[i]);
+			}
 
-		res.locals.allNodes = allNodes;
-		res.locals.allFilteredNodes = allFilteredNodes;
-		res.locals.pagedFilteredNodes = pagedFilteredNodes;
+			res.locals.allNodes = allNodes;
+			res.locals.allFilteredNodes = allFilteredNodes;
+			res.locals.pagedFilteredNodes = pagedFilteredNodes;
 
 			resolve();
 
@@ -1222,30 +1222,30 @@ router.get("/channels", function(req, res) {
 	var promises = [];
 
 	promises.push(new Promise(function(resolve, reject) {
-	rpcApi.getFullNetworkDescription(true).then(function(fnd) {
-		res.locals.fullNetworkDescription = fnd;
+		rpcApi.getFullNetworkDescription(true).then(function(fnd) {
+			res.locals.fullNetworkDescription = fnd;
 
-		var allChannels = fnd.channels.sortedByLastUpdate;
-		var allFilteredChannels = fnd.channels.sortedByLastUpdate;
+			var allChannels = fnd.channels.sortedByLastUpdate;
+			var allFilteredChannels = fnd.channels.sortedByLastUpdate;
 
-		if (sortProperty == "last_update") {
-			allFilteredChannels = fnd.channels.sortedByLastUpdate;
+			if (sortProperty == "last_update") {
+				allFilteredChannels = fnd.channels.sortedByLastUpdate;
 
-		} else if (sortProperty == "capacity") {
-			allFilteredChannels = fnd.channels.sortedByCapacity;
+			} else if (sortProperty == "capacity") {
+				allFilteredChannels = fnd.channels.sortedByCapacity;
 
-		} else {
-			allFilteredChannels = fnd.channels.sortedByLastUpdate;
-		}
+			} else {
+				allFilteredChannels = fnd.channels.sortedByLastUpdate;
+			}
 
-		var pagedFilteredChannels = [];
-		for (var i = offset; i < Math.min(offset + limit, allFilteredChannels.length); i++) {
-			pagedFilteredChannels.push(allFilteredChannels[i]);
-		}
+			var pagedFilteredChannels = [];
+			for (var i = offset; i < Math.min(offset + limit, allFilteredChannels.length); i++) {
+				pagedFilteredChannels.push(allFilteredChannels[i]);
+			}
 
-		res.locals.allChannels = allChannels;
-		res.locals.allFilteredChannels = allFilteredChannels;
-		res.locals.pagedFilteredChannels = pagedFilteredChannels;
+			res.locals.allChannels = allChannels;
+			res.locals.allFilteredChannels = allFilteredChannels;
+			res.locals.pagedFilteredChannels = pagedFilteredChannels;
 
 			resolve();
 
