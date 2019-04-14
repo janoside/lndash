@@ -87,26 +87,25 @@ aside.aside-menu.p-3.bg-main.text-body
 
 	div.mb-3
 		h5.h6 App Version
-		
+
 		if (global.sourcecodeVersion)
 			div.mb-2
-				div Commit
-				div
+				span.mr-2 Commit
+				span
 					a.text-monospace(href=`https://github.com/janoside/lnd-admin/commit/${sourcecodeVersion}`) ##{sourcecodeVersion.substring(0, 8)}
 		
 		if (global.sourcecodeDate)
 			- var timeAgo = moment.duration(moment.utc(new Date()).diff(global.sourcecodeDate));
-			- var dateTimeUtc = moment.utc(global.sourcecodeDate).format("Y-MM-DD HH:mm");
+			- var dateTimeUtc = moment.utc(global.sourcecodeDate).format("Y-MM-DD");
 
 			div.mb-2
-				div Date
-				div.text-monospace #{dateTimeUtc} utc
-				div.text-monospace.text-muted #{timeAgo.humanize()} ago
-
+				span.mr-2 Date
+				span.text-monospace.border-dotted(title=`${timeAgo.humanize()} ago` data-toggle="tooltip") #{dateTimeUtc}
+				
 		if (global.appVersion)
 			div.mb-2
-				div Version
-				div.text-monospace v#{global.appVersion}
+				span.mr-2 Version
+				span.text-monospace v#{global.appVersion}
 
 	if (false)
 		ul.nav.nav-tabs(role='tablist')
