@@ -83,7 +83,7 @@ router.get("/", function(req, res) {
 		});
 	}));
 
-	Promise.all(promises).then(function(results) {
+	Promise.all(promises.map(utils.reflectPromise)).then(function(results) {
 		res.render("index");
 
 	}).catch(function(err) {
@@ -167,7 +167,7 @@ router.get("/node/:nodePubkey", function(req, res) {
 		});
 	}));
 
-	Promise.all(promises).then(function() {
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		res.render("node");
 
 	}).catch(function(err) {
@@ -241,7 +241,7 @@ router.get("/channel/:channelId", function(req, res) {
 	}));
 	
 
-	Promise.all(promises).then(function() {
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		if (res.locals.channel != null) {
 			res.locals.node1 = res.locals.fullNetworkDescription.nodeInfoByPubkey[res.locals.channel.node1_pub];
 			res.locals.node2 = res.locals.fullNetworkDescription.nodeInfoByPubkey[res.locals.channel.node2_pub];
@@ -438,7 +438,7 @@ router.get("/wallet", function(req, res) {
 		});
 	}));
 
-	Promise.all(promises).then(function() {
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		res.render("wallet");
 
 	}).catch(function(err) {
@@ -507,7 +507,7 @@ router.get("/node-status", function(req, res) {
 		});
 	}));
 
-	Promise.all(promises).then(function() {
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		res.render("node-status");
 		res.end();
 
@@ -562,7 +562,7 @@ router.get("/peers", function(req, res) {
 		});
 	}));
 
-	Promise.all(promises).then(function() {
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		var allPeers = res.locals.listPeers.peers;
 		var allFilteredPeers = [];
 
@@ -793,7 +793,7 @@ router.post("/query-route", function(req, res) {
 		});
 	}));
 
-	Promise.all(promises).then(function() {
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		res.render("query-route");
 
 	}).catch(function(err) {
@@ -891,7 +891,7 @@ router.get("/forwarding-history", function(req, res) {
 		});
 	}));
 
-	Promise.all(promises).then(function() {
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		var allEvents = res.locals.forwardingHistoryResponse.forwarding_events;
 		var allFilteredEvents = allEvents;
 
@@ -1184,7 +1184,7 @@ router.get("/nodes", function(req, res) {
 		});
 	}));
 
-	Promise.all(promises).then(function() {
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		res.render("nodes");
 
 	}).catch(function(err) {
@@ -1256,7 +1256,7 @@ router.get("/channels", function(req, res) {
 		});
 	}));
 
-	Promise.all(promises).then(function() {
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		res.render("channels");
 
 	}).catch(function(err) {
@@ -1358,7 +1358,7 @@ router.get("/local-channels", function(req, res) {
 		});
 	}));
 
-	Promise.all(promises).then(function() {
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		var allChannels = [];
 		
 		res.locals.localChannels.channels.forEach(function(chan) {
@@ -1804,7 +1804,7 @@ router.post("/manage-nodes", function(req, res) {
 		promises.push(rpcApi.connect(newLndNode, global.adminCredentials.lndNodes.length - 1));
 	}
 
-	Promise.all(promises).then(function() {
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		global.adminCredentials.lndNodes.push(newLndNode);
 
 		utils.saveAdminCredentials(global.adminPassword);
@@ -2084,7 +2084,7 @@ router.get("/pay-invoice", function(req, res) {
 		}));
 	}
 
-	Promise.all(promises).then(function() {
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		res.render("pay-invoice");
 
 	}).catch(function(err) {
@@ -2143,7 +2143,7 @@ router.get("/send-payment", function(req, res) {
 		res.locals.amountSat = req.query.amountSat;
 	}
 
-	Promise.all(promises).then(function() {
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		res.render("send-payment");
 
 	}).catch(function(err) {
@@ -2178,7 +2178,7 @@ router.get("/new-deposit-address", function(req, res) {
 		});
 	}));
 
-	Promise.all(promises).then(function() {
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		if (res.locals.newDepositAddressResponse) {
 			res.json(res.locals.newDepositAddressResponse);
 
@@ -2229,7 +2229,7 @@ router.post("/send-payment", function(req, res) {
 		});
 	}));
 
-	Promise.all(promises).then(function() {
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		res.render("send-payment");
 
 	}).catch(function(err) {
@@ -2444,7 +2444,7 @@ router.post("/openchannel", function(req, res) {
 		});
 	}));
 
-	Promise.all(promises).then(function() {
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		res.render("openchannel");
 
 	}).catch(function(err) {

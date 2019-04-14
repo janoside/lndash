@@ -416,6 +416,10 @@ function colorHexToRgb(hex) {
     } : null;
 }
 
+// https://stackoverflow.com/a/31424853/673828
+const reflectPromise = p => p.then(v => ({v, status: "resolved" }),
+                            e => ({e, status: "rejected" }));
+
 function colorHexToHsl(hex) {
 	var rgb = colorHexToRgb(hex);
 	return rgbToHsl(rgb.r, rgb.g, rgb.b);
@@ -587,6 +591,7 @@ function binaryToDecimal(dec){
 
 
 module.exports = {
+	reflectPromise: reflectPromise,
 	hex2ascii: hex2ascii,
 	splitArrayIntoChunks: splitArrayIntoChunks,
 	getRandomString: getRandomString,
