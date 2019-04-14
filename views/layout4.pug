@@ -279,18 +279,15 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 					li.breadcrumb-item
 						a(href='/') Admin Home
 					
-					if (false)
-						// Breadcrumb Menu
-						li.breadcrumb-menu.d-md-down-none
-							.btn-group(role='group' aria-label='Button group')
-								a.btn(href='#')
-									i.icon-speech
-								a.btn(href='./')
-									i.icon-graph
-									| &#x9;Dashboard
-								a.btn(href='#')
-									i.icon-settings
-									| &#x9;Settings
+				
+				if (pageErrors && pageErrors.length > 0)
+					include includes/page-errors-modal.pug
+
+					li.breadcrumb-menu.d-md-down-none
+						div.alert.alert-danger.py-1.px-3.mb-n2.mt-n1.font-weight-bold(title=`This page encountered ${pageErrors.length.toLocaleString()} error(s). Click for details.` data-toggle="tooltip")
+							a.text-danger(href="javascript:void(0)" data-toggle="modal" data-target="#pageErrorsModal") Errors
+							span.badge.badge-danger.ml-2 #{pageErrors.length.toLocaleString()}
+
 			
 			.container-fluid.mx-0.px-2.px-lg-3.px-xl-4
 				if (userMessage)

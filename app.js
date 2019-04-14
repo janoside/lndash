@@ -227,6 +227,8 @@ app.use(function(req, res, next) {
 	res.locals.config = global.config;
 	res.locals.coinConfig = global.coinConfig;
 
+	res.locals.pageErrors = [];
+
 	var userAgent = req.headers['user-agent'];
 	for (var i = 0; i < crawlerBotUserAgentStrings.length; i++) {
 		if (userAgent.indexOf(crawlerBotUserAgentStrings[i]) != -1) {

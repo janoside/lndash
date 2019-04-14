@@ -436,6 +436,13 @@ function logError(errorId, err, optionalUserData = null) {
 	if (err.stack) {
 		debugLogError("Stack: " + err.stack);
 	}
+
+	var returnVal = {errorId:errorId, error:err};
+	if (optionalUserData) {
+		returnVal.userData = optionalUserData;
+	}
+
+	return returnVal;
 }
 
 function buildQrCodeUrls(strings) {

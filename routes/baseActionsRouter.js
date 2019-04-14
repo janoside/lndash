@@ -20,7 +20,7 @@ router.get("/", function(req, res) {
 	promises.push(new Promise(function(resolve, reject) {
 		lndRpc.getInfo({}, function(err, response) {
 			if (err) {
-				utils.logError("3u1rh2yugfew0fwe", err);
+				res.locals.pageErrors.push(utils.logError("3u1rh2yugfew0fwe", err));
 
 				reject(err);
 
@@ -40,7 +40,7 @@ router.get("/", function(req, res) {
 			resolve();
 		
 		}).catch(function(err) {
-			utils.logError("234r078sdh907gsdgs", err);
+			res.locals.pageErrors.push(utils.logError("234r078sdh907gsdgs", err));
 			
 			reject(err);
 		});
@@ -64,7 +64,7 @@ router.get("/", function(req, res) {
 			resolve();
 		
 		}).catch(function(err) {
-			utils.logError("325078whs0d7hg8s", err);
+			res.locals.pageErrors.push(utils.logError("325078whs0d7hg8s", err));
 			
 			reject(err);
 		});
@@ -77,7 +77,7 @@ router.get("/", function(req, res) {
 			resolve();
 		
 		}).catch(function(err) {
-			utils.logError("23r079uhsd0gsh", err);
+			res.locals.pageErrors.push(utils.logError("23r079uhsd0gsh", err));
 			
 			reject(err);
 		});
@@ -89,7 +89,7 @@ router.get("/", function(req, res) {
 		res.render("index");
 
 	}).catch(function(err) {
-		utils.logError("3972hrwe07fgedwfds", err);
+		res.locals.pageErrors.push(utils.logError("3972hrwe07fgedwfds", err));
 
 		res.render("index");
 	});
@@ -369,7 +369,7 @@ router.get("/wallet", function(req, res) {
 			resolve();
 
 		}).catch(function(err) {
-			utils.logError("3279hsd907ts", err);
+			res.locals.pageErrors.push(utils.logError("3279hsd907ts", err));
 
 			reject(err);
 		});
@@ -382,7 +382,7 @@ router.get("/wallet", function(req, res) {
 			resolve();
 
 		}).catch(function(err) {
-			utils.logError("3297rtwe7tg", err);
+			res.locals.pageErrors.push(utils.logError("3297rtwe7tg", err));
 
 			reject(err);
 		});
@@ -395,7 +395,7 @@ router.get("/wallet", function(req, res) {
 			resolve();
 		
 		}).catch(function(err) {
-			utils.logError("2307rwehdsgds", err);
+			res.locals.pageErrors.push(utils.logError("2307rwehdsgds", err));
 
 			reject(err);
 		});
@@ -408,7 +408,7 @@ router.get("/wallet", function(req, res) {
 			resolve();
 		
 		}).catch(function(err) {
-			utils.logError("3r07wgshsgs", err);
+			res.locals.pageErrors.push(utils.logError("3r07wgshsgs", err));
 
 			reject(err);
 		});
@@ -421,7 +421,7 @@ router.get("/wallet", function(req, res) {
 			resolve();
 		
 		}).catch(function(err) {
-			utils.logError("32078sdhsghgsh", err);
+			res.locals.pageErrors.push(utils.logError("32078sdhsghgsh", err));
 
 			reject(err);
 		});
@@ -434,7 +434,7 @@ router.get("/wallet", function(req, res) {
 			resolve();
 		
 		}).catch(function(err) {
-			utils.logError("213e087hy07sgdh", err);
+			res.locals.pageErrors.push(utils.logError("213e087hy07sgdh", err));
 
 			reject(err);
 		});
@@ -444,7 +444,7 @@ router.get("/wallet", function(req, res) {
 		res.render("wallet");
 
 	}).catch(function(err) {
-		utils.logError("3r9ygew9fgvew9fd", err);
+		res.locals.pageErrors.push(utils.logError("3r9ygew9fgvew9fd", err));
 
 		res.render("wallet");
 	});
