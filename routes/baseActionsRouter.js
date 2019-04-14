@@ -1147,6 +1147,9 @@ router.get("/nodes", function(req, res) {
 	var sortProperty = sort.substring(0, sort.indexOf("-"));
 	var sortDirection = sort.substring(sort.indexOf("-") + 1);
 
+	var promises = [];
+
+	promises.push(new Promise(function(resolve, reject) {
 	rpcApi.getFullNetworkDescription(true).then(function(fnd) {
 		res.locals.fullNetworkDescription = fnd;
 
@@ -1171,6 +1174,21 @@ router.get("/nodes", function(req, res) {
 		res.locals.allNodes = allNodes;
 		res.locals.allFilteredNodes = allFilteredNodes;
 		res.locals.pagedFilteredNodes = pagedFilteredNodes;
+
+			resolve();
+
+		}).catch(function(err) {
+			res.locals.pageErrors.push(utils.logError("2398wjs8s8h", err));
+
+			reject(err);
+		});
+	}));
+
+	Promise.all(promises).then(function() {
+		res.render("nodes");
+
+	}).catch(function(err) {
+		res.locals.pageErrors.push(utils.logError("327rhsd7gssW", err));
 
 		res.render("nodes");
 	});
@@ -1201,6 +1219,9 @@ router.get("/channels", function(req, res) {
 	var sortProperty = sort.substring(0, sort.indexOf("-"));
 	var sortDirection = sort.substring(sort.indexOf("-") + 1);
 
+	var promises = [];
+
+	promises.push(new Promise(function(resolve, reject) {
 	rpcApi.getFullNetworkDescription(true).then(function(fnd) {
 		res.locals.fullNetworkDescription = fnd;
 
@@ -1226,6 +1247,16 @@ router.get("/channels", function(req, res) {
 		res.locals.allFilteredChannels = allFilteredChannels;
 		res.locals.pagedFilteredChannels = pagedFilteredChannels;
 
+			resolve();
+
+		}).catch(function(err) {
+			res.locals.pageErrors.push(utils.logError("239yrg239r", err));
+
+			reject(err);
+		});
+	}));
+
+	Promise.all(promises).then(function() {
 		res.render("channels");
 
 	}).catch(function(err) {
