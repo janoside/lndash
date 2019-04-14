@@ -78,7 +78,7 @@ block content
 			pre
 				code.json.bg-light #{JSON.stringify(walletUtxosResponse, null, 4)}
 		
-		if (walletUtxosResponse.utxos.length > 0)
+		if (walletUtxosResponse && walletUtxosResponse.utxos && walletUtxosResponse.utxos.length > 0)
 			div.card.shadow-sm.mb-3
 				div.card-header
 					h3.h6.mb-0 #{walletUtxosResponse.utxos.length.toLocaleString()} UTXOs
