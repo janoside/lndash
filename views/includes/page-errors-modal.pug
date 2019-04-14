@@ -11,7 +11,7 @@ div.modal.fade(id="pageErrorsModal" role="dialog" aria-hidden="true")
 				each item, itemIndex in pageErrors
 					div.card.shadow-sm(class=(itemIndex < (pageErrors.length - 1) ? "mb-3" : false))
 						div.card-header
-							h6.mb-0 Error #{(itemIndex + 1).toLocaleString()}
+							h6.mb-0 Error ##{(itemIndex + 1).toLocaleString()}
 						div.card-body
 							h6 Error Details
 							pre

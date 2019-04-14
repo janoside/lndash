@@ -83,8 +83,6 @@ router.get("/", function(req, res) {
 		});
 	}));
 
-	res.locals.homepage = true;
-
 	Promise.all(promises).then(function(results) {
 		res.render("index");
 
