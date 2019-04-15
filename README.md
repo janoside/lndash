@@ -18,6 +18,7 @@ Live demo: https://lnd-admin.chaintools.io
 * Connect to multiple LND nodes and switch between them
 * Simple/intuitive sorting filtering for most data
 * Tools for sign/very, query route, generate LND Connect strings
+* Star (favorite) nodes and channels
 * Responsive design (but UI is data/table heavy, so works best on large screens)
 
 
