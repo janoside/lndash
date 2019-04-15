@@ -1311,7 +1311,7 @@ router.get("/local-channels", function(req, res) {
 	res.locals.status = status;
 	res.locals.localbalance = localbalance;
 	res.locals.remotebalance = remotebalance;
-	res.locals.paginationBaseUrl = `/local-channels?status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}`;
+	res.locals.paginationBaseUrl = `/local-channels?sort=${sort}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}`;
 
 	var sortProperty = sort.substring(0, sort.indexOf("-"));
 	var sortDirection = sort.substring(sort.indexOf("-") + 1);
