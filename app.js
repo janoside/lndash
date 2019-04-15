@@ -170,6 +170,8 @@ app.runOnStartup = function() {
 		indexes:[]
 	};
 
+	global.userPreferences = {};
+
 	if (fs.existsSync(path.join(global.userDataDir, "credentials.json"))) {
 		if (fs.existsSync(path.join(global.userDataDir, ".debugAdminPassword"))) {
 			global.adminPassword = fs.readFileSync(path.join(global.userDataDir, ".debugAdminPassword"), "utf8").trim();
@@ -178,6 +180,10 @@ app.runOnStartup = function() {
 		global.adminCredentials = utils.loadAdminCredentials(global.adminPassword);
 
 		if (global.adminPassword) {
+			if (fs.existsSync(path.join(global.userDataDir, "preferences.json"))) {
+				global.userPreferences = utils.loadPreferences(global.adminPassword);
+			}
+
 			if (global.adminCredentials.lndNodes == null || global.adminCredentials.lndNodes.length == 0) {
 				global.setupNeeded = true;
 

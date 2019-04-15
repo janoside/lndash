@@ -290,6 +290,7 @@ router.post("/setup", function(req, res) {
 	global.adminCredentials.adminPasswordSha256 = pwdSha256;
 
 	utils.saveAdminCredentials(global.adminPassword);
+	utils.savePreferences(global.userPreferences, global.adminPassword);
 
 	req.session.admin = true;
 
@@ -690,6 +691,7 @@ router.post("/login", function(req, res) {
 		global.adminPassword = req.body.password;
 
 		global.adminCredentials = utils.loadAdminCredentials(global.adminPassword);
+		global.userPreferences = utils.loadPreferences(global.adminPassword);
 
 		req.session.admin = true;
 

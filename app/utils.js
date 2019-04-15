@@ -532,6 +532,21 @@ function loadAdminCredentials(encPassword) {
 	return adminCredentials;
 }
 
+function savePreferences(preferences, encPassword) {
+	fs.writeFileSync(path.join(global.userDataDir, "preferences.json"), JSON.stringify(preferences, null, 4));
+}
+
+function loadPreferences(encPassword) {
+	if (fs.existsSync(path.join(global.userDataDir, "preferences.json"))) {
+		var preferencesData = fs.readFileSync(path.join(global.userDataDir, "preferences.json"), "utf8");
+
+		return JSON.parse(preferencesData);
+
+	} else {
+		return {};
+	}
+}
+
 function chunkString(str, maxChunkSize) {
 	const numChunks = Math.ceil(str.length / maxChunkSize)
 	const chunks = new Array(numChunks)
@@ -623,5 +638,7 @@ module.exports = {
 	parseLndconnectString: parseLndconnectString,
 	formatLndconnectString: formatLndconnectString,
 	decimalToBinary: decimalToBinary,
-	binaryToDecimal: binaryToDecimal
+	binaryToDecimal: binaryToDecimal,
+	savePreferences: savePreferences,
+	loadPreferences: loadPreferences
 };
