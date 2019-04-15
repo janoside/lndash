@@ -604,6 +604,16 @@ function binaryToDecimal(dec){
 	return parseInt(dec, 2).toString(10);
 }
 
+function parseChannelId(channelId) {
+	var channelIdBinary = decimalToBinary(channelId).padStart(64, "0");
+
+	return {
+		blockHeight: parseInt(binaryToDecimal(channelIdBinary.substring(0, 24))),
+		blockTxIndex: parseInt(binaryToDecimal(channelIdBinary.substring(24, 48))),
+		txOutputIndex: parseInt(binaryToDecimal(channelIdBinary.substring(48)))
+	};
+}
+
 
 module.exports = {
 	reflectPromise: reflectPromise,
@@ -640,5 +650,6 @@ module.exports = {
 	decimalToBinary: decimalToBinary,
 	binaryToDecimal: binaryToDecimal,
 	savePreferences: savePreferences,
-	loadPreferences: loadPreferences
+	loadPreferences: loadPreferences,
+	parseChannelId: parseChannelId
 };

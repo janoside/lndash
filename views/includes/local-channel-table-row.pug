@@ -68,6 +68,13 @@ tr(class="text-monospace word-wrap")
 		include ./node-card.pug
 
 	td.text-right
+		if (config.blockExplorerUrl)
+			a(href=`${config.blockExplorerUrl}/block-height/${parsedChannelIds[channel.chan_id].blockHeight}` target="_blank") #{parsedChannelIds[channel.chan_id].blockHeight.toLocaleString()}
+
+		else
+			span #{parsedChannelIds[channel.chan_id].blockHeight.toLocaleString()}
+
+	td.text-right
 		if (channel.active)
 			- var atLeastOne = false;
 			- var currencyValue = new Decimal(channel.total_satoshis_received).dividedBy(coinConfig.baseCurrencyUnit.multiplier);

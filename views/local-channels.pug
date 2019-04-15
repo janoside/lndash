@@ -46,6 +46,8 @@ block content
 									| Value Transferred (highest first)
 								else if (sort == "updated-desc")
 									| Updated Date (recent first)
+								else if (sort == "openblockheight-desc")
+									| Open Block Height (newest first)
 
 						div.dropdown-menu(aria-labelledby="dropdownMenuButton")
 							a.dropdown-item(href=`/local-channels?sort=capacity-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Total Capacity (highest first)
@@ -53,6 +55,7 @@ block content
 							a.dropdown-item(href=`/local-channels?sort=remotebalance-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Remote Balance (highest first)
 							a.dropdown-item(href=`/local-channels?sort=valuetransfer-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Value Transferred (highest first)
 							a.dropdown-item(href=`/local-channels?sort=updated-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Updated Date (recent first)
+							a.dropdown-item(href=`/local-channels?sort=openblockheight-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Open Block Height (recent first)
 
 					div.mr-4.mb-2.mb-lg-0.float-left
 						div Status
@@ -149,6 +152,8 @@ block content
 							//th.text-center
 							//	span.border-dotted(title="Whether channel was created by the local node", data-toggle="tooltip") Initiator
 							th Remote Node
+							th.text-right
+								span.border-dotted(title="The block height that this channel's opening transaction was confirmed at" data-toggle="tooltip") Open Block Height
 							th.text-right
 								if (sort == "valuetransfer-desc")
 									span.mr-2 Value Transfer
