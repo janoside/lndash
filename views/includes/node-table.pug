@@ -11,5 +11,6 @@ div.table-responsive
 		
 		tbody
 			each nodeInfo, index in nodeInfos
-				- var nodeTableIndex = (nodeTableIndexOffset + index + 1);
-				include ./node-table-row.pug
+				if (nodeInfo)
+					- var nodeTableIndex = (nodeTableIndexOffset + index + 1);
+					include ./node-table-row.pug
