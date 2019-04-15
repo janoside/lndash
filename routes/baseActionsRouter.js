@@ -1133,6 +1133,7 @@ router.get("/nodes", function(req, res) {
 	var limit = 20;
 	var offset = 0;
 	var sort = "last_update-desc";
+	var starred = "all";
 
 	if (req.query.limit) {
 		limit = parseInt(req.query.limit);
@@ -1146,10 +1147,15 @@ router.get("/nodes", function(req, res) {
 		sort = req.query.sort;
 	}
 
+	if (req.query.starred) {
+		starred = req.query.starred.toLowerCase();;
+	}
+
 	res.locals.limit = limit;
 	res.locals.offset = offset;
 	res.locals.sort = sort;
-	res.locals.paginationBaseUrl = `/nodes?sort=${sort}`;
+	res.locals.starred = starred;
+	res.locals.paginationBaseUrl = `/nodes?sort=${sort}&starred=${starred}`;
 
 	var sortProperty = sort.substring(0, sort.indexOf("-"));
 	var sortDirection = sort.substring(sort.indexOf("-") + 1);
@@ -1161,17 +1167,60 @@ router.get("/nodes", function(req, res) {
 			res.locals.fullNetworkDescription = fnd;
 
 			var allNodes = fnd.nodes.sortedByLastUpdate;
-			var allFilteredNodes = allNodes;
-
+			
 			if (sortProperty == "last_update") {
-				allFilteredNodes = fnd.nodes.sortedByLastUpdate;
+				allNodes = fnd.nodes.sortedByLastUpdate;
 
 			} else if (sortProperty == "num_channels") {
-				allFilteredNodes = fnd.nodes.sortedByChannelCount;
+				allNodes = fnd.nodes.sortedByChannelCount;
 
 			} else if (sortProperty == "channel_capacity") {
-				allFilteredNodes = fnd.nodes.sortedByTotalCapacity;
+				allNodes = fnd.nodes.sortedByTotalCapacity;
 			}
+
+
+
+
+			var predicates = [
+				// starred
+				function(node) {
+					if (starred == "all") {
+						return true;
+
+					} else if (starred == "yes") {
+						console.log("abc: " + JSON.stringify(node));
+
+						return global.userPreferences.tags["star"].includes(`node:${node.node.pub_key}`);
+					}
+
+					// should never happen
+					utils.logError("08uhas0df7hgasd0hf", `Unexpected filter value: starred=${starred}`);
+
+					return true;
+				},
+			];
+
+
+			var allFilteredNodes = [];
+			for (var i = 0; i < allNodes.length; i++) {
+				var node = allNodes[i];
+
+				var excluded = false;
+				for (var j = 0; j < predicates.length; j++) {
+					if (!predicates[j](node)) {
+						excluded = true;
+
+						break;
+					}
+				}
+
+				if (!excluded) {
+					allFilteredNodes.push(node);
+				}
+			}
+
+
+
 
 			var pagedFilteredNodes = [];
 			for (var i = offset; i < Math.min(offset + limit, allFilteredNodes.length); i++) {
