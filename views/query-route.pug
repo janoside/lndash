@@ -86,10 +86,15 @@ block content
 								include includes/value-display.pug
 
 						div.summary-table-label Total Fees
-						div.summary-table-content.text-monospace.text-danger
-							- var currencyValue = new Decimal(route.total_fees_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
-							- var tempCurrencyFormatType = "msat";
-							include includes/value-display.pug
+						div.summary-table-content.text-monospace
+							if (parseInt(route.total_fees_msat) > 0)
+								span.text-danger
+									- var currencyValue = new Decimal(route.total_fees_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
+									- var tempCurrencyFormatType = "msat";
+									include includes/value-display.pug
+									
+							else
+								span.text-success 0
 
 						div.summary-table-label Total Timelock
 						div.summary-table-content.text-monospace #{route.total_time_lock.toLocaleString()}
