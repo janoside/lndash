@@ -153,7 +153,13 @@ block content
 							//	span.border-dotted(title="Whether channel was created by the local node", data-toggle="tooltip") Initiator
 							th Remote Node
 							th.text-right
-								span.border-dotted(title="The block height that this channel's opening transaction was confirmed at" data-toggle="tooltip") Open Block Height
+								if (sort == "openblockheight-desc")
+									span.border-dotted.mr-2(title="The height of the block that confirmed each channel's opening transaction" data-toggle="tooltip") Open Block Height
+									i.fas.fa-arrow-down
+								else
+									a.border-dotted(href=`/local-channels?sort=openblockheight-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort by the height of the block that confirmed each channel's opening transaction" data-toggle="tooltip")
+										span Open Block Height
+
 							th.text-right
 								if (sort == "valuetransfer-desc")
 									span.mr-2 Value Transfer
