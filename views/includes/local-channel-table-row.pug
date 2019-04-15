@@ -6,10 +6,16 @@ tr(class="text-monospace word-wrap")
 				- var channel_id = channel.chan_id;
 				include ./channel-id.pug
 
+			if (userPreferences.tags && userPreferences.tags["star"].includes(`channel:${channel_id}`))
+				i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
+
 		else if (channel.chan_id)
 			span
 				- var channel_id = channel.chan_id;
 				include ./channel-id.pug
+
+				if (userPreferences.tags && userPreferences.tags["star"].includes(`channel:${channel_id}`))
+					i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
 
 		else
 			span -

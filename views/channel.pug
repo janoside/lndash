@@ -43,7 +43,10 @@ block content
 						- localChannelStatus = "Waiting to Close";
 
 			if (localChannel)
-				i.fas.fa-certificate.fa-xs.text-primary(title="Your LND node is one of the participants in this channel" data-toggle="tooltip")
+				i.fas.fa-certificate.fa-xs.text-primary.mr-2(title="Your LND node is one of the participants in this channel" data-toggle="tooltip")
+
+			if (userPreferences.tags && userPreferences.tags["star"].includes(`channel:${channelId}`))
+				i.fas.fa-star.text-warning.fa-xs(title="This is one of your favorite channels" data-toggle="tooltip")
 	hr
 
 	if (false)
@@ -181,11 +184,11 @@ block content
 											i.fas.fa-lock
 									
 
-				if (localChannels.byId[channel.channel_id])
-					div.card.mb-3.shadow-sm
-						div.card-header
-							h2.h6.mb-0 Tools
-						div.card-body
+				div.card.mb-3.shadow-sm
+					div.card-header
+						h2.h6.mb-0 Tools
+					div.card-body
+						if (localChannels.byId[channel.channel_id])
 							if (session.admin)
 								include includes/close-channel-modal.pug
 								include includes/update-channel-policies-modal.pug
@@ -194,13 +197,28 @@ block content
 									i.fas.fa-times.mr-2
 									span Close Channel
 
-								a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`javascript:void(0)` data-toggle="modal" data-target="#updateChannelPoliciesModal")
+								a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`javascript:void(0)` data-toggle="modal" data-target="#updateChannelPoliciesModal")
 									i.fas.fa-edit.mr-2
 									span Update Policies
 
 							else
-								- var loginRequiredFullNote = "You must be logged in to make changes to your channels.";
-								include includes/login-required-alert.pug
+								a.btn.btn-secondary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-toggle="tooltip" title="You need to log in to modify your channels." disabled)
+									i.fas.fa-times.mr-2
+									span Close Channel
+
+								a.btn.btn-secondary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-md-inline-block(href=`javascript:void(0)` data-toggle="tooltip" title="You need to log in to modify your channels." disabled)
+									i.fas.fa-edit.mr-2
+									span Update Policies
+
+						if (userPreferences.tags && userPreferences.tags["star"].includes(`channel:${channelId}`))
+							a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/tag?action=remove&tagType=star&objectId=channel:${channelId}` title="Remove this channel from your list of favorites" data-toggle="tooltip")
+								i.far.fa-star.mr-2
+								span Unstar Channel
+
+						else
+							a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/tag?action=add&tagType=star&objectId=channel:${channelId}` title="Add this channel to your list of favorites" data-toggle="tooltip")
+								i.fas.fa-star.mr-2
+								span Star Channel
 
 				div.card.mb-3.shadow-sm
 					div.card-header

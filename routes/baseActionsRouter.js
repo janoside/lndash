@@ -2621,4 +2621,50 @@ router.get("/lndconnect", function(req, res) {
 	res.render("lndconnect");
 });
 
+router.get("/tag", function(req, res) {
+	if (!req.query.tagType) {
+		req.session.userMessage = "Unable to tag object: missing tag type";
+
+		res.redirect(req.headers.referer);
+	}
+
+	if (!req.query.objectId) {
+		req.session.userMessage = "Unable to tag object: missing object identifier";
+
+		res.redirect(req.headers.referer);
+	}
+
+	var action = "add";
+	if (req.query.action) {
+		action = req.query.action;
+	}
+
+	var tagType = req.query.tagType;
+	var objectId = req.query.objectId;
+
+	var preferences = global.userPreferences;
+
+	if (action == "add") {
+		if (!preferences.tags) {
+			preferences.tags = {};
+		}
+
+		if (!preferences.tags[tagType]) {
+			preferences.tags[tagType] = [];
+		}
+
+		preferences.tags[tagType].push(objectId);
+
+	} else if (action == "remove") {
+		preferences.tags[tagType] = preferences.tags[tagType].filter(e => e !== objectId);
+	}
+
+	global.userPreferences = preferences;
+
+	utils.savePreferences(global.userPreferences, global.adminPassword);
+	
+	
+	res.redirect(req.headers.referer);
+});
+
 module.exports = router;

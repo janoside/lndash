@@ -6,6 +6,9 @@ tr(class="text-monospace word-wrap")
 			- var channel_id = channel.channel_id;
 			include ./channel-id.pug
 
+		if (userPreferences.tags && userPreferences.tags["star"].includes(`channel:${channel_id}`))
+			i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
+
 	td
 		- var card_node_pubkey = channel.node1_pub;
 		include ./node-card.pug

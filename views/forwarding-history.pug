@@ -245,6 +245,9 @@ block content
 												- var channel_id = forwardingEvent.chan_id_in;
 												include includes/channel-id.pug
 
+											if (userPreferences.tags && userPreferences.tags["star"].includes(`channel:${channel_id}`))
+												i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
+
 											hr
 
 											- var channelInfo = fullNetworkDescription.channelsById[channel_id];
@@ -258,6 +261,9 @@ block content
 											a(href=`/channel/${forwardingEvent.chan_id_out}`)
 												- var channel_id = forwardingEvent.chan_id_out;
 												include includes/channel-id.pug
+
+											if (userPreferences.tags && userPreferences.tags["star"].includes(`channel:${channel_id}`))
+												i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
 
 											hr
 
@@ -344,6 +350,9 @@ block content
 														- var channel_id = channelForwardingInfo.channelId;
 														include includes/channel-id.pug
 
+													if (userPreferences.tags && userPreferences.tags["star"].includes(`channel:${channel_id}`))
+														i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
+
 													hr
 
 													- var channelInfo = fullNetworkDescription.channelsById[channel_id];
@@ -391,6 +400,9 @@ block content
 													a(href=`/channel/${channelForwardingInfo.channelId}`)
 														- var channel_id = channelForwardingInfo.channelId;
 														include includes/channel-id.pug
+
+													if (userPreferences.tags && userPreferences.tags["star"].includes(`channel:${channel_id}`))
+														i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
 
 													hr
 

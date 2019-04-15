@@ -26,6 +26,9 @@ block content
 
 		if (nodePubkey == lndRpc.internal_pubkey)
 			i.fas.fa-certificate.fa-xs.text-primary(title="These are the public node details for your active LND node" data-toggle="tooltip")
+
+		if (userPreferences.tags && userPreferences.tags["star"].includes(`node:${node_pubkey}`))
+			i.fas.fa-star.text-warning.fa-xs(title="This is one of your favorite nodes" data-toggle="tooltip")
 	hr
 
 	if (nodeInfo && nodeInfo.node)
@@ -141,6 +144,17 @@ block content
 							a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/send-payment?destPubkey=${nodeInfo.node.pub_key}`)
 								i.fas.fa-money-bill-wave.mr-2
 								span Send Payment
+
+
+						if (userPreferences.tags && userPreferences.tags["star"].includes(`node:${nodeInfo.node.pub_key}`))
+							a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/tag?action=remove&tagType=star&objectId=node:${nodeInfo.node.pub_key}` title="Remove this node from your list of favorites" data-toggle="tooltip")
+								i.far.fa-star.mr-2
+								span Unstar Node
+
+						else
+							a.btn.btn-primary.mr-3.d-block.d-md-inline-block.mb-2.mb-md-0(href=`/tag?action=add&tagType=star&objectId=node:${nodeInfo.node.pub_key}` title="Add this node to your list of favorites" data-toggle="tooltip")
+								i.fas.fa-star.mr-2
+								span Star Node
 
 					else
 						span Login required
