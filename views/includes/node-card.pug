@@ -36,7 +36,7 @@ else
 				a(href=`/node/${card_node.pubkey}`, title=card_node.pubkey, data-toggle="tooltip")
 					include ./node-pubkey.pug
 
-				if (userPreferences.tags && userPreferences.tags["star"].includes(`node:${card_node.pubkey}`))
+				if (utils.isObjectStarred(`node:${card_node.pubkey}`))
 					i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite nodes" data-toggle="tooltip")
 				
 				br

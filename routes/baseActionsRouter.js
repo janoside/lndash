@@ -1188,7 +1188,7 @@ router.get("/nodes", function(req, res) {
 						return true;
 
 					} else if (starred == "yes") {
-						return global.userPreferences.tags["star"].includes(`node:${node.node.pub_key}`);
+						return utils.isObjectStarred(`node:${node.node.pub_key}`);
 					}
 
 					// should never happen
@@ -1311,7 +1311,7 @@ router.get("/channels", function(req, res) {
 						return true;
 
 					} else if (starred == "yes") {
-						return global.userPreferences.tags["star"].includes(`channel:${chan.channel_id}`);
+						return utils.isObjectStarred(`channel:${chan.channel_id}`);
 					}
 
 					// should never happen

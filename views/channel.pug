@@ -45,7 +45,7 @@ block content
 			if (localChannel)
 				i.fas.fa-certificate.fa-xs.text-primary.mr-2(title="Your LND node is one of the participants in this channel" data-toggle="tooltip")
 
-			if (userPreferences.tags && userPreferences.tags["star"].includes(`channel:${channelId}`))
+			if (utils.isObjectStarred(`channel:${channelId}`))
 				i.fas.fa-star.text-warning.fa-xs(title="This is one of your favorite channels" data-toggle="tooltip")
 	hr
 
@@ -210,7 +210,7 @@ block content
 									i.fas.fa-edit.mr-2
 									span Update Policies
 
-						if (userPreferences.tags && userPreferences.tags["star"].includes(`channel:${channelId}`))
+						if (utils.isObjectStarred(`channel:${channelId}`))
 							a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/tag?action=remove&tagType=star&objectId=channel:${channelId}` title="Remove this channel from your list of favorites" data-toggle="tooltip")
 								i.far.fa-star.mr-2
 								span Unstar Channel

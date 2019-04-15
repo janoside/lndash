@@ -614,6 +614,18 @@ function parseChannelId(channelId) {
 	};
 }
 
+function isObjectStarred(objectId) {
+	if (global.userPreferences) {
+		if (global.userPreferences.tags) {
+			if (global.userPreferences.tags["star"]) {
+				return global.userPreferences.tags["star"].includes(objectId);
+			}
+		}
+	}
+	
+	return false;
+}
+
 
 module.exports = {
 	reflectPromise: reflectPromise,
@@ -651,5 +663,6 @@ module.exports = {
 	binaryToDecimal: binaryToDecimal,
 	savePreferences: savePreferences,
 	loadPreferences: loadPreferences,
-	parseChannelId: parseChannelId
+	parseChannelId: parseChannelId,
+	isObjectStarred: isObjectStarred
 };
