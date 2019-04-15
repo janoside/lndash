@@ -44,10 +44,14 @@ block content
 								| Last Update
 							else if (sort == "capacity-desc")
 								| Capacity
+							else if (sort == "openblockheight-desc")
+								| Open Block Height (newest first)
 
 					div.dropdown-menu(aria-labelledby="dropdownMenuButton")
+						a.dropdown-item(href=`/channels?sort=openblockheight-desc&limit=${limit}`) Open Block Height (newest first)
 						a.dropdown-item(href=`/channels?sort=last_update-desc&limit=${limit}`) Last Update
 						a.dropdown-item(href=`/channels?sort=capacity-desc&limit=${limit}`) Capacity
+
 
 				div.mr-4.mb-2.mb-lg-0.float-left
 					div Page Size

@@ -130,7 +130,7 @@ router.get("/node/:nodePubkey", function(req, res) {
 
 			if (res.locals.nodeInfo) {
 				res.locals.nodeChannels = [];
-				fnd.channels.sortedByLastUpdate.forEach(function(channel) {
+				fnd.channels.sortedByOpenBlockHeight.forEach(function(channel) {
 					if (channel.node1_pub == nodePubkey || channel.node2_pub == nodePubkey) {
 						res.locals.nodeChannels.push(channel);
 					}
@@ -1204,7 +1204,7 @@ router.get("/nodes", function(req, res) {
 router.get("/channels", function(req, res) {
 	var limit = 20;
 	var offset = 0;
-	var sort = "last_update-desc";
+	var sort = "openblockheight-desc";
 
 	if (req.query.limit) {
 		limit = parseInt(req.query.limit);
@@ -1240,7 +1240,10 @@ router.get("/channels", function(req, res) {
 
 			} else if (sortProperty == "capacity") {
 				allFilteredChannels = fnd.channels.sortedByCapacity;
-
+			
+			} else if (sort == "openblockheight-desc") {
+				allFilteredChannels = fnd.channels.sortedByOpenBlockHeight;
+				
 			} else {
 				allFilteredChannels = fnd.channels.sortedByLastUpdate;
 			}
@@ -1530,8 +1533,8 @@ router.get("/local-channels", function(req, res) {
 				return fallback;
 
 			} else if (sort == "openblockheight-desc") {
-				var parsedChannelId1 = utils.parseChannelId(a.chan_id);
-				var parsedChannelId2 = utils.parseChannelId(b.chan_id);
+				var parsedChannelId1 = res.locals.fullNetworkDescription.parsedChannelIds[a.chan_id];
+				var parsedChannelId2 = res.locals.fullNetworkDescription.parsedChannelIds[b.chan_id];
 
 				var heightDiff = parsedChannelId2.blockHeight - parsedChannelId1.blockHeight;
 				if (heightDiff == 0) {

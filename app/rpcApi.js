@@ -383,11 +383,16 @@ function compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey) 
 
 	fnd.channels = {};
 	fnd.channelsById = {};
+	fnd.parsedChannelIds = {};
+
 	fnd.channels.sortedByLastUpdate = describeGraphResponse.edges;
 	fnd.channels.sortedByCapacity = describeGraphResponse.edges.slice(0);
+	fnd.channels.sortedByOpenBlockHeight = describeGraphResponse.edges.slice(0);
 
 	fnd.channels.sortedByLastUpdate.forEach(function(channel) {
 		fnd.channelsById[channel.channel_id] = channel;
+
+		fnd.parsedChannelIds[channel.channel_id] = utils.parseChannelId(channel.channel_id);
 	});
 
 	fnd.channels.sortedByLastUpdate.sort(function(a, b) {
@@ -402,6 +407,19 @@ function compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey) 
 
 		} else {
 			return capacityDiff;
+		}
+	});
+
+	fnd.channels.sortedByOpenBlockHeight.sort(function(a, b) {
+		var aBlockHeight = fnd.parsedChannelIds[a.channel_id].blockHeight;
+		var bBlockHeight = fnd.parsedChannelIds[b.channel_id].blockHeight;
+		var blockHeightDiff = bBlockHeight - aBlockHeight;
+
+		if (blockHeightDiff == 0) {
+			return b.last_update - a.last_update;
+
+		} else {
+			return blockHeightDiff;
 		}
 	});
 

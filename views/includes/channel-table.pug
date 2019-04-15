@@ -6,6 +6,13 @@ div.table-responsive
 				th ID
 				th Node 1
 				th Node 2
+				th.text-right
+					if (sort == "openblockheight-desc")
+						span.border-dotted.mr-2(title="The height of the block that confirmed each channel's opening transaction" data-toggle="tooltip") Open Block Height
+						i.fas.fa-arrow-down
+					else
+						span.border-dotted(title="The height of the block that confirmed each channel's opening transaction" data-toggle="tooltip") Open Block Height
+
 				th Last Update
 				th(class="text-right") Capacity
 		
