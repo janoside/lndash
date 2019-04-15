@@ -511,9 +511,9 @@ function saveAdminCredentials(encPassword) {
 
 	if (enc.lndNodes) {
 		enc.lndNodesData = encryptString(JSON.stringify(enc.lndNodes), encPassword);
+
+		delete enc.lndNodes;
 	}
-	
-	delete enc.lndNodes;
 
 	fs.writeFileSync(path.join(global.userDataDir, "credentials.json"), JSON.stringify(enc, null, 4));
 }
