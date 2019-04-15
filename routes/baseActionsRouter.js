@@ -1630,7 +1630,18 @@ router.get("/local-channels", function(req, res) {
 				var parsedChannelId1 = res.locals.fullNetworkDescription.parsedChannelIds[a.chan_id];
 				var parsedChannelId2 = res.locals.fullNetworkDescription.parsedChannelIds[b.chan_id];
 
-				var heightDiff = parsedChannelId2.blockHeight - parsedChannelId1.blockHeight;
+				if (!parsedChannelId1) {
+					parsedChannelId1 = utils.parseChannelId(a.chan_id);
+				}
+
+				if (!parsedChannelId2) {
+					parsedChannelId2 = utils.parseChannelId(b.chan_id);
+				}
+
+				var aBlockHeight = parsedChannelId1 ? parsedChannelId1.blockHeight : 0;
+				var bBlockHeight = parsedChannelId2 ? parsedChannelId2.blockHeight : 0;
+
+				var heightDiff = bBlockHeight - aBlockHeight;
 				if (heightDiff == 0) {
 					return fallback;
 
