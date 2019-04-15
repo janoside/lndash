@@ -48,9 +48,20 @@ block content
 								| Open Block Height (newest first)
 
 					div.dropdown-menu(aria-labelledby="dropdownMenuButton")
-						a.dropdown-item(href=`/channels?sort=openblockheight-desc&limit=${limit}`) Open Block Height (newest first)
-						a.dropdown-item(href=`/channels?sort=last_update-desc&limit=${limit}`) Last Update
-						a.dropdown-item(href=`/channels?sort=capacity-desc&limit=${limit}`) Capacity
+						a.dropdown-item(href=`/channels?sort=openblockheight-desc&starred=${starred}&limit=${limit}`) Open Block Height (newest first)
+						a.dropdown-item(href=`/channels?sort=last_update-desc&starred=${starred}&limit=${limit}`) Last Update
+						a.dropdown-item(href=`/channels?sort=capacity-desc&starred=${starred}&limit=${limit}`) Capacity
+
+				div.mr-4.mb-2.mb-lg-0.float-left
+					div
+						span.border-dotted(title="Option to only show channels that you have 'starred' (favorited) in the app" data-toggle="tooltip") Starred
+					- var starredFilterOptions = ["Yes", "All"];
+					div.btn-group.mr-2(role="group")
+						each opt in starredFilterOptions
+							if (starred != null && starred == opt.toLowerCase())
+								span.btn.btn-primary #{opt}
+							else
+								a.btn.btn-light.border(href=`/channels?sort=${sort}&starred=${opt}&limit=${limit}`) #{opt}
 
 
 				div.mr-4.mb-2.mb-lg-0.float-left
@@ -61,7 +72,7 @@ block content
 							if (limit != null && limit == parseInt(opt))
 								span.btn.btn-primary #{opt}
 							else
-								a.btn.btn-light.border(href=`/channels?sort=${sort}&limit=${opt}`) #{opt}
+								a.btn.btn-light.border(href=`/channels?sort=${sort}&starred=${starred}&limit=${opt}`) #{opt}
 
 			hr.my-3
 
@@ -103,7 +114,8 @@ block content
 				div.mt-2.mb-0
 					include includes/pagination.pug
 
-	- var channelTableIndexOffset = offset;
-	- var channels = pagedFilteredChannels;
-	include includes/channel-table.pug
+	if (pagedFilteredChannels.length > 0)
+		- var channelTableIndexOffset = offset;
+		- var channels = pagedFilteredChannels;
+		include includes/channel-table.pug
 

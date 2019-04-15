@@ -1188,8 +1188,6 @@ router.get("/nodes", function(req, res) {
 						return true;
 
 					} else if (starred == "yes") {
-						console.log("abc: " + JSON.stringify(node));
-
 						return global.userPreferences.tags["star"].includes(`node:${node.node.pub_key}`);
 					}
 
@@ -1253,6 +1251,7 @@ router.get("/nodes", function(req, res) {
 router.get("/channels", function(req, res) {
 	var limit = 20;
 	var offset = 0;
+	var starred = "all";
 	var sort = "openblockheight-desc";
 
 	if (req.query.limit) {
@@ -1267,9 +1266,14 @@ router.get("/channels", function(req, res) {
 		sort = req.query.sort;
 	}
 
+	if (req.query.starred) {
+		starred = req.query.starred.toLowerCase();
+	}
+
 	res.locals.limit = limit;
 	res.locals.offset = offset;
 	res.locals.sort = sort;
+	res.locals.starred = starred;
 	res.locals.paginationBaseUrl = `/channels?sort=${sort}`;
 
 	var sortProperty = sort.substring(0, sort.indexOf("-"));
@@ -1282,20 +1286,61 @@ router.get("/channels", function(req, res) {
 			res.locals.fullNetworkDescription = fnd;
 
 			var allChannels = fnd.channels.sortedByLastUpdate;
-			var allFilteredChannels = fnd.channels.sortedByLastUpdate;
+			
 
 			if (sortProperty == "last_update") {
-				allFilteredChannels = fnd.channels.sortedByLastUpdate;
+				allChannels = fnd.channels.sortedByLastUpdate;
 
 			} else if (sortProperty == "capacity") {
-				allFilteredChannels = fnd.channels.sortedByCapacity;
+				allChannels = fnd.channels.sortedByCapacity;
 			
 			} else if (sort == "openblockheight-desc") {
-				allFilteredChannels = fnd.channels.sortedByOpenBlockHeight;
+				allChannels = fnd.channels.sortedByOpenBlockHeight;
 				
 			} else {
-				allFilteredChannels = fnd.channels.sortedByLastUpdate;
+				allChannels = fnd.channels.sortedByLastUpdate;
 			}
+
+			
+
+
+			var predicates = [
+				// starred
+				function(chan) {
+					if (starred == "all") {
+						return true;
+
+					} else if (starred == "yes") {
+						return global.userPreferences.tags["star"].includes(`channel:${chan.channel_id}`);
+					}
+
+					// should never happen
+					utils.logError("08uhas0df7hgasd0hf", `Unexpected filter value: starred=${starred}`);
+
+					return true;
+				},
+			];
+
+
+			var allFilteredChannels = [];
+			for (var i = 0; i < allChannels.length; i++) {
+				var channel = allChannels[i];
+
+				var excluded = false;
+				for (var j = 0; j < predicates.length; j++) {
+					if (!predicates[j](channel)) {
+						excluded = true;
+
+						break;
+					}
+				}
+
+				if (!excluded) {
+					allFilteredChannels.push(channel);
+				}
+			}
+
+
 
 			var pagedFilteredChannels = [];
 			for (var i = offset; i < Math.min(offset + limit, allFilteredChannels.length); i++) {
