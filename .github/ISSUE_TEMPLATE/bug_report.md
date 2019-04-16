@@ -12,6 +12,7 @@ A clear and concise description of what the bug is.
 
 **Environment (please complete the following information):**
  - LND Version
+ - LND Admin Version (commit hash if available, otherwise version number)
  - NodeJS Version
  - Browser
  - Code Version / Commit
