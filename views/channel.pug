@@ -195,20 +195,20 @@ block content
 
 								a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-toggle="modal" data-target="#closeChannelModal")
 									i.fas.fa-times.mr-2
-									span Close Channel
+									span Close Channel...
 
 								a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`javascript:void(0)` data-toggle="modal" data-target="#updateChannelPoliciesModal")
-									i.fas.fa-edit.mr-2
-									span Update Policies
+									i.fas.fa-pen.mr-2
+									span Edit Policies...
 
 							else
 								a.btn.btn-secondary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-toggle="tooltip" title="You need to log in to modify your channels." disabled)
 									i.fas.fa-times.mr-2
-									span Close Channel
+									span Close Channel...
 
 								a.btn.btn-secondary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-md-inline-block(href=`javascript:void(0)` data-toggle="tooltip" title="You need to log in to modify your channels." disabled)
 									i.fas.fa-edit.mr-2
-									span Update Policies
+									span Edit Policies...
 
 						if (utils.isObjectStarred(`channel:${channelId}`))
 							a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/tag?action=remove&tagType=star&objectId=channel:${channelId}` title="Remove this channel from your list of favorites" data-toggle="tooltip")
