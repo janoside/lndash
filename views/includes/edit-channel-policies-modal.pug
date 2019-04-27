@@ -24,7 +24,7 @@ div.modal.fade(id="updateChannelPoliciesModal" role="dialog" aria-hidden="true")
 
 						$.ajax({
 							type: "POST",
-							url: `/update-channel-policies`,
+							url: `/edit-single-channel-policies`,
 							data: data,
 							success: function(response) {
 								if ((response.code && response.details) || response.error) {

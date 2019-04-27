@@ -2608,7 +2608,7 @@ router.post("/close-channel", function(req, res) {
 	});
 });
 
-router.post("/update-channel-policies", function(req, res) {
+router.post("/edit-single-channel-policies", function(req, res) {
 	var txid = req.body.txid;
 	var txOutput = parseInt(req.body.txOutput);
 
