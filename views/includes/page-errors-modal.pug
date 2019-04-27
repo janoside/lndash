@@ -23,5 +23,12 @@ div.modal.fade(id="pageErrorsModal" role="dialog" aria-hidden="true")
 								pre
 									code.json.bg-light #{item.error.stack}
 
+							if (item.userData)
+								hr
+
+								h4.h6 User Data
+								pre
+									code.json.bg-light #{JSON.stringify(error.userData, null, 4)}
+
 			div.modal-footer
 				button.btn.btn-secondary(type="button" data-dismiss="modal") Close
