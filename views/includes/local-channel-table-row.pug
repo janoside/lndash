@@ -1,7 +1,7 @@
 tr(class="text-monospace word-wrap")
 	th.text-right #{(channel_index + offset + 1).toLocaleString()}
 	td(class="table-col-channelid")
-		if (channel.active)
+		if (channel.active || (channel.chan_id && !channel.close_type))
 			a(href=("/channel/" + channel.chan_id))
 				- var channel_id = channel.chan_id;
 				include ./channel-id.pug
