@@ -216,7 +216,7 @@ block content
 								th Txid
 								th Addresses
 								th
-									span.border-dotted(title="If applicable, show the channel opened with the transaction.", data-toggle="tooltip") Channel Opened
+									span.border-dotted(title="If applicable, show the channel actions associated with the transaction.", data-toggle="tooltip") Channel Actions
 								th.text-right
 									span Block /
 									br
@@ -260,15 +260,28 @@ block content
 
 										td
 											if (localChannels.byTxid[tx.tx_hash] != null)
+												span.text-success Opened channel:
+												br
 												a(href=`/channel/${localChannels.byTxid[tx.tx_hash].chan_id}`) #{localChannels.byTxid[tx.tx_hash].chan_id}
 
 											else if (closedChannels.byTxid[tx.tx_hash] != null)
-												span #{closedChannels.byTxid[tx.tx_hash].chan_id}
+												span.text-success Opened channel:
 												br
-												span.text-muted (closed)
+												span #{closedChannels.byTxid[tx.tx_hash].chan_id} 
+													span.text-muted (closed)
 
 											else
-												span -
+												- var channelClosedByTx = false;
+												each chan in closedChannels.channels
+													if (chan.closing_tx_hash == tx.tx_hash)
+														- channelClosedByTx = true;
+														span.text-danger Closed channel:
+														br
+														span #{chan.chan_id} 
+															span.text-muted (closed)
+
+												if (!channelClosedByTx)
+													span -
 
 										td(class="table-col-int text-right")
 											if (config.blockExplorerUrl)
