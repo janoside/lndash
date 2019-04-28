@@ -732,6 +732,25 @@ function getNetworkInfo(acceptCachedValues=false) {
 	});
 }
 
+function getChannelFeePolicies() {
+	debugLog("getChannelFeePolicies");
+
+	return new Promise(function(resolve, reject) {
+		lndRpc.FeeReport({}, function(err, response) {
+			if (err) {
+				utils.logError("30r87324fdgh", err);
+
+				reject(err);
+
+				return;
+			}
+
+			resolve(response);
+		});
+	});
+}
+
+
 function decodeInvoiceString(invoiceStr) {
 	return new Promise(function(resolve, reject) {
 		lndRpc.DecodePayReq({pay_req:invoiceStr}, function(err, response) {
@@ -1012,12 +1031,33 @@ function updateChannelPolicies(txid, txOutputIndex, newPolicies) {
 	var params = JSON.parse(JSON.stringify(newPolicies));
 	params.chan_point = {funding_txid_str:txid, output_index:txOutputIndex};
 
-	debugLog("policies: " + JSON.stringify(params, null, 4));
+	debugLog("updateChannelPolicies: " + JSON.stringify(params));
 
 	return new Promise(function(resolve, reject) {
 		lndRpc.UpdateChannelPolicy(params, function(err, response) {
 			if (err) {
 				utils.logError("0y78df078hgd0asdf", err);
+
+				reject(err);
+
+				return;
+			}
+
+			resolve(response);
+		});
+	});
+}
+
+function updateAllChannelPolicies(newPolicies) {
+	var params = JSON.parse(JSON.stringify(newPolicies));
+	params.global = true;
+
+	debugLog("updateAllChannelPolicies: " + JSON.stringify(params));
+
+	return new Promise(function(resolve, reject) {
+		lndRpc.UpdateChannelPolicy(params, function(err, response) {
+			if (err) {
+				utils.logError("3208y2w8shgydgher", err);
 
 				reject(err);
 
@@ -1114,6 +1154,8 @@ module.exports = {
 	listPayments: listPayments,
 	getNetworkInfo: getNetworkInfo,
 
+	getChannelFeePolicies: getChannelFeePolicies,
+
 	getChannelBalance: getChannelBalance,
 	getChannelInfo: getChannelInfo,
 	getWalletBalance: getWalletBalance,
@@ -1140,5 +1182,6 @@ module.exports = {
 	getNewDepositAddress: getNewDepositAddress,
 	sendCoins: sendCoins,
 
-	updateChannelPolicies: updateChannelPolicies
+	updateChannelPolicies: updateChannelPolicies,
+	updateAllChannelPolicies: updateAllChannelPolicies
 };
