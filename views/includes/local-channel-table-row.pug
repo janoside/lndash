@@ -157,7 +157,7 @@ tr(class="text-monospace word-wrap")
 			span -
 
 	td.table-col-time
-		if (channel.active)
+		if (channel.active && fullNetworkDescription.channelsById[channel.chan_id])
 			- var lastUpdateTime = fullNetworkDescription.channelsById[channel.chan_id].last_update;
 			- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(lastUpdateTime) * 1000))));
 			- var dateTimeUtc = moment.utc(new Date(parseInt(lastUpdateTime) * 1000)).format("Y-MM-DD HH:mm:ss");
