@@ -88,209 +88,226 @@ block content
 
 			div.tab-content
 				div.tab-pane(id="tab-summary" role="tabpanel" class=(tab == "summary" ? "active" : false))
-					div.card.mb-3.shadow-sm
-						div.card-header
-							h4.h6.mb-0 Summary
-						div.card-body
-							div.row
-								div.summary-table-label Forwarded Payments
-								div.summary-table-content.text-monospace #{allFilteredEventsCount.toLocaleString()}
+					if (tab == "summary")
+						div.card.mb-3.shadow-sm
+							div.card-header
+								h4.h6.mb-0 Summary
+							div.card-body
+								div.row
+									div.summary-table-label Forwarded Payments
+									div.summary-table-content.text-monospace #{allFilteredEventsCount.toLocaleString()}
 
-								div.summary-table-label Fees Collected
-								div.summary-table-content
-									div.clearfix
-										div.float-left(style="width: 6rem;")
-											div.font-weight-bold Total
-											div.text-monospace
-												- var currencyValue = new Decimal(totalFees).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-												include includes/value-display.pug
+									div.summary-table-label Fees Collected
+									div.summary-table-content
+										div.clearfix
+											div.float-left(style="width: 6rem;")
+												div.font-weight-bold Total
+												div.text-monospace
+													- var currencyValue = new Decimal(totalFees).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+													include includes/value-display.pug
 
-										div.float-left(style="width: 6rem;")
-											div.font-weight-bold Max
-											div.text-monospace
-												- var currencyValue = new Decimal(maxFee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-												include includes/value-display.pug
+											div.float-left(style="width: 6rem;")
+												div.font-weight-bold Max
+												div.text-monospace
+													- var currencyValue = new Decimal(maxFee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+													include includes/value-display.pug
 
-										div.float-left(style="width: 6rem;")
-											div.font-weight-bold Average
-											div.text-monospace
-												- var currencyValue = new Decimal(avgFee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-												include includes/value-display.pug
+											div.float-left(style="width: 6rem;")
+												div.font-weight-bold Average
+												div.text-monospace
+													- var currencyValue = new Decimal(avgFee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+													include includes/value-display.pug
 
-								div.summary-table-label Value Transferred
-								div.summary-table-content
-									div.clearfix
-										div.float-left(style="width: 6rem;")
-											div.font-weight-bold Total
-											div.text-monospace
-												- var currencyValue = new Decimal(totalValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-												include includes/value-display.pug
+									div.summary-table-label Value Transferred
+									div.summary-table-content
+										div.clearfix
+											div.float-left(style="width: 6rem;")
+												div.font-weight-bold Total
+												div.text-monospace
+													- var currencyValue = new Decimal(totalValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+													include includes/value-display.pug
 
-										div.float-left(style="width: 6rem;")
-											div.font-weight-bold Max
-											div.text-monospace
-												- var currencyValue = new Decimal(maxValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-												include includes/value-display.pug
+											div.float-left(style="width: 6rem;")
+												div.font-weight-bold Max
+												div.text-monospace
+													- var currencyValue = new Decimal(maxValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+													include includes/value-display.pug
 
-										div.float-left(style="width: 6rem;")
-											div.font-weight-bold Average
-											div.text-monospace
-												- var currencyValue = new Decimal(avgValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-												include includes/value-display.pug
+											div.float-left(style="width: 6rem;")
+												div.font-weight-bold Average
+												div.text-monospace
+													- var currencyValue = new Decimal(avgValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+													include includes/value-display.pug
 
 				
 				div.tab-pane(id="tab-events" role="tabpanel" class=(tab == "events" ? "active" : false))
 
-					div.card.mb-3.shadow-sm
-						div.card-body
-							div.clearfix
-								div.dropdown.mr-4.float-left
-									div Sort
-									button.btn.btn-primary.dropdown-toggle.mb-2.mb-lg-0(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-										span
-											if (sort == null || sort == "date-desc")
-												| Date, Newest first
-											else if (sort == "date-asc")
-												| Date, Oldest first
-											else if (sort == "value-desc")
-												| Value, Highest first
-											else if (sort == "value-asc")
-												| Value, Lowest first
+					if (tab == "events")
+						div.card.mb-3.shadow-sm
+							div.card-body
+								div.clearfix
+									div.dropdown.mr-4.float-left
+										div Sort
+										button.btn.btn-primary.dropdown-toggle.mb-2.mb-lg-0(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+											span
+												if (sort == null || sort == "date-desc")
+													| Date, Newest first
+												else if (sort == "date-asc")
+													| Date, Oldest first
+												else if (sort == "value-desc")
+													| Value, Highest first
+												else if (sort == "value-asc")
+													| Value, Lowest first
 
-									div.dropdown-menu(aria-labelledby="dropdownMenuButton")
-										a.dropdown-item(href=`/forwarding-history?sort=date-desc&tab=${tab}&daterange=${daterange}&limit=${limit}`) Date, Newest first
-										a.dropdown-item(href=`/forwarding-history?sort=date-asc&tab=${tab}&daterange=${daterange}&limit=${limit}`) Date, Oldest first
-										a.dropdown-item(href=`/forwarding-history?sort=value-desc&tab=${tab}&daterange=${daterange}&limit=${limit}`) Value, Highest first
-										a.dropdown-item(href=`/forwarding-history?sort=value-asc&tab=${tab}&daterange=${daterange}&limit=${limit}`) Value, Lowest first
+										div.dropdown-menu(aria-labelledby="dropdownMenuButton")
+											a.dropdown-item(href=`/forwarding-history?sort=date-desc&tab=${tab}&daterange=${daterange}&limit=${limit}`) Date, Newest first
+											a.dropdown-item(href=`/forwarding-history?sort=date-asc&tab=${tab}&daterange=${daterange}&limit=${limit}`) Date, Oldest first
+											a.dropdown-item(href=`/forwarding-history?sort=value-desc&tab=${tab}&daterange=${daterange}&limit=${limit}`) Value, Highest first
+											a.dropdown-item(href=`/forwarding-history?sort=value-asc&tab=${tab}&daterange=${daterange}&limit=${limit}`) Value, Lowest first
 
-								div.mr-4.mb-2.mb-lg-0.float-left
-									div Page Size
-									- var pageSizeOptions = ["20", "50", "100"];
-									div.btn-group.mr-2(role="group")
-										each opt in pageSizeOptions
-											if (limit != null && limit == parseInt(opt))
-												span.btn.btn-primary #{opt}
-											else
-												a.btn.btn-light.border(href=`/forwarding-history?sort=${sort}&tab=${tab}&daterange=${daterange}&limit=${opt}`) #{opt}
+									div.mr-4.mb-2.mb-lg-0.float-left
+										div Page Size
+										- var pageSizeOptions = ["20", "50", "100"];
+										div.btn-group.mr-2(role="group")
+											each opt in pageSizeOptions
+												if (limit != null && limit == parseInt(opt))
+													span.btn.btn-primary #{opt}
+												else
+													a.btn.btn-light.border(href=`/forwarding-history?sort=${sort}&tab=${tab}&daterange=${daterange}&limit=${opt}`) #{opt}
 
-							hr.my-3
+								hr.my-3
 
-							div
-								if (allFilteredEventsCount > limit)
-									span Showing 
-									span.font-weight-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredEventsCount).toLocaleString()} 
-									span of 
-									span.font-weight-bold #{allFilteredEventsCount.toLocaleString()} 
-									if (allEvents.length > allFilteredEventsCount)
-										span filtered 
-									span event
-									if (allFilteredEventsCount != 1)
-										span s
+								div
+									if (allFilteredEventsCount > limit)
+										span Showing 
+										span.font-weight-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredEventsCount).toLocaleString()} 
+										span of 
+										span.font-weight-bold #{allFilteredEventsCount.toLocaleString()} 
+										if (allEvents.length > allFilteredEventsCount)
+											span filtered 
+										span event
+										if (allFilteredEventsCount != 1)
+											span s
 
-								else if (allFilteredEventsCount > 0)
-									span Showing 
-									span.font-weight-bold #{allFilteredEventsCount.toLocaleString()} 
-									if (allEvents.length > allFilteredEventsCount)
-										span filtered 
+									else if (allFilteredEventsCount > 0)
+										span Showing 
+										span.font-weight-bold #{allFilteredEventsCount.toLocaleString()} 
+										if (allEvents.length > allFilteredEventsCount)
+											span filtered 
 
-									span event
-									if (allFilteredEventsCount > 1)
-										span s
-								else
-									div.alert.alert-warning.shadow-sm.mb-0 No matching events
+										span event
+										if (allFilteredEventsCount > 1)
+											span s
+									else
+										div.alert.alert-warning.shadow-sm.mb-0 No matching events
 
-							- var itemCount = allFilteredEventsCount;
-							if (itemCount > limit)
-								- var pageNumber = offset / limit + 1;
-								- var pageCount = Math.floor(itemCount / limit);
-								- if (pageCount * limit < itemCount) {
-									- pageCount++;
-								- }
-								- var paginationUrlFunction = function(x) {
-									- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
-								- }
-								
-								div.mt-2.mb-0
-									include includes/pagination.pug
+								- var itemCount = allFilteredEventsCount;
+								if (itemCount > limit)
+									- var pageNumber = offset / limit + 1;
+									- var pageCount = Math.floor(itemCount / limit);
+									- if (pageCount * limit < itemCount) {
+										- pageCount++;
+									- }
+									- var paginationUrlFunction = function(x) {
+										- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
+									- }
+									
+									div.mt-2.mb-0
+										include includes/pagination.pug
 
-					each forwardingEvent, forwardingEventIndex in pagedFilteredEvents
-						include includes/forwarding-event-details-modal.pug
+						each forwardingEvent, forwardingEventIndex in pagedFilteredEvents
+							include includes/forwarding-event-details-modal.pug
 
-					div.table-responsive
-						table.table.table-bordered.border-top
-							thead.bg-light
-								tr
-									th.text-right #
-									th Date
-									th Incoming Channel
-									th Outgoing Channel
-									th.text-right Incoming Amount
-									th.text-right Outgoing Amount
-									th.text-right Fee
-									th Details
-
-							tbody
-								each forwardingEvent, forwardingEventIndex in pagedFilteredEvents
+						div.table-responsive
+							table.table.table-bordered.border-top
+								thead.bg-light
 									tr
-										th.text-right #{(forwardingEventIndex + offset + 1).toLocaleString()}
-										td.text-monospace
-											- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(forwardingEvent.timestamp) * 1000))));
-											- var dateTimeUtc = moment.utc(new Date(parseInt(forwardingEvent.timestamp) * 1000)).format("Y-MM-DD HH:mm:ss");
+										th.text-right #
+										th Date
+										th Incoming Channel
+										th Outgoing Channel
+										th.text-right Incoming Amount
+										th.text-right Outgoing Amount
+										th.text-right Fee
+										th Details
 
-											div #{dateTimeUtc} utc
-											div.text-muted #{timeAgo.humanize()} ago
+								tbody
+									each forwardingEvent, forwardingEventIndex in pagedFilteredEvents
+										tr
+											th.text-right #{(forwardingEventIndex + offset + 1).toLocaleString()}
+											td.text-monospace
+												- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(forwardingEvent.timestamp) * 1000))));
+												- var dateTimeUtc = moment.utc(new Date(parseInt(forwardingEvent.timestamp) * 1000)).format("Y-MM-DD HH:mm:ss");
 
-										td.text-monospace
-											a(href=`/channel/${forwardingEvent.chan_id_in}`)
+												div #{dateTimeUtc} utc
+												div.text-muted #{timeAgo.humanize()} ago
+
+											td.text-monospace
 												- var channel_id = forwardingEvent.chan_id_in;
-												include includes/channel-id.pug
+												- var channelInfo = fullNetworkDescription.channelsById[channel_id];
+												if (channelInfo)
+													a(href=`/channel/${forwardingEvent.chan_id_in}`)
+														include includes/channel-id.pug
 
-											if (utils.isObjectStarred(`channel:${channel_id}`))
-												i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
+												else
+													- var channel_id = forwardingEvent.chan_id_in;
+													include includes/channel-id.pug
+													span.text-muted  (closed)
 
-											hr
+												if (utils.isObjectStarred(`channel:${channel_id}`))
+													i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
 
-											- var channelInfo = fullNetworkDescription.channelsById[channel_id];
-											- var card_node_pubkey = channelInfo.node1_pub;
-											if (card_node_pubkey == lndRpc.internal_pubkey)
-												- card_node_pubkey = channelInfo.node2_pub;
+												if (channelInfo)
+													hr
 
-											include includes/node-card.pug
+													- var card_node_pubkey = channelInfo.node1_pub;
+													if (card_node_pubkey == lndRpc.internal_pubkey)
+														- card_node_pubkey = channelInfo.node2_pub;
 
-										td.text-monospace
-											a(href=`/channel/${forwardingEvent.chan_id_out}`)
+													include includes/node-card.pug
+
+											td.text-monospace
 												- var channel_id = forwardingEvent.chan_id_out;
-												include includes/channel-id.pug
+												- var channelInfo = fullNetworkDescription.channelsById[channel_id];
 
-											if (utils.isObjectStarred(`channel:${channel_id}`))
-												i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
+												if (channelInfo)
+													a(href=`/channel/${forwardingEvent.chan_id_out}`)
+														include includes/channel-id.pug
 
-											hr
+												else
+													- var channel_id = forwardingEvent.chan_id_out;
+													include includes/channel-id.pug
+													span.text-muted  (closed)
 
-											- var channelInfo = fullNetworkDescription.channelsById[channel_id];
-											- var card_node_pubkey = channelInfo.node1_pub;
-											if (card_node_pubkey == lndRpc.internal_pubkey)
-												- card_node_pubkey = channelInfo.node2_pub;
+												if (utils.isObjectStarred(`channel:${channel_id}`))
+													i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
 
-											include includes/node-card.pug
+												if (channelInfo)
+													hr
 
-										td.text-right
-											- var currencyValue = new Decimal(forwardingEvent.amt_in).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-											include includes/value-display.pug
-										
-										td.text-right
-											- var currencyValue = new Decimal(forwardingEvent.amt_out).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-											include includes/value-display.pug
+													- var card_node_pubkey = channelInfo.node1_pub;
+													if (card_node_pubkey == lndRpc.internal_pubkey)
+														- card_node_pubkey = channelInfo.node2_pub;
 
-										td.text-right
-											div.text-success
-												span +
+													include includes/node-card.pug
 
-												- var currencyValue = new Decimal(forwardingEvent.fee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+											td.text-right
+												- var currencyValue = new Decimal(forwardingEvent.amt_in).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+												include includes/value-display.pug
+											
+											td.text-right
+												- var currencyValue = new Decimal(forwardingEvent.amt_out).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 												include includes/value-display.pug
 
-										td
-											a(href="javascript:void(0)" data-toggle="modal" data-target=("#forwardingEventModal-" + forwardingEventIndex)) Details
+											td.text-right
+												div.text-success
+													span +
+
+													- var currencyValue = new Decimal(forwardingEvent.fee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+													include includes/value-display.pug
+
+											td
+												a(href="javascript:void(0)" data-toggle="modal" data-target=("#forwardingEventModal-" + forwardingEventIndex)) Details
 
 					
 				div.tab-pane(id="tab-channels" role="tabpanel" class=(tab == "channels" ? "active" : false))
@@ -298,126 +315,134 @@ block content
 						pre
 							code.json.bg-light #{JSON.stringify(inChannels, null, 4)}
 
-					div.card.mb-3.shadow-sm
-						div.card-body
-							div.clearfix
-								div.dropdown.mr-4.float-left
-									div Sort
-									button.btn.btn-primary.dropdown-toggle.mb-2.mb-lg-0(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-										span
-											- var channelSorts = ["valuetransfer-desc", "fees-desc", "eventcount-desc", "channelId-asc"];
-											if (sort == "valuetransfer-desc" || !channelSorts.includes(sort))
-												| Value Transferred (highest first)
-											else if (sort == "fees-desc")
-												| Fees Collected (highest first)
-											else if (sort == "eventcount-desc")
-												| Payments Transferred (highest first)
-											else if (sort == "channelId-asc")
-												| Channel ID
+					if (tab == "channels")
+						div.card.mb-3.shadow-sm
+							div.card-body
+								div.clearfix
+									div.dropdown.mr-4.float-left
+										div Sort
+										button.btn.btn-primary.dropdown-toggle.mb-2.mb-lg-0(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+											span
+												- var channelSorts = ["valuetransfer-desc", "fees-desc", "eventcount-desc", "channelId-asc"];
+												if (sort == "valuetransfer-desc" || !channelSorts.includes(sort))
+													| Value Transferred (highest first)
+												else if (sort == "fees-desc")
+													| Fees Collected (highest first)
+												else if (sort == "eventcount-desc")
+													| Payments Transferred (highest first)
+												else if (sort == "channelId-asc")
+													| Channel ID
 
-									div.dropdown-menu(aria-labelledby="dropdownMenuButton")
-										a.dropdown-item(href=`/forwarding-history?sort=valuetransfer-desc&tab=${tab}&daterange=${daterange}&limit=${limit}`) Value Transferred (highest first)
-										a.dropdown-item(href=`/forwarding-history?sort=fees-desc&tab=${tab}&daterange=${daterange}&limit=${limit}`) Fees Collected (highest first)
-										a.dropdown-item(href=`/forwarding-history?sort=eventcount-desc&tab=${tab}&daterange=${daterange}&limit=${limit}`) Payments Transferred (highest first)
-										a.dropdown-item(href=`/forwarding-history?sort=channelId-asc&tab=${tab}&daterange=${daterange}&limit=${limit}`) Channel ID
+										div.dropdown-menu(aria-labelledby="dropdownMenuButton")
+											a.dropdown-item(href=`/forwarding-history?sort=valuetransfer-desc&tab=${tab}&daterange=${daterange}&limit=${limit}`) Value Transferred (highest first)
+											a.dropdown-item(href=`/forwarding-history?sort=fees-desc&tab=${tab}&daterange=${daterange}&limit=${limit}`) Fees Collected (highest first)
+											a.dropdown-item(href=`/forwarding-history?sort=eventcount-desc&tab=${tab}&daterange=${daterange}&limit=${limit}`) Payments Transferred (highest first)
+											a.dropdown-item(href=`/forwarding-history?sort=channelId-asc&tab=${tab}&daterange=${daterange}&limit=${limit}`) Channel ID
 
 
-					div.row
-						div.col-md-6
-							h3.h5 #{inChannels.length.toLocaleString()} Incoming Channel
-								if (inChannels.length != 1)
-									span s
+						div.row
+							div.col-md-6
+								h3.h5 #{inChannels.length.toLocaleString()} Incoming Channel
+									if (inChannels.length != 1)
+										span s
 
-							hr
+								hr
 
-							div.table-responsive
-								table.table.table-bordered.border-top
-									thead.bg-light
-										tr
-											th.text-right #
-											th Channel
-											th.text-right Payments
-											th.text-right Value Transferred
-											th.text-right Fees Collected
-											
-
-									tbody
-										each channelForwardingInfo, channelInfoIndex in inChannels
+								div.table-responsive
+									table.table.table-bordered.border-top
+										thead.bg-light
 											tr
-												th.text-right #{(channelInfoIndex + 1).toLocaleString()}
-												td.text-monospace
-													a(href=`/channel/${channelForwardingInfo.channelId}`)
-														- var channel_id = channelForwardingInfo.channelId;
-														include includes/channel-id.pug
-
-													if (utils.isObjectStarred(`channel:${channel_id}`))
-														i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
-
-													hr
-
-													- var channelInfo = fullNetworkDescription.channelsById[channel_id];
-													- var card_node_pubkey = channelInfo.node1_pub;
-													if (card_node_pubkey == lndRpc.internal_pubkey)
-														- card_node_pubkey = channelInfo.node2_pub;
-
-													include includes/node-card.pug
-
-												td.text-right #{channelForwardingInfo.eventCount.toLocaleString()}
+												th.text-right #
+												th Channel
+												th.text-right Payments
+												th.text-right Value Transferred
+												th.text-right Fees Collected
 												
-												td.text-right
-													- var currencyValue = new Decimal(channelForwardingInfo.totalValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-													include includes/value-display.pug
 
-												td.text-right
-													div.text-success
-														span +
+										tbody
+											each channelForwardingInfo, channelInfoIndex in inChannels
+												tr
+													th.text-right #{(channelInfoIndex + 1).toLocaleString()}
+													td.text-monospace
+														- var channel_id = channelForwardingInfo.channelId;
+														- var channelInfo = fullNetworkDescription.channelsById[channel_id];
 
-														- var currencyValue = new Decimal(channelForwardingInfo.totalFees).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+														if (channelInfo)
+															a(href=`/channel/${channelForwardingInfo.channelId}`)
+																include includes/channel-id.pug
+
+														else
+															include includes/channel-id.pug
+															span.text-muted  (closed)
+
+														if (utils.isObjectStarred(`channel:${channel_id}`))
+															i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
+
+														if (channelInfo)
+															hr
+															
+															- var card_node_pubkey = channelInfo.node1_pub;
+															if (card_node_pubkey == lndRpc.internal_pubkey)
+																- card_node_pubkey = channelInfo.node2_pub;
+
+															include includes/node-card.pug
+
+													td.text-right #{channelForwardingInfo.eventCount.toLocaleString()}
+													
+													td.text-right
+														- var currencyValue = new Decimal(channelForwardingInfo.totalValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 														include includes/value-display.pug
 
-						div.col-md-6
-							h3.h5 #{outChannels.length.toLocaleString()} Outgoing Channel
-								if (outChannels.length != 1)
-									span s
+													td.text-right
+														div.text-success
+															span +
 
-							hr
+															- var currencyValue = new Decimal(channelForwardingInfo.totalFees).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+															include includes/value-display.pug
 
-							div.table-responsive
-								table.table.table-bordered.border-top
-									thead.bg-light
-										tr
-											th.text-right #
-											th Channel
-											th.text-right Payments
-											th.text-right Value Transferred
-											
+							div.col-md-6
+								h3.h5 #{outChannels.length.toLocaleString()} Outgoing Channel
+									if (outChannels.length != 1)
+										span s
 
-									tbody
-										each channelForwardingInfo, channelInfoIndex in outChannels
+								hr
+
+								div.table-responsive
+									table.table.table-bordered.border-top
+										thead.bg-light
 											tr
-												th.text-right #{(channelInfoIndex + 1).toLocaleString()}
-												td.text-monospace
-													a(href=`/channel/${channelForwardingInfo.channelId}`)
-														- var channel_id = channelForwardingInfo.channelId;
-														include includes/channel-id.pug
-
-													if (utils.isObjectStarred(`channel:${channel_id}`))
-														i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
-
-													hr
-
-													- var channelInfo = fullNetworkDescription.channelsById[channel_id];
-													- var card_node_pubkey = channelInfo.node1_pub;
-													if (card_node_pubkey == lndRpc.internal_pubkey)
-														- card_node_pubkey = channelInfo.node2_pub;
-
-													include includes/node-card.pug
-
-												td.text-right #{channelForwardingInfo.eventCount.toLocaleString()}
+												th.text-right #
+												th Channel
+												th.text-right Payments
+												th.text-right Value Transferred
 												
-												td.text-right
-													- var currencyValue = new Decimal(channelForwardingInfo.totalValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-													include includes/value-display.pug
+
+										tbody
+											each channelForwardingInfo, channelInfoIndex in outChannels
+												tr
+													th.text-right #{(channelInfoIndex + 1).toLocaleString()}
+													td.text-monospace
+														a(href=`/channel/${channelForwardingInfo.channelId}`)
+															- var channel_id = channelForwardingInfo.channelId;
+															include includes/channel-id.pug
+
+														if (utils.isObjectStarred(`channel:${channel_id}`))
+															i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
+
+														hr
+
+														- var channelInfo = fullNetworkDescription.channelsById[channel_id];
+														- var card_node_pubkey = channelInfo.node1_pub;
+														if (card_node_pubkey == lndRpc.internal_pubkey)
+															- card_node_pubkey = channelInfo.node2_pub;
+
+														include includes/node-card.pug
+
+													td.text-right #{channelForwardingInfo.eventCount.toLocaleString()}
+													
+													td.text-right
+														- var currencyValue = new Decimal(channelForwardingInfo.totalValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+														include includes/value-display.pug
 
 
 		else
