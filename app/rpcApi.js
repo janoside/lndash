@@ -896,6 +896,19 @@ function openChannel(remoteNodePubkey, localAmount, sendAmount) {
 				return;
 			}
 
+			debugLog("OpenChannel response: " + JSON.stringify(response));
+
+			if (response.funding_txid_bytes) {
+				// not sure why this is necessary, but only get proper hex string when reversed
+				response.funding_txid_bytes.data.reverse();
+
+				// this gives us the txid
+				response.funding_txid_hex = Buffer.from(response.funding_txid_bytes).toString("hex");
+
+				// back to how it was
+				response.funding_txid_bytes.data.reverse();
+			}
+
 			resolve(response);
 		});
 	});
