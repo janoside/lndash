@@ -1185,17 +1185,17 @@ router.get("/nodes", function(req, res) {
 				// starred
 				function(node) {
 					try {
-					if (starred == "all") {
-						return true;
+						if (starred == "all") {
+							return true;
 
-					} else if (starred == "yes") {
-						return utils.isObjectStarred(`node:${node.node.pub_key}`);
-					}
+						} else if (starred == "yes") {
+							return utils.isObjectStarred(`node:${node.node.pub_key}`);
+						}
 
-					// should never happen
+						// should never happen
 						res.locals.pageErrors.push(utils.logError("08uhas0df7hgasd0hf", `Unexpected filter value: starred=${starred}`));
 
-					return true;
+						return true;
 
 					} catch (err) {
 						res.locals.pageErrors.push(utils.logError("3207ghs7sgsed", err, {node:node}));
