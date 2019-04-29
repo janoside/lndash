@@ -61,6 +61,7 @@ block content
 		form(method="post", action="/openchannel")
 			div.form-group
 				label(for="pubkey") Remote Node Public Key
+					i.fas.fa-asterisk.text-danger.ml-1.fa-sm(title="Required" data-toggle="tooltip")
 				input.form-control.form-control-lg.text-monospace(type="text" id="pubkey" name="pubkey" value=pubkey)
 
 			if (pubkey)
@@ -73,10 +74,15 @@ block content
 				div.col-sm-6.col-md-4.col-lg-3.col-xl-2
 					div.form-group
 						label(for="local_balance") Local Balance
+							i.fas.fa-asterisk.text-danger.ml-1.fa-sm(title="Required" data-toggle="tooltip")
 						div.input-group
 							input.form-control.form-control-lg.text-monospace(id="local_balance" name="local_balance" value=local_balance)
 							div.input-group-append
 								div.input-group-text.text-monospace sat
+
+						span.form-text.text-muted ~ 
+							span(id="local_balance_note") #{new Decimal(local_balance || 0).dividedBy(coinConfig.baseCurrencyUnit.multiplier).times(global.exchangeRates.usd).toDP(2)} 
+							small  USD
 
 				div.col-sm-6.col-md-4.col-lg-3.col-xl-2
 					div.form-group
@@ -87,6 +93,40 @@ block content
 							div.input-group-append
 								div.input-group-text.text-monospace sat
 
+						span.form-text.text-muted ~ 
+							span(id="remote_balance_note") #{new Decimal(remote_balance || 0).dividedBy(coinConfig.baseCurrencyUnit.multiplier).times(global.exchangeRates.usd).toDP(2)} 
+							small  USD
+
 			button.btn.btn-primary(type="submit")
 				i.fas.fa-plus-square.mr-2
 				span Open Channel
+
+
+block endOfBody
+	script.
+		var satPerUsd = #{coinConfig.baseCurrencyUnit.multiplier} / #{global.exchangeRates.usd};
+
+		function refreshExchangeRate(inputId, noteId) {
+			var val = $('#' + inputId).val();
+			if (val == "") {
+				val = "0";
+			}
+
+			var usd = parseInt(val) / satPerUsd;
+			usd = parseFloat(Math.round(usd * 100) / 100).toFixed(2);
+
+			$("#" + noteId).text(usd);
+		}
+		$(document).ready(function() {
+			$('#local_balance').on('input', function(e) {
+				refreshExchangeRate("local_balance", "local_balance_note");
+			});
+
+			$('#remote_balance').on('input', function(e) {
+				refreshExchangeRate("remote_balance", "remote_balance_note");
+			});
+
+			// refresh in case the UI has existing value that server didn't send
+			refreshExchangeRate("local_balance", "local_balance_note");
+			refreshExchangeRate("remote_balance", "remote_balance_note");
+		});
