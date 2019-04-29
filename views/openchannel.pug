@@ -97,6 +97,15 @@ block content
 							span(id="remote_balance_note") #{new Decimal(remote_balance || 0).dividedBy(coinConfig.baseCurrencyUnit.multiplier).times(global.exchangeRates.usd).toDP(2)} 
 							small  USD
 
+			div.form-group.mt-2.mb-4
+				label(for="visibility") Visibility
+				.custom-control.custom-radio
+					input#visibilityPublic.custom-control-input(type='radio' name='visibility' value="public" checked=(visibility == "public" ? "checked" : false))
+					label.custom-control-label(for='visibilityPublic') Public
+				.custom-control.custom-radio
+					input#visibilityPrivate.custom-control-input(type='radio' name='visibility' value="private" checked=(visibility == "private" ? "checked" : false))
+					label.custom-control-label(for='visibilityPrivate') Private
+
 			button.btn.btn-primary(id="openchannelButton" type="submit")
 				i.fas.fa-plus-square.mr-2
 				span Open Channel

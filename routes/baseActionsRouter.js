@@ -2537,28 +2537,17 @@ router.get("/invoices", function(req, res) {
 
 router.get("/openchannel", function(req, res) {
 	res.locals.pubkey = req.query.pubkey;
+	res.locals.visibility = "public";
 	
 	res.render("openchannel");
 });
 
 router.post("/openchannel", function(req, res) {
-	res.locals.pubkey = req.body.pubkey;
-	res.locals.local_balance = req.body.local_balance;
-	
-	res.locals.remote_balance = req.body.remote_balance;
-	if (!req.body.pubkey) {
-		res.locals.userMessage = "Must specify the remote node's public key.";
-		res.locals.userMessageType = "danger";
-
-		res.render("openchannel");
-
-		return;
-	}
-
 	var pubkey = req.body.pubkey;
 	var local_balance = 0;
 	var remote_balance = 0;
-
+	var visibility = "public";
+	
 	if (req.body.local_balance) {
 		local_balance = parseInt(req.body.local_balance);
 	}
@@ -2567,14 +2556,30 @@ router.post("/openchannel", function(req, res) {
 		remote_balance = parseInt(req.body.remote_balance);
 	}
 
+	if (req.body.visibility) {
+		visibility = req.body.visibility;
+	}
+
 	res.locals.pubkey = req.body.pubkey;
 	res.locals.local_balance = local_balance;
 	res.locals.remote_balance = remote_balance;
+	res.locals.visibility = visibility;
+
+	if (!pubkey) {
+		res.locals.userMessage = "Must specify the remote node's public key.";
+		res.locals.userMessageType = "danger";
+
+		res.render("openchannel");
+
+		return;
+	}
+
+	var privateChannel = (visibility && visibility == "private");
 
 	var promises = [];
 
 	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.openChannel(pubkey, local_balance, remote_balance).then(function(openChannelResponse) {
+		rpcApi.openChannel(pubkey, local_balance, remote_balance, privateChannel).then(function(openChannelResponse) {
 			res.locals.openChannelResponse = openChannelResponse;
 
 			resolve();

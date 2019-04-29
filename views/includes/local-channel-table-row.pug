@@ -59,6 +59,14 @@ tr(class="text-monospace word-wrap")
 				div.text-warning Waiting to Close
 
 	td
+		if (channel.private)
+			span.text-success Yes
+				i.fas.fa-lock.ml-1
+
+		else
+			span.text-muted No
+
+	td
 		if (channel.remote_pubkey)
 			- var card_node_pubkey = channel.remote_pubkey;
 			

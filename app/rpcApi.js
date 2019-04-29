@@ -885,9 +885,16 @@ function getInvoices() {
 	});
 }
 
-function openChannel(remoteNodePubkey, localAmount, sendAmount) {
+function openChannel(remoteNodePubkey, localAmount, sendAmount, private=false) {
+	var params = {
+		node_pubkey_string:remoteNodePubkey,
+		local_funding_amount:localAmount,
+		push_sat:sendAmount,
+		private:private
+	};
+
 	return new Promise(function(resolve, reject) {
-		lndRpc.OpenChannelSync({node_pubkey_string:remoteNodePubkey, local_funding_amount:localAmount, push_sat:sendAmount}, function(err, response) {
+		lndRpc.OpenChannelSync(params, function(err, response) {
 			if (err) {
 				utils.logError("04fh23yg432", err);
 
