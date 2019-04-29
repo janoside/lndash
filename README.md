@@ -38,7 +38,6 @@ Live demo: https://lnd-admin.chaintools.io
 
 * `git clone git@github.com:janoside/lnd-admin.git`
 * `cd lnd-admin; npm install`
-* Configure via environment variables or `.env` file. See [docs/configuration](docs/configuration.md).
 * `npm start`
 * Open [http://127.0.0.1:3004/](http://127.0.0.1:3004/)
 
