@@ -2544,8 +2544,8 @@ router.get("/openchannel", function(req, res) {
 router.post("/openchannel", function(req, res) {
 	res.locals.pubkey = req.body.pubkey;
 	res.locals.local_balance = req.body.local_balance;
-	res.locals.remote_balance = req.query.remote_balance;
 	
+	res.locals.remote_balance = req.body.remote_balance;
 	if (!req.body.pubkey) {
 		res.locals.userMessage = "Must specify the remote node's public key.";
 		res.locals.userMessageType = "danger";
