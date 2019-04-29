@@ -2587,6 +2587,194 @@ router.post("/openchannel", function(req, res) {
 	});
 });
 
+router.get("/edit-multi-channel-policies", function(req, res) {
+	var tab = "all";
+	if (req.query.tab) {
+		tab = req.query.tab;
+	}
+
+	res.locals.tab = tab;
+
+	var localChannels = null;
+
+	var feeSummary = {};
+	feeSummary.base_fee_msat = {};
+	feeSummary.base_fee_msat_list = [];
+	feeSummary.fee_per_mil = {};
+	feeSummary.fee_per_mil_list = [];
+	feeSummary.time_lock_delta = {};
+	feeSummary.time_lock_delta_list = [];
+
+	var promises = [];
+
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getChannelFeePolicies().then(function(channelFeePoliciesResponse) {
+			res.locals.channelFeePoliciesResponse = channelFeePoliciesResponse;
+
+			channelFeePoliciesResponse.channel_fees.forEach(function(item) {
+				var base_fee_msat = parseInt(item.base_fee_msat);
+				var fee_per_mil = parseInt(item.fee_per_mil);
+
+				if (!feeSummary.base_fee_msat[base_fee_msat]) {
+					feeSummary.base_fee_msat[base_fee_msat] = [];
+					feeSummary.base_fee_msat_list.push(base_fee_msat);
+				}
+
+				feeSummary.base_fee_msat[base_fee_msat].push(item.chan_point);
+
+
+
+				if (!feeSummary.fee_per_mil[fee_per_mil]) {
+					feeSummary.fee_per_mil[fee_per_mil] = [];
+					feeSummary.fee_per_mil_list.push(fee_per_mil);
+				}
+
+				feeSummary.fee_per_mil[fee_per_mil].push(item.chan_point);
+			});
+
+			res.locals.channelFeeSummary = feeSummary;
+
+			resolve();
+
+		}).catch(function(err) {
+			res.locals.pageErrors.push(utils.logError("3r97ghsd7gss", err));
+
+			reject(err);
+		});
+	}));
+
+	var localChannels = null;
+	promises.push(new Promise(function(resolve, reject) {
+		rpcApi.getLocalChannels().then(function(localChannelsResponse) {
+			localChannels = localChannelsResponse.channels;
+
+			var localChannelInfos = {};
+
+			var promises2 = [];
+			for (var i = 0; i < localChannels.length; i++) {
+				promises2.push(new Promise(function(resolve2, reject2) {
+					rpcApi.getChannelInfo(localChannels[i].chan_id).then(function(chanInfo) {
+						if (chanInfo.node1_pub == lndRpc.internal_pubkey) {
+							chanInfo.localChannelPolicy = chanInfo.node1_policy;
+
+						} else {
+							chanInfo.localChannelPolicy = chanInfo.node2_policy;
+						}
+
+						localChannelInfos[chanInfo.channel_id] = chanInfo;
+
+						var time_lock_delta = chanInfo.localChannelPolicy.time_lock_delta;
+						if (!feeSummary.time_lock_delta[time_lock_delta]) {
+							feeSummary.time_lock_delta[time_lock_delta] = [];
+							feeSummary.time_lock_delta_list.push(time_lock_delta);
+						}
+
+						feeSummary.time_lock_delta[time_lock_delta].push(chanInfo.chan_point);
+
+						resolve2();
+
+					}).catch(function(err) {
+						res.locals.pageErrors.push(utils.logError("32970weg0d7tg34e", err));
+
+						reject2(err);
+					});
+				}));
+			}
+
+			Promise.all(promises2.map(utils.reflectPromise)).then(function() {
+				res.locals.localChannelInfos = localChannelInfos;
+
+				resolve();
+
+			}).catch(function(err) {
+				res.locals.pageErrors.push(utils.logError("3297wegdgfd", err));
+
+				reject(err);
+			});
+
+		}).catch(function(err) {
+			res.locals.pageErrors.push(utils.logError("397wge7egss", err));
+
+			reject(err);
+		});
+	}));
+	
+
+	Promise.all(promises.map(utils.reflectPromise)).then(function() {
+		if (localChannels) {
+			res.locals.localChannels = localChannels;
+
+			var parsedChannelIds = {};
+
+			for (var i = 0; i < localChannels.length; i++) {
+				parsedChannelIds[localChannels[i].chan_id] = utils.parseChannelId(localChannels[i].chan_id);
+			}
+
+			res.locals.parsedChannelIds = parsedChannelIds;
+		}
+
+		res.render("edit-multi-channel-policies");
+
+	}).catch(function(err) {
+		res.locals.pageErrors.push(utils.logError("3208wehy834yh43", err));
+
+		res.render("edit-multi-channel-policies");
+	});
+});
+
+router.post("/edit-multi-channel-policies", function(req, res) {
+	var tab = req.body.tab;
+
+	if (tab == "all") {
+		if (!req.body.baseFeeMsat) {
+			req.session.userMessage = "Missing required parameter: Base Fee (msat)";
+			req.session.userMessageType = "warning";
+
+			res.redirect(`/edit-multi-channel-policies?tab=${tab}`);
+
+			return;
+		}
+
+		if (!req.body.feeRateMilliMsat) {
+			req.session.userMessage = "Missing required parameter: Fee Rate (milli-msat)";
+			req.session.userMessageType = "warning";
+
+			res.redirect(`/edit-multi-channel-policies?tab=${tab}`);
+
+			return;
+		}
+
+		if (!req.body.timeLockDelta) {
+			req.session.userMessage = "Missing required parameter: Time Lock Delta";
+			req.session.userMessageType = "warning";
+
+			res.redirect(`/edit-multi-channel-policies?tab=${tab}`);
+
+			return;
+		}
+
+		var policies = {};
+		policies.base_fee_msat = parseInt(req.body.baseFeeMsat);
+		policies.fee_rate = parseInt(req.body.feeRateMilliMsat) / 1000000;
+		policies.time_lock_delta = parseInt(req.body.timeLockDelta);
+
+		rpcApi.updateAllChannelPolicies(policies).then(function() {
+			req.session.userMessage = "Updated all active channel policies";
+			req.session.userMessageType = "success";
+
+			res.redirect(`/edit-multi-channel-policies?tab=${tab}`);
+
+		}).catch(function(err) {
+			res.locals.pageErrors.push(utils.logError("2379ergd7tgde", err));
+
+			res.render("edit-multi-channel-policies");
+		});
+
+	} else if (tab == "subset") {
+
+	}
+});
+
 router.post("/close-channel", function(req, res) {
 	var txid = req.body.txid;
 	var txOutput = parseInt(req.body.txOutput);
