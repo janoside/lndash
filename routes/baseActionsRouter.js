@@ -1184,6 +1184,7 @@ router.get("/nodes", function(req, res) {
 			var predicates = [
 				// starred
 				function(node) {
+					try {
 					if (starred == "all") {
 						return true;
 
@@ -1192,9 +1193,15 @@ router.get("/nodes", function(req, res) {
 					}
 
 					// should never happen
-					utils.logError("08uhas0df7hgasd0hf", `Unexpected filter value: starred=${starred}`);
+						res.locals.pageErrors.push(utils.logError("08uhas0df7hgasd0hf", `Unexpected filter value: starred=${starred}`));
 
 					return true;
+
+					} catch (err) {
+						res.locals.pageErrors.push(utils.logError("3207ghs7sgsed", err, {node:node}));
+
+						return false;
+					}
 				},
 			];
 
