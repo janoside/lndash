@@ -58,7 +58,7 @@ block content
 					pre
 						code.json.bg-light #{JSON.stringify(openChannelResponse)}
 
-		form(method="post", action="/openchannel")
+		form(method="post" action="/openchannel" onsubmit="formSubmitted()")
 			div.form-group
 				label(for="pubkey") Remote Node Public Key
 					i.fas.fa-asterisk.text-danger.ml-1.fa-sm(title="Required" data-toggle="tooltip")
@@ -97,9 +97,13 @@ block content
 							span(id="remote_balance_note") #{new Decimal(remote_balance || 0).dividedBy(coinConfig.baseCurrencyUnit.multiplier).times(global.exchangeRates.usd).toDP(2)} 
 							small  USD
 
-			button.btn.btn-primary(type="submit")
+			button.btn.btn-primary(id="openchannelButton" type="submit")
 				i.fas.fa-plus-square.mr-2
 				span Open Channel
+
+			div#channelOpenStatus.mt-3(style="display: none;")
+				span.spinner-border.spinner-border-sm.mr-2.text-primary(role="status" aria-hidden="true")
+				span Channel open request submitted...
 
 
 block endOfBody
@@ -117,6 +121,12 @@ block endOfBody
 
 			$("#" + noteId).text(usd);
 		}
+
+		function formSubmitted() {
+			$("#openchannelButton").prop("disabled", true).toggleClass("btn-primary").toggleClass("btn-secondary");
+			$("#channelOpenStatus").show();
+		}
+
 		$(document).ready(function() {
 			$('#local_balance').on('input', function(e) {
 				refreshExchangeRate("local_balance", "local_balance_note");
