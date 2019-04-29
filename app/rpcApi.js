@@ -896,9 +896,10 @@ function openChannel(remoteNodePubkey, localAmount, sendAmount) {
 				return;
 			}
 
-			debugLog("OpenChannel response: " + JSON.stringify(response));
+			debugLog("OpenChannel response (raw): " + JSON.stringify(response));
+			debugLog("OpenChannel response (formatted): %o", response);
 
-			if (response.funding_txid_bytes) {
+			if (response.funding_txid_bytes && response.funding_txid_bytes.data) {
 				// not sure why this is necessary, but only get proper hex string when reversed
 				response.funding_txid_bytes.data.reverse();
 
