@@ -45,6 +45,10 @@ global.appVersion = package_json.version;
 
 debugLog(`Starting LND Admin, v${global.appVersion}`);
 
+process.on("unhandledRejection", (reason, p) => {
+	utils.logError("239780g37gtd", reason, {type:"Unhandled rejection", promise:p});
+});
+
 
 var crawlerBotUserAgentStrings = [ "Googlebot", "Bingbot", "Slurp", "DuckDuckBot", "Baiduspider", "YandexBot", "Sogou", "Exabot", "facebot", "ia_archiver" ];
 
