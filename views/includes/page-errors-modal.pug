@@ -23,7 +23,7 @@ div.modal.fade(id="pageErrorsModal" role="dialog" aria-hidden="true")
 								pre
 									code.json.bg-light #{item.error.stack}
 
-							if (item.userData)
+							if (item.error.userData)
 								hr
 
 								h4.h6 User Data
