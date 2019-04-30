@@ -17,7 +17,7 @@ var localClosedChannels = null;
 var localPendingChannels = null;
 
 function connect(rpcConfig, index) {
-	debugLog(`Connecting to LND Node: ${rpcConfig}`);
+	debugLog(`Connecting to LND Node: ${rpcConfig.host}:${rpcConfig.port}`);
 
 	return new Promise(function(resolve, reject) {
 		// Ref: https://github.com/lightningnetwork/lnd/blob/master/docs/grpc/javascript.md
@@ -108,8 +108,6 @@ function connect(rpcConfig, index) {
 			lndConnection.GetInfo({}, function(err, response) {
 				if (err) {
 					utils.logError("3208r2ugddsh", err, {rpcConfig:rpcConfig, rpcConfigIndex:index});
-
-					debugLog("Error 3208r2ugddsh: Failed connecting to LND @ " + rpcConfig.host + ":" + rpcConfig.port);
 
 					reject(err);
 
@@ -212,6 +210,8 @@ function refreshCachedValues(forceFullRefresh=false) {
 	return new Promise(function(resolve, reject) {
 		var promises = [];
 
+		var startTime = new Date();
+
 		promises.push(refreshFullNetworkDescription(forceFullRefresh));
 		promises.push(refreshLocalChannels());
 		promises.push(refreshLocalPendingChannels());
@@ -219,6 +219,8 @@ function refreshCachedValues(forceFullRefresh=false) {
 		promises.push(getNetworkInfo());
 
 		Promise.all(promises).then(function() {
+			debugLog(`Refreshed network graph in ${(new Date().getTime() - startTime.getTime())}ms`);
+
 			resolve();
 
 		}).catch(function(err) {
@@ -259,8 +261,6 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 	pendingFNDRequest = true;
 
 	var startTime = new Date();
-
-	debugLog("Refreshing network description...");
 	
 	return new Promise(function(resolve, reject) {
 		lndRpc.describeGraph({include_unannounced:true}, function(err, describeGraphResponse) {
@@ -321,7 +321,10 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 				fullNetworkDescription = compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey);
 				fullNetworkDescriptionDate = new Date();
 
-				debugLog(`Finished refreshing network description (refreshed nodes: ${refreshedNodeCount}); Elapsed time: ${(new Date().getTime() - startTime.getTime())}`);
+				if (refreshedNodeCount > 0) {
+					debugLog(`Refreshed ${refreshedNodeCount} nodes in ${(new Date().getTime() - startTime.getTime())}ms`);
+				}
+				
 
 				pendingFNDRequest = false;
 
@@ -484,10 +487,6 @@ function getLocalPendingChannels(acceptCachedValues=false) {
 }
 
 function refreshLocalChannels() {
-	var startTime = new Date();
-
-	debugLog("Refreshing local channels...");
-	
 	return new Promise(function(resolve, reject) {
 		lndRpc.ListChannels({}, function(err, listChannelsResponse) {
 			if (err) {
@@ -522,18 +521,12 @@ function refreshLocalChannels() {
 			localChannels.byId = byId;
 			localChannels.byTxid = byTxid;
 
-			debugLog("Finished refreshing local channels; elapsed time: " + (new Date().getTime() - startTime.getTime()));
-
 			resolve(localChannels);
 		});
 	});
 }
 
 function refreshLocalClosedChannels() {
-	var startTime = new Date();
-
-	debugLog("Refreshing closed channels...");
-	
 	return new Promise(function(resolve, reject) {
 		lndRpc.ClosedChannels({}, function(err, closedChannelsResponse) {
 			if (err) {
@@ -570,18 +563,12 @@ function refreshLocalClosedChannels() {
 
 			//debugLog("Closed channels: " + JSON.stringify(localClosedChannels, null, 4));
 
-			debugLog("Finished refreshing closed channels; elapsed time: " + (new Date().getTime() - startTime.getTime()));
-
 			resolve(localClosedChannels);
 		});
 	});
 }
 
 function refreshLocalPendingChannels() {
-	var startTime = new Date();
-
-	debugLog("Refreshing pending channels...");
-	
 	return new Promise(function(resolve, reject) {
 		lndRpc.PendingChannels({}, function(err, pendingChannelsResponse) {
 			if (err) {
@@ -631,8 +618,6 @@ function refreshLocalPendingChannels() {
 			});
 
 			localPendingChannels = pendingChannels;
-
-			debugLog("Finished refreshing pending channels; elapsed time: " + (new Date().getTime() - startTime.getTime()));
 
 			resolve(localPendingChannels);
 		});
@@ -707,8 +692,6 @@ function listPayments() {
 }
 
 function getNetworkInfo(acceptCachedValues=false) {
-	debugLog("getNetworkInfo");
-
 	if (acceptCachedValues && networkInfo != null) {
 		return new Promise(function(resolve, reject) {
 			resolve(networkInfo);
