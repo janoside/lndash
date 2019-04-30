@@ -1732,23 +1732,25 @@ router.get("/search", function(req, res) {
 
 		fnd.nodes.sortedByLastUpdate.forEach(function(nodeInfo) {
 			try {
-				if (nodeInfo.node.alias.toLowerCase().indexOf(query) > -1) {
-					res.locals.searchResults.nodes.push(nodeInfo);
-				}
-
-				if (nodeInfo.node.pub_key.toLowerCase().indexOf(query) > -1) {
-					res.locals.searchResults.nodes.push(nodeInfo);
-				}
-
-				if (nodeInfo.node.color.indexOf(query) > -1) {
-					res.locals.searchResults.nodes.push(nodeInfo);
-				}
-
-				nodeInfo.node.addresses.forEach(function(address) {
-					if (address.addr.indexOf(query) > -1) {
+				if (nodeInfo && nodeInfo.node) {
+					if (nodeInfo.node.alias.toLowerCase().indexOf(query) > -1) {
 						res.locals.searchResults.nodes.push(nodeInfo);
 					}
-				});
+
+					if (nodeInfo.node.pub_key.toLowerCase().indexOf(query) > -1) {
+						res.locals.searchResults.nodes.push(nodeInfo);
+					}
+
+					if (nodeInfo.node.color.indexOf(query) > -1) {
+						res.locals.searchResults.nodes.push(nodeInfo);
+					}
+
+					nodeInfo.node.addresses.forEach(function(address) {
+						if (address.addr.indexOf(query) > -1) {
+							res.locals.searchResults.nodes.push(nodeInfo);
+						}
+					});
+				}
 			} catch(err) {
 				res.locals.pageErrors.push(utils.logError("3297rgsd7gs7s", err, {nodeInfo:nodeInfo}));
 			}
