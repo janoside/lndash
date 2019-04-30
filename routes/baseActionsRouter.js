@@ -1383,6 +1383,7 @@ router.get("/local-channels", function(req, res) {
 	var sort = "capacity-desc";
 	var localbalance = "all";
 	var remotebalance = "all";
+	var open = "open";
 	var status = "all";
 
 	if (req.query.limit) {
@@ -1397,6 +1398,10 @@ router.get("/local-channels", function(req, res) {
 		sort = req.query.sort;
 	}
 	
+	if (req.query.open) {
+		open = req.query.open.toLowerCase();
+	}
+
 	if (req.query.status) {
 		status = req.query.status.toLowerCase();
 	}
@@ -1412,10 +1417,11 @@ router.get("/local-channels", function(req, res) {
 	res.locals.limit = limit;
 	res.locals.offset = offset;
 	res.locals.sort = sort;
+	res.locals.open = open;
 	res.locals.status = status;
 	res.locals.localbalance = localbalance;
 	res.locals.remotebalance = remotebalance;
-	res.locals.paginationBaseUrl = `/local-channels?sort=${sort}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}`;
+	res.locals.paginationBaseUrl = `/local-channels?sort=${sort}&open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}`;
 
 	var sortProperty = sort.substring(0, sort.indexOf("-"));
 	var sortDirection = sort.substring(sort.indexOf("-") + 1);
@@ -1491,6 +1497,24 @@ router.get("/local-channels", function(req, res) {
 
 
 		var predicates = [
+			// open
+			function(chan) {
+				if (open == "all") {
+					return true;
+				}
+
+				if (open == "open") {
+					return res.locals.localChannels.channels.includes(chan) || res.locals.pendingChannels.includes(chan);
+
+				} else if (open == "closed") {
+					return res.locals.closedChannels.channels.includes(chan);
+				}
+
+				// should never happen
+				utils.logError("3208hd07se", `Unexpected filter value: open=${open}`);
+
+				return true;
+			},
 			// status
 			function(chan) {
 				if (status == "all") {
