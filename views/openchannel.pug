@@ -39,20 +39,28 @@ block content
 
 				if (openChannelResponse.funding_txid_hex)
 					span New channel opening via transaction output: 
-					if (config.blockExplorerUrl)
-						a(href=`${config.blockExplorerUrl}/tx/${openChannelResponse.funding_txid_hex}`)
-							- var btc_txid = openChannelResponse.funding_txid_hex;
-							include ./includes/btc-txid.pug
+						span.text-monospace
+							if (config.blockExplorerUrl)
+								a(href=`${config.blockExplorerUrl}/tx/${openChannelResponse.funding_txid_hex}`)
+									- var btc_txid = openChannelResponse.funding_txid_hex;
+									include ./includes/btc-txid.pug
 
-						span  [#{openChannelResponse.output_index.toLocaleString()}]
+							else
+								- var btc_txid = openChannelResponse.funding_txid_hex;
+								include ./includes/btc-txid.pug
 
-					else
-						- var btc_txid = openChannelResponse.funding_txid_hex;
-						include ./includes/btc-txid.pug
+							if (openChannelResponse.hasOwnProperty("output_index"))
+								span  [#{openChannelResponse.output_index.toLocaleString()}]
 
-						span  [#{openChannelResponse.output_index.toLocaleString()}]
+					div.mt-2
+						span See your 
+						a(href="/local-channels?sort=capacity-desc&status=Pending&localbalance=all&remotebalance=all&limit=20") pending channels
+						span  for details.
+
 				else
-					span New channel opening
+					span New channel opening. See your 
+					a(href="/local-channels?sort=capacity-desc&status=Pending&localbalance=all&remotebalance=all&limit=20") pending channels
+					span  for details.
 
 				if (false)
 					pre
