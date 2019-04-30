@@ -1669,26 +1669,20 @@ router.get("/local-channels", function(req, res) {
 
 		res.locals.offset = offset;
 
-
-
-
-
-
-
-		var pagedFilteredChannels = [];
-		var parsedChannelIds = {};
-
-		for (var i = offset; i < Math.min(offset + limit, allFilteredChannels.length); i++) {
-			pagedFilteredChannels.push(allFilteredChannels[i]);
-
-			parsedChannelIds[allFilteredChannels[i].chan_id] = utils.parseChannelId(allFilteredChannels[i].chan_id);
-		}
-
 		res.locals.allChannels = allChannels;
 		res.locals.allFilteredChannels = allFilteredChannels;
-		res.locals.pagedFilteredChannels = pagedFilteredChannels;
+		
+		res.locals.pagedFilteredChannels = [];
+		res.locals.parsedChannelIds = {};
 
-		res.locals.parsedChannelIds = parsedChannelIds;
+		if (allFilteredChannels.length > 0) {
+			for (var i = offset; i < Math.min(offset + limit, allFilteredChannels.length); i++) {
+				res.locals.pagedFilteredChannels.push(allFilteredChannels[i]);
+
+				res.locals.parsedChannelIds[allFilteredChannels[i].chan_id] = utils.parseChannelId(allFilteredChannels[i].chan_id);
+			}
+		}
+
 
 		res.render("local-channels");
 
