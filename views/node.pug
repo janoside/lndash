@@ -25,7 +25,7 @@ block content
 		small.text-monospace.word-wrap.mr-2(style="width: 100%;") #{nodePubkey}
 
 		if (nodePubkey == lndRpc.internal_pubkey)
-			i.fas.fa-certificate.fa-xs.text-primary(title="These are the public node details for your active LND node" data-toggle="tooltip")
+			i.fas.fa-certificate.fa-xs.text-primary.mr-1(title="These are the public node details for your active LND node" data-toggle="tooltip")
 
 		if (utils.isObjectStarred(`node:${node_pubkey}`))
 			i.fas.fa-star.text-warning.fa-xs(title="This is one of your favorite nodes" data-toggle="tooltip")
@@ -74,7 +74,7 @@ block content
 								
 								span #{dateTimeUtc} utc
 								br
-								span.text-muted #{timeAgo.format()} ago
+								span.text-muted #{timeAgo.humanize()} ago
 								
 						div(class="row")
 							div.summary-split-table-label Channels
