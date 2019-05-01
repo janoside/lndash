@@ -22,20 +22,24 @@ div.modal.fade(id="closeChannelModal" role="dialog" aria-hidden="true")
 
 						console.log("data: " + JSON.stringify(data));
 
+						toggleCloseChannelStatus();
+
 						$.ajax({
 							type: "POST",
 							url: `/close-channel`,
 							data: data,
 							success: function(response) {
+								toggleCloseChannelStatus();
+								
 								if (response.code && response.details) {
-									$("#responseAlertCloseChannel").removeClass("alert-success").addClass("alert-danger");
-									$("#responseAlertCloseChannel").text(response.details);
-									$("#responseAlertCloseChannel").show();
+									$("#alertCloseChannelError").show();
+
+									$("#closeChannelErrorDetails").text(response.details);
 
 								} else {
-									$("#responseAlertCloseChannel").removeClass("alert-danger").addClass("alert-success");
-									$("#responseAlertCloseChannel").text("Success");
-									$("#responseAlertCloseChannel").show();
+									$("#closeChannelForm").hide();
+
+									$("#alertCloseChannelSuccess").show();
 								}
 
 								console.log("response: " + JSON.stringify(response));
@@ -45,9 +49,18 @@ div.modal.fade(id="closeChannelModal" role="dialog" aria-hidden="true")
 						return false;
 					}
 
-				form(onsubmit="return closeChannel();")
-					div.alert(id="responseAlertCloseChannel" style="display: none;")
+				div#alertCloseChannelError.alert.alert-danger(style="display: none;")
+					h4.h6 Error
+					div There was an error when trying to close this channel:
+					div#closeChannelErrorDetails.text-monospace.mt-2
 
+				div#alertCloseChannelSuccess.alert.alert-success(style="display: none;")
+					h4.h6 Success
+					span Your close channel request has been submitted and your channel should begin closing. See your 
+					a(href="/local-channels?status=Pending") pending channels
+					span  for more details.
+
+				form#closeChannelForm(onsubmit="return closeChannel();")
 					div.form-group
 						label(for="speedValue") Speed
 
@@ -71,10 +84,14 @@ div.modal.fade(id="closeChannelModal" role="dialog" aria-hidden="true")
 							label.custom-control-label(for="forceCloseChannelCheckbox")
 								span.border-dotted(title="If set, then the channel will be closed forcibly. This means the current commitment transaction will be signed and broadcast." data-toggle="tooltip") Force close
 					
-					div.mt-5
-						button.btn.btn-primary(type="submit")
+					div.mt-4
+						button#closeChannelButton.btn.btn-primary(type="submit")
 							i.fas.fa-times.mr-2
 							span Close Channel
+
+					div#closeChannelStatus.mt-3(style="display: none;")
+						span.spinner-border.spinner-border-sm.mr-2.text-primary(role="status" aria-hidden="true")
+						span Channel close request submitted...
 
 					div.mt-2
 						span.text-danger Please use caution when closing channels! Both LND Admin and LND itself are beta software.
@@ -83,9 +100,15 @@ div.modal.fade(id="closeChannelModal" role="dialog" aria-hidden="true")
 			div.modal-footer
 				button.btn.btn-secondary(type="button" class="" data-dismiss="modal") Close
 
-block endOfBody
 	script.
-		$(document).ready(function() {
+		function toggleCloseChannelStatus() {
+			var disabled = $("#closeChannelButton").prop("disabled");
+			
+			$("#closeChannelButton").prop("disabled", !disabled).toggleClass("btn-primary").toggleClass("btn-secondary");
+			$("#closeChannelStatus").toggle();
+		}
+
+		documentReadyFunctions.push(function() {
 			$(document).on('change', 'input:radio[name="speedTypeRadio"]', function(event) {
 				$("#speedTypeValue").val($(event.target).val());
 
