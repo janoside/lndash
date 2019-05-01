@@ -422,21 +422,28 @@ block content
 												tr
 													th.text-right #{(channelInfoIndex + 1).toLocaleString()}
 													td.text-monospace
-														a(href=`/channel/${channelForwardingInfo.channelId}`)
-															- var channel_id = channelForwardingInfo.channelId;
+														- var channel_id = channelForwardingInfo.channelId;
+														- var channelInfo = fullNetworkDescription.channelsById[channel_id];
+
+														if (channelInfo)
+															a(href=`/channel/${channelForwardingInfo.channelId}`)
+																include includes/channel-id.pug
+
+														else
 															include includes/channel-id.pug
+															span.text-muted  (closed)
 
 														if (utils.isObjectStarred(`channel:${channel_id}`))
 															i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
 
-														hr
+														if (channelInfo)
+															hr
+															
+															- var card_node_pubkey = channelInfo.node1_pub;
+															if (card_node_pubkey == lndRpc.internal_pubkey)
+																- card_node_pubkey = channelInfo.node2_pub;
 
-														- var channelInfo = fullNetworkDescription.channelsById[channel_id];
-														- var card_node_pubkey = channelInfo.node1_pub;
-														if (card_node_pubkey == lndRpc.internal_pubkey)
-															- card_node_pubkey = channelInfo.node2_pub;
-
-														include includes/node-card.pug
+															include includes/node-card.pug
 
 													td.text-right #{channelForwardingInfo.eventCount.toLocaleString()}
 													
