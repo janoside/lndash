@@ -200,7 +200,7 @@ block content
 														include ./includes/value-display.pug
 
 											td
-												a(href="javascript:void(0)" data-toggle="modal" data-target=("#txModal-" + txIndex)) Details
+												a(href="javascript:void(0)" data-toggle="modal" data-target=("#txModal-" + tx.tx_hash)) Details
 
 
 		div.card.shadow-sm
@@ -314,7 +314,7 @@ block content
 												span -
 
 										td
-											a(href="javascript:void(0)" data-toggle="modal" data-target=("#txModal-" + txIndex)) Details
+											a(href="javascript:void(0)" data-toggle="modal" data-target=("#txModal-" + tx.tx_hash)) Details
 
 
 		include includes/new-deposit-address-modal.pug
