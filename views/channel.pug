@@ -116,7 +116,7 @@ block content
 								
 								span #{moment.utc(new Date(parseInt(channel.last_update) * 1000)).format("Y-MM-DD HH:mm:ss")} utc
 								br
-								span.text-muted #{timeAgo.format()} ago
+								span.text-muted #{timeAgo.humanize()} ago
 
 						div(class="row")
 							div(class="summary-table-label") Capacity
