@@ -294,7 +294,11 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 
 			var promises = [];
 			var refreshedNodeCount = 0;
+			var currentNodePubkeys = [];
 			describeGraphResponse.nodes.forEach(function(node) {
+				// build list of current node pubkeys to assist in clearing out cached-but-now-gone nodes
+				currentNodePubkeys.push(node.pub_key);
+
 				if (forceRefresh || node.last_update * 1000 > fullNetworkDescriptionDate.getTime()) {
 					//debugLog("Refreshing node details: " + node.last_update + " - " + fullNetworkDescriptionDate.getTime());
 					refreshedNodeCount++;
@@ -318,6 +322,17 @@ function refreshFullNetworkDescription(forceRefresh=false) {
 			});
 
 			Promise.all(promises.map(utils.reflectPromise)).then(function() {
+				for (var pubkey in nodeInfoByPubkey) {
+					if (nodeInfoByPubkey.hasOwnProperty(pubkey)) {
+						if (!currentNodePubkeys.includes(pubkey)) {
+							// the node for this pubkey is cached but was absent from latest DescribeGraph response...remove it
+							delete nodeInfoByPubkey[pubkey];
+
+							debugLog("Removing deleted cached node: pubkey=%s", pubkey);
+						}
+					}
+				}
+
 				fullNetworkDescription = compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey);
 				fullNetworkDescriptionDate = new Date();
 
