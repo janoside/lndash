@@ -41,6 +41,9 @@ head
 		title #{config.siteInfo.title}
 
 body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
+	script.
+		var documentReadyFunctions = [];
+
 	header.app-header.navbar.bg-main.p-0(class=((session.uiTheme && session.uiTheme == "dark") ? "bg-dark" : false))
 		button.navbar-toggler.sidebar-toggler.d-lg-none.mr-auto(type='button' data-toggle='sidebar-show')
 			span.navbar-toggler-icon
@@ -354,6 +357,10 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 		$(document).ready(function() {
 			$('[data-toggle="tooltip"]').tooltip({placement:"top"});
 			$('[data-toggle="popover"]').popover({html:true, container:"body"});
+
+			for (var i = 0; i < documentReadyFunctions.length; i++) {
+				documentReadyFunctions[i]();
+			}
 		});
 
 		hljs.initHighlightingOnLoad();
