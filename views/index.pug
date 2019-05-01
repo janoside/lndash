@@ -11,7 +11,12 @@ block content
 		if (session.hideHomepageBanner != "true")
 			include includes/donation-modal.pug
 
-			div.alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
+			if (global.newAppVersion)
+				div.alert.alert-primary.alert-dismissible.shadow-sm.mb-3
+					span You're running LND Admin v#{global.appVersion}. A newer version is available: 
+					a(href="https://www.npmjs.com/package/lnd-admin") LND Admin v#{global.newAppVersion}
+
+			div.alert.alert-primary.alert-dismissible.shadow-sm.mb-3(role="alert")
 				p
 					span.font-weight-bold LND Admin
 					span  is 

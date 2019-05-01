@@ -39,6 +39,9 @@ var request = require("request");
 var qrcode = require("qrcode");
 var rpcApi = require("./app/rpcApi.js");
 var runes = require("runes");
+var semver = require("semver");
+
+const latestVersion = require('latest-version');
 
 var package_json = require('./package.json');
 global.appVersion = package_json.version;
@@ -122,6 +125,14 @@ app.runOnStartup = function() {
 	if (!fs.existsSync(global.userDataDir)){
 		fs.mkdirSync(global.userDataDir);
 	}
+
+	latestVersion("lnd-admin").then(function(latestAppVersion) {
+		if (semver.gt(latestAppVersion, global.appVersion)) {
+			global.newAppVersion = latestAppVersion;
+
+			debugLog("New version of LND Admin available: v%s", global.newAppVersion);
+		}
+	});
 
 	global.config = config;
 	global.coinConfig = coins[config.coin];
