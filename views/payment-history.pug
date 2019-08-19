@@ -144,7 +144,6 @@ block content
 
 									td
 										- var destinationNodePubkey = payment.path[payment.path.length - 1];
-										- var destNode = fullNetworkDescription.nodeInfoByPubkey[destinationNodePubkey].node;
 										- var card_node_pubkey = destinationNodePubkey;
 										include ./includes/node-card.pug
 
