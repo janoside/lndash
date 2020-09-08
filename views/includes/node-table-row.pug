@@ -7,7 +7,7 @@ tr.text-monospace.word-wrap
 	td
 		if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
 			if (nodeInfo.node.addresses[0].addr.length > 25)
-				span(title=nodeInfo.node.addresses[0].addr, data-toggle="tooltip") -#{nodeInfo.node.addresses[0].addr.substring(nodeInfo.node.addresses[0].addr.length - 26, nodeInfo.node.addresses[0].addr.length - 1)}
+				span.border-dotted(title=nodeInfo.node.addresses[0].addr, data-toggle="tooltip") …#{nodeInfo.node.addresses[0].addr.substring(nodeInfo.node.addresses[0].addr.length - 26, nodeInfo.node.addresses[0].addr.length - 1)}
 			else
 				span #{nodeInfo.node.addresses[0].addr}
 		else
@@ -20,9 +20,7 @@ tr.text-monospace.word-wrap
 			- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(nodeInfo.node.last_update) * 1000))));
 			- var dateTimeUtc = moment.utc(new Date(parseInt(nodeInfo.node.last_update) * 1000)).format("Y-MM-DD HH:mm:ss");
 
-			span #{timeAgo.humanize()}
-			br
-			span.text-muted #{dateTimeUtc} utc
+			span.border-dotted(title=(dateTimeUtc + " utc") data-toggle="tooltip") #{timeAgo.humanize()} ago
 
 	td.text-right
 		span #{parseInt(nodeInfo.num_channels).toLocaleString()}

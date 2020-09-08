@@ -33,7 +33,7 @@ else
 
 		div.float-left
 			if (card_node)
-				a(href=`/node/${card_node.pubkey}`, title=card_node.pubkey, data-toggle="tooltip")
+				a(href=`/node/${card_node.pubkey}`)
 					include ./node-pubkey.pug
 
 				if (utils.isObjectStarred(`node:${card_node.pubkey}`))
