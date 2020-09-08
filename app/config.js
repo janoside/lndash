@@ -24,7 +24,7 @@ module.exports = {
 	siteInfo: {
 		title: "LND Admin",
 		sourceUrl: "https://github.com/janoside/lnd-admin",
-		demoSiteUrl: "https://lnd-admin.chaintools.io"
+		demoSiteUrl: "https://lnd-admin.btc21.org"
 	},
 
 	credentials: credentials,
@@ -43,26 +43,18 @@ module.exports = {
 	},
 
 	donations:{
-		addresses:{
-			coins:["BTC"],
-			sites:{"BTC":"https://btc.chaintools.io"},
-
-			"BTC":{address:"3NPGpNyLLmVKCEcuipBs7G4KpQJoJXjDGe"}
-		},
 		btcpayserver:{
-			host:"https://btcpay.chaintools.io",
-			storeId:"DUUExHMvKNAFukrJZHCShMhwZvfPq87QnkUhvE6h5kh2",
-			notifyEmail:"chaintools.io@gmail.com"
+			host:"https://donate.btc21.org"
 		}
 	},
 
-	blockExplorerUrl: process.env.LND_ADMIN_BLOCK_EXPLORER_URL || "https://btc.chaintools.io",
+	blockExplorerUrl: process.env.LND_ADMIN_BLOCK_EXPLORER_URL || "https://explorer.btc21.org",
 
 	headerDropdownLinks: {
 		title:"Related Sites",
 		links:[
-			{name: "Bitcoin Explorer", url:"https://btc.chaintools.io", imgUrl:"/img/logo/btc.svg"},
-			{name: "LND Admin", url:"https://lnd-admin.chaintools.io", imgUrl:"/img/logo/lightning.svg"},
+			{name: "Bitcoin Explorer", url:"https://explorer.btc21.org", imgUrl:"/img/logo/btc.svg"},
+			{name: "LND Admin", url:"https://lnd-admin.btc21.org", imgUrl:"/img/logo/lightning.svg"},
 		]
 	}
 };

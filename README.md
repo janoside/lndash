@@ -6,7 +6,7 @@ Admin web interface for [LND](https://github.com/lightningnetwork/lnd), via gRPC
 
 ![](docs/screenshots/dashboard.png)
 
-Live demo: https://lnd-admin.chaintools.io
+Live demo: https://lnd-admin.btc21.org
 
 # Features
 
@@ -52,9 +52,7 @@ Thanks to inspiration from [LND](https://github.com/lightningnetwork/lnd), [Joul
 
 # Donate
 
-To support continued development of this tool and/or to support the hosting of the live demo site:
-
-* [Bitcoin](bitcoin:3NPGpNyLLmVKCEcuipBs7G4KpQJoJXjDGe): 3NPGpNyLLmVKCEcuipBs7G4KpQJoJXjDGe
+* [https://donate.btc21.org](https://donate.btc21.org)
 
 
 

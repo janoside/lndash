@@ -9,8 +9,6 @@ block breadcrumb
 block content
 	if (fullNetworkDescription)
 		if (session.hideHomepageBanner != "true")
-			include includes/donation-modal.pug
-
 			if (global.newAppVersion)
 				div.alert.alert-primary.alert-dismissible.shadow-sm.mb-3
 					span You're running LND Admin v#{global.appVersion}. A newer version is available: 
@@ -39,10 +37,9 @@ block content
 							span.mr-2 Fork 
 							span.badge.bg-white.text-dark #{global.sourcecodeProjectMetadata.forks_count}
 
-						button.btn.btn-primary.btn.btn-primary.mb-1(type="button" data-toggle="modal" data-target="#donationModal")
+						a.btn.btn-primary.btn.btn-primary.mb-1(href=config.donations.btcpayserver.host target="_blank")
 							i(class="fas fa-heart mr-2")
-							span Donate via 
-							span(class="font-weight-light") BTCPay
+							span Donate
 
 				div
 					a.mr-2(href="https://www.npmjs.com/package/lnd-admin" rel="nofollow" target="_blank")
