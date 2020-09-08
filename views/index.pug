@@ -198,20 +198,28 @@ block content
 
 											div.text-monospace
 												- var currencyValue = new Decimal(totalLocalBalance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-												- var localBalancePercent = new Decimal(totalLocalBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
+
+												if (currencyValue > 0)
+													- var localBalancePercent = new Decimal(totalLocalBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
 
 												include includes/value-display.pug
-												div.text-muted #{localBalancePercent.toDP(1)}%
+												
+												if (currencyValue > 0)
+													div.text-muted #{localBalancePercent.toDP(1)}%
 
 										div.float-left(style="width: 8rem;")
 											div.font-weight-bold Remote
 
 											div.text-monospace
 												- var currencyValue = new Decimal(parseInt(totalRemoteBalance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-												- var remoteBalancePercent = new Decimal(totalRemoteBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
+
+												if (currencyValue > 0)
+													- var remoteBalancePercent = new Decimal(totalRemoteBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
 
 												include includes/value-display.pug
-												div.text-muted #{remoteBalancePercent.toDP(1)}%
+												
+												if (currencyValue > 0)
+													div.text-muted #{remoteBalancePercent.toDP(1)}%
 
 							if (false)
 								div.row
