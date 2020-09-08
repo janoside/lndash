@@ -143,7 +143,9 @@ block content
 											span(title=payment.payment_preimage, data-toggle="tooltip") #{payment.payment_preimage.substring(0, 15)}
 
 									td
-										- var destinationNodePubkey = payment.path[payment.path.length - 1];
+										//pre
+										//	code.json #{JSON.stringify(payment.htlcs[0], null, 4)}
+										- var destinationNodePubkey = payment.htlcs[0].route.hops[payment.htlcs[0].route.hops.length - 1].pub_key;
 										- var card_node_pubkey = destinationNodePubkey;
 										include ./includes/node-card.pug
 
@@ -159,7 +161,7 @@ block content
 									td
 										span.border-dotted(title=payment.payment_hash, data-toggle="tooltip") #{payment.payment_hash.substring(0, 15)}
 
-									td(class="table-col-int text-right") #{payment.path.length.toLocaleString()}
+									td(class="table-col-int text-right") #{payment.htlcs[0].route.hops.length.toLocaleString()}
 
 									td(class="table-col-currencyvalue text-right")
 										- var currencyValue = new Decimal(payment.fee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
