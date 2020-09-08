@@ -81,7 +81,9 @@ block content
 		if (walletUtxosResponse && walletUtxosResponse.utxos && walletUtxosResponse.utxos.length > 0)
 			div.card.shadow-sm.mb-3
 				div.card-header
-					h3.h6.mb-0 #{walletUtxosResponse.utxos.length.toLocaleString()} UTXOs
+					h3.h6.mb-0 #{walletUtxosResponse.utxos.length.toLocaleString()} UTXO
+						if (walletUtxosResponse.utxos.length > 1)
+							span s
 				div.card-body
 					each utxo, utxoIndex in walletUtxosResponse.utxos
 						- delete utxo.outpoint.txid_bytes;
@@ -205,7 +207,9 @@ block content
 
 		div.card.shadow-sm
 			div.card-header
-				h3.h6.mb-0 #{confirmedTxCount.toLocaleString()} Transactions
+				h3.h6.mb-0 #{confirmedTxCount.toLocaleString()} Transaction
+					if (confirmedTxCount > 1)
+							span s
 
 			div.card-body
 				div.table-responsive
