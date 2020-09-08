@@ -149,6 +149,28 @@ block content
 										br
 										span(class="text-muted") (#{getInfo.block_height.toLocaleString()})
 
+							hr
+
+							div(class="row")
+								div.summary-split-table-label On-Chain Balance
+								div.summary-split-table-content.text-monospace
+									if (walletBalance)
+										- var currencyValue = new Decimal(parseInt(walletBalance.confirmed_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+										if (currencyValue > 0)
+											div
+												include includes/value-display.pug
+
+										- var currencyValue = new Decimal(parseInt(walletBalance.unconfirmed_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+										if (currencyValue > 0)
+											div.text-muted
+												include includes/value-display.pug
+												span  (unconfirmed)
+
+									else
+										span.text-warning.border-dotted(title="Error loading wallet balance. See Error Log for details." data-toggle="tooltip") Unknown
+
+							hr
+
 							div(class="row")
 								div.summary-split-table-label Channels
 								div.summary-split-table-content.text-monospace
@@ -169,24 +191,6 @@ block content
 
 									else
 										span.text-warning.border-dotted(title="Error loading channel info. See Error Log for details." data-toggle="tooltip") Unknown
-
-							div(class="row")
-								div.summary-split-table-label Wallet Balance
-								div.summary-split-table-content.text-monospace
-									if (walletBalance)
-										- var currencyValue = new Decimal(parseInt(walletBalance.confirmed_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										if (currencyValue > 0)
-											div
-												include includes/value-display.pug
-
-										- var currencyValue = new Decimal(parseInt(walletBalance.unconfirmed_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										if (currencyValue > 0)
-											div.text-muted
-												include includes/value-display.pug
-												span  (unconfirmed)
-
-									else
-										span.text-warning.border-dotted(title="Error loading wallet balance. See Error Log for details." data-toggle="tooltip") Unknown
 
 							div(class="row")
 								div.summary-split-table-label Channel Balance
