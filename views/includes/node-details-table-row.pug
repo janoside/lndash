@@ -1,6 +1,6 @@
 tr.text-monospace
 	if (showTableNumbers)
-		th #{(index + 1).toLocaleString()}
+		th.text-right #{(index + 1).toLocaleString()}
 
 	td
 		- var card_node_pubkey = node.node.pub_key;
@@ -20,9 +20,9 @@ tr.text-monospace
 			span -
 		else
 			- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(node.node.last_update) * 1000))));
-
-			//span #{moment.utc(new Date(parseInt(node.node.last_update) * 1000)).format("Y-MM-DD HH:mm:ss")}
-			span #{timeAgo.humanize()}
+			- var dateTimeUtc = moment.utc(new Date(parseInt(node.node.last_update) * 1000)).format("Y-MM-DD HH:mm:ss");
+			
+			span.border-dotted(title=(dateTimeUtc + " utc") data-toggle="tooltip") #{timeAgo.humanize()} ago
 
 	td(class="text-right")
 		span #{parseInt(node.num_channels).toLocaleString()}
