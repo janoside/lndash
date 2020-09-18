@@ -102,12 +102,13 @@ block content
 										span #{node_color}
 
 							div(class="row")
-								- var versionParts = getInfo.version.split(" ");
-								div.summary-split-table-label LND Version
-								div.summary-split-table-content.text-monospace
-									each versionPart in versionParts
-										span #{versionPart}
-										br
+								if (getInfo)
+									- var versionParts = getInfo.version.split(" ");
+									div.summary-split-table-label LND Version
+									div.summary-split-table-content.text-monospace
+										each versionPart in versionParts
+											span #{versionPart}
+											br
 
 							if (false)
 								div(class="col-md-6")
