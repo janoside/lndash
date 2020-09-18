@@ -139,7 +139,7 @@ block content
 						thead.bg-light
 							tr
 								th.text-right #
-								th Memo
+								th Description
 								th Date
 								th.text-right Value
 								
@@ -195,8 +195,13 @@ block content
 											if (settled)
 												span +
 
-											- var currencyValue = new Decimal(invoice.value).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-											include ./includes/value-display.pug
+											if (settled)
+												- var currencyValue = new Decimal(invoice.amt_paid_sat).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+												include ./includes/value-display.pug
+
+											else
+												- var currencyValue = new Decimal(invoice.value).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+												include ./includes/value-display.pug
 
 									if (false)
 										td
