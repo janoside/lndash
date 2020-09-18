@@ -140,10 +140,13 @@ block content
 							tr
 								th.text-right #
 								th Memo
-								th Created
-								th
-									span.border-dotted(title="Whether a payment has been recieved for the invoice" data-toggle="tooltip") Settled
+								th Date
 								th.text-right Value
+								
+								if (false)
+									th
+										span.border-dotted(title="Whether a payment has been recieved for the invoice" data-toggle="tooltip") Settled
+
 								th Details
 						
 						tbody
@@ -152,6 +155,16 @@ block content
 									th.text-right #{(sort == "desc" ? (invoiceCount - invoice_index) : (offset + invoice_index + 1)).toLocaleString()}
 
 									td
+										span.mr-2(title=("Status: " + invoice.state) data-toggle="tooltip")
+											if (invoice.state == "CANCELED")
+												i.fas.fa-circle.text-danger
+
+											else if (invoice.state == "SETTLED")
+												i.fas.fa-circle.text-success
+
+											else
+												i.fas.fa-circle.text-warning
+
 										if (invoice.memo)
 											span #{invoice.memo}
 										else
@@ -162,36 +175,51 @@ block content
 										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(createdAtTime) * 1000))));
 										- var dateTimeUtc = moment.utc(new Date(parseInt(createdAtTime) * 1000)).format("Y-MM-DD HH:mm:ss");
 
-										span #{dateTimeUtc} utc
-										br
-										span.text-muted #{timeAgo.humanize()} ago
-
-									td
-										if (invoice.settled)
-											i.fas.fa-check.text-success.mr-2
-											span.text-success Yes
-
-
-											if (false)
-												div.clearfix
-													div.float-left.mr-4
-														
-													div.float-left
-														- var settleTime = parseInt(invoice.settle_date);
-														- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(settleTime) * 1000))));
-														- var dateTimeUtc = moment.utc(new Date(parseInt(settleTime) * 1000)).format("Y-MM-DD HH:mm:ss");
-
-														span #{dateTimeUtc} utc
-														br
-														span.text-muted #{timeAgo.humanize()} ago
-
-										else
-											span.text-muted -
+										span.border-dotted(title=(dateTimeUtc + " utc") data-toggle="tooltip") #{timeAgo.humanize()} ago
 
 									td.text-right
-										span
+
+										- var valueColorClass = "text-muted";
+										- var settled = false;
+										if (invoice.state == "CANCELED")
+											// keep default muted
+
+										else if (invoice.state == "SETTLED")
+											- valueColorClass = "text-success font-weight-bold";
+											- settled = true;
+
+										else
+											- valueColorClass = "text-warning";
+
+										span(class=valueColorClass)
+											if (settled)
+												span +
+
 											- var currencyValue = new Decimal(invoice.value).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 											include ./includes/value-display.pug
+
+									if (false)
+										td
+											if (invoice.settled)
+												i.fas.fa-check.text-success.mr-2
+												span.text-success Yes
+
+
+												if (false)
+													div.clearfix
+														div.float-left.mr-4
+															
+														div.float-left
+															- var settleTime = parseInt(invoice.settle_date);
+															- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(settleTime) * 1000))));
+															- var dateTimeUtc = moment.utc(new Date(parseInt(settleTime) * 1000)).format("Y-MM-DD HH:mm:ss");
+
+															span #{dateTimeUtc} utc
+															br
+															span.text-muted #{timeAgo.humanize()} ago
+
+											else
+												span.text-muted -
 
 									td
 										a(href="javascript:void(0)" data-toggle="modal" data-target=("#invoiceModal-" + invoice_index)) Details
