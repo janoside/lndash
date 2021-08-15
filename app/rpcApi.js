@@ -3,7 +3,7 @@ var debugLog = debug("lnd-admin:rpc");
 
 var utils = require("./utils.js");
 var fs = require("fs");
-var grpc = require("grpc");
+var grpc = require("@grpc/grpc-js");
 var protoLoader = require('@grpc/proto-loader');
 var path = require('path');
 

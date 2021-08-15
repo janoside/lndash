@@ -31,7 +31,7 @@ var simpleGit = require('simple-git');
 var utils = require("./app/utils.js");
 var moment = require("moment");
 var Decimal = require('decimal.js');
-var grpc = require("grpc");
+var grpc = require("@grpc/grpc-js");
 var pug = require("pug");
 var momentDurationFormat = require("moment-duration-format");
 var coins = require("./app/coins.js");
@@ -41,7 +41,7 @@ var rpcApi = require("./app/rpcApi.js");
 var runes = require("runes");
 var semver = require("semver");
 
-const latestVersion = require('latest-version');
+//import latestVersion from 'latest-version';
 
 var package_json = require('./package.json');
 global.appVersion = package_json.version;
@@ -126,13 +126,13 @@ app.runOnStartup = function() {
 		fs.mkdirSync(global.userDataDir);
 	}
 
-	latestVersion("lnd-admin").then(function(latestAppVersion) {
+	/*latestVersion("lnd-admin").then(function(latestAppVersion) {
 		if (semver.gt(latestAppVersion, global.appVersion)) {
 			global.newAppVersion = latestAppVersion;
 
 			debugLog("New version of LND Admin available: v%s", global.newAppVersion);
 		}
-	});
+	});*/
 
 	global.config = config;
 	global.coinConfig = coins[config.coin];
