@@ -20,6 +20,7 @@ debug.enable(process.env.DEBUG);
 
 var debugLog = debug("lnd-admin:app");
 
+var axios = require("axios");
 var express = require('express');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -35,7 +36,6 @@ var grpc = require("@grpc/grpc-js");
 var pug = require("pug");
 var momentDurationFormat = require("moment-duration-format");
 var coins = require("./app/coins.js");
-var request = require("request");
 var qrcode = require("qrcode");
 var rpcApi = require("./app/rpcApi.js");
 var runes = require("runes");
@@ -88,37 +88,28 @@ app.use(session({
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-function getSourcecodeProjectMetadata() {
+async function getSourcecodeProjectMetadata() {
 	var options = {
 		url: "https://api.github.com/repos/janoside/lnd-admin",
 		headers: {
-			'User-Agent': 'request'
+			'User-Agent': 'axios'
 		}
 	};
 
 	// github project metadata
-	request(options, function(error, response, body) {
-		if (error == null && response && response.statusCode && response.statusCode == 200) {
-			var responseBody = JSON.parse(body);
+	try {
+		const response = await axios(options);
 
-			global.sourcecodeProjectMetadata = responseBody;
+		global.sourcecodeProjectMetadata = response.data;
 
-			//console.log(`SourcecodeProjectMetadata: ${JSON.stringify(global.sourcecodeProjectMetadata)}`);
-
-		} else {
-			if (error) {
-				utils.logError("239r7hsdgss", error);
-
-			} else {
-				utils.logError("3208fh3ew7eghfg", `Error 3208fh3ew7eghfg: ${error}, StatusCode: ${response != null ? response.statusCode : "?"}, Response: ${JSON.stringify(response)}`);
-			}
-		}
-	});
+	} catch (err) {
+		utils.logError("239r7hsdgss", err);
+	}
 }
 
 
 
-app.runOnStartup = function() {
+app.runOnStartup = async () => {
 	global.packageRootDir = __dirname;
 	global.userDataDir = path.join(os.homedir(), ".lnd-admin");
 
@@ -160,7 +151,7 @@ app.runOnStartup = function() {
 		});
 	}
 	
-	getSourcecodeProjectMetadata();
+	await getSourcecodeProjectMetadata();
 	setInterval(getSourcecodeProjectMetadata, 3 * 3600000);
 
 
@@ -306,7 +297,7 @@ app.use(function(req, res, next) {
 		req.session.query = null;
 	}
 
-	// make some var available to all request
+	// make some var available to all requests
 	// ex: req.cheeseStr = "cheese";
 
 	if (global.lndRpc != null) {

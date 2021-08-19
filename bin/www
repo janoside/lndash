@@ -4,10 +4,10 @@ var app = require('../app');
 
 app.set('port', process.env.PORT || process.env.LND_ADMIN_PORT || 3004);
 
-var server = app.listen(app.get('port'), function() {
+var server = app.listen(app.get('port'), async () => {
 	debug('Express server listening on port ' + server.address().port);
 
 	if (app.runOnStartup) {
-		app.runOnStartup();
+		await app.runOnStartup();
 	}
 });
