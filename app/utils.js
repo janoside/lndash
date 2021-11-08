@@ -487,7 +487,7 @@ function buildQrCodeUrl(str, results) {
 
 			results[str] = url;
 
-			resolve();
+			resolve(url);
 		});
 	});
 }

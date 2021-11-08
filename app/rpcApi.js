@@ -103,7 +103,7 @@ function connect(rpcConfig, index) {
 			// uncomment to print available function of RPC protocol
 			//debugLog(lnrpc);
 
-			var lndConnection = new lnrpc.Lightning(`${host}:${port}`, credentials, {'grpc.max_receive_message_length': 50*1024*1024});
+			var lndConnection = new lnrpc.Lightning(`${host}:${port}`, credentials, {'grpc.max_receive_message_length': 100*1024*1024});
 
 			lndConnection.GetInfo({}, function(err, response) {
 				if (err) {

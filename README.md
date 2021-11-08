@@ -10,14 +10,14 @@ Live demo: https://lnd-admin.btc21.org
 
 # Features
 
-* UI for connecting to LND - requires host/port/admin.macaroon/tls.cert, which can be supplied in various ways, including using LND Connect strings
+* UI for connecting to `LND` - requires host/port/admin.macaroon/tls.cert, which can be supplied in various ways, including using `LND Connect` strings
 * Browse and search the public lightning network
 * View invoices, payments, and forwarded payments
 * Create and pay invoices
 * Open and close channels
-* Connect to multiple LND nodes and switch between them
+* Connect to multiple `LND` nodes and switch between them
 * Simple/intuitive sorting filtering for most data
-* Tools for sign/very, query route, generate LND Connect strings
+* Tools for sign/verify, query route, generate `LND Connect` strings
 * Star (favorite) nodes and channels
 * Responsive design (but UI is data/table heavy, so works best on large screens)
 

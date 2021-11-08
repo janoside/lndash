@@ -1111,7 +1111,7 @@ router.get("/connect-lnd", function(req, res) {
 			}).catch(function(err) {
 				res.locals.pageErrors.push(utils.logError("230uhfwequfghewfuew", err));
 
-				req.session.userMessage = `Error switching to LND ${global.lndRpc.internal_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)} ('${global.lndRpc.internal_alias}')`;
+				req.session.userMessage = `Error switching to LND ${JSON.stringify(global.lndRpc)}`;
 				req.session.userMessageType = "danger";
 
 				res.redirect(req.headers.referer);
@@ -2988,6 +2988,45 @@ router.get("/tag", function(req, res) {
 	if (req.query.action) {
 		action = req.query.action;
 	}
+
+	var tagType = req.query.tagType;
+	var objectId = req.query.objectId;
+
+	var preferences = global.userPreferences;
+
+	if (action == "add") {
+		if (!preferences.tags) {
+			preferences.tags = {};
+		}
+
+		if (!preferences.tags[tagType]) {
+			preferences.tags[tagType] = [];
+		}
+
+		preferences.tags[tagType].push(objectId);
+
+	} else if (action == "remove") {
+		preferences.tags[tagType] = preferences.tags[tagType].filter(e => e !== objectId);
+	}
+
+	global.userPreferences = preferences;
+
+	utils.savePreferences(global.userPreferences, global.adminPassword);
+	
+	
+	res.redirect(req.headers.referer);
+});
+
+router.get("/qrcode", function(req, res) {
+	var action = "add";
+	if (req.query.action) {
+		action = req.query.action;
+	}
+
+	var results = [];
+	utils.buildQrCodeUrl(req.query.data, results).then(function(url) {
+
+	});
 
 	var tagType = req.query.tagType;
 	var objectId = req.query.objectId;

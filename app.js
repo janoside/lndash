@@ -56,7 +56,8 @@ process.on("unhandledRejection", (reason, p) => {
 var crawlerBotUserAgentStrings = [ "Googlebot", "Bingbot", "Slurp", "DuckDuckBot", "Baiduspider", "YandexBot", "Sogou", "Exabot", "facebot", "ia_archiver" ];
 
 
-var baseActionsRouter = require('./routes/baseActionsRouter');
+var baseRouter = require("./routes/baseRouter.js");
+var utilRouter = require("./routes/utilRouter.js");
 
 var app = express();
 
@@ -377,7 +378,8 @@ app.use(function(req, res, next) {
 	}
 });
 
-app.use('/', baseActionsRouter);
+app.use('/', baseRouter);
+app.use('/util', utilRouter);
 
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {
