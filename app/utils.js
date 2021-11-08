@@ -3,13 +3,13 @@ var debugLog = debug("lnd-admin:utils");
 var debugLogError = debug("lnd-admin:error");
 
 var Decimal = require("decimal.js");
-var request = require("request");
 var qrcode = require("qrcode");
 var CryptoJS = require("crypto-js");
 var fs = require("fs");
 var url = require("url");
 var base64url = require('base64url');
 var path = require('path');
+var axios = require("axios");
 
 var config = require("./config.js");
 var coins = require("./coins.js");
@@ -271,34 +271,30 @@ function getBlockTotalFeesFromCoinbaseTxAndBlockHeight(coinbaseTx, blockHeight) 
 	return totalOutput.minus(new Decimal(blockReward));
 }
 
-function refreshExchangeRates() {
+async function refreshExchangeRates() {
 	if (coins[config.coin].exchangeRateData) {
-		request(coins[config.coin].exchangeRateData.jsonUrl, function(error, response, body) {
-			if (!error && response && response.statusCode && response.statusCode == 200) {
-				var responseBody = JSON.parse(body);
+		try {
+			const response = await axios.get(coins[config.coin].exchangeRateData.jsonUrl);
+			
+			var exchangeRates = coins[config.coin].exchangeRateData.responseBodySelectorFunction(response.data);
+			if (exchangeRates != null) {
+				global.exchangeRates = exchangeRates;
+				global.exchangeRatesUpdateTime = new Date();
 
-				var exchangeRates = coins[config.coin].exchangeRateData.responseBodySelectorFunction(responseBody);
-				if (exchangeRates != null) {
-					global.exchangeRates = exchangeRates;
-					global.exchangeRatesUpdateTime = new Date();
+				debugLog("Using exchange rates: " + JSON.stringify(global.exchangeRates) + " starting at " + global.exchangeRatesUpdateTime);
 
-					debugLog("Using exchange rates: " + JSON.stringify(global.exchangeRates) + " starting at " + global.exchangeRatesUpdateTime);
-
-				} else {
-					debugLog("Unable to get exchange rate data");
-				}
 			} else {
-				debugLog("Error 320hsd0uhsg07gs07:");
-				debugLog(error);
-				debugLog("Response:");
-				debugLog(response);
+				debugLog("Unable to get exchange rate data");
 			}
-		});
+
+		} catch (err) {
+			logError("320hsd0uhsg07gs07", err);
+		}
 	}
 }
 
 // Uses IPStack.com API
-function geoLocateIpAddresses(ipAddresses) {
+async function geoLocateIpAddresses(ipAddresses) {
 	return new Promise(function(resolve, reject) {
 		var chunks = splitArrayIntoChunks(ipAddresses, 1);
 
@@ -320,15 +316,18 @@ function geoLocateIpAddresses(ipAddresses) {
 
 			} else if (config.credentials.ipStackComApiAccessKey && config.credentials.ipStackComApiAccessKey.trim().length > 0) {
 				var apiUrl = "http://api.ipstack.com/" + ipStr + "?access_key=" + config.credentials.ipStackComApiAccessKey;
-				promises.push(new Promise(function(resolve2, reject2) {
-					request(apiUrl, function(error, response, body) {
-						if (error) {
-							reject2(error);
+				
+				promises.push(new Promise(async function(resolve2, reject2) {
+					try {
+						const response = await axios.get(apiUrl);
 
-						} else {
-							resolve2(response);
-						}
-					});
+						resolve2(response.data);
+
+					} catch (err) {
+						logError("23ur230ex", err);
+
+						reject2(err);
+					}
 				}));
 			} else {
 				promises.push(new Promise(function(resolve2, reject2) {
