@@ -10,17 +10,27 @@ div.modal.fade(id=("invoiceModal-" + invoice_index) role="dialog" aria-hidden="t
 					span(aria-hidden="true") &times;
 
 			div.modal-body
-				- var jsonX = invoice;
-				- jsonX.r_preimage_base64 = Buffer.from(jsonX.r_preimage).toString("base64");
-				- jsonX.r_preimage_hex = Buffer.from(jsonX.r_preimage).toString("hex");
-				- jsonX.r_hash_base64 = Buffer.from(jsonX.r_hash).toString("base64");
-				- jsonX.r_hash_hex = Buffer.from(jsonX.r_hash).toString("hex");
+				ul.nav.nav-tabs.mb-3
+					li.nav-item
+						a.nav-link.active(data-toggle="tab" href=`#tab-summary-${invoice_index}` role="tab") Summary
+					li.nav-item
+						a.nav-link(data-toggle="tab"  href=`#tab-json-${invoice_index}` role="tab") JSON
 
-				- delete jsonX.r_preimage;
-				- delete jsonX.r_hash;
+				div.tab-content
+					div.tab-pane.active(id=`tab-summary-${invoice_index}` role="tabpanel")
+						h1 snv
 
-				pre
-					code.json.bg-light #{JSON.stringify(jsonX, null, 4)}
+				div.tab-content
+					div.tab-pane(id=`tab-json-${invoice_index}` role="tabpanel")
 
-			div.modal-footer
-				button.btn.btn-secondary(type="button" data-dismiss="modal") Close
+						- var jsonX = invoice;
+						- jsonX.r_preimage_base64 = Buffer.from(jsonX.r_preimage).toString("base64");
+						- jsonX.r_preimage_hex = Buffer.from(jsonX.r_preimage).toString("hex");
+						- jsonX.r_hash_base64 = Buffer.from(jsonX.r_hash).toString("base64");
+						- jsonX.r_hash_hex = Buffer.from(jsonX.r_hash).toString("hex");
+
+						- delete jsonX.r_preimage;
+						- delete jsonX.r_hash;
+
+						pre
+							code.json.bg-light #{JSON.stringify(jsonX, null, 4)}

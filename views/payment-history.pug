@@ -154,9 +154,7 @@ block content
 										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timestampTime) * 1000))));
 										- var dateTimeUtc = moment.utc(new Date(parseInt(timestampTime) * 1000)).format("Y-MM-DD HH:mm:ss");
 
-										span #{timeAgo.format()} ago
-										br
-										span.text-muted #{dateTimeUtc} utc
+										span.border-dotted(title=`${dateTimeUtc} utc` data-toggle="tooltip") #{timeAgo.format()} ago
 
 									td
 										span.border-dotted(title=payment.payment_hash, data-toggle="tooltip") #{payment.payment_hash.substring(0, 15)}
