@@ -32,7 +32,7 @@
         "runes": "0.4.3",
         "semver": "^7.3.5",
         "serve-favicon": "^2.5.0",
-        "simple-git": "^2.44.0",
+        "simple-git": "^3.5.0",
         "untildify": "^4.0.0"
       },
       "bin": {
@@ -779,9 +779,9 @@
       "integrity": "sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw=="
     },
     "node_modules/debug": {
-      "version": "4.3.2",
-      "resolved": "https://registry.npmjs.org/debug/-/debug-4.3.2.tgz",
-      "integrity": "sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==",
+      "version": "4.3.4",
+      "resolved": "https://registry.npmjs.org/debug/-/debug-4.3.4.tgz",
+      "integrity": "sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==",
       "dependencies": {
         "ms": "2.1.2"
       },
@@ -2519,13 +2519,17 @@
       "integrity": "sha512-JvdAWfbXeIGaZ9cILp38HntZSFSo3mWg6xGcJJsd+d4aRMOqauag1C63dJfDw7OaMYwEbHMOxEZ1lqVRYP2OAw=="
     },
     "node_modules/simple-git": {
-      "version": "2.44.0",
-      "resolved": "https://registry.npmjs.org/simple-git/-/simple-git-2.44.0.tgz",
-      "integrity": "sha512-wIjcAmymhzgdaM0Y/a+XxmNGlivvHQTPZDYXVmyHMShVDwdeVqu3+OOyDbYu0DnfVzqLs2EOxRTgMNbC3YquwQ==",
+      "version": "3.5.0",
+      "resolved": "https://registry.npmjs.org/simple-git/-/simple-git-3.5.0.tgz",
+      "integrity": "sha512-fZsaq5nzdxQRhMNs6ESGLpMUHoL5GRP+boWPhq9pMYMKwOGZV2jHOxi8AbFFA2Y/6u4kR99HoULizSbpzaODkA==",
       "dependencies": {
         "@kwsites/file-exists": "^1.1.1",
         "@kwsites/promise-deferred": "^1.1.1",
-        "debug": "^4.3.1"
+        "debug": "^4.3.3"
+      },
+      "funding": {
+        "type": "github",
+        "url": "https://github.com/sponsors/steveukx/"
       }
     },
     "node_modules/spdx-correct": {
@@ -3368,9 +3372,9 @@
       "integrity": "sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw=="
     },
     "debug": {
-      "version": "4.3.2",
-      "resolved": "https://registry.npmjs.org/debug/-/debug-4.3.2.tgz",
-      "integrity": "sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==",
+      "version": "4.3.4",
+      "resolved": "https://registry.npmjs.org/debug/-/debug-4.3.4.tgz",
+      "integrity": "sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==",
       "requires": {
         "ms": "2.1.2"
       },
@@ -4702,13 +4706,13 @@
       "integrity": "sha512-JvdAWfbXeIGaZ9cILp38HntZSFSo3mWg6xGcJJsd+d4aRMOqauag1C63dJfDw7OaMYwEbHMOxEZ1lqVRYP2OAw=="
     },
     "simple-git": {
-      "version": "2.44.0",
-      "resolved": "https://registry.npmjs.org/simple-git/-/simple-git-2.44.0.tgz",
-      "integrity": "sha512-wIjcAmymhzgdaM0Y/a+XxmNGlivvHQTPZDYXVmyHMShVDwdeVqu3+OOyDbYu0DnfVzqLs2EOxRTgMNbC3YquwQ==",
+      "version": "3.5.0",
+      "resolved": "https://registry.npmjs.org/simple-git/-/simple-git-3.5.0.tgz",
+      "integrity": "sha512-fZsaq5nzdxQRhMNs6ESGLpMUHoL5GRP+boWPhq9pMYMKwOGZV2jHOxi8AbFFA2Y/6u4kR99HoULizSbpzaODkA==",
       "requires": {
         "@kwsites/file-exists": "^1.1.1",
         "@kwsites/promise-deferred": "^1.1.1",
-        "debug": "^4.3.1"
+        "debug": "^4.3.3"
       }
     },
     "spdx-correct": {
