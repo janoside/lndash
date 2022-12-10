@@ -1143,7 +1143,7 @@ router.get("/nodes", function(req, res) {
 		offset = parseInt(req.query.offset);
 	}
 
-	if (req.query.sort) {
+	if (req.query.sort && typeof req.query.sort === "string") {
 		sort = req.query.sort;
 	}
 
@@ -1269,7 +1269,7 @@ router.get("/channels", function(req, res) {
 		offset = parseInt(req.query.offset);
 	}
 
-	if (req.query.sort) {
+	if (req.query.sort && typeof req.query.sort === "string") {
 		sort = req.query.sort;
 	}
 
@@ -1394,7 +1394,7 @@ router.get("/local-channels", function(req, res) {
 		offset = parseInt(req.query.offset);
 	}
 
-	if (req.query.sort) {
+	if (req.query.sort && typeof req.query.sort === "string") {
 		sort = req.query.sort;
 	}
 	
