@@ -191,7 +191,7 @@ block content
 						hr.my-4
 
 
-					+summaryRow(3 + (localChannelStatus ? 1 : 0))
+					+summaryRow(3 + (localChannel ? 1 : 0))
 						+summaryItem("Last Update")
 							- var timeAgoTime = channel.last_update;
 							- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timeAgoTime) * 1000))));
@@ -226,7 +226,7 @@ block content
 									span #{blockHeight.toLocaleString()}
 								| )
 
-						if (localChannelStatus)
+						if (localChannel)
 							+summaryItem("Updates")
 								| #{parseInt(localChannel.num_updates).toLocaleString()}
 
@@ -264,15 +264,16 @@ block content
 							span Star Channel
 
 
-					if (session.admin)
-						include includes/close-channel-modal.pug
+					if (localChannels.byId[channel.channel_id])
+						if (session.admin)
+							include includes/close-channel-modal.pug
 
-						a.btn.btn-danger.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#closeChannelModal")
-							i.fas.fa-times.me-2
-							span Close Channel...
+							a.btn.btn-danger.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#closeChannelModal")
+								i.fas.fa-times.me-2
+								span Close Channel...
 
-					else
-						a.btn.btn-danger.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-bs-toggle="tooltip" title="You need to log in to modify your channels." disabled)
+						else
+							a.btn.btn-danger.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-bs-toggle="tooltip" title="You need to log in to modify your channels." disabled)
 								i.fas.fa-times.me-2
 								span Close Channel...
 						
