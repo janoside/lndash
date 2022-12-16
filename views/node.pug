@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title Node Details - #{nodePubkey}
@@ -13,153 +13,148 @@ block breadcrumb
 	
 block content
 
-	h1.h3
-		div(class="clearfix")
-			div(class="float-left mr-3")
-				span Node
-			div(class="float-left mr-3")
-				- var node_pubkey = nodePubkey;
-				- var node_icon_size = "1.25em";
-				include ./includes/node-icon.pug
-		
-		small.text-monospace.word-wrap.mr-2(style="width: 100%;") #{nodePubkey}
+	.d-flex.flex-row
+		.me-3
+			- var node_pubkey = nodePubkey;
+			- var node_icon_size = "5em";
+			include ./includes/node-icon.pug
 
-		if (nodePubkey == lndRpc.internal_pubkey)
-			i.fas.fa-certificate.fa-xs.text-primary.mr-1(title="These are the public node details for your active LND node" data-toggle="tooltip")
+		.w-100
+			+pageTitle(`Node "${nodeInfo.node.alias}"`, nodePubkey, true)
+				span.h3
+					if (nodePubkey == lndRpc.internal_pubkey)
+						span(title="These are the public node details for your active LND node", data-bs-toggle="tooltip")
+							i.fas.fa-certificate.fa-sm.text-primary.ms-2
 
-		if (utils.isObjectStarred(`node:${node_pubkey}`))
-			i.fas.fa-star.text-warning.fa-xs(title="This is one of your favorite nodes" data-toggle="tooltip")
-	hr
+					if (utils.isObjectStarred(`node:${node_pubkey}`))
+						span(title="This is one of your favorite nodes" data-bs-toggle="tooltip")
+							i.fas.fa-star.text-warning.fa-sm.ms-2
+
+		if (qrcodeUrls[nodeInfo.node.pub_key])
+			.me-2.ms-2
+				img(src=qrcodeUrls[nodeInfo.node.pub_key], alt=Pubkey QR Code, style="border: solid 1px #ccc; width: 8rem; height: 8rem;")
+
+		if (nodeUri && qrcodeUrls[nodeUri])
+			div
+				img(src=qrcodeUrls[nodeUri], alt=URI QR Code, style="border: solid 1px #ccc; width: 8rem; height: 8rem;")
+
+	
+
 
 	if (nodeInfo && nodeInfo.node)
-		div.card.mb-3.shadow-sm
-			div.card-header
-				h2.h6.mb-0 Summary
-
-			div.card-body
-				div(class="row")
-					div(class="col-md-8")
-						div(class="row")
-							div.summary-split-table-label
-								span.border-dotted(title="The public name for this node, set by its owner. This can be set to any value, so should not be trusted as an identity unless otherwise verified." data-toggle="tooltip") Alias
-							div.summary-split-table-content.text-monospace
-								if (nodeInfo.node.alias.length > 0)
-									span #{nodeInfo.node.alias}
-								else
-									span -
-
-						div(class="row")
-							div.summary-split-table-label Color
-							div.summary-split-table-content.text-monospace
-								- var node_color = nodeInfo.node.color;
-								include ./includes/node-color-swatch.pug
-								span #{nodeInfo.node.color}
-
-						div(class="row")
-							div.summary-split-table-label Addresses
-							div.summary-split-table-content.text-monospace
-								if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
-									each addressItem in nodeInfo.node.addresses
-										span #{addressItem.network} #{addressItem.addr}
-										br
-								else
-									span -
-
-						div(class="row")
-							div.summary-split-table-label Last Update
-							div.summary-split-table-content.text-monospace
-								- var timeAgoTime = nodeInfo.node.last_update;
-								- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timeAgoTime) * 1000))));
-								- var dateTimeUtc = moment.utc(new Date(parseInt(nodeInfo.node.last_update) * 1000)).format("Y-MM-DD HH:mm:ss");
-								
-								span #{dateTimeUtc} utc
-								br
-								span.text-muted #{timeAgo.humanize()} ago
-								
-						div(class="row")
-							div.summary-split-table-label Channels
-							div.summary-split-table-content.text-monospace #{parseInt(nodeInfo.num_channels).toLocaleString()}
-
-						div(class="row")
-							div.summary-split-table-label Total Capacity
-							div.summary-split-table-content.text-monospace
-								- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-								include ./includes/value-display.pug
-
-						if (nodeChannels.length > 1)
-							div(class="row")
-								div.summary-split-table-label Avg Capacity
-								div.summary-split-table-content.text-monospace
-									- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(nodeChannels.length);
-									include ./includes/value-display.pug
-
-					div(class="col-md-4")
-							if (qrcodeUrls[nodeInfo.node.pub_key])
-								div(style="display: inline-block; margin-right: 15px;")
-									img(src=qrcodeUrls[nodeInfo.node.pub_key], alt=Pubkey QR Code, style="border: solid 1px #ccc;")
-									br
-									span.text-center.text-monospace Public Key
-
-							if (nodeUri && qrcodeUrls[nodeUri])
-								div(style="display: inline-block;")
-									img(src=qrcodeUrls[nodeUri], alt=URI QR Code, style="border: solid 1px #ccc;")
-									br
-									span.text-center.text-monospace URI
+		+contentSection("Summary")
+			+summaryRow(4)
+				+summaryItem("Alias", "The public name for this node, set by its owner. This can be set to any value, so should not be trusted as an identity unless otherwise verified.")
+					if (nodeInfo.node.alias.length > 0)
+						span #{nodeInfo.node.alias}
+					else
+						span -
 
 
-		div.card.mb-3.shadow-sm
-			div.card-header
-				h2.h6.mb-0 Tools
-			div.card-body
-				if (session.admin)
-					if (nodeInfo.node.pub_key != lndRpc.internal_pubkey)
-						if (peerPubkeys.includes(nodeInfo.node.pub_key))
-							a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/disconnectPeer?pubkey=${nodeInfo.node.pub_key}`)
-								i.fas.fa-unlink.mr-2
-								span Disconnect from Peer
+				+summaryItem("Color")
+					- var node_color = nodeInfo.node.color;
+					include ./includes/node-color-swatch.pug
+					span #{nodeInfo.node.color}
 
-							a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/openchannel?pubkey=${nodeInfo.node.pub_key}`)
-								i.fas.fa-exchange-alt.mr-2
-								span Open Channel
 
-						else
-							if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
-								a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/connectToPeer?pubkey=${nodeInfo.node.pub_key}&address=${nodeInfo.node.addresses[0].addr}`)
-									i.fas.fa-link.mr-2
-									span Connect as Peer
+				+summaryItem("Addresses")
+					if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
+						each addressItem in nodeInfo.node.addresses
+							span.badge.text-bg-secondary.me-2 #{addressItem.network}
+							if (addressItem.addr.length > 20)
+								span.border-dotted(title=addressItem.addr, data-bs-toggle="tooltip") #{utils.ellipsizeMiddle(addressItem.addr, 32)}
+								+copyTextButton(addressItem.addr)
 							else
-								a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" title="Unable to connect. No addresses found." data-toggle="tooltip" disabled)
-									i.fas.fa-link.mr-2
-									span Connect as Peer
+								span #{addressItem.addr}
+								+copyTextButton(addressItem.addr)
 
-							a.btn.btn-secondary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`javascript:void(0)` title="Your LND Node must be connected to this node as a peer before you can open a channel to it." data-toggle="tooltip" disabled)
-								i.fas.fa-exchange-alt.mr-2
-								span Open Channel
-
-						a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/query-route?pubkey=${nodeInfo.node.pub_key}`)
-							i.fas.fa-route.mr-2
-							span Query Route Here
-
-						if (false)
-							a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/send-payment?destPubkey=${nodeInfo.node.pub_key}`)
-								i.fas.fa-money-bill-wave.mr-2
-								span Send Payment
+							br
+					else
+						span -
 
 
-				if (utils.isObjectStarred(`node:${nodeInfo.node.pub_key}`))
-					a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/tag?action=remove&tagType=star&objectId=node:${nodeInfo.node.pub_key}` title="Remove this node from your list of favorites" data-toggle="tooltip")
-						i.far.fa-star.mr-2
-						span Unstar Node
+				+summaryItem("Last Update")
+					- var timeAgoTime = nodeInfo.node.last_update;
+					- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timeAgoTime) * 1000))));
+					- var dateTimeUtc = moment.utc(new Date(parseInt(nodeInfo.node.last_update) * 1000)).format("Y-MM-DD HH:mm:ss");
+					
+					span #{dateTimeUtc} utc
+					br
+					span.text-muted #{timeAgo.humanize()} ago
 
-				else
-					a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/tag?action=add&tagType=star&objectId=node:${nodeInfo.node.pub_key}` title="Add this node to your list of favorites" data-toggle="tooltip")
-						i.fas.fa-star.mr-2
-						span Star Node
 
-				if (!session.admin)
-					a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/login`)
-						i.fas.fa-sign-in-alt.mr-2
-						span Login for more tools
+			hr.my-4
+
+			+summaryRow(2 + ((nodeChannels.length > 1) ? 1 : 0))
+				+summaryItem("Channels")
+					| #{parseInt(nodeInfo.num_channels).toLocaleString()}
+
+				+summaryItem("Total Capacity")
+					- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+					include ./includes/value-display.pug
+
+				if (nodeChannels.length > 1)
+					+summaryItem("Avg Capacity")
+						- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(nodeChannels.length);
+						include ./includes/value-display.pug
+
+							
+
+							
+
+
+		+contentSection("Tools")
+			if (session.admin)
+				if (nodeInfo.node.pub_key != lndRpc.internal_pubkey)
+					if (peerPubkeys.includes(nodeInfo.node.pub_key))
+						a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/disconnectPeer?pubkey=${nodeInfo.node.pub_key}`)
+							i.fas.fa-unlink.me-2
+							span Disconnect from Peer
+
+						a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/openchannel?pubkey=${nodeInfo.node.pub_key}`)
+							i.fas.fa-exchange-alt.me-2
+							span Open Channel
+
+					else
+						if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
+							a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/connectToPeer?pubkey=${nodeInfo.node.pub_key}&address=${nodeInfo.node.addresses[0].addr}`)
+								i.fas.fa-link.me-2
+								span Connect as Peer
+						else
+							a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" title="Unable to connect. No addresses found." data-bs-toggle="tooltip" disabled)
+								i.fas.fa-link.me-2
+								span Connect as Peer
+
+						a.btn.btn-secondary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`javascript:void(0)` title="Your LND Node must be connected to this node as a peer before you can open a channel to it." data-bs-toggle="tooltip" disabled)
+							i.fas.fa-exchange-alt.me-2
+							span Open Channel
+
+					a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/query-route?pubkey=${nodeInfo.node.pub_key}`)
+						i.fas.fa-route.me-2
+						span Query Route Here
+
+					if (false)
+						a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/send-payment?destPubkey=${nodeInfo.node.pub_key}`)
+							i.fas.fa-money-bill-wave.me-2
+							span Send Payment
+
+
+			if (utils.isObjectStarred(`node:${nodeInfo.node.pub_key}`))
+				a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/tag?action=remove&tagType=star&objectId=node:${nodeInfo.node.pub_key}` title="Remove this node from your list of favorites" data-bs-toggle="tooltip")
+					i.far.fa-star.me-2
+					span Unstar Node
+
+			else
+				a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/tag?action=add&tagType=star&objectId=node:${nodeInfo.node.pub_key}` title="Add this node to your list of favorites" data-bs-toggle="tooltip")
+					i.fas.fa-star.me-2
+					span Star Node
+
+			if (!session.admin)
+				a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/login`)
+					i.fas.fa-sign-in-alt.me-2
+					span Login for more tools
+
+
 
 		- var sharedLocalChannels = [];
 		- var unsharedChannels = [];
@@ -170,37 +165,21 @@ block content
 				- unsharedChannels.push(channel);
 
 
-		if (sharedLocalChannels.length > 0)	
-			div.card.mb-3.shadow-sm
-				div.card-header
-					h2.h6.mb-0
-						span.border-dotted(title="These are the channels shared between your current LND node and this node" data-toggle="tooltip") #{sharedLocalChannels.length.toLocaleString()} 
-							if (sharedLocalChannels.length == 1)
-								span Local Channel
-							else
-								span Local Channels
-
-				div.card-body
-					- var channels = sharedLocalChannels;
-					- var channelTableNotBordered = true;
-					- var channelTableIndexOffset = 0;
-					include includes/channel-table.pug
+		if (sharedLocalChannels.length > 0)
+			+sectionTitle(`${sharedLocalChannels.length.toLocaleString()} Local Channel${(sharedLocalChannels.length == 1) ? "" : "s"}`, false, null, null, true, "These are the channels shared between your current LND node and this node")
+			
+			+contentSection
+				- var channels = sharedLocalChannels;
+				- var channelTableIndexOffset = 0;
+				include includes/channel-table.pug
+					
 
 		if (nodeChannels.length > sharedLocalChannels.length)
-			div.card.mb-3.shadow-sm
-				div.card-header
-					h2.h6.mb-0
-						span #{unsharedChannels.length.toLocaleString()} 
-						if (unsharedChannels.length == 1)
-							span Channel
-						else
-							span Channels
-
-				div.card-body
-					- var channels = unsharedChannels;
-					- var channelTableNotBordered = true;
-					- var channelTableIndexOffset = 0;
-					include includes/channel-table.pug
+			+contentSection(`${unsharedChannels.length.toLocaleString()} Channel${(unsharedChannels.length == 1) ? "" : "s"}`)
+				- var channels = unsharedChannels;
+				- var channelTableIndexOffset = 0;
+				include includes/channel-table.pug
+					
 
 	else
-		div.alert.alert-warning.shadow-sm Node #{nodePubkey} not found
+		.alert.alert-warning.shadow-sm Node #{nodePubkey} not found

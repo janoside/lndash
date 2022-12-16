@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title LND Connect
@@ -10,8 +10,8 @@ block breadcrumb
 	li.breadcrumb-item LND Connect
 
 block content
-	h1.h3 LND Connect
-	hr
+	+pageTitle("LND Connect")
+
 
 	if (!session.admin)
 		- var loginRequiredNote = "give help you connect to a mobile Zap wallet.";
@@ -20,46 +20,46 @@ block content
 	else
 
 		if (!securityNoteAccepted)
-			div.alert.alert-danger.alert-dismissible.shadow-sm(role="alert")
+			.alert.alert-danger.alert-dismissible.shadow-sm(role="alert")
 				h3.h5 Important
-				div.mb-2
+				.mb-2
 					a(href="https://github.com/LN-Zap/lndconnect" target="_blank") LND Connect
 					span  is a protocol for connecting to LND Nodes, often from mobile wallets.
 
-				div.mb-2
+				.mb-2
 					span It is convenient, but 
-					span.font-weight-bold dangerous
+					span.fw-bold dangerous
 					span ! This page will display a QR code that embeds the 
-					span.font-weight-bold admin credentials
+					span.fw-bold admin credentials
 					span  of your LND Node.
 
 				hr
 
-				div.mb-3
-					h4.h6.font-weight-bold Anyone who sees or captures this QR code can control your LND Node, including stealing funds from its internal wallet.
+				.mb-3
+					h4.h6.fw-bold Anyone who sees or captures this QR code can control your LND Node, including stealing funds from its internal wallet.
 
 				div
 					a.btn.btn-danger(href="/lndconnect?securityNoteAccepted=true")
-						i.fas.fa-exclamation-triangle.mr-2
+						i.fas.fa-exclamation-triangle.me-2
 						span I Understand - Continue
 
 		
 		else
 
-			div.alert.alert-primary.shadow-sm(id="hiddenAlert" style="display: none;") The sensitive data on this page has been hidden. Simply refresh the page to see it again.
+			.alert.alert-primary.shadow-sm(id="hiddenAlert" style="display: none;") The sensitive data on this page has been hidden. Simply refresh the page to see it again.
 
-			div(id="secureContent")
-				div.alert.alert-primary.shadow-sm The sensitive data below will be hidden after 60 seconds: 
+			#secureContent
+				.alert.alert-primary.shadow-sm The sensitive data below will be hidden after 60 seconds: 
 					span(id="hideTimer")
 
-				div.form-group.mb-3
-					label QR Code
+				.mb-3
+					label.form-label QR Code
 					div
 						img(src=`/qrcode?data=${encodeURIComponent(lndconnectString)}` style="width: 300px; height: 300px;")
 
-				div.form-group
-					label(for="lndconnectString") LND Connect String
-					textarea.form-control.text-monospace(id="lndconnectString" name="lndconnectString" rows="8") #{lndconnectString}
+				.mb-3
+					label.form-label(for="lndconnectString") LND Connect String
+					textarea.form-control(id="lndconnectString" name="lndconnectString" rows="8") #{lndconnectString}
 
 block endOfBody
 	if (securityNoteAccepted)

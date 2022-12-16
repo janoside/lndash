@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block breadcrumb
 	li.breadcrumb-item
@@ -50,8 +50,8 @@ block headContent
 			}, 1000);
 	
 block content
-	h1.h3 Pay Invoice
-	hr
+	+pageTitle("Pay Invoice")
+
 
 	if (!session.admin)
 		- var loginRequiredNote = "allow you to pay an invoice from your LND node.";
@@ -61,26 +61,26 @@ block content
 
 		if (payInvoiceResponse)
 			if (payInvoiceResponse.payment_error != "")
-				div.alert.alert-danger
+				.alert.alert-danger
 					h3.h5 Failed to Pay Invoice
 
-					div.mb-3 Error: #{payInvoiceResponse.payment_error}
+					.mb-3 Error: #{payInvoiceResponse.payment_error}
 
 					span Details
 					pre
-						code.json.bg-light #{JSON.stringify(payInvoiceResponse, null, 4)}
+						code.json #{JSON.stringify(payInvoiceResponse, null, 4)}
 			else
-				div.alert.alert-success
+				.alert.alert-success
 					h3.h6 Payment Sent
 
-					div.mb-3
+					.mb-3
 						- var dest_pubkey = payInvoiceResponse.payment_route.hops[payInvoiceResponse.payment_route.hops.length - 1].pub_key;
 						span Your payment of 
 						span
 							- var currencyValue = new Decimal(payInvoiceResponse.payment_route.total_amt).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 							include includes/value-display.pug
 						span  was sent to 
-						span.text-monospace #{dest_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
+						span #{dest_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
 						span  in 
 						span #{parseInt(payInvoiceResponse.payment_route.hops.length).toLocaleString()} hop
 							if (payInvoiceResponse.payment_route.hops.length != 1)
@@ -92,109 +92,96 @@ block content
 							include includes/value-display.pug
 						span  in fees.
 
-					div.clearfix
-						div.card.text-body.shadow-sm.float-left.mr-3
-							div.card-header
-								h3.h6.mb-0
-									i.fas.fa-play-circle.mr-2.fa-lg
+					.d-flex
+						.card.text-body.shadow-sm.me-3
+							.card-header
+								h3.h6.mb-0.fw-light
+									i.fas.fa-play-circle.me-2.fa-lg
 									span Origin
-							div.card-body
-								div.font-weight-bold.mb-2 Node
+
+							.card-body
+								.fw-bold.mb-2 Node
 								
 								- var card_node_pubkey = lndRpc.internal_pubkey;
 								include includes/node-card.pug
 
 						each hop, hopIndex in payInvoiceResponse.payment_route.hops
 							
-							div.card.text-body.shadow-sm.float-left.mr-3
-								div.card-header
-									h3.h6.mb-0
+							.card.text-body.shadow-sm.me-3
+								.card-header
+									h3.h6.fw-light.mb-0
 										if (hopIndex == (payInvoiceResponse.payment_route.hops.length - 1))
-											i.fas.fa-check-circle.mr-2.fa-lg
+											i.fas.fa-check-circle.me-2.fa-lg
 										else
-											i.fas.fa-arrow-circle-right.mr-2.fa-lg
+											i.fas.fa-arrow-circle-right.me-2.fa-lg
 
 										span Hop ##{(hopIndex + 1).toLocaleString()}
 
 										if (hopIndex == (payInvoiceResponse.payment_route.hops.length - 1))
 											span  (Destination)
 									
-								div.card-body
-									div.mb-3.border-bottom.pb-3
-										div.font-weight-bold.mb-2 Node
+								.card-body
+									.mb-3.border-bottom.pb-3
+										.fw-bold.mb-2 Node
 										- var card_node_pubkey = hop.pub_key;
 										include includes/node-card.pug
 										
 
-									div.mb-2
-										div.font-weight-bold Channel
+									.mb-2
+										.fw-bold Channel
 										
-										a.text-monospace(href=`/channel/${hop.chan_id}`)
+										a(href=`/channel/${hop.chan_id}`)
 											- var channel_id = hop.chan_id;
 											include includes/channel-id.pug
 
 										if (utils.isObjectStarred(`channel:${channel_id}`))
-											i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
+											i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite channels" data-bs-toggle="tooltip")
 
 									div
-										div.font-weight-bold Fees
+										.fw-bold Fees
 										
 										if (parseInt(hop.fee_msat) > 0)
-											span.text-danger.text-monospace +
+											span.text-danger +
 												- var currencyValue = new Decimal(hop.fee_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
 												- tempCurrencyFormatType = "msat";
 												include includes/value-display.pug
 										else
-											span.text-monospace.text-success 0
+											span.text-success 0
 
 					if (false)
 						pre
-							code.json.bg-light #{JSON.stringify(payInvoiceResponse, null, 4)}
+							code.json #{JSON.stringify(payInvoiceResponse, null, 4)}
 
 		if (decodedInvoice)
-			div.card.mb-3.shadow-sm
-				div.card-header
-					h2.h6.mb-0 Invoice Details
-				div.card-body
 					ul(class='nav nav-tabs mb-3')
 						li(class="nav-item")
-							a.nav-link.active(data-toggle="tab" href="#tab-summary" role="tab") Summary
+							a.nav-link.active(data-bs-toggle="tab" href="#tab-summary" role="tab") Summary
 						li(class="nav-item")
-							a.nav-link(data-toggle="tab" href="#tab-json" role="tab") JSON
+							a.nav-link(data-bs-toggle="tab" href="#tab-json" role="tab") JSON
 
-					div(class="tab-content")
-						div(id="tab-summary", class="tab-pane active", role="tabpanel")
-							div
-								div(class="row")
-									div(class="summary-table-label") Destination
-									div.summary-table-content.text-monospace
-										div.clearfix
-										div.card.float-left
-											div.card-body
-												- var card_node_pubkey = decodedInvoice.destination;
-												include ./includes/node-card.pug
+					.tab-content
+						.tab-pane.active(id="tab-summary", role="tabpanel")
+							+contentSection("Invoice Details")
+								h6.fw-light.mb-4 Destination
+								- var card_node_pubkey = decodedInvoice.destination;
+								include ./includes/node-card.pug
 
-								div(class="row")
-									div(class="summary-table-label") Description
-									div.summary-table-content.text-monospace
+								hr.my-4
+
+								+summaryRow(4)
+									+summaryItem("Description")
 										if (decodedInvoice.description)
 											span #{decodedInvoice.description}
 										else
 											span -
 
-								div(class="row")
-									div(class="summary-table-label") Hash
-									div.summary-table-content.text-monospace #{decodedInvoice.payment_hash}
-
-								div(class="row")
-									div(class="summary-table-label") Amount
-									div.summary-table-content.text-monospace
+									
+									+summaryItem("Amount")
 										- var currencyValue = new Decimal(decodedInvoice.num_satoshis).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 										include ./includes/value-display.pug
 
-								div(class="row")
-									div(class="summary-table-label") Date
-									div.summary-table-content.text-monospace
+
+									+summaryItem("Date")
 										- var timestampTime = parseInt(decodedInvoice.timestamp);
 										- var timeAgoTime = timestampTime;
 										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timestampTime) * 1000))));
@@ -203,32 +190,38 @@ block content
 										br
 										span.text-muted #{timeAgo.format()} ago
 
-								div(class="row")
-									div(class="summary-table-label") Expiration
-									div.summary-table-content.text-monospace
-										span(id="expiry-text") -
+
+									+summaryItem("Hash")
+										| #{utils.ellipsizeMiddle(decodedInvoice.payment_hash, 24)}
+										+copyTextButton(decodedInvoice.payment_hash)
+
+
+								hr.my-4
+
+
+								form(method="post")
+									input(type="hidden", name="invoice", value=invoice)
+
+									button.btn.btn-primary(type="submit")
+										i.fas.fa-receipt.me-2
+										span Pay Invoice
+
+
 								
 
-						div(id="tab-json", class="tab-pane", role="tabpanel")
+						.tab-pane(id="tab-json", role="tabpanel")
 							pre
-								code.json.bg-light #{JSON.stringify(decodedInvoice, null, 4)}
+								code.json #{JSON.stringify(decodedInvoice, null, 4)}
 
 					
-					hr
-
-					form(method="post")
-						input(type="hidden", name="invoice", value=invoice)
-
-						button.btn.btn-primary(type="submit")
-							i.fas.fa-receipt.mr-2
-							span Pay Invoice
+					
 
 		else
 			form(method="get")
-				div.form-group
-					label(for="invoice") Encoded Payment Request / Invoice
-					textarea.form-control.form-control-lg.text-monospace(rows="4" id="invoice" name="invoice")
+				.mb-3
+					label.form-label(for="invoice") Encoded Payment Request / Invoice
+					textarea.form-control.form-control-lg(rows="4" id="invoice" name="invoice")
 
 				button.btn.btn-primary(type="submit")
-					i.fas.fa-file-alt.mr-2
+					i.fas.fa-file-alt.me-2
 					span Decode

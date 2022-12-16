@@ -1,36 +1,25 @@
-div.modal.fade(id=("invoiceModal-" + invoice_index) role="dialog" aria-hidden="true")
-	div.modal-dialog.modal-xl(role="document")
-		div.modal-content
-			div.modal-header
-				h5.modal-title.text-monospace Invoice
-					br
-					span #{Buffer.from(invoice.r_hash).toString("hex")}
++modal(`invoiceModal-${invoice_index}`, `Invoice - ${Buffer.from(invoice.r_hash).toString("hex")}`)
+	ul.nav.nav-tabs.mb-3
+		li.nav-item
+			a.nav-link.active(data-bs-toggle="tab" href=`#tab-summary-${invoice_index}` role="tab") Summary
+		li.nav-item
+			a.nav-link(data-bs-toggle="tab"  href=`#tab-json-${invoice_index}` role="tab") JSON
 
-				button.close(type="button" data-dismiss="modal" aria-label="Close")
-					span(aria-hidden="true") &times;
+	.tab-content
+		.tab-pane.active(id=`tab-summary-${invoice_index}` role="tabpanel")
+			h1 snv
 
-			div.modal-body
-				ul.nav.nav-tabs.mb-3
-					li.nav-item
-						a.nav-link.active(data-toggle="tab" href=`#tab-summary-${invoice_index}` role="tab") Summary
-					li.nav-item
-						a.nav-link(data-toggle="tab"  href=`#tab-json-${invoice_index}` role="tab") JSON
+	.tab-content
+		.tab-pane(id=`tab-json-${invoice_index}` role="tabpanel")
 
-				div.tab-content
-					div.tab-pane.active(id=`tab-summary-${invoice_index}` role="tabpanel")
-						h1 snv
+			- var jsonX = invoice;
+			- jsonX.r_preimage_base64 = Buffer.from(jsonX.r_preimage).toString("base64");
+			- jsonX.r_preimage_hex = Buffer.from(jsonX.r_preimage).toString("hex");
+			- jsonX.r_hash_base64 = Buffer.from(jsonX.r_hash).toString("base64");
+			- jsonX.r_hash_hex = Buffer.from(jsonX.r_hash).toString("hex");
 
-				div.tab-content
-					div.tab-pane(id=`tab-json-${invoice_index}` role="tabpanel")
+			- delete jsonX.r_preimage;
+			- delete jsonX.r_hash;
 
-						- var jsonX = invoice;
-						- jsonX.r_preimage_base64 = Buffer.from(jsonX.r_preimage).toString("base64");
-						- jsonX.r_preimage_hex = Buffer.from(jsonX.r_preimage).toString("hex");
-						- jsonX.r_hash_base64 = Buffer.from(jsonX.r_hash).toString("base64");
-						- jsonX.r_hash_hex = Buffer.from(jsonX.r_hash).toString("hex");
-
-						- delete jsonX.r_preimage;
-						- delete jsonX.r_hash;
-
-						pre
-							code.json.bg-light #{JSON.stringify(jsonX, null, 4)}
+			pre
+				code.json #{JSON.stringify(jsonX, null, 4)}

@@ -30,11 +30,11 @@ module.exports = {
 	credentials: credentials,
 
 	site: {
-		pubkeyMaxDisplayLength: 22,
-		aliasMaxDisplayLength: 22,
-		addressMaxDisplayLength: 22,
-		networkAddressMaxDisplayLength: 22,
-		txidMaxDisplayLength: 22,
+		pubkeyMaxDisplayLength: 20,
+		aliasMaxDisplayLength: 20,
+		addressMaxDisplayLength: 20,
+		networkAddressMaxDisplayLength: 20,
+		txidMaxDisplayLength: 20,
 
 		pageSizes:{
 			invoices: 20,

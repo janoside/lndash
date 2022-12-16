@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title All Channels
@@ -10,78 +10,51 @@ block breadcrumb
 	li.breadcrumb-item All Channels
 	
 block content
-	h1.h3 #{fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()} 
-		if (fullNetworkDescription.channels.sortedByLastUpdate.length == 1)
-			span Channel
-		else
-			span Channels
+	+pageTitle(`${fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()} Channel${(fullNetworkDescription.channels.sortedByLastUpdate.length == 1) ? "" : "s"}`)
 
-	hr
 
 	if (!session.hideChannelsNetworkNote)
-		div.alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
+		.alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
 			h3.h5 Note
-			div.mb-2
+			.mb-2
 				span This shows all public channels on that network, 
-				span.font-weight-bold from the perspective of your node
+				span.fw-bold from the perspective of your node
 				span . If your node has been recently started/configured, it may take time before it has a good view of the rest of the public network.
 
 			div
 				a(href="/changeSetting?name=hideChannelsNetworkNote&value=true") Don't show this note again
 				
 
-			a(href="/changeSetting?name=hideChannelsNetworkNote&value=true", class="close", aria-label="Close", style="text-decoration: none;")
-				span(aria-hidden="true") &times;
+			a.btn-close(href="/changeSetting?name=hideChannelsNetworkNote&value=true", aria-label="Close", style="text-decoration: none;")
 
-	div.card.mb-3.shadow-sm
-		div.card-body
-			div.clearfix
-				div.dropdown.mr-4.float-left
-					div Sort
-					button.btn.btn-primary.dropdown-toggle.mb-2.mb-lg-0(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-						span
-							if (sort == null || sort == "last_update-desc")
-								| Last Update
-							else if (sort == "capacity-desc")
-								| Capacity
-							else if (sort == "openblockheight-desc")
-								| Open Block Height (newest first)
+	.card.mb-3.shadow-sm
+		.card-body
+			.d-flex
+				.dropdown.me-4
+					- var sortOptions = [["Open Block", "openblockheight-desc"], ["Last Update", "last_update-desc"], ["Capacity", "capacity-desc"]];
 
-					div.dropdown-menu(aria-labelledby="dropdownMenuButton")
-						a.dropdown-item(href=`/channels?sort=openblockheight-desc&starred=${starred}&limit=${limit}`) Open Block Height (newest first)
-						a.dropdown-item(href=`/channels?sort=last_update-desc&starred=${starred}&limit=${limit}`) Last Update
-						a.dropdown-item(href=`/channels?sort=capacity-desc&starred=${starred}&limit=${limit}`) Capacity
-
-				div.mr-4.mb-2.mb-lg-0.float-left
-					div
-						span.border-dotted(title="Option to only show channels that you have 'starred' (favorited) in the app" data-toggle="tooltip") Starred
-					- var starredFilterOptions = ["Yes", "All"];
-					div.btn-group.mr-2(role="group")
-						each opt in starredFilterOptions
-							if (starred != null && starred == opt.toLowerCase())
-								span.btn.btn-primary #{opt}
-							else
-								a.btn.btn-light.border(href=`/channels?sort=${sort}&starred=${opt}&limit=${limit}`) #{opt}
+					+filterBtnGroup("Sort", null, sortOptions, `/channels?starred=${starred}&limit=${limit}`, "sort", sort)
 
 
-				div.mr-4.mb-2.mb-lg-0.float-left
-					div Page Size
-					- var pageSizeOptions = ["20", "50", "100"];
-					div.btn-group.mr-2(role="group")
-						each opt in pageSizeOptions
-							if (limit != null && limit == parseInt(opt))
-								span.btn.btn-primary #{opt}
-							else
-								a.btn.btn-light.border(href=`/channels?sort=${sort}&starred=${starred}&limit=${opt}`) #{opt}
+				.me-4.mb-2.mb-lg-0
+					- var starredFilterOptions = [["Yes", "yes"], ["All", "all"]];
+
+					+filterBtnGroup("Starred", "Option to only show channels that you have 'starred' (favorited) in the app", starredFilterOptions, `/channels?sort=${sort}&limit=${limit}`, "starred", starred)
+
+
+				.me-4.mb-2.mb-lg-0
+					- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
+
+					+filterBtnGroup("Page Size", null, pageSizeOptions, `/channels?sort=${sort}&starred=${starred}`, "limit", limit)
 
 			hr.my-3
 
 			div
 				if (allFilteredChannels.length > limit)
 					span Showing 
-					span.font-weight-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredChannels.length).toLocaleString()} 
+					span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredChannels.length).toLocaleString()} 
 					span of 
-					span.font-weight-bold #{allFilteredChannels.length.toLocaleString()} 
+					span.fw-bold #{allFilteredChannels.length.toLocaleString()} 
 					if (allChannels.length > allFilteredChannels.length)
 						span filtered 
 					span channel
@@ -90,7 +63,7 @@ block content
 
 				else if (allFilteredChannels.length > 0)
 					span Showing 
-					span.font-weight-bold #{allFilteredChannels.length.toLocaleString()} 
+					span.fw-bold #{allFilteredChannels.length.toLocaleString()} 
 					if (allChannels.length > allFilteredChannels.length)
 						span filtered 
 
@@ -98,7 +71,7 @@ block content
 					if (allFilteredChannels.length > 1)
 						span s
 				else
-					div.alert.alert-warning.shadow-sm.mb-0 No matching channels
+					.alert.alert-warning.shadow-sm.mb-0 No matching channels
 
 			- var itemCount = allFilteredChannels.length;
 			if (itemCount > limit)
@@ -111,7 +84,7 @@ block content
 					- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
 				- }
 				
-				div.mt-2.mb-0
+				.mt-2.mb-0
 					include includes/pagination.pug
 
 	if (pagedFilteredChannels.length > 0)

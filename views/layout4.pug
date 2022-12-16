@@ -47,7 +47,7 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 		var documentReadyFunctions = [];
 
 	header.app-header.navbar.bg-main.p-0(class=((session.uiTheme && session.uiTheme == "dark") ? "bg-dark" : false))
-		button.navbar-toggler.sidebar-toggler.d-lg-none.mr-auto(type='button' data-toggle='sidebar-show')
+		button.navbar-toggler.sidebar-toggler.d-lg-none.me-auto(type='button' data-bs-toggle='sidebar-show')
 			span.navbar-toggler-icon
 		a.navbar-brand(href='/')
 			if (session.uiTheme && session.uiTheme == "dark")
@@ -58,7 +58,7 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 			//span.navbar-brand-full LND Admin
 			img.navbar-brand-minimized(src='/img/logo/app-minimized.png' width='32' height='32' alt='LND Admin')
 
-		button.navbar-toggler.sidebar-toggler.d-md-down-none(type='button' data-toggle='sidebar-lg-show')
+		button.navbar-toggler.sidebar-toggler.d-md-down-none(type='button' data-bs-toggle='sidebar-lg-show')
 			span.navbar-toggler-icon
 
 		if (lndRpc)
@@ -71,19 +71,19 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 					li.nav-item.px-3
 						a.nav-link(href='#') Settings
 
-				span.ml-4.mr-2.font-weight-bold LND Node
+				span.ms-4.me-2.fw-bold LND Node
 
 				li.nav-item
 					if (lndRpc && fullNetworkDescription != null)
-						a.nav-link.btn.btn-light.border.bg-light.px-3.py-1(data-toggle='dropdown' href='javascript:void(0)' role='button' aria-haspopup='true' aria-expanded='false')
-							div.clearfix
-								div.float-left.mr-2
+						a.nav-link.btn.btn-light.border.bg-light.px-3.py-1(data-bs-toggle='dropdown' href='javascript:void(0)' role='button' aria-haspopup='true' aria-expanded='false')
+							.clearfix
+								.float-left.me-2
 									- var node_pubkey = lndRpc.internal_pubkey;
 									- var node_icon_size = "2.0em";
 									include includes/node-icon.pug
 									- var node_icon_size = null;
 
-								div.float-left.pt-1
+								.float-left.pt-1
 									span.text-body.dropdown-toggle #{lndRpc.internal_alias}
 
 						.dropdown-menu.py-2(style="min-width: 23rem;")
@@ -95,24 +95,24 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 
 										if (fullNetworkDescription)
 											a.dropdown-item.rounded-0.px-3.py-2(href=('/connect-lnd?index=' + lndNodeIndex), onclick="$('#switchLndModal').modal()")
-												div.clearfix
-													div.float-left.mr-3
+												.clearfix
+													.float-left.me-3
 														- var node_icon_size = "2.5rem;"
 														include includes/node-icon.pug
 
-													div.float-left
-														span.font-weight-bold
+													.float-left
+														span.fw-bold
 															include includes/node-pubkey.pug
 														if (lndConn == lndRpc)
-															i.fas.fa-check.text-success.ml-2
+															i.fas.fa-check.text-success.ms-2
 														br
-														span.font-weight-bold Alias: 
-														span.text-monospace 
+														span.fw-bold Alias: 
+														span 
 															- var node_alias = lndConn.internal_alias;
 															include includes/node-alias.pug
 														br
-														span.font-weight-bold Address: 
-														span.text-monospace
+														span.fw-bold Address: 
+														span
 															if (fullNetworkDescription.nodeInfoByPubkey[node_pubkey] && fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node && fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.addresses)
 																each networkAddress, networkAddressIndex in fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.addresses
 																	if (networkAddressIndex > 0)
@@ -124,15 +124,15 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 															else
 																span.text-danger ?
 														br
-														span.font-weight-bold Version: 
+														span.fw-bold Version: 
 														- var versionParts = lndConn.internal_version.split(" ");
 
 														if (versionParts.length > 0)
-															span.text-monospace.word-wrap.border-dotted(title=lndConn.internal_version data-toggle="tooltip") #{versionParts[0]}
+															span.word-wrap.border-dotted(title=lndConn.internal_version data-bs-toggle="tooltip") #{versionParts[0]}
 														else
-															span.text-monospace.word-wrap #{versionParts[0]}
+															span.word-wrap #{versionParts[0]}
 
-											div.dropdown-divider
+											.dropdown-divider
 
 							a.dropdown-item.rounded-0.px-3.py-2(href='/manage-nodes') Manage LND Nodes...
 
@@ -145,26 +145,26 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 
 
 
-		ul.nav.navbar-nav.ml-auto.mr-2
+		ul.nav.navbar-nav.ms-auto.me-2
 			if (lndRpc)
 				li.nav-item.d-md-down-none
-					div.d-none.d-md-block(style="width: 350px;")
-					form.mr-3(method="get" action="/search")
-						div.input-group.input-group-sm
+					.d-none.d-md-block(style="width: 350px;")
+					form.me-3(method="get" action="/search")
+						.input-group.input-group-sm
 							input.form-control.form-control-sm(type="text", name="query", placeholder="public key, channel id, alias, color, or address", value=query)
-							div.input-group-append
-								button.btn.btn-primary(type="submit")
-									i.fas.fa-search
+								
+							button.btn.btn-primary(type="submit")
+								i.fas.fa-search
 					
 
 		if (true)
 			- var userIconClassEx = (session.admin ? "fas" : "far")
-			button.navbar-toggler.aside-menu-toggler.d-md-down-none(type='button' data-toggle='aside-menu-lg-show')
-				i.fas.fa-user-circle.text-body.fa-2x.mr-3(class=userIconClassEx)
+			button.navbar-toggler.aside-menu-toggler.d-md-down-none(type='button' data-bs-toggle='aside-menu-lg-show')
+				i.fas.fa-user-circle.text-body.fa-2x.me-3(class=userIconClassEx)
 				//span.navbar-toggler-icon
 
-			button.navbar-toggler.aside-menu-toggler.d-lg-none(type='button' data-toggle='aside-menu-show')
-				i.fas.fa-user-circle.text-body.fa-2x.mr-3(class=userIconClassEx)
+			button.navbar-toggler.aside-menu-toggler.d-lg-none(type='button' data-bs-toggle='aside-menu-show')
+				i.fas.fa-user-circle.text-body.fa-2x.me-3(class=userIconClassEx)
 				//span.navbar-toggler-icon
 
 	.app-body
@@ -175,108 +175,108 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 						if (setupNeeded)
 							li.nav-item
 								a.nav-link(href='/')
-									i.nav-icon.fas.fa-2x.fa-cog.mr-2
+									i.nav-icon.fas.fa-2x.fa-cog.me-2
 									|	Setup
 
 						else
 							li.nav-item
 								a.nav-link(href='/login')
-									i.nav-icon.fas.fa-2x.fa-sign-in-alt.mr-2
+									i.nav-icon.fas.fa-2x.fa-sign-in-alt.me-2
 									|	Login
 
 					else if (fullNetworkDescription == null)
 						li.nav-item
 							a.nav-link(href='javascript:void(0)')
-								div.spinner-border.spinner-border-sm.text-light.mr-2(role="status")
+								.spinner-border.spinner-border-sm.text-light.me-2(role="status")
 								|	Loading...
 
 					else
 						li.nav-item
 							a.nav-link(href='/')
-								i.nav-icon.fas.fa-2x.fa-home.mr-2
+								i.nav-icon.fas.fa-2x.fa-home.me-2
 								|	Dashboard
 
 						li.nav-title My Node
 						li.nav-item
 							a.nav-link(href='/wallet')
-								i.nav-icon.fas.fa-wallet.mr-2
+								i.nav-icon.fas.fa-wallet.me-2
 								|	My Wallet
 						li.nav-item
 							a.nav-link(href='/local-channels')
-								i.nav-icon.fas.fa-exchange-alt.mr-2
+								i.nav-icon.fas.fa-exchange-alt.me-2
 								|	My Channels
 						li.nav-item
 							a.nav-link(href='/peers')
-								i.nav-icon.fas.fa-users.mr-2
+								i.nav-icon.fas.fa-users.me-2
 								|	My Peers
 
 						li.nav-title Lightning Payments
 						li.nav-item
 							a.nav-link(href='/invoices')
-								i.nav-icon.fas.fa-sign-in-alt.mr-2
+								i.nav-icon.fas.fa-sign-in-alt.me-2
 								|	Invoices
 						li.nav-item
 							a.nav-link(href='/payment-history')
-								i.nav-icon.fas.fa-sign-out-alt.mr-2
+								i.nav-icon.fas.fa-sign-out-alt.me-2
 								|	Payments Sent
 						li.nav-item
 							a.nav-link(href='/forwarding-history')
-								i.nav-icon.fas.fa-angle-double-right.mr-2
+								i.nav-icon.fas.fa-angle-double-right.me-2
 								|	Forwarding History
 
 						li.nav-title Public Network
 						li.nav-item
 							a.nav-link(href='/nodes')
-								i.nav-icon.fas.fa-network-wired.mr-2
+								i.nav-icon.fas.fa-network-wired.me-2
 								|	All Nodes
 						li.nav-item
 							a.nav-link(href='/channels')
-								i.nav-icon.fas.fa-globe-americas.mr-2
+								i.nav-icon.fas.fa-globe-americas.me-2
 								|	All Channels
 						li.nav-item
 							a.nav-link(href='/search')
-								i.nav-icon.fas.fa-search.mr-2
+								i.nav-icon.fas.fa-search.me-2
 								|	Search
 
 						li.nav-title Tools
 						li.nav-item
 							a.nav-link(href='/create-invoice')
-								i.nav-icon.fas.fa-asterisk.mr-2
+								i.nav-icon.fas.fa-asterisk.me-2
 								|	Create Invoice
 						li.nav-item
 							a.nav-link(href='/pay-invoice')
-								i.nav-icon.fas.fa-receipt.mr-2
+								i.nav-icon.fas.fa-receipt.me-2
 								|	Pay Invoice
 						if (false)
 							li.nav-item
 								a.nav-link(href='/send-payment')
-									i.nav-icon.fas.fa-money-bill-wave.mr-2
+									i.nav-icon.fas.fa-money-bill-wave.me-2
 									|	Send Payment
 						li.nav-item
 							a.nav-link(href='/openchannel')
-								i.nav-icon.fas.fa-plus-square.mr-2
+								i.nav-icon.fas.fa-plus-square.me-2
 								|	Open Channel
 						li.nav-item
 							a.nav-link(href='/edit-multi-channel-policies')
-								i.nav-icon.fas.fa-pen.mr-2
+								i.nav-icon.fas.fa-pen.me-2
 								|	Bulk Edit Channels
 						li.nav-item
 							a.nav-link(href='/sign-verify')
-								i.nav-icon.fas.fa-pen-nib.mr-2
+								i.nav-icon.fas.fa-pen-nib.me-2
 								|	Sign or Verify
 						li.nav-item
 							a.nav-link(href='/query-route')
-								i.nav-icon.fas.fa-route.mr-2
+								i.nav-icon.fas.fa-route.me-2
 								|	Query Route
 						li.nav-item
 							a.nav-link(href='/lndconnect')
-								i.nav-icon.fas.fa-mobile-alt.mr-2
+								i.nav-icon.fas.fa-mobile-alt.me-2
 								|	LND Connect
 
 						li.nav-title Technical
 						li.nav-item
 							a.nav-link(href='/error-log')
-								i.nav-icon.fas.fa-exclamation-circle.mr-2
+								i.nav-icon.fas.fa-exclamation-circle.me-2
 								|	Error Log
 							
 			
@@ -293,36 +293,34 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 					include includes/page-errors-modal.pug
 
 					li.breadcrumb-menu.d-md-down-none
-						div.alert.alert-danger.py-1.px-3.mb-n2.mt-n1.font-weight-bold(title=`This page encountered ${pageErrors.length.toLocaleString()} error(s). Click for details.` data-toggle="tooltip")
-							a.text-danger(href="javascript:void(0)" data-toggle="modal" data-target="#pageErrorsModal") Errors
-							span.badge.badge-danger.ml-2 #{pageErrors.length.toLocaleString()}
+						.alert.alert-danger.py-1.px-3.mb-n2.mt-n1.fw-bold(title=`This page encountered ${pageErrors.length.toLocaleString()} error(s). Click for details.` data-bs-toggle="tooltip")
+							a.text-danger(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#pageErrorsModal") Errors
+							span.badge.badge-danger.ms-2 #{pageErrors.length.toLocaleString()}
 
 			
 			.container-fluid.mx-0.px-2.px-lg-3.px-xl-4
 				if (userMessage)
-					div.alert.alert-dismissable.shadow-sm.mb-3(class=(userMessageType ? ("alert-"  + userMessageType) : "alert-info"), role="alert")
+					.alert.alert-dismissable.shadow-sm.mb-3(class=(userMessageType ? ("alert-"  + userMessageType) : "alert-info"), role="alert")
 						span !{userMessage}
 
-						a.close(href="javascript:void(0)" aria-label="Close" data-dismiss="alert" style="text-decoration: none;")
-							span(aria-hidden="true") &times;
+						a.btn-close(href="javascript:void(0)" aria-label="Close" data-bs-dismiss="alert" style="text-decoration: none;")
 
 				else if (session.userMessage)
-					div.alert.alert-dismissable.shadow-sm.mb-3(class=(session.userMessageType ? ("alert-"  + session.userMessageType) : "alert-info"), role="alert")
+					.alert.alert-dismissable.shadow-sm.mb-3(class=(session.userMessageType ? ("alert-"  + session.userMessageType) : "alert-info"), role="alert")
 						span !{session.userMessage}
 
-						a.close(href="javascript:void(0)" aria-label="Close" data-dismiss="alert" style="text-decoration: none;")
-							span(aria-hidden="true") &times;
+						a.btn-close(href="javascript:void(0)" aria-label="Close" data-bs-dismiss="alert" style="text-decoration: none;")
 
 				block content
 
-				div.modal.bd-example-modal-sm(id="switchLndModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true")
-					div.modal-dialog.modal-dialog-centered.modal-sm
-						div.modal-content
-							div.modal-body
+				.modal.bd-example-modal-sm(id="switchLndModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true")
+					.modal-dialog.modal-dialog-centered.modal-sm
+						.modal-content
+							.modal-body
 								h5 Switching LND Nodes
 								span After connecting to the new LND node the full public network is refreshed which often takes ~5-15 seconds...
-								div.text-center.mb-4.mt-5
-									div.spinner-border.text-primary(role="status" style="width: 3rem; height: 3rem;")
+								.text-center.mb-4.mt-5
+									.spinner-border.text-primary(role="status" style="width: 3rem; height: 3rem;")
 		
 		if (true)	
 			include includes/aside-menu.pug
@@ -332,7 +330,7 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 			div
 				a(href='https://coreui.io') CoreUI
 				span &copy; 2018 creativeLabs.
-			.ml-auto
+			.ms-auto
 				span Powered by
 				a(href='https://coreui.io') CoreUI
 
@@ -357,8 +355,8 @@ body.sidebar-lg-show.bg-main.app.header-fixed.sidebar-fixed.sidebar-lg-show
 
 	script.
 		$(document).ready(function() {
-			$('[data-toggle="tooltip"]').tooltip({placement:"top"});
-			$('[data-toggle="popover"]').popover({html:true, container:"body"});
+			$('[data-bs-toggle="tooltip"]').tooltip({placement:"top"});
+			$('[data-bs-toggle="popover"]').popover({html:true, container:"body"});
 
 			for (var i = 0; i < documentReadyFunctions.length; i++) {
 				documentReadyFunctions[i]();

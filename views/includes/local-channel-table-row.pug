@@ -1,13 +1,50 @@
-tr(class="text-monospace word-wrap")
-	th.text-right #{(channel_index + offset + 1).toLocaleString()}
-	td(class="table-col-channelid")
+tr(class="word-wrap")
+	th.text-end #{(channel_index + offset + 1).toLocaleString()}
+
+	td.table-col-channelid
+		.mb-2
+			if (channel.active)
+				+pillBadgeSuccess("Active")
+				
+			else if (channel.chan_id)
+				if (channel.close_type)
+					span.badge.text-bg-danger.border-dotted(title=`Close type: ${channel.close_type}`, data-bs-toggle="tooltip") Closed
+
+				else
+					+pillBadgeWarning("Inactive")
+
+			else
+				if (pendingOpenChannels.includes(channel))
+					+pillBadgeWarning("Opening")
+
+				if (pendingCloseChannels.includes(channel))
+					+pillBadgeDanger("Closing")
+
+				if (pendingForceCloseChannels.includes(channel))
+					+pillBadgeDanger("Force Closing")
+
+				if (waitingCloseChannels.includes(channel))
+					+pillBadgeWarning("Waiting to Close")
+
+
+			if (channel.private)
+				+pillBadgeLight
+					span.me-1 Private
+					i.fas.fa-lock.text-success
+
+			else
+				+pillBadgeWarning
+					span.me-1 Public
+					i.fas.fa-eye
+
+
 		if (channel.active || (channel.chan_id && !channel.close_type))
 			a(href=("/channel/" + channel.chan_id))
 				- var channel_id = channel.chan_id;
 				include ./channel-id.pug
 
 			if (utils.isObjectStarred(`channel:${channel_id}`))
-				i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
+				i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite channels" data-bs-toggle="tooltip")
 
 		else if (channel.chan_id)
 			span
@@ -15,56 +52,31 @@ tr(class="text-monospace word-wrap")
 				include ./channel-id.pug
 
 				if (utils.isObjectStarred(`channel:${channel_id}`))
-					i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
+					i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite channels" data-bs-toggle="tooltip")
 
 		else
 			span -
 
-	td
-		if (channel.active)
-			span.text-success Active
 
-		else if (channel.chan_id)
-			if (channel.close_type)
-				div.text-danger Closed
-				div.text-muted #{channel.close_type}
-
-			else
-				div.text-warning Inactive
-
-		else
-			if (pendingOpenChannels.includes(channel))
-				div.text-warning Opening
-				
+		if (pendingOpenChannels.includes(channel))
+			.mt-3
+				div Opening tx:
 				- var btc_txid = channel.channel.channel_point.substring(0, channel.channel.channel_point.indexOf(":"));
 				- var outpoint_output_index = channel.channel.channel_point.substring(channel.channel.channel_point.indexOf(":") + 1);
 
 				if (config.blockExplorerUrl)
-					a(href=`${config.blockExplorerUrl}/tx/${btc_txid}` target="_blank" title=btc_txid data-toggle="tooltip")
+					a(href=`${config.blockExplorerUrl}/tx/${btc_txid}` target="_blank" title=btc_txid data-bs-toggle="tooltip")
 						include ./btc-txid.pug
 					span  [#{outpoint_output_index}]
 
 				else
-					span(title=btc_txid data-toggle="tooltip")
+					span(title=btc_txid data-bs-toggle="tooltip")
 						include ./btc-txid.pug
 					span  [#{outpoint_output_index}]
 
-			if (pendingCloseChannels.includes(channel))
-				div.text-warning Closing
 
-			if (pendingForceCloseChannels.includes(channel))
-				div.text-warning Force Closing
 
-			if (waitingCloseChannels.includes(channel))
-				div.text-warning Waiting to Close
-
-	td
-		if (channel.private)
-			span.text-success Yes
-				i.fas.fa-lock.ml-1
-
-		else
-			span.text-muted No
+		
 
 	td
 		if (channel.remote_pubkey)
@@ -75,97 +87,94 @@ tr(class="text-monospace word-wrap")
 
 		include ./node-card.pug
 
-	td.text-right
-		if (config.blockExplorerUrl && parsedChannelIds[channel.chan_id].blockHeight > 0)
-			a(href=`${config.blockExplorerUrl}/block-height/${parsedChannelIds[channel.chan_id].blockHeight}` target="_blank") #{parsedChannelIds[channel.chan_id].blockHeight.toLocaleString()}
+	if (false)
+		td.text-end
+			if (config.blockExplorerUrl && parsedChannelIds[channel.chan_id].blockHeight > 0)
+				a(href=`${config.blockExplorerUrl}/block-height/${parsedChannelIds[channel.chan_id].blockHeight}` target="_blank") #{parsedChannelIds[channel.chan_id].blockHeight.toLocaleString()}
 
-		else
-			if (parsedChannelIds[channel.chan_id].blockHeight > 0)
-				span #{parsedChannelIds[channel.chan_id].blockHeight.toLocaleString()}
 			else
-				span -
+				if (parsedChannelIds[channel.chan_id].blockHeight > 0)
+					span #{parsedChannelIds[channel.chan_id].blockHeight.toLocaleString()}
+				else
+					span -
 
-	td.text-right
-		if (channel.active)
-			- var atLeastOne = false;
-			- var currencyValue = new Decimal(channel.total_satoshis_received).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-			if (currencyValue > 0)
-				- var atLeastOne = true;
+	
 
-				span.text-success
-					span +
+	td.text-end
+		.d-flex.flex-row-reverse
+			div
+				if (channel.active)
+					- var currencyValue = new Decimal(channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 					include ./value-display.pug
+
+				else if (channel.channel != null)
+					.text-muted
+						- var currencyValue = new Decimal(channel.channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+						include ./value-display.pug
+
+				else
+					span -
 
 				br
 
-			- currencyValue = new Decimal(channel.total_satoshis_sent).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-			if (currencyValue > 0)
-				- var atLeastOne = true;
-
-				span.text-danger
-					span -
+				if (channel.active)
+					- var currencyValue = new Decimal(channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 					include ./value-display.pug
+					
+					if (false)
+						.row
+							.col-md-6.text-end
+								- var currencyValue = new Decimal(channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+								include ./value-display.pug
 
-			if (!atLeastOne)
-				span -
+							.col-md-6.text-end
+								- var currencyValue = new Decimal(channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+								include ./value-display.pug
 
-		else
-			span -
+						- var fullPercent = new Decimal(100 * parseFloat(channel.local_balance) / (parseFloat(channel.local_balance) + parseFloat(channel.remote_balance))).toDecimalPlaces(1);
 
-	td.text-right
-		if (channel.active)
-			- var currencyValue = new Decimal(channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-			include ./value-display.pug
+						.progress.mt-2(style="height: 6px;")
+							div(class="progress-bar", role="progressbar", style=("width: " + fullPercent + "%;"), aria-valuenow=parseInt(fullPercent), aria-valuemin="0", aria-valuemax="100")
 
-		else if (channel.channel != null)
-			div.text-muted
-				- var currencyValue = new Decimal(channel.channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-				include ./value-display.pug
-
-		else
-			span -
-
-	td.text-right
-		if (channel.active)
-			- var currencyValue = new Decimal(channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-			include ./value-display.pug
-			
-			if (false)
-				div.row
-					div.col-md-6.text-right
-						- var currencyValue = new Decimal(channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+				else if (channel.channel != null)
+					.text-muted
+						- var currencyValue = new Decimal(channel.channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 						include ./value-display.pug
 
-					div.col-md-6.text-right
-						- var currencyValue = new Decimal(channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-						include ./value-display.pug
+				else
+					span -
 
-				- var fullPercent = new Decimal(100 * parseFloat(channel.local_balance) / (parseFloat(channel.local_balance) + parseFloat(channel.remote_balance))).toDecimalPlaces(1);
+			.me-2
+				span.badge.text-bg-primary.me-1 Spendable
+				br
+				span.badge.text-bg-info.me-1 Receivable
 
-				div.progress.mt-2(style="height: 6px;")
-					div(class="progress-bar", role="progressbar", style=("width: " + fullPercent + "%;"), aria-valuenow=parseInt(fullPercent), aria-valuemin="0", aria-valuemax="100")
 
-		else if (channel.channel != null)
-			div.text-muted
-				- var currencyValue = new Decimal(channel.channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-				include ./value-display.pug
+	td.text-end
+		.d-flex.flex-row-reverse
+			div
+				if (channel.active)
+					div
+						- var currencyValue = new Decimal(channel.total_satoshis_received).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+						span
+							include ./value-display.pug
 
-		else
-			span -
-		
 
-	td.table-col-currencyvalue.text-right
-		if (channel.active)
-			- var currencyValue = new Decimal(channel.capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-			include ./value-display.pug
+					div
+						- currencyValue = new Decimal(channel.total_satoshis_sent).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+						span
+							span -
+							include ./value-display.pug
 
-		else if (channel.channel != null)
-			div.text-muted
-				- var currencyValue = new Decimal(channel.channel.capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-				include ./value-display.pug
+				else
+					span -
 
-		else
-			span -
+			.me-2
+				span.badge.text-bg-success.me-1 Received
+				br
+				span.badge.text-bg-danger.me-1 Sent
+
+
 
 	td.table-col-time
 		if (channel.active && fullNetworkDescription.channelsById[channel.chan_id])
@@ -173,11 +182,12 @@ tr(class="text-monospace word-wrap")
 			- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(lastUpdateTime) * 1000))));
 			- var dateTimeUtc = moment.utc(new Date(parseInt(lastUpdateTime) * 1000)).format("Y-MM-DD HH:mm:ss");
 
-			span.border-dotted(data-toggle="tooltip", title=`${dateTimeUtc} utc`) #{timeAgo.humanize()} ago
+			span.border-dotted(data-bs-toggle="tooltip", title=`${dateTimeUtc} utc`) #{timeAgo.humanize()}
 
 		else
 			span -
 
 	td
-		a(href="javascript:void(0)" data-toggle="modal" data-target=("#localChannelModal-" + localChannel_index)) Details
+		a.btn.btn-sm.btn-primary(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#localChannelModal-" + localChannel_index))
+			i.fas.fa-file-lines
 		

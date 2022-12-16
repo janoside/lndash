@@ -20,44 +20,44 @@ block content
 	else
 
 		if (sendPaymentResponse != null)
-			div.alert.alert-success
+			.alert.alert-success
 				h3.h5 Success
 
-				div.mb-3 Payment sent successfully
+				.mb-3 Payment sent successfully
 				
 				if (true)
 					pre
-						code.json.bg-light #{JSON.stringify(sendPaymentResponse, null, 4)}
+						code.json #{JSON.stringify(sendPaymentResponse, null, 4)}
 
 		if (sendPaymentError != null)
-			div.alert.alert-danger
+			.alert.alert-danger
 				h3.h5 Error
 
-				div.mb-3 Error sending payment
+				.mb-3 Error sending payment
 				
 				if (true)
 					pre
-						code.json.bg-light #{JSON.stringify(sendPaymentError, null, 4)}
+						code.json #{JSON.stringify(sendPaymentError, null, 4)}
 
 		form(method="post")
-			div.form-group
-				label(for="memo") Target Node Public Key
-				input.form-control.form-control-lg.text-monospace(type="text" id="destPubkey" name="destPubkey" value=destPubkey)
+			.mb-3
+				label.form-label(for="memo") Target Node Public Key
+				input.form-control.form-control-lg(type="text" id="destPubkey" name="destPubkey" value=destPubkey)
 
 			if (destPubkey)
-				div.card.text-monospace.mb-3.bg-light
-					div.card-body
+				.card.mb-3.bg-light
+					.card-body
 						- var card_node_pubkey = destPubkey;
 						include includes/node-card.pug
 
-			div.row
-				div.col-md-2
-					div.form-group
-						label(for="amount") Amount
-						div.input-group
-							input.form-control.form-control-lg.text-monospace(type="number" id="amount" name="amountSat" value=amountSat)
-							div.input-group-append
-								div.input-group-text.text-monospace sat
+			.row
+				.col-md-2
+					.mb-3
+						label.form-label(for="amount") Amount
+						.input-group
+							input.form-control.form-control-lg(type="number" id="amount" name="amountSat" value=amountSat)
+							
+							.input-group-text sat
 
 			button(type="submit", class="btn btn-primary") Send Payment
 

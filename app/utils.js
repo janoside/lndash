@@ -626,6 +626,74 @@ function isObjectStarred(objectId) {
 }
 
 
+
+function objectProperties(obj) {
+	const props = [];
+	for (const prop in obj) {
+		if (Object.prototype.hasOwnProperty.call(obj, prop)) {
+			props.push(prop);
+		}
+	}
+
+	return props;
+}
+
+function objHasProperty(obj, name) {
+	return Object.prototype.hasOwnProperty.call(obj, name);
+}
+
+function iterateProperties(obj, action) {
+	for (const [key, value] of Object.entries(obj)) {
+		action([key, value]);
+	}
+}
+
+function stringifySimple(object) {
+	var simpleObject = {};
+	for (var prop in object) {
+			if (!object.hasOwnProperty(prop)) {
+					continue;
+			}
+
+			if (typeof(object[prop]) == 'object') {
+					continue;
+			}
+
+			if (typeof(object[prop]) == 'function') {
+					continue;
+			}
+
+			simpleObject[prop] = object[prop];
+	}
+
+	return JSON.stringify(simpleObject); // returns cleaned up JSON
+}
+
+function ellipsizeMiddle(str, length, replacement="…", extraCharAtStart=true) {
+	if (str.length <= length) {
+		return str;
+
+	} else {
+		//"abcde"(3)->"a…e"
+		//"abcdef"(3)->"a…f"
+		//"abcdef"(5)->"ab…ef"
+		//"abcdef"(4)->"ab…f"
+		if ((length - replacement.length) % 2 == 0) {
+			return str.substring(0, (length - replacement.length) / 2) + replacement + str.slice(-(length - replacement.length) / 2);
+
+		} else {
+			if (extraCharAtStart) {
+				return str.substring(0, Math.ceil((length - replacement.length) / 2)) + replacement + str.slice(-Math.floor((length - replacement.length) / 2));
+
+			} else {
+				return str.substring(0, Math.floor((length - replacement.length) / 2)) + replacement + str.slice(-Math.ceil((length - replacement.length) / 2));
+			}
+			
+		}
+	}
+}
+
+
 module.exports = {
 	reflectPromise: reflectPromise,
 	hex2ascii: hex2ascii,
@@ -663,5 +731,9 @@ module.exports = {
 	savePreferences: savePreferences,
 	loadPreferences: loadPreferences,
 	parseChannelId: parseChannelId,
-	isObjectStarred: isObjectStarred
+	isObjectStarred: isObjectStarred,
+	objectProperties: objectProperties,
+	objHasProperty: objHasProperty,
+	stringifySimple: stringifySimple,
+	ellipsizeMiddle: ellipsizeMiddle
 };

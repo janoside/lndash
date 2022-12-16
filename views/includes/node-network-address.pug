@@ -4,12 +4,12 @@ if (node_network_address.length > 0)
 	if (node_network_address.length > cutoffs[0])
 		if (node_network_address.length > cutoffs[1])
 			if (node_network_address.length > config.site.networkAddressMaxDisplayLength)
-				span.mr-1.border-dotted(title=node_network_address, data-toggle="tooltip")
+				span.me-1.border-dotted(title=node_network_address, data-bs-toggle="tooltip")
 					span #{node_network_address.substring(0, cutoffs[0])}
 					span.d-none.d-lg-inline #{node_network_address.substring(cutoffs[0], cutoffs[1])}
 					span.d-none.d-xl-inline #{node_network_address.substring(cutoffs[1], config.site.networkAddressMaxDisplayLength)}
 
-				//i.fas.fa-ellipsis-h.ml-0(title=node_network_address, data-toggle="tooltip")
+				//i.fas.fa-ellipsis-h.ms-0(title=node_network_address, data-bs-toggle="tooltip")
 
 			else
 				span #{node_network_address.substring(0, cutoffs[0])}

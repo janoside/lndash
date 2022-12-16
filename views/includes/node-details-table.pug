@@ -1,14 +1,14 @@
-div.table-responsive
-	table(class="table")
+.table-responsive
+	table.table.table-striped.mb-0
 		thead
 			tr
 				if (showTableNumbers)
-					th.text-right #
+					th.text-end #
 				th Node
 				th Address
 				th Last Update
-				th(class="text-right") Channels
-				th(class="text-right") Total Capacity
+				th(class="text-end") Channels
+				th(class="text-end") Total Capacity
 				
 		
 		tbody

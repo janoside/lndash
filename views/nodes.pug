@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title Browse Nodes
@@ -13,78 +13,52 @@ block content
 	//h1(class="h2") Nodes
 	//hr
 
-	h1.h3 #{fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()} 
-		if (fullNetworkDescription.nodes.sortedByLastUpdate.length == 1)
-			span Node
-		else
-			span Nodes
-
-	hr
+	+pageTitle(`${fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()} Node${(fullNetworkDescription.nodes.sortedByLastUpdate.length == 1) ? "" : "s"}`)
+	
 
 	if (!session.hideNodesNetworkNote)
-		div.alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
+		.alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
 			h3.h5 Note
-			div.mb-2
+			.mb-2
 				span This shows all public nodes on that network, 
-				span.font-weight-bold from the perspective of your node
+				span.fw-bold from the perspective of your node
 				span . If your node has been recently started/configured, it may take time before it has a good view of the rest of the public network.
 
 			div
 				a(href="/changeSetting?name=hideNodesNetworkNote&value=true") Don't show this note again
 				
 
-			a(href="/changeSetting?name=hideNodesNetworkNote&value=true", class="close", aria-label="Close", style="text-decoration: none;")
-				span(aria-hidden="true") &times;
+			a.btn-close(href="/changeSetting?name=hideNodesNetworkNote&value=true", aria-label="Close", style="text-decoration: none;")
 
 
-	div.card.mb-3.shadow-sm
-		div.card-body
-			div.clearfix
-				div.dropdown.mr-4.float-left
-					div Sort
-					button.btn.btn-primary.dropdown-toggle.mb-2.mb-lg-0(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-						span
-							if (sort == null || sort == "last_update-desc")
-								| Last Update
-							else if (sort == "num_channels-desc")
-								| Channel Count
-							else if (sort == "channel_capacity-desc")
-								| Capacity
+	.card.mb-3.shadow-sm
+		.card-body
+			.d-flex.flex-wrap
+				.dropdown.me-4
+					- var sortOptions = [["Last Update", "last_update-desc"], ["Channels", "num_channels-desc"], ["Capacity", "channel_capacity-desc"]];
+					
+					+filterBtnGroup("Sort", null, sortOptions, `/nodes?starred=${starred}&limit=${limit}`, "sort", sort)
 
-					div.dropdown-menu(aria-labelledby="dropdownMenuButton")
-						a.dropdown-item(href=`/nodes?sort=last_update-desc&starred=${starred}&limit=${limit}`) Last Update
-						a.dropdown-item(href=`/nodes?sort=num_channels-desc&starred=${starred}&limit=${limit}`) Channel Count
-						a.dropdown-item(href=`/nodes?sort=channel_capacity-desc&starred=${starred}&limit=${limit}`) Capacity
 
-				div.mr-4.mb-2.mb-lg-0.float-left
-					div
-						span.border-dotted(title="Option to only show nodes that you have 'starred' (favorited) in the app" data-toggle="tooltip") Starred
-					- var starredFilterOptions = ["Yes", "All"];
-					div.btn-group.mr-2(role="group")
-						each opt in starredFilterOptions
-							if (starred != null && starred == opt.toLowerCase())
-								span.btn.btn-primary #{opt}
-							else
-								a.btn.btn-light.border(href=`/nodes?sort=${sort}&starred=${opt}&limit=${limit}`) #{opt}
+				.me-4
+					- var starredFilterOptions = [["Yes", "yes"], ["All", "all"]];
 
-				div.mr-4.mb-2.mb-lg-0.float-left
-					div Page Size
-					- var pageSizeOptions = ["20", "50", "100"];
-					div.btn-group.mr-2(role="group")
-						each opt in pageSizeOptions
-							if (limit != null && limit == parseInt(opt))
-								span.btn.btn-primary #{opt}
-							else
-								a.btn.btn-light.border(href=`/nodes?sort=${sort}&starred=${starred}&limit=${opt}`) #{opt}
+					+filterBtnGroup("Starred", "Option to only show nodes that you have 'starred' (favorited) in the app", starredFilterOptions, `/nodes?sort=${sort}&limit=${limit}`, "starred", starred)
+
+
+				div
+					- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
+
+					+filterBtnGroup("Page Size", null, pageSizeOptions, `/nodes?sort=${sort}&starred=${starred}`, "limit", limit)
 
 			hr.my-3
 
 			div
 				if (allFilteredNodes.length > limit)
 					span Showing 
-					span.font-weight-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredNodes.length).toLocaleString()} 
+					span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredNodes.length).toLocaleString()} 
 					span of 
-					span.font-weight-bold #{allFilteredNodes.length.toLocaleString()} 
+					span.fw-bold #{allFilteredNodes.length.toLocaleString()} 
 					if (allNodes.length > allFilteredNodes.length)
 						span filtered 
 					span node
@@ -93,7 +67,7 @@ block content
 
 				else if (allFilteredNodes.length > 0)
 					span Showing 
-					span.font-weight-bold #{allFilteredNodes.length.toLocaleString()} 
+					span.fw-bold #{allFilteredNodes.length.toLocaleString()} 
 					if (allNodes.length > allFilteredNodes.length)
 						span filtered 
 
@@ -101,7 +75,7 @@ block content
 					if (allFilteredNodes.length > 1)
 						span s
 				else
-					div.alert.alert-warning.shadow-sm.mb-0 No matching nodes
+					.alert.alert-warning.shadow-sm.mb-0 No matching nodes
 
 			- var itemCount = allFilteredNodes.length;
 			if (itemCount > limit)
@@ -114,7 +88,7 @@ block content
 					- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
 				- }
 				
-				div.mt-2.mb-0
+				.mt-2.mb-0
 					include includes/pagination.pug
 
 

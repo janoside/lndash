@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title Search - #{query}
@@ -6,45 +6,45 @@ block headContent
 block breadcrumb
 	li.breadcrumb-item
 		a(href='/') Home
-	li.breadcrumb-item
-		a(href='/search') Search
-	li.breadcrumb-item #{query}
+
+	if (query)
+		li.breadcrumb-item
+			a(href='/search') Search
+		li.breadcrumb-item #{query}
+	else
+		li.breadcrumb-item Search
 	
 block content
 
-	h1.h3 Search
-	hr
+	+pageTitle("Search")
 
 	if (session.hideSearchNote)
 		// show nothing
 	else
-		div.alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
+		.alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
 			h3.h5 Note
-			div.mb-2
-				div.mb-2 Searching here will find all public nodes and/or channels visible to your node. It will match on public keys, aliases, addresses, colors, and channel ids.
-				span.font-weight-bold Important: 
+			.mb-2
+				.mb-2 Searching here will find all public nodes and/or channels visible to your node. It will match on public keys, aliases, addresses, colors, and channel ids.
+				span.fw-bold Important: 
 				span Please be aware that the 
-				span.font-weight-bold alias 
+				span.fw-bold alias 
 				span property can be set to any value by node owners - even to impersonate a person or company you might be familiar with. Use caution when evaluating nodes.
 
 			div
 				a(href="/changeSetting?name=hideSearchNote&value=true") Don't show this note again
 				
 
-			a(href="/changeSetting?name=hideSearchNote&value=true", class="close", aria-label="Close", style="text-decoration: none;")
-				span(aria-hidden="true") &times;
+			a.btn-close(href="/changeSetting?name=hideSearchNote&value=true", aria-label="Close", style="text-decoration: none;")
 
 	form.mb-4(method="get")
-		div.input-group
-			div.input-group-prepend
-				label.input-group-text(for="query")
-					i.fas.fa-search
+		.input-group
+			label.input-group-text(for="query")
+				i.fas.fa-search
 
 			input.form-control.form-control-lg(id="query" type="text" name="query" value=query placeholder="public key, channel id, alias, color, or address")
 			
-			div.input-group-append
-				button.btn.btn-primary.btn-lg(type="submit")
-					span Search
+			button.btn.btn-primary.btn-lg(type="submit")
+				span Search
 
 
 	if (query)
@@ -52,7 +52,7 @@ block content
 		if (searchResults && searchResults.nodes && searchResults.nodes.length > 0)
 			- noNodes = false;
 
-			div.mb-4
+			.mb-4
 				h4.h5
 					span Found #{searchResults.nodes.length.toLocaleString()} 
 					if (searchResults.nodes.length == 1)
@@ -71,7 +71,7 @@ block content
 		if (searchResults && searchResults.channels && searchResults.channels.length > 0)
 			- noChannels = false;
 
-			div.mb-4
+			.mb-4
 				h4.h5
 					span Found #{searchResults.channels.length.toLocaleString()} 
 					if (searchResults.channels.length == 1)
@@ -85,4 +85,4 @@ block content
 				include includes/channel-table.pug
 
 		if (noNodes && noChannels)
-			div.alert.alert-warning.shadow-sm No results found for query: #{query}
+			.alert.alert-warning.shadow-sm No results found for query: #{query}

@@ -1,16 +1,3 @@
-div.modal.fade(id=("forwardingEventModal-" + forwardingEventIndex) role="dialog" aria-hidden="true")
-	div.modal-dialog.modal-xl(role="document")
-		div.modal-content
-			div.modal-header
-				h5.modal-title.text-monospace
-					span Forwarding Event ##{(forwardingEventIndex + 1).toLocaleString()}
-
-				button.close(type="button" data-dismiss="modal" aria-label="Close")
-					span(aria-hidden="true") &times;
-
-			div.modal-body
-				pre
-					code.json.bg-light #{JSON.stringify(forwardingEvent, null, 4)}
-
-			div.modal-footer
-				button.btn.btn-secondary(type="button" class="" data-dismiss="modal") Close
++modal(`forwardingEventModal-${forwardingEventIndex}`, `Forwarding Event #${(forwardingEventIndex + 1).toLocaleString()}`)
+	pre
+		code.json #{JSON.stringify(forwardingEvent, null, 4)}

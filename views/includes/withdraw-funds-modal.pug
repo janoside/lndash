@@ -1,109 +1,99 @@
-div.modal.fade(id=("withdrawFundsModal") role="dialog" aria-hidden="true")
-	div.modal-dialog.modal-xl(role="document")
-		div.modal-content
-			div.modal-header
-				h5.modal-title Withdraw Funds
++modal("withdrawFundsModal", "Withdraw Funds")
+	script.
+		function withdrawToSingleAddress() {
+			$("#responseAlertSingle").hide();
 
-				button.close(type="button" data-dismiss="modal" aria-label="Close")
-					span(aria-hidden="true") &times;
+			var data = {};
+			data.withdrawType = "single";
+			data.address = $("#withdrawAddress").val();
+			data.sendAll = $("#sendAllCheckbox").is(':checked');
+			data.amountSat = $("#amountSat").val();
+			data.speedType = $("#speedTypeValue").val();
+			data.speedValue = $("#speedValue").val();
 
-			div.modal-body
-				script.
-					function withdrawToSingleAddress() {
-						$("#responseAlertSingle").hide();
+			console.log("data: " + JSON.stringify(data));
 
-						var data = {};
-						data.withdrawType = "single";
-						data.address = $("#withdrawAddress").val();
-						data.sendAll = $("#sendAllCheckbox").is(':checked');
-						data.amountSat = $("#amountSat").val();
-						data.speedType = $("#speedTypeValue").val();
-						data.speedValue = $("#speedValue").val();
+			$.ajax({
+				type: "POST",
+				url: `/withdraw-funds`,
+				data: data,
+				success: function(response) {
+					if (response.code && response.details) {
+						$("#responseAlertSingle").removeClass("alert-success").addClass("alert-danger");
+						$("#responseAlertSingle").text(response.details);
+						$("#responseAlertSingle").show();
 
-						console.log("data: " + JSON.stringify(data));
-
-						$.ajax({
-							type: "POST",
-							url: `/withdraw-funds`,
-							data: data,
-							success: function(response) {
-								if (response.code && response.details) {
-									$("#responseAlertSingle").removeClass("alert-success").addClass("alert-danger");
-									$("#responseAlertSingle").text(response.details);
-									$("#responseAlertSingle").show();
-
-								} else {
-									$("#responseAlertSingle").removeClass("alert-danger").addClass("alert-success");
-									$("#responseAlertSingle").text("Success");
-									$("#responseAlertSingle").show();
-								}
-
-								console.log("response: " + JSON.stringify(response));
-							}
-						});
-
-						return false;
+					} else {
+						$("#responseAlertSingle").removeClass("alert-danger").addClass("alert-success");
+						$("#responseAlertSingle").text("Success");
+						$("#responseAlertSingle").show();
 					}
 
-				ul.nav.nav-tabs.mb-3
-					li.nav-item
-						a.nav-link.active(data-toggle="tab" href="#tab-single" role="tab") Single Address
-					li.nav-item
-						a.nav-link(data-toggle="tab" href="#tab-multi" role="tab") Multiple Addresses
+					console.log("response: " + JSON.stringify(response));
+				}
+			});
 
-				div(class="tab-content")
-					div.tab-pane.active(id="tab-single" role="tabpanel")
+			return false;
+		}
 
-						div.alert(id="responseAlertSingle" style="display: none;")
+	ul.nav.nav-tabs.mb-3
+		li.nav-item
+			a.nav-link.active(data-bs-toggle="tab" href="#tab-single" role="tab") Single Address
+		li.nav-item
+			a.nav-link(data-bs-toggle="tab" href="#tab-multi" role="tab") Multiple Addresses
 
-						form(onsubmit="return withdrawToSingleAddress();")
-							div.form-group
-								label(for="withdrawAddress") Withdraw Address
-								input.form-control.text-monospace(id="withdrawAddress" name="withdrawAddress")
+	.tab-content
+		.tab-pane.active(id="tab-single" role="tabpanel")
 
-							div.form-group
-								label(for="amountSat") Amount
-								div.input-group
-									input.form-control.text-monospace(id="amountSat" name="amountSat")
-									div.input-group-append
-										div.input-group-text.text-monospace sat
+			.alert(id="responseAlertSingle" style="display: none;")
 
-							div.form-group
-								div.custom-control.custom-checkbox
-									input.custom-control-input(type="checkbox" id="sendAllCheckbox")
-									label.custom-control-label(for="sendAllCheckbox") Send all available funds
+			form(onsubmit="return withdrawToSingleAddress();")
+				.mb-3
+					label.form-label(for="withdrawAddress") Withdraw Address
+					input.form-control(id="withdrawAddress" name="withdrawAddress")
 
-							div.form-group
-								label(for="speedValue") Speed
-
-								input(id="speedTypeValue" type="hidden" name="speedType" value="target_conf")
-
-								div.mb-3
-									.custom-control.custom-radio.custom-control-inline
-										input#customRadioInline1.custom-control-input(type='radio' name='speedTypeRadio' value="target_conf" checked="checked")
-										label.custom-control-label(for='customRadioInline1') Try to confirm in 
-											span.border-dotted(for='customRadioInline1' title="LND will compute a fee rate for your on-chain transaction based on the current state of the network. Note that there is no guarantee that your transaction will be confirmed by the network based on what you set here." data-toggle="tooltip") N or fewer blocks
-									.custom-control.custom-radio.custom-control-inline
-										input#customRadioInline2.custom-control-input(type='radio' name='speedTypeRadio' value="sat_per_byte")
-										label.custom-control-label(for='customRadioInline2') Manual fee (sat/byte)
-
-								input.form-control.text-monospace(id="speedValue" name="speedValue")
-								small#singleAddressSpeedNote.text-muted Number of blocks to try to confirm within
+				.input-group.mb-3
+					label.form-label(for="amountSat") Amount
+					.input-group
+						input.form-control(id="amountSat" name="amountSat")
 						
-							button.btn.btn-primary(type="submit")
-								i.fas.fa-external-link-alt.mr-2
-								span Withdraw Funds
+						.input-group-text sat
 
-							div.mt-2
-								span.text-danger Please use caution when withdrawing! Both LND Admin and LND itself are beta software.
+				.mb-3
+					.form-check
+						input.form-check-input(type="checkbox", id="sendAllCheckbox")
+						label.form-check-label(for="sendAllCheckbox") Send all available funds
 
-					div.tab-pane(id="tab-multi" role="tabpanel")
-						div.alert.alert-primary.shadow-sm
-							span TODO 
-							a(href="https://github.com/janoside/lnd-admin/issues/13" target="_blank") #13
+				.mb-3
+					label.form-label(for="speedValue") Speed
 
-			div.modal-footer
-				button.btn.btn-secondary(type="button" class="" data-dismiss="modal") Close
+					input(id="speedTypeValue" type="hidden" name="speedType" value="target_conf")
+
+					.mb-3
+						.custom-control.custom-radio.custom-control-inline
+							input#customRadioInline1.custom-control-input(type='radio' name='speedTypeRadio' value="target_conf" checked="checked")
+							label.custom-control-label(for='customRadioInline1') Try to confirm in 
+								span.border-dotted(for='customRadioInline1' title="LND will compute a fee rate for your on-chain transaction based on the current state of the network. Note that there is no guarantee that your transaction will be confirmed by the network based on what you set here." data-bs-toggle="tooltip") N or fewer blocks
+						.custom-control.custom-radio.custom-control-inline
+							input#customRadioInline2.custom-control-input(type='radio' name='speedTypeRadio' value="sat_per_byte")
+							label.custom-control-label(for='customRadioInline2') Manual fee (sat/byte)
+
+					input.form-control(id="speedValue" name="speedValue")
+					small#singleAddressSpeedNote.text-muted Number of blocks to try to confirm within
+			
+				
+
+				.alert.alert-danger.my-3
+					span Please use caution when withdrawing! Both LND Admin and LND itself are beta software.
+
+				button.btn.btn-primary(type="submit")
+					i.fas.fa-external-link-alt.me-2
+					span Withdraw Funds
+
+		.tab-pane(id="tab-multi" role="tabpanel")
+			.alert.alert-primary.shadow-sm
+				span TODO 
+				a(href="https://github.com/janoside/lnd-admin/issues/13" target="_blank") #13
 
 block endOfBody
 	script.

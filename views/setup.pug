@@ -17,14 +17,14 @@ block content
 
 
 	form(method="post" action="/setup")
-		div.form-group
-			label(for="password") Admin Password
+		.mb-3
+			label.form-label(for="password") Admin Password
 			input.form-control(id="password" name="password" type="password")
 
-		div.form-group
-			label(for="passwordConfirmation") Repeat Password
+		.mb-3
+			label.form-label(for="passwordConfirmation") Repeat Password
 			input.form-control(id="passwordConfirmation" name="passwordConfirmation" type="password")
 
 		button.btn.btn-primary(type="submit")
-			i.fas.fa-key.mr-2
+			i.fas.fa-key.me-2
 			span Set Password

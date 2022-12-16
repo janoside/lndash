@@ -1,18 +1,18 @@
 aside.aside-menu.p-3.bg-main.text-body
-	div.mb-3
+	.mb-3
 		h5.h5 Account
 
 		if (session.admin)
-			i.fas.fa-user.mr-2
-			span.mr-3 Admin
+			i.fas.fa-user.me-2
+			span.me-3 Admin
 			a.btn.btn-block.btn-primary.mt-2(href="/logout")
-				i.fas.fa-sign-out-alt.mr-2
+				i.fas.fa-sign-out-alt.me-2
 				span Logout
 		else
-			i.far.fa-user.mr-2
-			span.mr-3 Guest
+			i.far.fa-user.me-2
+			span.me-3 Guest
 			a.btn.btn-block.btn-primary.mt-2(href="/login")
-				i.fas.fa-sign-in-alt.mr-2
+				i.fas.fa-sign-in-alt.me-2
 				span Login
 
 
@@ -20,9 +20,9 @@ aside.aside-menu.p-3.bg-main.text-body
 
 	h5.h5 Settings
 
-	div.mb-3
+	.mb-3
 		h5.h6 Currency Format
-		div.btn-group.mr-2(role="group")
+		.btn-group.me-2(role="group")
 			each currencyId in ["sat", "BTC"]
 				- var currencyUnit = coinConfig.currencyUnitsByName[currencyId];
 				if (currencyUnit.type == "native" || config.queryExchangeRates)
@@ -36,9 +36,9 @@ aside.aside-menu.p-3.bg-main.text-body
 					else
 						a.btn.btn-light.border(href=`/changeSetting?name=currencyFormatType&value=${currencyUnit.values[0]}`) #{currencyUnit.name}
 
-	div.mb-3
+	.mb-3
 		h5.h6 Theme
-		div.btn-group.mr-2(role="group")
+		.btn-group.me-2(role="group")
 			each item in [{name:"Light", vals:["light",""]}, {name:"Dark", vals:["dark"]}]
 				- var itemSelected = item.vals.includes(session.uiTheme);
 
@@ -48,7 +48,7 @@ aside.aside-menu.p-3.bg-main.text-body
 					a.btn.btn-light.border(href=`/changeSetting?name=uiTheme&value=${item.vals[0]}`) #{item.name}
 
 	if (false)
-		div.mb-3
+		.mb-3
 			h5.h6 LND Node
 			each lndIndex, index in lndConnections.indexes
 				if (lndConnections.byIndex[lndIndex] != null)
@@ -60,71 +60,71 @@ aside.aside-menu.p-3.bg-main.text-body
 						each address in fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.addresses
 							- addrs.push(address.addr);
 
-						div.card.mb-2
-							div.card-body
-								div.clearfix
+						.card.mb-2
+							.card-body
+								.clearfix
 									small
 										a.stretched-link(href=('/connect-lnd?index=' + lndIndex), onclick="$('#switchLndModal').modal()") #{node_pubkey.substring(0, config.site.pubkeyMaxDisplayLength - 3)}
 										if (lndConn == lndRpc)
-											i.fas.fa-check.text-success.ml-2
+											i.fas.fa-check.text-success.ms-2
 										br
-										//span.font-weight-bold Alias
+										//span.fw-bold Alias
 										//br
-										span.text-monospace #{lndConn.internal_alias}
+										span #{lndConn.internal_alias}
 										br
-										//span.font-weight-bold Address
+										//span.fw-bold Address
 										//br
-										span.text-monospace #{addrs}
+										span #{addrs}
 										br
-										//span.font-weight-bold Version
+										//span.fw-bold Version
 										//br
 										- var versionParts = lndConn.internal_version.split(" ");
-										span.text-monospace.word-wrap #{versionParts[0]}
+										span.word-wrap #{versionParts[0]}
 
 	hr
 
 	h5.h5 Status
 
-	div.mb-3
+	.mb-3
 		h5.h6 App Version
 
 		if (global.sourcecodeVersion)
-			div.mb-2
-				span.mr-2 Commit
+			.mb-2
+				span.me-2 Commit
 				span
-					a.text-monospace(href=`https://github.com/janoside/lnd-admin/commit/${sourcecodeVersion}`) ##{sourcecodeVersion.substring(0, 8)}
+					a(href=`https://github.com/janoside/lnd-admin/commit/${sourcecodeVersion}`) ##{sourcecodeVersion.substring(0, 8)}
 		
 		if (global.sourcecodeDate)
 			- var timeAgo = moment.duration(moment.utc(new Date()).diff(global.sourcecodeDate));
 			- var dateTimeUtc = moment.utc(global.sourcecodeDate).format("Y-MM-DD");
 
-			div.mb-2
-				span.mr-2 Date
-				span.text-monospace.border-dotted(title=`${timeAgo.humanize()} ago` data-toggle="tooltip") #{dateTimeUtc}
+			.mb-2
+				span.me-2 Date
+				span.border-dotted(title=`${timeAgo.humanize()} ago` data-bs-toggle="tooltip") #{dateTimeUtc}
 				
 		if (global.appVersion)
-			div.mb-2
-				span.mr-2 Version
-				span.text-monospace v#{global.appVersion}
+			.mb-2
+				span.me-2 Version
+				span v#{global.appVersion}
 
 	if (false)
 		ul.nav.nav-tabs(role='tablist')
 			li.nav-item
-				a.nav-link.active(data-toggle='tab' href='#timeline' role='tab')
+				a.nav-link.active(data-bs-toggle='tab' href='#timeline' role='tab')
 					i.fas.fa-list
 			li.nav-item
-				a.nav-link(data-toggle='tab' href='#settings' role='tab')
+				a.nav-link(data-bs-toggle='tab' href='#settings' role='tab')
 					i.fas.fa-cog
 		// Tab panes
 		.tab-content
 			#timeline.tab-pane.active(role='tabpanel')
 				.list-group.list-group-accent
-					.list-group-item.list-group-item-accent-secondary.bg-light.text-center.font-weight-bold.text-muted.text-uppercase.small Tomorrow
+					.list-group-item.list-group-item-accent-secondary.bg-light.text-center.fw-bold.text-muted.text-uppercase.small Tomorrow
 					.list-group-item.list-group-item-accent-success.list-group-item-divider
 						div
 							strong #10 Startups.Garden
 							|	Meetup
-						small.text-muted.mr-3
+						small.text-muted.me-3
 							i.icon-calendar
 							| &#x9;1 - 3pm
 						small.text-muted

@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title Sign or Verify
@@ -10,9 +10,8 @@ block breadcrumb
 	li.breadcrumb-item Sign or Verify
 	
 block content
-	h1.h3 Sign or Verify
+	+pageTitle("Sign or Verify")
 
-	hr
 
 	if (!session.admin)
 		- var loginRequiredNote = "allow you to sign and verify messages.";
@@ -22,49 +21,58 @@ block content
 
 		if (signMessageResponse)
 			if (signMessageResponse.signature)
-				div.alert.alert-success
+				.alert.alert-success
 					h3.h6 Success
 
 					span Message signed successfully
 
 			else
-				div.alert.alert-danger
+				.alert.alert-danger
 					h3.h6 Message Signing Failed
 					
 					if (false)
 						pre
-							code.json.bg-light #{JSON.stringify(signMessageResponse, null, 4)}
+							code.json #{JSON.stringify(signMessageResponse, null, 4)}
 
 		if (verifyMessageResponse)
 			if (verifyMessageResponse.valid)
-				div.alert.alert-success
+				.alert.alert-success
 					h3.h6 Signature Verified
 
 					span Message signature verified, using public key 
-					span.font-weight-bold #{verifyMessageResponse.pubkey}
+					span.fw-bold #{verifyMessageResponse.pubkey}
 					span .
 
 			else
-				div.alert.alert-danger
+				.alert.alert-danger
 					h3.h6 Signature Verification Failed
 
 					span  Invalid signature
 
 					if (false)
 						pre
-							code.json.bg-light #{JSON.stringify(verifyMessageResponse, null, 4)}
+							code.json #{JSON.stringify(verifyMessageResponse, null, 4)}
 
 		form(method="post")
-			div.form-group
-				label(for="msg") Message
-				input.form-control.text-monospace.form-control-lg(id="msg" name="msg" type="text" value=msg)
+			.mb-3
+				label.form-label(for="msg") Message
+				input.form-control.form-control-lg(id="msg" name="msg" type="text" value=msg)
 
-			div.form-group
-				label(for="signature") Signature
-				input.form-control.text-monospace.form-control-lg(id="signature" name="signature" type="text" value=signature)
+			.mb-3
+				label.form-label(for="signature") Signature
+
+				.d-flex
+					input.form-control.form-control-lg(id="signature" name="signature" type="text" value=signature)
+					
+					if (signature)
+						.fs-4.ms-3
+							+copyTextButton(signature)
+
 				small.text-muted Signature to verify, or leave blank to generate a new signature
 
+				
+
 			button.btn.btn-primary(type="submit")
-				i.fas.fa-pen-nib.mr-2
+				i.fas.fa-pen-nib.me-2
 				span Sign / Verify
 			

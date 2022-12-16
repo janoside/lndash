@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title Bulk Edit Channels
@@ -22,7 +22,7 @@ block content
 		ul.nav.nav-tabs.mb-3
 			li.nav-item
 				a.nav-link(href=`/edit-multi-channel-policies` class=(tab == "subset" ? false : "active")) Edit 
-					span.font-weight-bold All 
+					span.fw-bold All 
 					span Open Channels
 			li.nav-item
 				a.nav-link(href=`/edit-multi-channel-policies?tab=subset` class=(tab == "subset" ? "active" : false)) Edit Selected Channels
@@ -31,35 +31,35 @@ block content
 			pre
 				code.json #{JSON.stringify(channelFeeSummary, null, 4)}
 
-		div.tab-content
-			div.tab-pane(id="tab-all" role="tabpanel" class=(tab == "subset" ? false : "active"))
-				div.alert.alert-primary.mb-3.shadow-sm This tool sets all open channels to the same policy. If you wish to edit only a subset of your open channels, switch tabs.
+		.tab-content
+			.tab-pane(id="tab-all" role="tabpanel" class=(tab == "subset" ? false : "active"))
+				.alert.alert-primary.mb-3.shadow-sm This tool sets all open channels to the same policy. If you wish to edit only a subset of your open channels, switch tabs.
 
 				form(method="post")
 					input(type="hidden" name="tab" value=tab)
 
-					div.card.mb-3.shadow-sm
-						div.card-header
+					.card.mb-3.shadow-sm
+						.card-header
 							h3.h6.mb-0
 								label.mb-0(for="baseFeeMsat")
-									span.border-dotted(title="The base fee in milli-satoshis that will be charged for each forwarded HTLC, regardless of payment size (default: 0)" data-toggle="tooltip") Base Fee (msat)
+									span.border-dotted(title="The base fee in milli-satoshis that will be charged for each forwarded HTLC, regardless of payment size (default: 0)" data-bs-toggle="tooltip") Base Fee (msat)
 
-						div.card-body
+						.card-body
 							input.form-control(id="baseFeeMsat" name="baseFeeMsat" type="number" placeholder=(channelFeeSummary.base_fee_msat_list.length > 1 ? "multiple values (see below)" : "") value=(channelFeeSummary.base_fee_msat_list.length == 1 ? channelFeeSummary.base_fee_msat_list[0] : false))
 
 							if (channelFeeSummary.base_fee_msat_list.length == 1)
-								div.text-muted.mt-2
+								.text-muted.mt-2
 									span All #{localChannels.length.toLocaleString()} open channel
 									if (localChannels.length != 1)
 										span s 
 									span currently set to:
 									br
-									span.text-monospace Base Fee = #{channelFeeSummary.base_fee_msat_list[0]} msat
+									span Base Fee = #{channelFeeSummary.base_fee_msat_list[0]} msat
 							else
 								hr.mt-4
 
 								span Channel Counts By Current Value
-								div.table-responsive
+								.table-responsive
 									table.table(style="display: inline;")
 										thead
 											tr
@@ -69,36 +69,36 @@ block content
 											tr
 												each item in channelFeeSummary.base_fee_msat_list
 													- var chanCount = channelFeeSummary.base_fee_msat[item].length;
-													td.text-monospace #{chanCount.toLocaleString()} 
+													td #{chanCount.toLocaleString()} 
 														if (chanCount == 1)
 															span channel
 														else
 															span channels
 
 
-					div.card.mb-3.shadow-sm
-						div.card-header
+					.card.mb-3.shadow-sm
+						.card-header
 							h3.h6.mb-0
 								label.mb-0(for="feeRateMilliMsat")
-									span.border-dotted(title="The fee rate that will be charged proportionally based on the value of each forwarded HTLC. The lowest possible rate is 1 milli-msat (0.000001)" data-toggle="tooltip") Fee Rate (milli-msat)
+									span.border-dotted(title="The fee rate that will be charged proportionally based on the value of each forwarded HTLC. The lowest possible rate is 1 milli-msat (0.000001)" data-bs-toggle="tooltip") Fee Rate (milli-msat)
 
-						div.card-body
+						.card-body
 							input.form-control(id="feeRateMilliMsat" name="feeRateMilliMsat" type="number" placeholder=(channelFeeSummary.fee_per_mil_list.length > 1 ? "multiple values (see below)" : "") value=(channelFeeSummary.fee_per_mil_list.length == 1 ? channelFeeSummary.fee_per_mil_list[0] : false))
 						
 
 							if (channelFeeSummary.fee_per_mil_list.length == 1)
-								div.text-muted.mt-2
+								.text-muted.mt-2
 									span All #{localChannels.length.toLocaleString()} open channel
 									if (localChannels.length != 1)
 										span s 
 									span currently set to: 
 									br
-									span.text-monospace Fee Rate = #{channelFeeSummary.fee_per_mil_list[0]} milli-msat
+									span Fee Rate = #{channelFeeSummary.fee_per_mil_list[0]} milli-msat
 							else
 								hr.mt-4
 
 								span Channel Counts By Current Value
-								div.table-responsive
+								.table-responsive
 									table.table(style="display: inline;")
 										thead
 											tr
@@ -108,36 +108,36 @@ block content
 											tr
 												each item in channelFeeSummary.fee_per_mil_list
 													- var chanCount = channelFeeSummary.fee_per_mil[item].length;
-													td.text-monospace #{chanCount.toLocaleString()} 
+													td #{chanCount.toLocaleString()} 
 														if (chanCount == 1)
 															span channel
 														else
 															span channels
 
 
-					div.card.mb-3.shadow-sm
-						div.card-header
+					.card.mb-3.shadow-sm
+						.card-header
 							h3.h6.mb-0
 								label.mb-0(for="timeLockDelta")
-									span.border-dotted(title="The CLTV delta that will be applied to all forwarded HTLCs (default: 0)" data-toggle="tooltip") Time Lock Delta
+									span.border-dotted(title="The CLTV delta that will be applied to all forwarded HTLCs (default: 0)" data-bs-toggle="tooltip") Time Lock Delta
 
-						div.card-body
+						.card-body
 							input.form-control(id="timeLockDelta" name="timeLockDelta" type="number" placeholder=(channelFeeSummary.time_lock_delta_list.length > 1 ? "multiple values (see below)" : "") value=(channelFeeSummary.time_lock_delta_list.length == 1 ? channelFeeSummary.time_lock_delta_list[0] : false))
 						
 
 							if (channelFeeSummary.time_lock_delta_list.length == 1)
-								div.text-muted.mt-2
+								.text-muted.mt-2
 									span All #{localChannels.length.toLocaleString()} open channel
 									if (localChannels.length != 1)
 										span s 
 									span currently set to: 
 									br
-									span.text-monospace Time Lock Delta = #{channelFeeSummary.time_lock_delta_list[0]}
+									span Time Lock Delta = #{channelFeeSummary.time_lock_delta_list[0]}
 							else
 								hr.mt-4
 
 								span Channel Counts By Current Value
-								div.table-responsive
+								.table-responsive
 									table.table(style="display: inline;")
 										thead
 											tr
@@ -147,71 +147,71 @@ block content
 											tr
 												each item in channelFeeSummary.time_lock_delta_list
 													- var chanCount = channelFeeSummary.time_lock_delta[item].length;
-													td.text-monospace #{chanCount.toLocaleString()} 
+													td #{chanCount.toLocaleString()} 
 														if (chanCount == 1)
 															span channel
 														else
 															span channels
 
 
-					div.mt-4
+					.mt-4
 						button.btn.btn-primary(type="submit")
-							i.fas.fa-pen.mr-2
+							i.fas.fa-pen.me-2
 							span Edit Policies For #{localChannels.length.toLocaleString()} Open Channels
 
-			div.tab-pane(id="tab-subset" role="tabpanel" class=(tab == "subset" ? "active" : false))
+			.tab-pane(id="tab-subset" role="tabpanel" class=(tab == "subset" ? "active" : false))
 
-				div.alert.alert-primary.shadow-sm Coming soon...
+				.alert.alert-primary.shadow-sm Coming soon...
 				
 				if (false)
 					if (localChannels.length > 0)
-						div.table-responsive
+						.table-responsive
 							table.table.table-bordered.border-top
 								thead.table-head-with-nav
 									tr
-										th.text-right #
+										th.text-end #
 										th.text-center
 											input(type="checkbox")
 										th ID
 										th Remote Node
-										th.text-right
+										th.text-end
 											if (sort == "openblockheight-desc")
-												span.border-dotted.mr-2(title="The height of the block that confirmed each channel's opening transaction" data-toggle="tooltip") Open Block Height
+												span.border-dotted.me-2(title="The height of the block that confirmed each channel's opening transaction" data-bs-toggle="tooltip") Open Block Height
 												i.fas.fa-arrow-down
 											else
-												a.border-dotted(href=`/local-channels?sort=openblockheight-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort by the height of the block that confirmed each channel's opening transaction" data-toggle="tooltip")
+												a.border-dotted(href=`/local-channels?sort=openblockheight-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort by the height of the block that confirmed each channel's opening transaction" data-bs-toggle="tooltip")
 													span Open Block Height
 
-										th.text-right
+										th.text-end
 											if (sort == "basefee-desc")
-												span.mr-2 Base Fee
+												span.me-2 Base Fee
 												i.fas.fa-arrow-down
 											else
-												a(href=`/edit-multi-channel-policies?sort=valuetransfer-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-toggle="tooltip")
+												a(href=`/edit-multi-channel-policies?sort=valuetransfer-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-bs-toggle="tooltip")
 													span Base Fee
 
-										th.text-right
+										th.text-end
 											if (sort == "valuetransfer-desc")
-												span.mr-2 Value Transfer
+												span.me-2 Value Transfer
 												i.fas.fa-arrow-down
 											else
-												a(href=`/local-channels?sort=valuetransfer-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-toggle="tooltip")
+												a(href=`/local-channels?sort=valuetransfer-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-bs-toggle="tooltip")
 													span Value Transfer
 											
-										th.text-right
+										th.text-end
 											if (sort == "localbalance-desc")
-												span.mr-2 Local Balance
+												span.me-2 Local Balance
 												i.fas.fa-arrow-down
 											else
-												a(href=`/local-channels?sort=localbalance-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-toggle="tooltip")
+												a(href=`/local-channels?sort=localbalance-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-bs-toggle="tooltip")
 													span Local Balance
 
-										th.text-right
+										th.text-end
 											if (sort == "remotebalance-desc")
-												span.mr-2 Remote Balance
+												span.me-2 Remote Balance
 												i.fas.fa-arrow-down
 											else
-												a(href=`/local-channels?sort=remotebalance-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-toggle="tooltip")
+												a(href=`/local-channels?sort=remotebalance-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-bs-toggle="tooltip")
 													span Remote Balance
 
 										th Details
@@ -224,8 +224,8 @@ block content
 										if (channel.active)
 											include ./includes/local-channel-details-modal.pug
 											
-											tr.word-wrap.text-monospace
-												th.text-right #{(channel_index + 1).toLocaleString()}
+											tr.word-wrap
+												th.text-end #{(channel_index + 1).toLocaleString()}
 												th.text-center
 													input(type="checkbox")
 												td(class="table-col-channelid")
@@ -235,7 +235,7 @@ block content
 															include ./includes/channel-id.pug
 
 														if (utils.isObjectStarred(`channel:${channel_id}`))
-															i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
+															i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite channels" data-bs-toggle="tooltip")
 
 													else if (channel.chan_id)
 														span
@@ -243,7 +243,7 @@ block content
 															include ./includes/channel-id.pug
 
 															if (utils.isObjectStarred(`channel:${channel_id}`))
-																i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
+																i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite channels" data-bs-toggle="tooltip")
 
 													else
 														span -
@@ -257,17 +257,17 @@ block content
 
 													include ./includes/node-card.pug
 
-												td.text-right
+												td.text-end
 													if (config.blockExplorerUrl)
 														a(href=`${config.blockExplorerUrl}/block-height/${parsedChannelIds[channel.chan_id].blockHeight}` target="_blank") #{parsedChannelIds[channel.chan_id].blockHeight.toLocaleString()}
 
 													else
 														span #{parsedChannelIds[channel.chan_id].blockHeight.toLocaleString()}
 
-												td.text-right
+												td.text-end
 
 
-												td.text-right
+												td.text-end
 													if (channel.active)
 														- var atLeastOne = false;
 														- var currencyValue = new Decimal(channel.total_satoshis_received).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
@@ -294,41 +294,41 @@ block content
 													else
 														span -
 
-												td.text-right
+												td.text-end
 													if (channel.active)
 														- var currencyValue = new Decimal(channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 														include ./includes/value-display.pug
 
 													else if (channel.channel != null)
-														div.text-muted
+														.text-muted
 															- var currencyValue = new Decimal(channel.channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 															include ./includes/value-display.pug
 
 													else
 														span -
 
-												td.text-right
+												td.text-end
 													if (channel.active)
 														- var currencyValue = new Decimal(channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 														include ./includes/value-display.pug
 														
 														if (false)
-															div.row
-																div.col-md-6.text-right
+															.row
+																.col-md-6.text-end
 																	- var currencyValue = new Decimal(channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 																	include ./includes/value-display.pug
 
-																div.col-md-6.text-right
+																.col-md-6.text-end
 																	- var currencyValue = new Decimal(channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 																	include ./includes/value-display.pug
 
 															- var fullPercent = new Decimal(100 * parseFloat(channel.local_balance) / (parseFloat(channel.local_balance) + parseFloat(channel.remote_balance))).toDecimalPlaces(1);
 
-															div.progress.mt-2(style="height: 6px;")
+															.progress.mt-2(style="height: 6px;")
 																div(class="progress-bar", role="progressbar", style=("width: " + fullPercent + "%;"), aria-valuenow=parseInt(fullPercent), aria-valuemin="0", aria-valuemax="100")
 
 													else if (channel.channel != null)
-														div.text-muted
+														.text-muted
 															- var currencyValue = new Decimal(channel.channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 															include ./includes/value-display.pug
 
@@ -337,5 +337,5 @@ block content
 													
 
 												td.text-reset
-													a(href="javascript:void(0)" data-toggle="modal" data-target=("#localChannelModal-" + localChannel_index)) Details
+													a(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#localChannelModal-" + localChannel_index)) Details
 												

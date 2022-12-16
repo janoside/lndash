@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title Query Route
@@ -10,9 +10,8 @@ block breadcrumb
 	li.breadcrumb-item Query Route
 	
 block content
-	h1.h3 Query Route
+	+pageTitle("Query Route")
 
-	hr
 
 	if (!session.admin)
 		- var loginRequiredNote = "allow you to query lightning payment routes through the network.";
@@ -21,27 +20,25 @@ block content
 	else
 
 		form(method="post")
-			div.form-group
-				label(for="pubkey") Target Node Public Key
-				input.form-control.form-control-lg.text-monospace(id="pubkey" name="pubkey" type="text" value=pubkey)
+			.mb-3
+				label.form-label(for="pubkey") Target Node Public Key
+				input.form-control.form-control-lg(id="pubkey" name="pubkey" type="text" value=pubkey)
 
 			if (pubkey)
-				div.card.text-monospace.mb-3.bg-light
-					div.card-body
-						- var card_node_pubkey = pubkey;
-						include includes/node-card.pug
+				+card
+					- var card_node_pubkey = pubkey;
+					include includes/node-card.pug
 
-			div.row
-				div.col-md-2
-					div.form-group
-						label(for="amount") Amount
-						div.input-group
-							input.form-control.form-control-lg.text-monospace(type="number" id="amount" name="amountSat" value=amountSat)
-							div.input-group-append
-								div.input-group-text.text-monospace sat
+			.d-flex
+				.mb-3
+					label.form-label(for="amount") Amount
+					.input-group
+						input.form-control.form-control-lg(type="number" id="amount" name="amountSat" value=amountSat)
+						
+						.input-group-text sat
 
 			button.btn.btn-primary(type="submit")
-				i.fas.fa-route.mr-2
+				i.fas.fa-route.me-2
 				span Query Route
 
 		
@@ -49,7 +46,7 @@ block content
 		if (queryRouteError)
 			hr.my-3
 
-			div.alert.alert-warning.shadow-sm
+			.alert.alert-warning.shadow-sm
 				h3.h6 No Route Found
 
 				if (queryRouteError != null && queryRouteError.details)
@@ -57,7 +54,7 @@ block content
 
 			if (false)
 				pre
-					code.json.bg-light #{JSON.stringify(queryRouteError, null, 4)}
+					code.json #{JSON.stringify(queryRouteError, null, 4)}
 
 		else if (queryRouteResponse)
 			hr.my-3
@@ -66,97 +63,97 @@ block content
 				pre
 					code.json #{JSON.stringify(queryRouteResponse, null, 4)}
 
-			div.alert.alert-success.shadow-sm Route Found
+			.alert.alert-success.shadow-sm Route Found
 
 			- var route = queryRouteResponse.routes[0];
 
-			div.card.shadow-sm.text-body.mb-3
-				div.card-header
-					h3.h6.mb-0 Summary
-				div.card-body
-					div.row
-						div.summary-table-label
-							span.border-dotted(title="The total amount to be transferred in milli-satoshis (the native unit on the lightning network), followed by the amount in your chosen unit" data-toggle="tooltip") Total Cost
-						div.summary-table-content.text-monospace
-							- var currencyValue = new Decimal(route.total_amt_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
-							- var tempCurrencyFormatType = "msat";
+			+contentSection("Summary")
+				+summaryRow(4)
+					+summaryItem("Total Cost", "The total amount to be transferred in milli-satoshis (the native unit on the lightning network), followed by the amount in your chosen unit")
+						- var currencyValue = new Decimal(route.total_amt_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
+						- var tempCurrencyFormatType = "msat";
+						include includes/value-display.pug
+						br
+						span.text-muted.text-tiny
+							| (
 							include includes/value-display.pug
-							br
-							span.text-muted
+							| )
+
+
+					+summaryItem("Total Fees")
+						if (parseInt(route.total_fees_msat) > 0)
+							span.text-danger
+								- var currencyValue = new Decimal(route.total_fees_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
+								- var tempCurrencyFormatType = "msat";
 								include includes/value-display.pug
-
-						div.summary-table-label Total Fees
-						div.summary-table-content.text-monospace
-							if (parseInt(route.total_fees_msat) > 0)
-								span.text-danger
-									- var currencyValue = new Decimal(route.total_fees_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
-									- var tempCurrencyFormatType = "msat";
-									include includes/value-display.pug
-									
-							else
-								span.text-success 0
-
-						div.summary-table-label Total Timelock
-						div.summary-table-content.text-monospace #{route.total_time_lock.toLocaleString()}
-
-						div.summary-table-label Hops
-						div.summary-table-content.text-monospace #{route.hops.length.toLocaleString()}
-
-			div.card.shadow-sm.text-body
-				div.card-header
-					h3.h6.mb-0 Details
-				div.card-body
-					div.clearfix
-						div.card.text-body.shadow-sm.float-left.mr-3
-							div.card-header
-								h3.h6.mb-0
-									i.fas.fa-play-circle.mr-2.fa-lg
-									span Origin
-							div.card-body
-								div.font-weight-bold.mb-2 Node
 								
-								- var card_node_pubkey = lndRpc.internal_pubkey;
-								include includes/node-card.pug
+						else
+							span.text-success 0
 
-						each hop, hopIndex in route.hops
+
+					+summaryItem("Total Timelock")
+						| #{route.total_time_lock.toLocaleString()}
+
+
+					+summaryItem("Hops")
+						| #{route.hops.length.toLocaleString()}
+
+
+
+
+			+contentSection("Details")
+				.d-flex
+					.card.text-body.shadow-sm.me-3
+						.card-header
+							h3.h6.mb-0
+								i.fas.fa-play-circle.me-2.fa-lg
+								span Origin
+						.card-body
+							.fw-bold.mb-2 Node
 							
-							div.card.text-body.shadow-sm.float-left.mr-3
-								div.card-header
-									h3.h6.mb-0
-										if (hopIndex == (route.hops.length - 1))
-											i.fas.fa-check-circle.mr-2.fa-lg
-										else
-											i.fas.fa-arrow-circle-right.mr-2.fa-lg
+							- var card_node_pubkey = lndRpc.internal_pubkey;
+							include includes/node-card.pug
 
-										span Hop ##{(hopIndex + 1).toLocaleString()}
+					each hop, hopIndex in route.hops
+						
+						.card.text-body.shadow-sm.me-3
+							.card-header
+								h3.h6.mb-0
+									if (hopIndex == (route.hops.length - 1))
+										i.fas.fa-check-circle.me-2.fa-lg
+									else
+										i.fas.fa-arrow-circle-right.me-2.fa-lg
 
-										if (hopIndex == (route.hops.length - 1))
-											span  (Destination)
+									span Hop ##{(hopIndex + 1).toLocaleString()}
+
+									if (hopIndex == (route.hops.length - 1))
+										span  (Destination)
+								
+							.card-body
+								.mb-3.border-bottom.pb-3
+									.fw-bold.mb-2 Node
+									- var card_node_pubkey = hop.pub_key;
+									include includes/node-card.pug
 									
-								div.card-body
-									div.mb-3.border-bottom.pb-3
-										div.font-weight-bold.mb-2 Node
-										- var card_node_pubkey = hop.pub_key;
-										include includes/node-card.pug
-										
 
-									div.mb-2
-										div.font-weight-bold Channel
-										
-										a.text-monospace(href=`/channel/${hop.chan_id}`)
-											- var channel_id = hop.chan_id;
-											include includes/channel-id.pug
+								.mb-2
+									.fw-bold Channel
+									
+									a(href=`/channel/${hop.chan_id}`)
+										- var channel_id = hop.chan_id;
+										include includes/channel-id.pug
 
-										if (utils.isObjectStarred(`channel:${channel_id}`))
-											i.fas.fa-star.text-warning.ml-1(title="This is one of your favorite channels" data-toggle="tooltip")
+									if (utils.isObjectStarred(`channel:${channel_id}`))
+										i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite channels" data-bs-toggle="tooltip")
 
-									div
-										div.font-weight-bold Fees
-										
-										if (parseInt(hop.fee_msat) > 0)
-											span.text-danger.text-monospace +
-												- var currencyValue = new Decimal(hop.fee_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
-												- var tempCurrencyFormatType = "msat";
-												include includes/value-display.pug
-										else
-											span.text-monospace.text-success 0
+								div
+									.fw-bold Fees
+									
+									if (parseInt(hop.fee_msat) > 0)
+										span.text-danger +
+											- var currencyValue = new Decimal(hop.fee_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
+											- var tempCurrencyFormatType = "msat";
+											include includes/value-display.pug
+									else
+										span.text-success 0
+

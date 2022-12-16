@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title Login
@@ -9,16 +9,16 @@ block breadcrumb
 	li.breadcrumb-item Login
 
 block content
-	h1.h3 Login
-	hr
+	+pageTitle("Login")
+
 
 	if (!global.adminPassword)
-		div.alert.alert-primary.shadow-sm.mb-3
+		.alert.alert-primary.shadow-sm.mb-3
 			span Enter your admin password to unlock LND Admin
 
 	form(method="post", action="/login")
-		div.form-group
-			label(for="password") Password
+		.mb-3
+			label.form-label(for="password") Password
 			input.form-control(type="password" id="password" name="password")
 
 		- var onclick = false;
@@ -26,15 +26,15 @@ block content
 			- onclick = "$('#unlockModal').modal()";
 			
 		button.btn.btn-primary(type="submit" onclick=onclick)
-			i.fas.fa-sign-in-alt.mr-2
+			i.fas.fa-sign-in-alt.me-2
 			span Login
 
 	if (!global.adminPassword)
-		div.modal(id="unlockModal" tabindex="-1" role="dialog" aria-hidden="true")
-			div.modal-dialog.modal-dialog-centered.modal-sm
-				div.modal-content
-					div.modal-body
+		.modal(id="unlockModal" tabindex="-1" role="dialog" aria-hidden="true")
+			.modal-dialog.modal-dialog-centered.modal-sm
+				.modal-content
+					.modal-body
 						h5 Unlocking LND Admin...
 						span Refreshing the full public network often takes ~5-15 seconds...
-						div.text-center.mb-4.mt-5
-							div.spinner-border.text-primary(role="status" style="width: 3rem; height: 3rem;")
+						.text-center.mb-4.mt-5
+							.spinner-border.text-primary(role="status" style="width: 3rem; height: 3rem;")

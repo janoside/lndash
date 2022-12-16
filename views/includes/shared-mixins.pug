@@ -1,0 +1,194 @@
+mixin themeCss
+	link(id="light-theme-link-tag", rel=(session.uiTheme != "dark" ? "stylesheet" : false), href=assetUrl(`./style/light.css`), integrity=assetIntegrity("light.css"), crossorigin="anonymous")
+	link(id="dark-theme-link-tag", rel=(session.uiTheme == "dark" ? "stylesheet" : false), href=assetUrl(`./style/dark.css`), integrity=assetIntegrity("dark.css"), crossorigin="anonymous")
+
+
+
+mixin sharedScriptTags
+	script(src=assetUrl(`/js/jquery.min.js`), integrity=assetIntegrity("jquery.min.js"), crossorigin="anonymous")
+	script(src=assetUrl(`/js/bootstrap.bundle.min.js`), integrity=assetIntegrity("bootstrap.bundle.min.js"), crossorigin="anonymous")
+	
+	script(src=assetUrl(`/js/fontawesome.min.js`), integrity=assetIntegrity("fontawesome.min.js"), crossorigin="anonymous")
+	script(src=assetUrl(`/js/site.js`), integrity=assetIntegrity("site.js"), crossorigin="anonymous")
+
+
+
+mixin pageTitle(text, subtext, copyableSubtext=false)
+	.d-flex.justify-content-between
+		h1.fw-light.word-wrap.mb-1
+			| #{text}
+		
+			if (block)
+				block
+
+	h4.fw-light.word-wrap.mb-4 #{subtext}
+		if (copyableSubtext)
+			small
+				+copyTextButton(subtext)
+	
+	//hr.mb-3
+
+
+mixin sectionTitleBlock
+	h3.h5.mb-1.fw-light
+		block
+
+			
+mixin sectionTitle(text, toggle=false, toggleUniqueClass, toggleUserSettingName, toggleOpen, tooltipText)
+	if (false)
+		pre
+			code.json #{JSON.stringify(session.userSettings)}
+
+	h3.h5.mb-1.fw-light(class=(toggle && !toggleOpen ? "mb-section" : false), class=(!toggle || toggleOpen ? "d-block" : "d-none"))
+		if (tooltipText)
+			span.border-dotted(title=tooltipText, data-bs-toggle="tooltip")
+				| #{text}
+
+		else
+			| #{text}
+
+		if (toggle)
+			small(title=`Toggle ${text}`, data-bs-toggle="tooltip")
+				a.text-card-highlight.fs-6(href=`./changeSetting?name=${toggleUserSettingName}&value=false`)
+					i.toggle-plus-minus.ms-2(class=(toggleOpen ? "bi-dash-square" : "bi-plus-square"))
+
+
+mixin contentSection(title, toggleable=false, toggleUserSettingName, defaultOpen=true, cardUi=true)
+	if (toggleable)
+		- var toggleUniqueClass = `section-${utils.getRandomString(10, "aA#")}`;
+		- var toggleOpen = userSettings[toggleUserSettingName] == null ? defaultOpen : (userSettings[toggleUserSettingName] == "true" || userSettings[toggleUserSettingName] == true);
+
+	if (title)
+		+sectionTitle(title, toggleable, toggleUniqueClass, toggleUserSettingName, toggleOpen)
+
+	.mb-section(class=toggleUniqueClass, style=(toggleable && !toggleOpen ? "display: none;" : false))
+		if (cardUi)
+			.card.mb-section.shadow-sm
+				.card-body
+					block
+
+		else
+			block
+
+
+mixin summaryRow(itemCount)
+	- locals.summaryItemCount = itemCount;
+	- locals.summaryItemIndex = 0;
+	
+	- locals.colCounts = {"sm": 1, "md": Math.min(itemCount, 3), "lg": Math.min(itemCount, 4), "xl": Math.min(itemCount, 5)};
+	- locals.rowCountsArray = utils.objectProperties(locals.colCounts).map(x => [x, locals.colCounts[x]]).map(x => [x[0], (Math.floor(itemCount / x[1]) + ((itemCount % x[1] > 0) ? 1 : 0))]);
+	- locals.rowCounts = {};
+	- locals.rowCountsArray.forEach(x => locals.rowCounts[x[0]] = x[1]);
+
+	//h1 #{itemCount} #{JSON.stringify(locals.rowCounts)}
+
+	.row.row-cols-1.summary-row(class=utils.objectProperties(locals.colCounts).map(x => `row-cols-${x}-${locals.colCounts[x]}`).join(" "))
+		block
+
+
+mixin summaryTitle(title, titleDesc, subtitle, subtitleDesc, linkText, linkUrl, linkDesc)
+	span.fs-6.text-uppercase.fw-light.text-card-highlight(class=(titleDesc ? "border-dotted" : false), class=(subtitle ? "me-2" : false), title=titleDesc, data-bs-toggle="tooltip", data-bs-html="true") #{title}
+	if (subtitle)
+		small.text-card-highlight.fw-light
+			| (
+			span(class=(subtitleDesc ? "border-dotted" : false), title=subtitleDesc, data-bs-toggle="tooltip", data-bs-html="true") #{subtitle}
+			| )
+
+	if (linkText && linkUrl)
+		if (linkText.startsWith("text:"))
+			a.ms-2.text-tiny(href=linkUrl, data-bs-toggle="tooltip", title=linkDesc) #{linkText.substring("text:".length)}
+
+		else if (linkText.startsWith("icon:"))
+			small
+				a.ms-2(href=linkUrl, data-bs-toggle="tooltip", title=linkDesc)
+					i(class=linkText.substring("icon:".length))
+
+
+mixin summaryItem(title, titleDesc, subtitle, subtitleDesc, linkText, linkUrl, linkDesc)
+	- var rowIndexes = utils.objectProperties(locals.colCounts).map(x => [x, locals.colCounts[x]]).map(x => [x[0], Math.floor(locals.summaryItemIndex / x[1])]);
+
+	.col(class=(locals.summaryItemIndex == (locals.summaryItemCount - 1) ? "mb-0" : "mb-3"), class=rowIndexes.map(x => `mb-${x[0]}-${(x[1] < (locals.rowCounts[x[0]] - 1) ? "4" : "0")}`))
+		//span.text-danger (#{JSON.stringify(locals.rowCounts)})
+		.text-start.text-md-center
+			+summaryTitle(title, titleDesc, subtitle, subtitleDesc, linkText, linkUrl, linkDesc)
+			
+
+		.lead.text-start.text-md-center
+			block
+
+	- locals.summaryItemIndex++;
+
+
+mixin copyTextButton(text)
+	small.ms-2
+		if (false)
+			a(href="javascript:void(0)", title="Copy", data-clipboard-text=text, data-bs-toggle="tooltip", onclick=`copyTextToClipboard("${text}"); $(".icon-copy").toggle(); $(this).find(".icon-copied").toggle(); setTimeout(() => { $(this).find(".icon-copy").toggle(); $(this).find(".icon-copied").toggle(); }, 2000); return false;`)
+				i.bi-clipboard2.text-info.icon-copy
+				i.bi-clipboard2-check.text-success.icon-copied(style="display: none;")
+
+		a(href="javascript:void(0)", title="Copy", data-clipboard-text=text, data-bs-toggle="tooltip", onclick=`copyTextToClipboard("${text}"); $(this).attr("title", "Copied!").tooltip("_fixTitle").tooltip("show"); $(this).mouseleave(function() { $(this).tooltip("hide"); $(this).attr("data-bs-original-title", "Copy"); });`)
+			i.fas.fa-clipboard.text-info
+
+
+mixin card
+	.card.mb-3.shadow-sm
+		.card-body
+			block
+
+
+mixin modal(modalId, title)
+	.modal.fade(id=modalId role="dialog" aria-hidden="true")
+		.modal-dialog.modal-xl(role="document")
+			.modal-content
+				.modal-header
+					h5.modal-title.fw-light #{title}
+
+					button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+
+				.modal-body
+					block
+
+				.modal-footer
+					button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Close
+
+
+
+mixin filterBtnGroup(label, labelSubtext, options, baseUrl, varName, varVal)
+	div
+		if (labelSubtext)
+			label.form-label.border-dotted(title=labelSubtext, data-bs-toggle="tooltip") #{label}
+		else
+			label.form-label #{label}
+
+	.btn-group.me-2(role="group")
+		each opt in options
+			if (varVal != null && varVal == opt[1])
+				span.btn.btn-primary #{opt[0]}
+			else
+				a.btn.btn-light.border(href=`${baseUrl}&${varName}=${opt[1]}`) #{opt[0]}
+
+
+mixin pillBadge(text, colorClass)
+	span.badge.rounded-pill.me-2(class=colorClass) #{text}
+		block
+
+mixin pillBadgeSuccess(text)
+	+pillBadge(text, "text-bg-success")
+		block
+
+mixin pillBadgeInfo(text)
+	+pillBadge(text, "text-bg-info")
+		block
+
+mixin pillBadgeWarning(text)
+	+pillBadge(text, "text-bg-warning")
+		block
+
+mixin pillBadgeDanger(text)
+	+pillBadge(text, "text-bg-danger")
+		block
+
+mixin pillBadgeLight(text)
+	+pillBadge(text, "text-bg-light")
+		block
+

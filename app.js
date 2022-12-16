@@ -242,6 +242,8 @@ app.use(function(req, res, next) {
 
 	res.locals.pageErrors = [];
 
+	res.locals.req = req;
+
 	var userAgent = req.headers['user-agent'];
 	for (var i = 0; i < crawlerBotUserAgentStrings.length; i++) {
 		if (userAgent.indexOf(crawlerBotUserAgentStrings[i]) != -1) {
@@ -408,6 +410,33 @@ app.locals.Decimal = Decimal;
 app.locals.utils = utils;
 app.locals.runes = runes;
 
+
+app.locals.assetUrl = (path) => {
+	// trim off leading "./"
+	let normalizedPath = path.substring(2);
+
+	//console.log("assetUrl: " + path + " -> " + normalizedPath);
+
+	//if (config.cdn.active && cdnFilepathMap[normalizedPath]) {
+	//	return `${config.cdn.baseUrl}/${global.cacheId}/${normalizedPath}`;
+
+	//} else {
+		return `${path}?v=${global.cacheId}`;
+	//}
+};
+
+// debug setting to skip js/css integrity checks
+const skipIntegrityChecks = true;
+const resourceIntegrityHashes = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/txt/resource-integrity.json")));
+
+app.locals.assetIntegrity = (filename) => {
+	if (!skipIntegrityChecks && resourceIntegrityHashes[filename]) {
+		return resourceIntegrityHashes[filename];
+
+	} else {
+		return "";
+	}
+};
 
 
 module.exports = app;

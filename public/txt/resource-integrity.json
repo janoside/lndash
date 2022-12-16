@@ -1,0 +1,15 @@
+{
+    "bootstrap.bundle.min.js": "sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4",
+    "bootstrap.min.js": "sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV",
+    "bundle.js": "sha384-6xPGtO4hUiRH7cJ/BdVA6pwU3LM7zoX9+e3pulNhvy4Gc4vHQXHkneAl6rW5Qe5F",
+    "coreui.min.js": "sha384-35fYtka2m6p806gMT3MOFnSrGtIuoOlUihnVRKOzzgTkXkGT+JiWea+vRGQ6fwVx",
+    "fontawesome.min.js": "sha384-sCgwm7cN2+PN5J6MEF+tnqkCY4Wc5WRcGU+I9b04LSQaPRMO09dnbrVilAWAbH1z",
+    "highlight.min.js": "sha384-xLrpH5gNLD6HMLgeDH1/p4FXigQ8T9mgNm+EKtCSXL0OJ5i1bnSi57dnwFuUMM9/",
+    "jdenticon.min.js": "sha384-fPaUZW/Ob7gbokmvLrYofHiZhjhp3bAPnUDCzwFlwtVhxciEkSWe8cLTYJAwHZPJ",
+    "jquery.min.js": "sha384-vtXRMe3mGCbOeY7l30aIg8H9p3GdeSe4IFlP6G8JMa7o7lXvnz3GFKzPxzJdPfGK",
+    "perfect-scrollbar.min.js": "sha384-kUOB3zJp3LsOIl65Vg10pHRNJUtopY0kS34T7UkILEgYVzN7fT77uxXWpH2Wa8jJ",
+    "popper.min.js": "sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN",
+    "site.js": "sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb",
+    "dark.css": "sha384-8RKitdItFo9jgvZ7iZXSy+uJWVdBRhYUlRBxVVwWjfePXRBYCxXhIM8qptWUcubG",
+    "light.css": "sha384-yxJy8SBuz0ugfkt1S2Yq/egnJAY2yol3/wwPc5ShwQZIshytbDbiCaHawT7uCmBu"
+}

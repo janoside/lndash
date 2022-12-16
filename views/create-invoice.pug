@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title Create Invoice
@@ -10,38 +10,41 @@ block breadcrumb
 	li.breadcrumb-item Create Invoice
 	
 block content
-	h1.h3 Create Invoice
-	hr
+	+pageTitle("Create Invoice")
+
 
 	if (createInvoiceResponse != null)
-		div.alert.alert-success
+		.alert.alert-success
 			h3.h5 Success
 
-			div.mb-3 Your invoice was created successfully
+			.mb-3 Your invoice was created successfully
 
-			div.form-group
-				label.font-weight-bold(for="payment_request") Payment Request
-				div.input-group
-					textarea.form-control.text-monospace #{createInvoiceResponse.payment_request}
 
-			div.mb-3
-				label.font-weight-bold QR Code
-				div.input-group
+			.mb-3
+				div Payment Request
+				span.h4.fw-light
+					| #{utils.ellipsizeMiddle(createInvoiceResponse.payment_request, 40)}
+					+copyTextButton(createInvoiceResponse.payment_request)
+
+			
+			.mb-3
+				label.form-label QR Code
+				.input-group
 					img(src=`/qrcode?data=${createInvoiceResponse.payment_request}` style="width: 300px; height: 300px;")
 
-			div.mb-3
-				span.font-weight-bold Hash (hex)
+			.mb-3
+				span.fw-bold Hash (hex)
 				br
-				span.text-monospace #{createInvoiceResponse.r_hash_hex}
+				span #{createInvoiceResponse.r_hash_hex}
 
-			div.mb-3
-				span.font-weight-bold Hash (base64)
+			.mb-3
+				span.fw-bold Hash (base64)
 				br
-				span.text-monospace #{createInvoiceResponse.r_hash_base64}
+				span #{createInvoiceResponse.r_hash_base64}
 			
 			if (false)
 				pre
-					code.json.bg-light #{JSON.stringify(createInvoiceResponse, null, 4)}
+					code.json #{JSON.stringify(createInvoiceResponse, null, 4)}
 
 	if (!session.admin)
 		- var loginRequiredNote = "allow you to create a new invoice.";
@@ -50,29 +53,29 @@ block content
 	else
 
 		form(method="post", action="/create-invoice")
-			div.form-group
-				label(for="memo") Memo
-				input.form-control.form-control-lg.text-monospace(type="text" id="memo" name="memo")
+			.mb-3
+				label.form-label(for="memo") Memo
+				input.form-control.form-control-lg(type="text" id="memo" name="memo")
 
-			div.row
-				div.col-md-2
-					div.form-group
-						label(for="amount") Amount
-						div.input-group
-							input.form-control.form-control-lg.text-monospace(type="number" id="amount" name="amount")
-							div.input-group-append
-								div.input-group-text.text-monospace sat
+			.d-flex
+				.mb-3
+					label.form-label(for="amount") Amount
 
-				div.col-md-2
-					div.form-group
-						label(for="expiration") Expiration
-						div.input-group
-							input.form-control.form-control-lg.text-monospace(type="number" id="expiration" name="expiration" value="24")
-							div.input-group-append
-								div.input-group-text.text-monospace hrs
+					.input-group
+						input.form-control.form-control-lg(type="number" id="amount" name="amount")
+						
+						.input-group-text sat
+
+				.mb-3.ms-3
+					label.form-label(for="expiration") Expiration
+					
+					.input-group
+						input.form-control.form-control-lg(type="number" id="expiration" name="expiration" value="24")
+						
+						.input-group-text hrs
 
 			button.btn.btn-primary(type="submit")
-				i.fas.fa-asterisk.mr-2
+				i.fas.fa-asterisk.me-2
 				span Create Invoice
 
 			

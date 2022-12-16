@@ -14,33 +14,33 @@ block content
 	hr
 
 	if (!getInfo && !listPeers)
-		div(class="alert alert-danger") No data available. Check your RPC connection.
+		.alert.alert-danger No data available. Check your RPC connection.
 
 	else
 
 		ul(class='nav nav-tabs mb-3')
 			li(class="nav-item")
-				a(data-toggle="tab", href="#tab-details", class="nav-link active", role="tab") Details
+				a(data-bs-toggle="tab", href="#tab-details", class="nav-link active", role="tab") Details
 			li(class="nav-item")
-				a(data-toggle="tab", href="#tab-json", class="nav-link", role="tab") JSON
+				a(data-bs-toggle="tab", href="#tab-json", class="nav-link", role="tab") JSON
 
 		div(class="tab-content")
 			div(id="tab-details", class="tab-pane active", role="tabpanel")
 
-				div.card.mb-3.shadow-sm
-					div.card-header
+				.card.mb-3.shadow-sm
+					.card-header
 						h2.h6.mb-0 Summary
-					div.card-body
+					.card-body
 						div(class="row")
 							div(class="col-md-8")
 								div(class="row")
-									div.summary-split-table-label Version
-									div.summary-split-table-content.text-monospace #{getInfo.version}
+									.summary-split-table-label Version
+									.summary-split-table-content #{getInfo.version}
 
 								div(class="col-md-6")
 								div(class="row")
-									div.summary-split-table-label URIs
-									div.summary-split-table-content.text-monospace
+									.summary-split-table-label URIs
+									.summary-split-table-content
 										each uri, index in getInfo.uris
 											if (getInfo.uris.length > 1)
 												span #{index + 1}: #{uri}
@@ -48,31 +48,31 @@ block content
 												span #{uri}
 
 								div(class="row")
-									div.summary-split-table-label Public Key
-									div.summary-split-table-content.text-monospace
+									.summary-split-table-label Public Key
+									.summary-split-table-content
 										a(href=("/node/" + getInfo.identity_pubkey)) #{getInfo.identity_pubkey}
 
 								div(class="row")
-									div.summary-split-table-label Alias
-									div.summary-split-table-content.text-monospace #{getInfo.alias}
+									.summary-split-table-label Alias
+									.summary-split-table-content #{getInfo.alias}
 
 								div(class="row")
-									div.summary-split-table-label Color
-									div.summary-split-table-content.text-monospace
+									.summary-split-table-label Color
+									.summary-split-table-content
 										- var node_color = fullNetworkDescription.nodeInfoByPubkey[getInfo.identity_pubkey].node.color;
 										include ./includes/node-color-swatch.pug
 										span #{node_color}
 
 								div(class="row")
-									div.summary-split-table-label Chains
-									div.summary-split-table-content.text-monospace
+									.summary-split-table-label Chains
+									.summary-split-table-content
 										each chain in getInfo.chains
 											span #{chain.chain}_#{chain.network}
 											br
 
 								div(class="row")
-									div.summary-split-table-label Block Hash
-									div.summary-split-table-content.text-monospace
+									.summary-split-table-label Block Hash
+									.summary-split-table-content
 										if (config.blockExplorerUrl)
 											a(href=(config.blockExplorerUrl + "/block/" + getInfo.block_hash), target="_blank") #{getInfo.block_hash}
 											br
@@ -83,13 +83,13 @@ block content
 											span(class="text-muted") (#{getInfo.block_height.toLocaleString()})
 
 								div(class="row")
-									div.summary-split-table-label Channels
-									div.summary-split-table-content.text-monospace #{parseInt(getInfo.num_active_channels).toLocaleString()}
+									.summary-split-table-label Channels
+									.summary-split-table-content #{parseInt(getInfo.num_active_channels).toLocaleString()}
 
 								if (getInfo.num_pending_channels > 0)
 									div(class="row")
-										div.summary-split-table-label Pending Channels
-										div.summary-split-table-content.text-monospace #{parseInt(getInfo.num_pending_channels).toLocaleString()}
+										.summary-split-table-label Pending Channels
+										.summary-split-table-content #{parseInt(getInfo.num_pending_channels).toLocaleString()}
 
 							div(class="col-md-4")
 								if (qrcodeUrls[getInfo.identity_pubkey])
@@ -105,8 +105,8 @@ block content
 										span(class="text-center monospace") URI
 
 
-				div.card.mb-3.shadow-sm
-					div.card-header
+				.card.mb-3.shadow-sm
+					.card-header
 						h2(class="h6 mb-0")
 							span #{listPeers.peers.length.toLocaleString()} 
 							if (listPeers.peers.length == 1)
@@ -114,7 +114,7 @@ block content
 							else
 								span Peers
 
-					div.card-body
+					.card-body
 						table(class="table table-responsive-sm")
 							thead
 								tr
@@ -124,9 +124,9 @@ block content
 									th Data Transfer
 									
 									th(class="text-center") Inbound?
-									th(class="text-right") Ping
+									th(class="text-end") Ping
 
-							tbody.text-monospace
+							tbody
 								each item in listPeers.peers
 									tr
 										td
@@ -139,12 +139,12 @@ block content
 											if (item.sat_recv == 0 && item.sat_sent == 0)
 												span -
 											else
-												i.fas.fa-sign-in-alt.mr-2
+												i.fas.fa-sign-in-alt.me-2
 												span #{parseInt(item.sat_recv).toLocaleString()} sat
 
 												br
 
-												i.fas.fa-sign-out-alt.mr-2
+												i.fas.fa-sign-out-alt.me-2
 												span #{parseInt(item.sat_sent).toLocaleString()}
 										
 										
@@ -152,12 +152,12 @@ block content
 										- var bytesRecvData = utils.formatLargeNumber(item.bytes_recv, 2);
 										
 										td
-											i.fas.fa-arrow-up.mr-2
+											i.fas.fa-arrow-up.me-2
 											span #{bytesSentData[0]} #{bytesSentData[1].abbreviation}B
 											
 											br
 
-											i.fas.fa-arrow-down.mr-2
+											i.fas.fa-arrow-down.me-2
 											span #{bytesRecvData[0]} #{bytesRecvData[1].abbreviation}B
 											
 
@@ -169,7 +169,7 @@ block content
 											else
 												i(class="fas fa-times")
 
-										td(class="text-right") #{parseInt(item.ping_time).toLocaleString()}
+										td(class="text-end") #{parseInt(item.ping_time).toLocaleString()}
 
 			div(id="tab-json", class="tab-pane", role="tabpanel")
 				if (getInfo)

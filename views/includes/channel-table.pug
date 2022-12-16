@@ -1,20 +1,20 @@
-div.table-responsive
-	table.text-body(class=("table " + (channelTableNotBordered ? "" : "table-bordered border-top")))
-		thead.bg-light
+.table-responsive
+	table.table.table-striped
+		thead
 			tr
-				th.text-right #
+				th.text-end #
 				th ID
 				th Node 1
 				th Node 2
-				th.text-right
+				th.text-end
 					if (sort == "openblockheight-desc")
-						span.border-dotted.mr-2(title="The height of the block that confirmed each channel's opening transaction" data-toggle="tooltip") Open Block Height
+						span.border-dotted.me-2(title="The height of the block that confirmed each channel's opening transaction" data-bs-toggle="tooltip") Open Block Height
 						i.fas.fa-arrow-down
 					else
-						span.border-dotted(title="The height of the block that confirmed each channel's opening transaction" data-toggle="tooltip") Open Block Height
+						span.border-dotted(title="The height of the block that confirmed each channel's opening transaction" data-bs-toggle="tooltip") Open Block Height
 
 				th Last Update
-				th(class="text-right") Capacity
+				th(class="text-end") Capacity
 		
 		tbody
 			each channel, index in channels

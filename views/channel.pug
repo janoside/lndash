@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title Channel #{channelId}
@@ -22,284 +22,338 @@ block breadcrumb
 	
 block content
 
-	h1.h3 Channel
-		br
-		small.text-monospace.word-wrap.mr-2 #{channelId}
 
-		if (channel)
-			- var localChannel = localChannels.byId && localChannels.byId[channel.channel_id];
-			- var localChannelStatus = null;
+	if (channel)
+		- var localChannel = localChannels.byId && localChannels.byId[channel.channel_id];
+		- var localChannelStatus = "Active";
 
-			if (localChannels.byId[channel.channel_id] && !localChannels.byId[channel.channel_id].active)
-				- localChannelStatus = "Inactive";
-			
-			if (!localChannel)
-				- localChannel = localClosedChannels.byId && localClosedChannels.byId[channel.channel_id];
+		if (localChannels.byId[channel.channel_id] && !localChannels.byId[channel.channel_id].active)
+			- localChannelStatus = "Inactive";
+		
+		if (!localChannel)
+			- localChannel = localClosedChannels.byId && localClosedChannels.byId[channel.channel_id];
 
-			if (!localChannel)
-				each waitingCloseChannel in localPendingChannels.waitingCloseChannels
-					if (waitingCloseChannel.channel.channel_point == channel.chan_point)
-						- localChannel = true;
-						- localChannelStatus = "Waiting to Close";
+		if (!localChannel)
+			each waitingCloseChannel in localPendingChannels.waitingCloseChannels
+				if (waitingCloseChannel.channel.channel_point == channel.chan_point)
+					- localChannel = true;
+					- localChannelStatus = "Waiting to Close";
+
+
+
+	+pageTitle("Channel", channelId, true)
+		span.h3
+			if (localChannelStatus) 
+				if (localChannelStatus == "Active")
+					span.badge.rounded-pill.text-bg-success.text-tiny.ms-2.align-text-bottom #{localChannelStatus}
+				
+				if (localChannelStatus == "Waiting to Close" || localChannelStatus == "Inactive")
+					span.badge.rounded-pill.text-bg-warning #{localChannelStatus}
+
+			if (localChannel.private)
+				span.badge.rounded-pill.text-bg-light.ms-2.align-text-bottom
+					span.me-2 Private
+					i.fas.fa-lock.text-success
 
 			if (localChannel)
-				i.fas.fa-certificate.fa-xs.text-primary.mr-2(title="Your LND node is one of the participants in this channel" data-toggle="tooltip")
+				span(title="Your LND node is one of the participants in this channel", data-bs-toggle="tooltip")
+					i.fas.fa-certificate.fa-sm.text-primary.ms-2
 
 			if (utils.isObjectStarred(`channel:${channelId}`))
-				i.fas.fa-star.text-warning.fa-xs(title="This is one of your favorite channels" data-toggle="tooltip")
-	hr
+				span(title="This is one of your favorite channels" data-bs-toggle="tooltip")
+					i.fas.fa-star.text-warning.fa-sm.ms-2
+
+	
+
 
 	if (false)
 		pre
 			code.json #{JSON.stringify(localPendingChannels, null, 4)}
 
 	if (channel == null)
-		div.alert.alert-warning.shadow-sm
+		.alert.alert-warning.shadow-sm
 			span Channel 
-			span.font-weight-bold #{channelId}
+			span.fw-bold #{channelId}
 			span : Not Found
 
 	else
+		- var channelPointParts = channel.chan_point.split(":");
+		- var channelPointTxid = channelPointParts[0];
+		- var channelPointIndex = channelPointParts[1];
 
 		ul.nav.nav-tabs.mb-3
 			li.nav-item
-				a.nav-link.active(data-toggle="tab" href="#tab-details" role="tab") Details
+				a.nav-link.active(data-bs-toggle="tab" href="#tab-details" role="tab") Details
 			li.nav-item
-				a.nav-link(data-toggle="tab"  href="#tab-json" role="tab") JSON
+				a.nav-link(data-bs-toggle="tab"  href="#tab-json" role="tab") JSON
 
-		div.tab-content
-			div.tab-pane.active(id="tab-details" role="tabpanel")
-				div.card.mb-3.shadow-sm
-					div.card-header
-						h2.h6.mb-0 Summary
+		.tab-content
+			.tab-pane.active(id="tab-details" role="tabpanel")
+				+contentSection("Summary")
+					if (localChannels.byId && localChannels.byId[channel.channel_id])
+						- var localChannel = localChannels.byId[channel.channel_id];
 
-					div.card-body
-						if (localChannelStatus)
-							div(class="row")
-								div(class="summary-table-label")
-									span Status
-								div.summary-table-content.text-monospace
-									if (localChannelStatus == "Waiting to Close" || localChannelStatus == "Inactive")
-										span.text-warning #{localChannelStatus}
+						- var currencyValue = new Decimal(localChannel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+						- var localBalancePercent = new Decimal(localChannel.local_balance).dividedBy(parseInt(localChannel.local_balance) + parseInt(localChannel.remote_balance)).times(100);
 
-						div(class="row")
-							div(class="summary-table-label")
-								span.border-dotted(title="The height of the block that confirmed the channel's opening transaction" data-toggle="tooltip") Opening Block
-							div.summary-table-content.text-monospace
-								if (config.blockExplorerUrl)
-									a(href=`${config.blockExplorerUrl}/block-height/${blockHeight}` target="_blank") #{blockHeight.toLocaleString()}
-								else
-									span #{blockHeight.toLocaleString()}
+						- var currencyValue = new Decimal(localChannel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+						- var remoteBalancePercent = new Decimal(localChannel.remote_balance).dividedBy(parseInt(localChannel.local_balance) + parseInt(localChannel.remote_balance)).times(100);
 
-						div(class="row")
-							div(class="summary-table-label")
-								span.border-dotted(title="On-chain transaction:output-index that opened this channel" data-toggle="tooltip") Channel Point
-							div.summary-table-content.text-monospace
-								- var channelPointParts = channel.chan_point.split(":");
-								- var channelPointTxid = channelPointParts[0];
-								- var channelPointIndex = channelPointParts[1];
 
-								if (config.blockExplorerUrl)
-									a(href=`${config.blockExplorerUrl}/tx/${channelPointTxid}`, target="_blank")
-										- var btc_txid = channelPointTxid;
-										include includes/btc-txid.pug
-
-									span  [#{channelPointIndex}]
-								else
-									span #{channel.chan_point}
-
-						div(class="row")
-							div(class="summary-table-label") Last Update
-							div.summary-table-content.text-monospace
-								- var timeAgoTime = channel.last_update;
-								- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timeAgoTime) * 1000))));
-								
-								span #{moment.utc(new Date(parseInt(channel.last_update) * 1000)).format("Y-MM-DD HH:mm:ss")} utc
-								br
-								span.text-muted #{timeAgo.humanize()} ago
-
-						div(class="row")
-							div(class="summary-table-label") Capacity
-							div.summary-table-content.text-monospace
-								- var currencyValue = new Decimal(channel.capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-								include ./includes/value-display.pug
-
-						if (localChannels.byId && localChannels.byId[channel.channel_id])
-							- var localChannel = localChannels.byId[channel.channel_id];
-
-							div(class="row")
-								div(class="summary-table-label") Balance
-								div.summary-table-content
-									div.clearfix
-										div.float-left.mr-5
-											div.font-weight-bold Local
-
+						.mb-3
+							+summaryRow(3)
+								+summaryItem
+									.d-flex.justify-content-center.mt-4
+										.me-3
+											span.badge.text-bg-primary Spendable
+										
+										div
 											- var currencyValue = new Decimal(localChannel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-											- var localBalancePercent = new Decimal(localChannel.local_balance).dividedBy(parseInt(localChannel.local_balance) + parseInt(localChannel.remote_balance)).times(100);
-											div.text-monospace
-												include includes/value-display.pug
+											include includes/value-display.pug
+											.text-muted.text-tiny (#{localBalancePercent.toDP(1)}%)
 
-												div.text-muted #{localBalancePercent.toDP(1)}%
+								+summaryItem
+									h6.fw-light.mb-3 Balances
 
-										div.float-left.mr-5
-											div.font-weight-bold Remote
+								+summaryItem
+									.d-flex.justify-content-center.mt-4
+										.me-3
+											span.badge.text-bg-info Receivable
 
+										div
 											- var currencyValue = new Decimal(localChannel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-											- var remoteBalancePercent = new Decimal(localChannel.remote_balance).dividedBy(parseInt(localChannel.local_balance) + parseInt(localChannel.remote_balance)).times(100);
+											include includes/value-display.pug
+											.text-muted.text-tiny (#{remoteBalancePercent.toDP(1)}%)
 
-											div.text-monospace
-												include includes/value-display.pug
 
-												div.text-muted #{remoteBalancePercent.toDP(1)}%
+						.progress(style="height: 25px;")
+							.progress-bar(role="progressbar", style=`width: ${localBalancePercent.toDP(0)}%;`, aria-valuenow=`${localBalancePercent.toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{localBalancePercent.toDP(1)}%
 
-							div(class="row")
-								div(class="summary-table-label") Value Transfer
-								div.summary-table-content.text-monospace
-									if (localChannel.total_satoshis_received == 0 && localChannel.total_satoshis_sent == 0)
-										span -
-									else
-										- var currencyValue = new Decimal(localChannel.total_satoshis_received).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										if (currencyValue > 0)
-											span.text-success
-												span +
-												include includes/value-display.pug
+							.progress-bar.bg-info(role="progressbar", style=`width: ${remoteBalancePercent.toDP(0)}%;`, aria-valuenow=`${remoteBalancePercent.toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{remoteBalancePercent.toDP(1)}%
 
-											br
 
-										span.text-danger
+						
+
+						hr.my-4
+
+
+					if (localChannels.byId && localChannels.byId[channel.channel_id])
+						- var localChannel = localChannels.byId[channel.channel_id];
+
+
+
+						- var currencyValue = new Decimal(localChannel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+						- var localBalancePercent = new Decimal(localChannel.local_balance).dividedBy(parseInt(localChannel.local_balance) + parseInt(localChannel.remote_balance)).times(100);
+
+						- var currencyValue = new Decimal(localChannel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+						- var remoteBalancePercent = new Decimal(localChannel.remote_balance).dividedBy(parseInt(localChannel.local_balance) + parseInt(localChannel.remote_balance)).times(100);
+
+
+						.mb-3
+							+summaryRow(3)
+								+summaryItem
+									.d-flex.justify-content-center.mt-4
+										.me-3
+											span.badge.text-bg-success Received
+										
+										div
+											- var currencyValue = new Decimal(localChannel.total_satoshis_received).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+											if (currencyValue > 0)
+												span.text-success
+													span +
+													include includes/value-display.pug
+
+												br
+
+								+summaryItem
+									h6.fw-light.mb-3 Value Transferred
+
+								+summaryItem
+									.d-flex.justify-content-center.mt-4
+										.me-3
+											span.badge.text-bg-danger Sent
+
+										div
 											- var currencyValue = new Decimal(localChannel.total_satoshis_sent).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 											if (currencyValue > 0)
 												span -
 												include includes/value-display.pug
 
-							div(class="row")
-								div(class="summary-table-label") Updates
-								div.summary-table-content.text-monospace #{parseInt(localChannel.num_updates).toLocaleString()}
 
-							if (localChannel.private)
-								div(class="row")
-									div(class="summary-table-label") Private
-									div.summary-table-content.text-monospace
-										div.text-success Yes 
-											i.fas.fa-lock
+						.progress(style="height: 25px;")
+							.progress-bar(role="progressbar", style=`width: ${localBalancePercent.toDP(0)}%;`, aria-valuenow=`${localBalancePercent.toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{localBalancePercent.toDP(1)}%
+
+							.progress-bar.bg-info(role="progressbar", style=`width: ${remoteBalancePercent.toDP(0)}%;`, aria-valuenow=`${remoteBalancePercent.toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{remoteBalancePercent.toDP(1)}%
+
+
+						
+
+						hr.my-4
+
+
+					+summaryRow(3 + (localChannelStatus ? 1 : 0))
+						+summaryItem("Last Update")
+							- var timeAgoTime = channel.last_update;
+							- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timeAgoTime) * 1000))));
+							
+							span #{moment.utc(new Date(parseInt(channel.last_update) * 1000)).format("Y-MM-DD HH:mm:ss")} utc
+							
+							.text-muted.text-tiny (#{timeAgo.humanize()})
+
+
+						+summaryItem("Capacity")
+							- var currencyValue = new Decimal(channel.capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+							include ./includes/value-display.pug
+
+
+						+summaryItem("Channel Point", "On-chain transaction:output-index that opened this channel.")
+							if (config.blockExplorerUrl)
+								a(href=`${config.blockExplorerUrl}/tx/${channelPointTxid}`, target="_blank")
+									- var btc_txid = channelPointTxid;
+									include includes/btc-txid.pug
+
+								span  [#{channelPointIndex}]
+							else
+								span #{channel.chan_point}
+
+							br
+
+							span.text-small.text-muted (in block
+								span.ms-2
+								if (config.blockExplorerUrl)
+									a(href=`${config.blockExplorerUrl}/block-height/${blockHeight}` target="_blank") #{blockHeight.toLocaleString()}
+								else
+									span #{blockHeight.toLocaleString()}
+								| )
+
+						if (localChannelStatus)
+							+summaryItem("Updates")
+								| #{parseInt(localChannel.num_updates).toLocaleString()}
+
+					
+							
+							
+
+
+
+
 									
 
-				div.card.mb-3.shadow-sm
-					div.card-header
-						h2.h6.mb-0 Tools
-					div.card-body
-						if (localChannels.byId[channel.channel_id])
-							if (session.admin)
-								include includes/close-channel-modal.pug
-								include includes/edit-channel-policies-modal.pug
+				+contentSection("Tools")
+					if (localChannels.byId[channel.channel_id])
+						if (session.admin)
+							include includes/edit-channel-policies-modal.pug
 
-								a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-toggle="modal" data-target="#closeChannelModal")
-									i.fas.fa-times.mr-2
-									span Close Channel...
-
-								a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`javascript:void(0)` data-toggle="modal" data-target="#updateChannelPoliciesModal")
-									i.fas.fa-pen.mr-2
-									span Edit Policies...
-
-							else
-								a.btn.btn-secondary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-toggle="tooltip" title="You need to log in to modify your channels." disabled)
-									i.fas.fa-times.mr-2
-									span Close Channel...
-
-								a.btn.btn-secondary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-md-inline-block(href=`javascript:void(0)` data-toggle="tooltip" title="You need to log in to modify your channels." disabled)
-									i.fas.fa-edit.mr-2
-									span Edit Policies...
-
-						if (utils.isObjectStarred(`channel:${channelId}`))
-							a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/tag?action=remove&tagType=star&objectId=channel:${channelId}` title="Remove this channel from your list of favorites" data-toggle="tooltip")
-								i.far.fa-star.mr-2
-								span Unstar Channel
+							a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`javascript:void(0)` data-bs-toggle="modal" data-bs-target="#updateChannelPoliciesModal")
+								i.fas.fa-pen.me-2
+								span Edit Policies...
 
 						else
-							a.btn.btn-primary.mr-0.mr-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/tag?action=add&tagType=star&objectId=channel:${channelId}` title="Add this channel to your list of favorites" data-toggle="tooltip")
-								i.fas.fa-star.mr-2
-								span Star Channel
+							a.btn.btn-secondary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-md-inline-block(href=`javascript:void(0)` data-bs-toggle="tooltip" title="You need to log in to modify your channels." disabled)
+								i.fas.fa-edit.me-2
+								span Edit Policies...
 
-				div.card.mb-3.shadow-sm
-					div.card-header
-						h2.h6.mb-0 Policies
-					div.card-body
-						table(class="table table-responsive-sm")
+					if (utils.isObjectStarred(`channel:${channelId}`))
+						a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/tag?action=remove&tagType=star&objectId=channel:${channelId}` title="Remove this channel from your list of favorites" data-bs-toggle="tooltip")
+							i.far.fa-star.me-2
+							span Unstar Channel
+
+					else
+						a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/tag?action=add&tagType=star&objectId=channel:${channelId}` title="Add this channel to your list of favorites" data-bs-toggle="tooltip")
+							i.fas.fa-star.me-2
+							span Star Channel
+
+
+					if (session.admin)
+						include includes/close-channel-modal.pug
+
+						a.btn.btn-danger.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#closeChannelModal")
+							i.fas.fa-times.me-2
+							span Close Channel...
+
+					else
+						a.btn.btn-danger.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-bs-toggle="tooltip" title="You need to log in to modify your channels." disabled)
+								i.fas.fa-times.me-2
+								span Close Channel...
+						
+
+				+contentSection("Policies")
+					.table-responsive-sm
+						table.table.table-striped.mb-0
 							thead
 								tr
-									th.text-right #
+									th.text-end #
 									th Node
-									th.text-right
-										span.border-dotted(title="The CLTV delta that will be applied to all forwarded HTLCs." data-toggle="tooltip") Time Lock Delta
-									th.text-right Min HTLC
-									th.text-right
-										span.border-dotted(title="The base fee in milli-satoshis that will be charged for each forwarded HTLC, regardless of payment size." data-toggle="tooltip") Base Fee
-									th.text-right
-										span.border-dotted(title="The fee rate that will be charged proportionally based on the value of each forwarded HTLC. The lowest possible rate is 1 milli-msat (0.000001)" data-toggle="tooltip") Fee Rate (milli-msat)
+									th.text-end
+										span.border-dotted(title="The CLTV delta that will be applied to all forwarded HTLCs." data-bs-toggle="tooltip") Time Lock Delta
+									th.text-end Min HTLC
+									th.text-end
+										span.border-dotted(title="The base fee in milli-satoshis that will be charged for each forwarded HTLC, regardless of payment size." data-bs-toggle="tooltip") Base Fee
+									th.text-end
+										span.border-dotted(title="The fee rate that will be charged proportionally based on the value of each forwarded HTLC. The lowest possible rate is 1 milli-msat (0.000001)" data-bs-toggle="tooltip") Fee Rate (milli-msat)
 							tbody
-								tr.text-monospace
-									th.text-right 1
+								tr
+									th.text-end 1
 									td
 										- var card_node_pubkey = channel.node1_pub;
 										include ./includes/node-card.pug
 
 									if (channel.node1_policy)
-										td.text-right #{parseInt(channel.node1_policy.time_lock_delta).toLocaleString()}
-										td.text-right #{parseInt(channel.node1_policy.min_htlc).toLocaleString()}
-										td.text-right
+										td.text-end #{parseInt(channel.node1_policy.time_lock_delta).toLocaleString()}
+										td.text-end #{parseInt(channel.node1_policy.min_htlc).toLocaleString()}
+										td.text-end
 											- var currencyValue = new Decimal(channel.node1_policy.fee_base_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
 											- var tempCurrencyFormatType = "msat";
 											include includes/value-display.pug
 											
-										td.text-right #{parseInt(channel.node1_policy.fee_rate_milli_msat).toLocaleString()}
+										td.text-end #{parseInt(channel.node1_policy.fee_rate_milli_msat).toLocaleString()}
 									else
-										td.text-right ?
-										td.text-right ?
-										td.text-right ?
-										td.text-right ?
-								tr.text-monospace
-									th.text-right 2
+										td.text-end ?
+										td.text-end ?
+										td.text-end ?
+										td.text-end ?
+								tr
+									th.text-end 2
 									td
 										- var card_node_pubkey = channel.node2_pub;
 										include ./includes/node-card.pug
 
 									if (channel.node2_policy)
-										td.text-right #{parseInt(channel.node2_policy.time_lock_delta).toLocaleString()}
-										td.text-right #{parseInt(channel.node2_policy.min_htlc).toLocaleString()}
-										td.text-right
+										td.text-end #{parseInt(channel.node2_policy.time_lock_delta).toLocaleString()}
+										td.text-end #{parseInt(channel.node2_policy.min_htlc).toLocaleString()}
+										td.text-end
 											- var currencyValue = new Decimal(channel.node2_policy.fee_base_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
 											- var tempCurrencyFormatType = "msat";
 											include includes/value-display.pug
 
-										td.text-right #{parseInt(channel.node2_policy.fee_rate_milli_msat).toLocaleString()}
+										td.text-end #{parseInt(channel.node2_policy.fee_rate_milli_msat).toLocaleString()}
 									else
-										td.text-right ?
-										td.text-right ?
-										td.text-right ?
-										td.text-right ?
+										td.text-end ?
+										td.text-end ?
+										td.text-end ?
+										td.text-end ?
 
-				div.card.mb-3.shadow-sm
-					div.card-header
-						h2.h6.mb-0 Node Details
-					div.card-body
-						- var nodes = [ node1, node2 ];
-						- var showTableNumbers = true;
-						include includes/node-details-table.pug
+						
+				+contentSection("Node Details")
+					- var nodes = [ node1, node2 ];
+					- var showTableNumbers = true;
+					include includes/node-details-table.pug
+						
 
 			div(id="tab-json", class="tab-pane", role="tabpanel")
 				h4 channelInfo
 				pre
-					code.json.bg-light #{JSON.stringify(channel, null, 4)}
+					code.json #{JSON.stringify(channel, null, 4)}
 
 				if (localChannels.byId[channel.channel_id])
 					h4 localChannelInfo
 					pre
-						code.json.bg-light #{JSON.stringify(localChannels.byId[channel.channel_id], null, 4)}
+						code.json #{JSON.stringify(localChannels.byId[channel.channel_id], null, 4)}
 
 				h4 node1Info
 				pre
-					code.json.bg-light #{JSON.stringify(node1, null, 4)}
+					code.json #{JSON.stringify(node1, null, 4)}
 
 				h4 node2Info
 				pre
-					code.json.bg-light #{JSON.stringify(node2, null, 4)}
+					code.json #{JSON.stringify(node2, null, 4)}

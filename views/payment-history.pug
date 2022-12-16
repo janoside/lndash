@@ -1,5 +1,4 @@
-
-extends layout4
+extends layout
 
 block headContent
 	title Payment History
@@ -20,66 +19,37 @@ block content
 
 	else
 
-		h1.h3 #{allPayments.length.toLocaleString()} 
-			if (allPayments.length == 1)
-				span Payment
-			else
-				span Payments
-
+		+pageTitle(`${allPayments.length.toLocaleString()} Payment${(allPayments.length == 1) ? "" : "s"}`)
 			if (allFilteredPayments.length < allPayments.length)
 				small.text-muted  (showing #{allFilteredPayments.length.toLocaleString()})
-		hr
 
-		div.card.mb-3.shadow-sm
-			div.card-body
-				div.clearfix
-					div.dropdown.mr-4.float-left
-						div Sort
-						button.btn.btn-primary.dropdown-toggle.mb-2.mb-lg-0(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-							span
-								if (sort == null || sort == "date-desc")
-									| Date, Newest first
-								else if (sort == "date-asc")
-									| Date, Oldest first
-								else if (sort == "value-desc")
-									| Value (highest first)
-								else if (sort == "dest-asc")
-									| Destination (by pubkey)
 
-						div.dropdown-menu(aria-labelledby="dropdownMenuButton")
-							a.dropdown-item(href=`/payment-history?sort=date-desc&date=${date}&limit=${opt}`) Date, Newest first
-							a.dropdown-item(href=`/payment-history?sort=date-asc&date=${date}&limit=${opt}`) Date, Oldest first
-							a.dropdown-item(href=`/payment-history?sort=value-desc&date=${date}&limit=${opt}`) Value (highest first)
-							a.dropdown-item(href=`/payment-history?sort=dest-asc&date=${date}&limit=${opt}`) Destination (by pubkey)
+		.card.mb-3.shadow-sm
+			.card-body
+				.d-flex
+					.me-3
+						- var sortOptions = [["Date", "date-desc"], ["Value", "value-desc"], ["Destination", "dest-desc"]];
 
-					div.mr-4.mb-2.mb-lg-0.float-left
-						div Time
-						- var createdFilterOptions = ["60 min", "24 hr", "7 day", "30 day", "All"];
-						div.btn-group.mr-2(role="group")
-							each opt in createdFilterOptions
-								if (date != null && date == opt.toLowerCase().replace(" ", "-"))
-									span.btn.btn-primary #{opt}
-								else
-									a.btn.btn-light.border(href=`/payment-history?sort=${sort}&date=${opt.replace(" ", "-")}&limit=${opt}`) #{opt}
+						+filterBtnGroup("Sort", null, sortOptions, `/payment-history?date=${date}&limit=${limit}`, "sort", sort)
 
-					div.mr-4.mb-2.mb-lg-0.float-left
-						div Page Size
-						- var pageSizeOptions = ["20", "50", "100"];
-						div.btn-group.mr-2(role="group")
-							each opt in pageSizeOptions
-								if (limit != null && limit == parseInt(opt))
-									span.btn.btn-primary #{opt}
-								else
-									a.btn.btn-light.border(href=`/payment-history?sort=${sort}&date=${date}&limit=${opt}`) #{opt}
+					.me-3.mb-2.mb-lg-0
+						- var createdFilterOptions = [["1h", "60-min"], ["24h", "24-hr"], ["7d", "7-day"], ["30d", "30-day"], ["All", "all"]];
+
+						+filterBtnGroup("Time", null, createdFilterOptions, `/payment-history?sort=${sort}&limit=${limit}`, "date", date)
+
+					.mb-2.mb-lg-0
+						- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
+
+						+filterBtnGroup("Page Size", null, pageSizeOptions, `/payment-history?sort=${sort}&date=${date}`, "limit", limit)
 
 				hr.my-3
 
 				div
 					if (allFilteredPayments.length > limit)
 						span Showing 
-						span.font-weight-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredPayments.length).toLocaleString()} 
+						span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredPayments.length).toLocaleString()} 
 						span of 
-						span.font-weight-bold #{allFilteredPayments.length.toLocaleString()} 
+						span.fw-bold #{allFilteredPayments.length.toLocaleString()} 
 						if (allPayments.length > allFilteredPayments.length)
 							span filtered 
 						span payment
@@ -88,7 +58,7 @@ block content
 
 					else if (allFilteredPayments.length > 0)
 						span Showing 
-						span.font-weight-bold #{allFilteredPayments.length.toLocaleString()} 
+						span.fw-bold #{allFilteredPayments.length.toLocaleString()} 
 						if (allPayments.length > allFilteredPayments.length)
 							span filtered 
 						span payment
@@ -96,7 +66,7 @@ block content
 							span s
 
 					else
-						div.alert.alert-warning.shadow-sm.mb-0 No matching payments
+						.alert.alert-warning.shadow-sm.mb-0 No matching payments
 
 				- var itemCount = allFilteredPayments.length;
 				if (itemCount > limit)
@@ -109,7 +79,7 @@ block content
 						- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
 					- }
 					
-					div.mt-2.mb-0
+					.mt-2.mb-0
 						include includes/pagination.pug
 
 
@@ -118,29 +88,30 @@ block content
 				each payment, paymentIndex in pagedFilteredPayments
 					include includes/payment-details-modal.pug
 
-				div.table-responsive
-					table.table.table-bordered.border-top
-						thead.bg-light
+				.table-responsive
+					table.table.table-striped
+						thead
 							tr
-								th.text-right #
+								th.text-end #
 								th Destination
+								th.text-end Value
 								th Date
 								th Hash
 
-								th(class="text-right") Hops
-								th(class="text-right") Fee
-								th(class="text-right") Value
+								th.text-end Hops
+								th.text-end Fee
+								
 
 								th Details
 						
 						tbody
 							each payment, paymentIndex in pagedFilteredPayments
-								tr.text-monospace.word-wrap
-									th.text-right #{(paymentIndex + offset + 1).toLocaleString()}
+								tr.word-wrap
+									th.text-end #{(paymentIndex + offset + 1).toLocaleString()}
 									
 									if (false)
 										td
-											span(title=payment.payment_preimage, data-toggle="tooltip") #{payment.payment_preimage.substring(0, 15)}
+											span(title=payment.payment_preimage, data-bs-toggle="tooltip") #{payment.payment_preimage.substring(0, 15)}
 
 									td
 										//pre
@@ -149,25 +120,25 @@ block content
 										- var card_node_pubkey = destinationNodePubkey;
 										include ./includes/node-card.pug
 
+									td.text-end(class="table-col-currencyvalue")
+										- var currencyValue = new Decimal(payment.value_msat).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(1000);
+										include ./includes/value-display.pug
+
 									td(class="table-col-time")
 										- var timestampTime = parseInt(payment.creation_date);
 										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timestampTime) * 1000))));
 										- var dateTimeUtc = moment.utc(new Date(parseInt(timestampTime) * 1000)).format("Y-MM-DD HH:mm:ss");
 
-										span.border-dotted(title=`${dateTimeUtc} utc` data-toggle="tooltip") #{timeAgo.format()} ago
+										span.border-dotted(title=`${dateTimeUtc} utc` data-bs-toggle="tooltip") #{timeAgo.format()} ago
 
 									td
-										span.border-dotted(title=payment.payment_hash, data-toggle="tooltip") #{payment.payment_hash.substring(0, 15)}
+										span.border-dotted(title=payment.payment_hash, data-bs-toggle="tooltip") #{payment.payment_hash.substring(0, 15)}
 
-									td(class="table-col-int text-right") #{payment.htlcs[0].route.hops.length.toLocaleString()}
+									td.text-end(class="table-col-int") #{payment.htlcs[0].route.hops.length.toLocaleString()}
 
-									td(class="table-col-currencyvalue text-right")
+									td.text-end(class="table-col-currencyvalue")
 										- var currencyValue = new Decimal(payment.fee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 										include ./includes/value-display.pug
 
-									td(class="table-col-currencyvalue text-right")
-										- var currencyValue = new Decimal(payment.value_msat).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(1000);
-										include ./includes/value-display.pug
-
 									td
-										a(href="javascript:void(0)" data-toggle="modal" data-target=("#paymentModal-" + paymentIndex)) Details
+										a(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#paymentModal-" + paymentIndex)) Details

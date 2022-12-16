@@ -1,13 +1,13 @@
-div.table-responsive
-	table.table.table-bordered.border-top
-		thead.bg-light
+.table-responsive
+	table.table.table-striped.mb-0
+		thead
 			tr
-				th.text-right #
+				th.text-end #
 				th Node
 				th Address
 				th Last Update
-				th(class="text-right") Channels
-				th(class="text-right") Capacity
+				th.text-end Channels
+				th.text-end Capacity
 		
 		tbody
 			each nodeInfo, index in nodeInfos

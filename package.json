@@ -4,7 +4,14 @@
   "private": false,
   "bin": "bin/cli.js",
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "integrity": "node ./bin/frontend-resource-integrity.js",
+    "css-light-debug": "sass --style expanded --source-map scss ./public/scss/light.scss ./public/style/light.css",
+    "css-dark-debug": "sass --style expanded --source-map scss ./public/scss/dark.scss ./public/style/dark.css",
+    "css-debug": "npm-run-all css-light-debug css-dark-debug",
+    "css-light": "sass --style compressed ./public/scss/light.scss ./public/style/light.css",
+    "css-dark": "sass --style compressed ./public/scss/dark.scss ./public/style/dark.css",
+    "css": "npm-run-all css-light css-dark"
   },
   "keywords": [
     "bitcoin",
@@ -24,6 +31,7 @@
     "axios": "^1.2.1",
     "base64url": "3.0.1",
     "body-parser": "^1.19.0",
+    "bootstrap": "^5.1.3",
     "cookie-parser": "^1.4.5",
     "crypto-js": "^4.1.1",
     "debug": "^4.3.2",
@@ -45,5 +53,9 @@
     "serve-favicon": "^2.5.0",
     "simple-git": "^3.15.1",
     "untildify": "^4.0.0"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "sass": "^1.51.0"
   }
 }

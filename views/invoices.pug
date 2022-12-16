@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title Invoices
@@ -10,6 +10,7 @@ block breadcrumb
 	li.breadcrumb-item Invoices
 
 block content
+
 	if (!session.admin)
 		h1.h3 Invoices
 		hr
@@ -19,151 +20,125 @@ block content
 
 	else
 
-		div.row
-			div.col-md-6
-				h1.h3 #{invoiceCount.toLocaleString()} 
-					if (invoiceCount == 1)
-						span Invoice
-					else
-						span Invoices
-
-					if (allFilteredInvoices.length < allInvoices.length)
-						small.text-muted  (showing #{allFilteredInvoices.length.toLocaleString()})
-			div.col-md-6.text-right
-				a.btn.btn-primary.mr-2(href="/create-invoice")
-					i.fas.fa-asterisk.mr-2
+		+pageTitle(`${invoiceCount.toLocaleString()} Invoice${(invoiceCount == 1) ? "" : "s"}`)
+			.text-end
+				a.btn.btn-primary.me-2(href="/create-invoice")
+					i.fas.fa-asterisk.me-2
 					span Create Invoice
+				
 
 				
-		hr
 
-		div.card.mb-3.shadow-sm
-			div.card-body
-				div.clearfix
-					div.dropdown.mr-4.float-left
-						div Sort
-						button.btn.btn-primary.dropdown-toggle.mb-2.mb-lg-0(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-							span
-								if (sort == null || sort == "created-desc")
-									| Created Date, Newest first
-								else if (sort == "created-asc")
-									| Created Date, Oldest first
-								else if (sort == "value-desc")
-									| Value, Highest first
-								else if (sort == "value-asc")
-									| Value, Lowest first
+		+card
+			.d-flex
+				.me-3
+					- var sortOptions = [["Date", "created-desc"], ["Value", "value-desc"]];
 
-						div.dropdown-menu(aria-labelledby="dropdownMenuButton")
-							a.dropdown-item(href=`/invoices?sort=created-desc&settled=${settled}&created=${created}&limit=${limit}`) Created Date, Newest first
-							a.dropdown-item(href=`/invoices?sort=created-asc&settled=${settled}&created=${created}&limit=${limit}`) Created Date, Oldest first
-							a.dropdown-item(href=`/invoices?sort=value-desc&settled=${settled}&created=${created}&limit=${limit}`) Value, Highest first
-							a.dropdown-item(href=`/invoices?sort=value-asc&settled=${settled}&created=${created}&limit=${limit}`) Value, Lowest first
+					+filterBtnGroup("Sort", null, sortOptions, `/invoices?settled=${settled}&created=${created}&limit=${limit}`, "sort", sort)
 
-					div.mr-4.mb-2.mb-lg-0.float-left
-						div Status
-						- var statusFilterOptions = ["Settled", "Unsettled", "All"];
-						div.btn-group.mr-2(role="group")
-							each opt in statusFilterOptions
-								if (settled != null && settled == opt.toLowerCase())
-									span.btn.btn-primary #{opt}
-								else
-									a.btn.btn-light.border(href=`/invoices?sort=${sort}&settled=${opt}&created=${created}&limit=${limit}`) #{opt}
 
-					div.mr-4.mb-2.mb-lg-0.float-left
-						div Time
-						- var createdFilterOptions = ["60 min", "24 hr", "7 day", "30 day", "All"];
-						div.btn-group.mr-2(role="group")
-							each opt in createdFilterOptions
-								if (created != null && created == opt.toLowerCase().replace(" ", "-"))
-									span.btn.btn-primary #{opt}
-								else
-									a.btn.btn-light.border(href=`/invoices?sort=${sort}&settled=${settled}&created=${opt.replace(" ", "-")}&limit=${limit}`) #{opt}
+				.me-3
+					- var statusFilterOptions = [["Settled", "settled"], ["Unsettled", "unsettled"], ["All", "all"]];
 
-					div.mr-4.mb-2.mb-lg-0.float-left
-						div Page Size
-						- var pageSizeOptions = ["20", "50", "100"];
-						div.btn-group.mr-2(role="group")
-							each opt in pageSizeOptions
-								if (limit != null && limit == parseInt(opt))
-									span.btn.btn-primary #{opt}
-								else
-									a.btn.btn-light.border(href=`/invoices?sort=${sort}&settled=${settled}&created=${created}&limit=${opt}`) #{opt}
+					+filterBtnGroup("Status", null, statusFilterOptions, `/invoices?sort=${sort}&created=${created}&limit=${limit}`, "settled", settled)
 
-				hr.my-3
+				.me-3
+					- var createdFilterOptions = [["1h", "60-min"], ["24h", "24-hr"], ["7d", "7-day"], ["30d", "30-day"], ["All", "all"]];
+
+					+filterBtnGroup("Time", null, createdFilterOptions, `/invoices?sort=${sort}&settled=${settled}&limit=${limit}`, "created", created)
 
 				div
-					if (allFilteredInvoices.length > limit)
-						span Showing 
-						span.font-weight-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredInvoices.length).toLocaleString()} 
-						span of 
-						span.font-weight-bold #{allFilteredInvoices.length.toLocaleString()} 
-						if (allInvoices.length > allFilteredInvoices.length)
-							span filtered 
-						span invoice
-						if (allFilteredInvoices.length != 1)
-							span s
+					- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
 
-					else if (allFilteredInvoices.length > 0)
-						span Showing 
-						span.font-weight-bold #{allFilteredInvoices.length.toLocaleString()} 
-						if (allInvoices.length > allFilteredInvoices.length)
-							span filtered 
+					+filterBtnGroup("Page Size", null, pageSizeOptions, `/invoices?sort=${sort}&settled=${settled}&created=${created}`, "limit", limit)
 
-						span invoice
-						if (allFilteredInvoices.length > 1)
-							span s
-					else
-						div.alert.alert-warning.shadow-sm.mb-0 No matching invoices
+			hr.my-3
 
-				- var itemCount = allFilteredInvoices.length;
-				if (itemCount > limit)
-					- var pageNumber = offset / limit + 1;
-					- var pageCount = Math.floor(itemCount / limit);
-					- if (pageCount * limit < itemCount) {
-						- pageCount++;
-					- }
-					- var paginationUrlFunction = function(x) {
-						- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
-					- }
-					
-					div.mt-2.mb-0
-						include includes/pagination.pug
+			div
+				if (allFilteredInvoices.length > limit)
+					span Showing 
+					span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredInvoices.length).toLocaleString()} 
+					span of 
+					span.fw-bold #{allFilteredInvoices.length.toLocaleString()} 
+					if (allInvoices.length > allFilteredInvoices.length)
+						span filtered 
+					span invoice
+					if (allFilteredInvoices.length != 1)
+						span s
+
+				else if (allFilteredInvoices.length > 0)
+					span Showing 
+					span.fw-bold #{allFilteredInvoices.length.toLocaleString()} 
+					if (allInvoices.length > allFilteredInvoices.length)
+						span filtered 
+
+					span invoice
+					if (allFilteredInvoices.length > 1)
+						span s
+				else
+					.alert.alert-warning.shadow-sm.mb-0 No matching invoices
+
+			- var itemCount = allFilteredInvoices.length;
+			if (itemCount > limit)
+				- var pageNumber = offset / limit + 1;
+				- var pageCount = Math.floor(itemCount / limit);
+				- if (pageCount * limit < itemCount) {
+					- pageCount++;
+				- }
+				- var paginationUrlFunction = function(x) {
+					- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
+				- }
+				
+				.mt-2.mb-0
+					include includes/pagination.pug
 
 		if (true)
 			if (allFilteredInvoices.length > 0)
 				each invoice, invoice_index in pagedFilteredInvoices
 					include includes/invoice-details-modal.pug
 					
-				div.table-responsive
-					table.table.table-bordered.border-top
-						thead.bg-light
+				.table-responsive
+					table.table.table-striped
+						thead
 							tr
-								th.text-right #
-								th Description
+								th.text-end #
+								th Invoice
+								
+								th.text-end Value
 								th Date
-								th.text-right Value
 								
 								if (false)
 									th
-										span.border-dotted(title="Whether a payment has been recieved for the invoice" data-toggle="tooltip") Settled
+										span.border-dotted(title="Whether a payment has been recieved for the invoice" data-bs-toggle="tooltip") Settled
 
 								th Details
 						
 						tbody
 							each invoice, invoice_index in pagedFilteredInvoices
-								tr.text-monospace.word-wrap
-									th.text-right #{(sort == "desc" ? (invoiceCount - invoice_index) : (offset + invoice_index + 1)).toLocaleString()}
+								tr.word-wrap
+									th.text-end #{(sort == "desc" ? (invoiceCount - invoice_index) : (offset + invoice_index + 1)).toLocaleString()}
 
 									td
-										span.mr-2(title=("Status: " + invoice.state) data-toggle="tooltip")
-											if (invoice.state == "CANCELED")
-												i.fas.fa-circle.text-danger
+										if (invoice.state == "CANCELED")
+											+pillBadgeDanger("Cancelled")
 
-											else if (invoice.state == "SETTLED")
-												i.fas.fa-circle.text-success
+										else if (invoice.state == "SETTLED")
+											+pillBadgeSuccess("Settled")
+
+										else
+											+pillBadgeWarning(invoice.state)
+
+										
+										span.me-2
+											if (settled)
+												- var currencyValue = new Decimal(invoice.amt_paid_sat).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+												include ./includes/value-display.pug
 
 											else
-												i.fas.fa-circle.text-warning
+												- var currencyValue = new Decimal(invoice.value).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+												include ./includes/value-display.pug
+
+											span.ms-2 -
 
 										if (invoice.memo)
 											span #{invoice.memo}
@@ -175,9 +150,9 @@ block content
 										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(createdAtTime) * 1000))));
 										- var dateTimeUtc = moment.utc(new Date(parseInt(createdAtTime) * 1000)).format("Y-MM-DD HH:mm:ss");
 
-										span.border-dotted(title=(dateTimeUtc + " utc") data-toggle="tooltip") #{timeAgo.humanize()} ago
+										span.border-dotted(title=(dateTimeUtc + " utc") data-bs-toggle="tooltip") #{timeAgo.humanize()} ago
 
-									td.text-right
+									td.text-end
 
 										- var valueColorClass = "text-muted";
 										- var settled = false;
@@ -185,7 +160,7 @@ block content
 											// keep default muted
 
 										else if (invoice.state == "SETTLED")
-											- valueColorClass = "text-success font-weight-bold";
+											- valueColorClass = "text-success fw-bold";
 											- settled = true;
 
 										else
@@ -203,29 +178,7 @@ block content
 												- var currencyValue = new Decimal(invoice.value).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 												include ./includes/value-display.pug
 
-									if (false)
-										td
-											if (invoice.settled)
-												i.fas.fa-check.text-success.mr-2
-												span.text-success Yes
-
-
-												if (false)
-													div.clearfix
-														div.float-left.mr-4
-															
-														div.float-left
-															- var settleTime = parseInt(invoice.settle_date);
-															- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(settleTime) * 1000))));
-															- var dateTimeUtc = moment.utc(new Date(parseInt(settleTime) * 1000)).format("Y-MM-DD HH:mm:ss");
-
-															span #{dateTimeUtc} utc
-															br
-															span.text-muted #{timeAgo.humanize()} ago
-
-											else
-												span.text-muted -
-
+									
 									td
-										a(href="javascript:void(0)" data-toggle="modal" data-target=("#invoiceModal-" + invoice_index)) Details
+										a(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#invoiceModal-" + invoice_index)) Details
 

@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title LND Admin
@@ -10,13 +10,13 @@ block content
 	if (fullNetworkDescription)
 		if (session.hideHomepageBanner != "true")
 			if (global.newAppVersion)
-				div.alert.alert-primary.alert-dismissible.shadow-sm.mb-3
+				.alert.alert-primary.alert-dismissible.shadow-sm.mb-3
 					span You're running LND Admin v#{global.appVersion}. A newer version is available: 
 					a(href="https://www.npmjs.com/package/lnd-admin") LND Admin v#{global.newAppVersion}
 
-			div.alert.alert-primary.alert-dismissible.shadow-sm.mb-3(role="alert")
+			.alert.alert-primary.alert-dismissible.shadow-sm.mb-3(role="alert")
 				p
-					span.font-weight-bold LND Admin
+					span.fw-bold LND Admin
 					span  is 
 					a(href="https://github.com/janoside/lnd-admin" target="_blank") open-source
 					span  and easy to set up. It communicates with your 
@@ -26,31 +26,30 @@ block content
 					span  for a list of features and instructions for running.
 
 				if (global.sourcecodeProjectMetadata)
-					div.mt-2.mb-2
-						a.btn.btn-primary.mr-3.mb-1(href="https://github.com/janoside/lnd-admin")
-							i.fas.fa-star.mr-2
-							span.mr-2 Star 
+					.mt-2.mb-2
+						a.btn.btn-primary.me-3.mb-1(href="https://github.com/janoside/lnd-admin")
+							i.fas.fa-star.me-2
+							span.me-2 Star 
 							span.badge.bg-white.text-dark #{global.sourcecodeProjectMetadata.stargazers_count}
 
-						a.btn.btn-primary.mr-3.mb-1(href="https://github.com/janoside/lnd-admin/fork")
-							i.fas.fa-code-branch.mr-2
-							span.mr-2 Fork 
+						a.btn.btn-primary.me-3.mb-1(href="https://github.com/janoside/lnd-admin/fork")
+							i.fas.fa-code-branch.me-2
+							span.me-2 Fork 
 							span.badge.bg-white.text-dark #{global.sourcecodeProjectMetadata.forks_count}
 
 						a.btn.btn-primary.btn.btn-primary.mb-1(href=config.donations.btcpayserver.host target="_blank")
-							i(class="fas fa-heart mr-2")
+							i(class="fas fa-heart me-2")
 							span Donate
 
 				div
-					a.mr-2(href="https://www.npmjs.com/package/lnd-admin" rel="nofollow" target="_blank")
+					a.me-2(href="https://www.npmjs.com/package/lnd-admin" rel="nofollow" target="_blank")
 						img(src="https://camo.githubusercontent.com/dca2e8f947987c994c021fedf0da14f740220773/68747470733a2f2f696d672e736869656c64732e696f2f6e706d2f762f6c6e642d61646d696e2e7376673f7374796c653d666c6174" alt="npm version" data-canonical-src="https://img.shields.io/npm/v/lnd-admin.svg?style=flat" style="max-width:100%;")
 
 					a(href="https://npmcharts.com/compare/lnd-admin?minimal=true" rel="nofollow" target="_blank")
 						img(src="https://camo.githubusercontent.com/015986f601eae0e28a983728259ccb96ce042511/687474703a2f2f696d672e736869656c64732e696f2f6e706d2f646d2f6c6e642d61646d696e2e7376673f7374796c653d666c6174" alt="NPM downloads" data-canonical-src="http://img.shields.io/npm/dm/lnd-admin.svg?style=flat" style="max-width:100%;")
 
 
-				a.close(href="/changeSetting?name=hideHomepageBanner&value=true" aria-label="Close" style="text-decoration: none;")
-					span(aria-hidden="true") &times;
+				a.btn-close(href="/changeSetting?name=hideHomepageBanner&value=true" aria-label="Close" style="text-decoration: none;")
 				
 		
 		- var totalCapacity = 0;
@@ -62,245 +61,221 @@ block content
 		if (networkSummaryItemCount > 6)
 			- networkSummaryColumnClass = "col-md-3";
 
-		style.
-			#node-details-table th {
-				max-width: 200px !important;
-			}
 
-		div.row
-			div.col-md-6
-				div.card.mb-3.shadow-sm
-					div.card-header
-						h2.h6.mb-0 My Node Summary
-					div.card-body
-						if (true)
-							div(class="row")
-								div.summary-split-table-label
-									span.border-dotted(title="This card shows the basic details of your node, and the format is used throughout this app. The image is derived from the node's public key and the color for the outer ring is the node's 'color' property. The first N characters of the public key and the alias are also displayed.", data-toggle="tooltip") Node
-								div.summary-split-table-content.text-monospace
-									div.clearfix
-										div.card.float-left
-											div.card-body
-												- var card_node_pubkey = lndRpc.internal_pubkey;
-												include includes/node-card.pug
+		+sectionTitle("My Node", false, null, null, null, "This card shows the basic details of your node, and the format is used throughout this app. The image is derived from the node's public key and the color for the outer ring is the node's 'color' property. The first N characters of the public key and the alias are also displayed.")
 
-							if (false)
-								div(class="row")
-									div.summary-split-table-label Public Key
-									div.summary-split-table-content.text-monospace
-										a(href=`/node/${lndRpc.internal_pubkey}`) #{lndRpc.internal_pubkey}
+		.d-flex.mt-3.lead.mb-section
+			+card
+				- var card_node_pubkey = lndRpc.internal_pubkey;
+				include includes/node-card.pug
 
-								div(class="row")
-									div.summary-split-table-label Alias
-									div.summary-split-table-content.text-monospace #{lndRpc.internal_alias}
+		+contentSection("Node Summary")
+			if (false)
+				div(class="row")
+					.summary-split-table-label Public Key
+					.summary-split-table-content
+						a(href=`/node/${lndRpc.internal_pubkey}`) #{lndRpc.internal_pubkey}
 
-								div(class="row")
-									div.summary-split-table-label Color
-									div.summary-split-table-content.text-monospace
-										- var node_color = fullNetworkDescription.nodeInfoByPubkey[lndRpc.internal_pubkey].node.color;
-										include ./includes/node-color-swatch.pug
-										span #{node_color}
+			
 
-							div(class="row")
-								if (getInfo)
-									- var versionParts = getInfo.version.split(" ");
-									div.summary-split-table-label LND Version
-									div.summary-split-table-content.text-monospace
-										each versionPart in versionParts
-											span #{versionPart}
-											br
 
-							if (false)
-								div(class="col-md-6")
-								div(class="row")
-									div.summary-split-table-label URIs
-									div.summary-split-table-content.text-monospace
-										each uri, index in getInfo.uris
-											if (getInfo.uris.length > 1)
-												span #{index + 1}: #{uri}
-											else
-												span #{uri}
+			+summaryRow(3)
+				+summaryItem("On-Chain Balance")
+					if (walletBalance)
+						- var currencyValue = new Decimal(parseInt(walletBalance.confirmed_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+						if (currencyValue > 0)
+							div
+								include includes/value-display.pug
 
-							div(class="row")
-								div.summary-split-table-label
-									if (getInfo.chains.length == 1)
-										span Chain
-									else
-										span Chains
-								div.summary-split-table-content.text-monospace
-									each chain in getInfo.chains
-										span #{chain.chain} (#{chain.network})
-										br
+						else
+							span.text-warning None
 
-							div(class="row")
-								div.summary-split-table-label Current Block
-								div.summary-split-table-content.text-monospace
-									if (config.blockExplorerUrl)
-										a(href=(config.blockExplorerUrl + "/block/" + getInfo.block_hash), target="_blank") ##{getInfo.block_height.toLocaleString()}
-										span.text-muted  (
-											if (getInfo.synced_to_chain)
-												span.text-muted synchronized
-											else
-												span.text-danger not synchronized
+						- var currencyValue = new Decimal(parseInt(walletBalance.unconfirmed_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+						if (currencyValue > 0)
+							.text-muted
+								include includes/value-display.pug
+								span  (unconfirmed)
 
-											span )
+					else
+						span.text-warning.border-dotted(title="Error loading wallet balance. See Error Log for details." data-bs-toggle="tooltip") Unknown
 
-									else
-										span #{getInfo.block_hash}
-										br
-										span(class="text-muted") (#{getInfo.block_height.toLocaleString()})
+				
+				+summaryItem("Channels")
+					if (getInfo)
+						span.text-success Active:
+						span.ms-2
+							if (parseInt(getInfo.num_active_channels) > 0)
+								span.text-success #{parseInt(getInfo.num_active_channels).toLocaleString()}
 
-							hr
+							else
+								span.text-warning None
 
-							div(class="row")
-								div.summary-split-table-label On-Chain Balance
-								div.summary-split-table-content.text-monospace
-									if (walletBalance)
-										- var currencyValue = new Decimal(parseInt(walletBalance.confirmed_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										if (currencyValue > 0)
-											div
-												include includes/value-display.pug
+						if (getInfo.num_pending_channels > 0 || getInfo.num_inactive_channels > 0)
+							span.text-muted  (
+								if (getInfo.num_pending_channels > 0)
+									span #{parseInt(getInfo.num_pending_channels).toLocaleString()} pending
 
-										- var currencyValue = new Decimal(parseInt(walletBalance.unconfirmed_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										if (currencyValue > 0)
-											div.text-muted
-												include includes/value-display.pug
-												span  (unconfirmed)
+									if (getInfo.num_inactive_channels > 0)
+										span , 
 
-									else
-										span.text-warning.border-dotted(title="Error loading wallet balance. See Error Log for details." data-toggle="tooltip") Unknown
+								if (getInfo.num_inactive_channels > 0)
+									span #{parseInt(getInfo.num_inactive_channels).toLocaleString()} inactive
+								span )
 
-							hr
+					else
+						span.text-warning.border-dotted(title="Error loading channel info. See Error Log for details." data-bs-toggle="tooltip") Unknown
 
-							div(class="row")
-								div.summary-split-table-label Channels
-								div.summary-split-table-content.text-monospace
-									if (getInfo)
-										span #{parseInt(getInfo.num_active_channels).toLocaleString()} active
 
-										if (getInfo.num_pending_channels > 0 || getInfo.num_inactive_channels > 0)
-											span.text-muted  (
-												if (getInfo.num_pending_channels > 0)
-													span #{parseInt(getInfo.num_pending_channels).toLocaleString()} pending
+				+summaryItem("Channel Balances")
+					div
+						span.border-dotted.me-2(title="Local, spendable balance across all of your channels.", data-bs-toggle="tooltip") Spendable
 
-													if (getInfo.num_inactive_channels > 0)
-														span , 
+						- var currencyValue = new Decimal(totalLocalBalance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 
-												if (getInfo.num_inactive_channels > 0)
-													span #{parseInt(getInfo.num_inactive_channels).toLocaleString()} inactive
-												span )
+						if (currencyValue > 0)
+							- var localBalancePercent = new Decimal(totalLocalBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
 
-									else
-										span.text-warning.border-dotted(title="Error loading channel info. See Error Log for details." data-toggle="tooltip") Unknown
+						include includes/value-display.pug
+						
+						if (currencyValue > 0)
+							span.text-muted.text-tiny.ms-2 (#{localBalancePercent.toDP(1)}%)
 
-							div(class="row")
-								div.summary-split-table-label Channel Balance
-								div.summary-split-table-content
-									div.clearfix
-										
-										div.float-left(style="width: 8rem;")
-											div.font-weight-bold Local
+					div
+						span.border-dotted.me-2(title="Total receivable balance on the remote side of all of your channels.", data-bs-toggle="tooltip") Receivable
+						
+						- var currencyValue = new Decimal(parseInt(totalRemoteBalance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 
-											div.text-monospace
-												- var currencyValue = new Decimal(totalLocalBalance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+						if (currencyValue > 0)
+							- var remoteBalancePercent = new Decimal(totalRemoteBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
 
-												if (currencyValue > 0)
-													- var localBalancePercent = new Decimal(totalLocalBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
+						include includes/value-display.pug
+						
+						if (currencyValue > 0)
+							span.text-muted.text-tiny.ms-2 (#{remoteBalancePercent.toDP(1)}%)
 
-												include includes/value-display.pug
-												
-												if (currencyValue > 0)
-													div.text-muted #{localBalancePercent.toDP(1)}%
 
-										div.float-left(style="width: 8rem;")
-											div.font-weight-bold Remote
 
-											div.text-monospace
-												- var currencyValue = new Decimal(parseInt(totalRemoteBalance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+			hr.my-4
 
-												if (currencyValue > 0)
-													- var remoteBalancePercent = new Decimal(totalRemoteBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
 
-												include includes/value-display.pug
-												
-												if (currencyValue > 0)
-													div.text-muted #{remoteBalancePercent.toDP(1)}%
 
-							if (false)
-								div.row
-									div.summary-split-table-label
-										span.border-dotted(title="This image is derived from the node's public key and should be unique to this node. The color for the outer ring is the node's 'color' property.", data-toggle="tooltip") Icon
-									div.summary-split-table-content
-										- var node_pubkey = getInfo.identity_pubkey;
-										include includes/node-icon.pug
+			+summaryRow(3)
+				+summaryItem("LND Version")
+					if (getInfo)
+						- var versionParts = getInfo.version.split(" ");
+						each versionPart in versionParts
+							span #{versionPart}
+							br
+					else
+						| Unknown
 
-			div.col-md-6
-				div(class="card mb-4 shadow-sm")
-					div.card-header
-						h2.h6.mb-0
-							span.border-dotted(title="This summary is for the public network from the point of view of your current node." data-toggle="tooltip") Public Network Summary
-					div.card-body
+				+summaryItem(`Chain${getInfo.chains.length > 1 ? "s" : ""}`)
+					each chain in getInfo.chains
+						span #{chain.chain} (#{chain.network})
+						br
 
-						div(class="row")
-							- var currencyValue = new Decimal(totalCapacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-							div.summary-split-table-label Total Capacity
-							div.summary-split-table-content.text-monospace
-								include ./includes/value-display.pug
 
-						div(class="row")
-							div.summary-split-table-label Nodes
-							div.summary-split-table-content.text-monospace
-								span #{fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()}
+				+summaryItem("Current Block")
+					if (config.blockExplorerUrl)
+						a(href=(config.blockExplorerUrl + "/block/" + getInfo.block_hash), target="_blank") ##{getInfo.block_height.toLocaleString()}
+						.text-muted.text-tiny (
+							if (getInfo.synced_to_chain)
+								span.text-muted synchronized
+							else
+								span.text-danger not synchronized
 
-						div(class="row")
-							div.summary-split-table-label Channels
-							div.summary-split-table-content.text-monospace
-								span #{fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()}
+							span )
 
-						div(class="row")
-							- var currencyValue = new Decimal(totalCapacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(fullNetworkDescription.channels.sortedByLastUpdate.length);
-							div.summary-split-table-label Avg Channel Capacity
-							div.summary-split-table-content.text-monospace
-								include ./includes/value-display.pug
+					else
+						span #{getInfo.block_hash}
+						br
+						span(class="text-muted") (#{getInfo.block_height.toLocaleString()})
 
-						div(class="row")
-							div.summary-split-table-label Out Degree
-							div.summary-split-table-content.text-monospace
-								div.clearfix
-									div.float-left(style="width: 8rem;")
-										div.font-weight-bold Average
-										div #{new Decimal(networkInfo.avg_out_degree).toDP(2)}
-									div.float-left(style="width: 8rem;")
-										div.font-weight-bold Max
-										div #{new Decimal(networkInfo.max_out_degree).toDP(2)}
 
-						div(class="row")
-							div.summary-split-table-label
-								span.border-dotted(title="Min/max allowable channel sizes" data-toggle="tooltip") Channel Sizes
-							div.summary-split-table-content.text-monospace
-								div.clearfix
-									div.float-left(style="width: 8rem;")
-										div.font-weight-bold Min
-										div
-											- var currencyValue = new Decimal(networkInfo.min_channel_size).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-											include includes/value-display.pug
+			
 
-									div.float-left(style="width: 8rem;")
-										div.font-weight-bold Max
-										div
-											- var currencyValue = new Decimal(networkInfo.max_channel_size).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-											include includes/value-display.pug
+			if (false)
+				div(class="col-md-6")
+				div(class="row")
+					.summary-split-table-label URIs
+					.summary-split-table-content
+						each uri, index in getInfo.uris
+							if (getInfo.uris.length > 1)
+								span #{index + 1}: #{uri}
+							else
+								span #{uri}
 
-						if (false)
-							hr
+		
 
-							pre
-								code.json #{JSON.stringify(networkInfo, null, 4)}
+			
+			
+
+								
+
+			if (false)
+				.row
+					.summary-split-table-label
+						span.border-dotted(title="This image is derived from the node's public key and should be unique to this node. The color for the outer ring is the node's 'color' property.", data-bs-toggle="tooltip") Icon
+					.summary-split-table-content
+						- var node_pubkey = getInfo.identity_pubkey;
+						include includes/node-icon.pug
+
+		
+
+		// "This summary is for the public network from the point of view of your current node."
+		+contentSection("Public Network Summary")
+			+summaryRow(4)
+				+summaryItem("Total Capacity")
+					- var currencyValue = new Decimal(totalCapacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+					include ./includes/value-display.pug
+
+				+summaryItem("Nodes")
+					span #{fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()}
+
+				+summaryItem("Channels")
+					span #{fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()}
+
+				+summaryItem("Avg Channel Capacity")
+					- var currencyValue = new Decimal(totalCapacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(fullNetworkDescription.channels.sortedByLastUpdate.length);
+
+					include ./includes/value-display.pug
+			
+			hr.my-4
+
+
+			+summaryRow(2)
+				+summaryItem("Out Degree Stats")
+					span #{new Decimal(networkInfo.avg_out_degree).toDP(2)}
+					span.text-muted.text-tiny.ms-1 (avg)
+					span.text-muted.mx-2 /
+					span #{new Decimal(networkInfo.max_out_degree).toDP(2)}
+					span.text-muted.text-tiny.ms-1 (max)
+
+				+summaryItem("Channel Sizes", "Min / max allowed channel size.", "sat")
+					- var currencyValue = new Decimal(networkInfo.min_channel_size).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+					include includes/value-display.pug
+
+					span.text-muted.text-tiny.ms-1 (min)
+					span.text-muted.mx-2 /
+					
+					- var currencyValue = new Decimal(networkInfo.max_channel_size).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+					include includes/value-display.pug
+					
+					span.text-muted.text-tiny.ms-1 (max)
+					
+					
+
+			
+			if (false)
+				hr
+
+				pre
+					code.json #{JSON.stringify(networkInfo, null, 4)}
 
 
 		if (false)
 			div(class="card mb-4 shadow-sm")
-				div.card-header
+				.card-header
 					div(class="row")
 						div(class="col")
 							h2.h6.mb-0 #{fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()} 
@@ -314,19 +289,19 @@ block content
 								a(href="/nodes")
 									span  Browse Nodes &raquo;
 
-				div.card-body
-					div.row
-						div.col-md-4
+				.card-body
+					.row
+						.col-md-4
 							h3.h4 Recently Updated
 							- var nodeInfos = fullNetworkDescription.nodes.sortedByLastUpdate.slice(0, 5);
 							include includes/node-card-list.pug
 
-						div.col-md-4
+						.col-md-4
 							h3.h4 Top Channel Count
 							- var nodeInfos = fullNetworkDescription.nodes.sortedByChannelCount.slice(0, 5);
 							include includes/node-card-list.pug
 
-						div.col-md-4
+						.col-md-4
 							h3.h4 Top Capacity
 							- var nodeInfos = fullNetworkDescription.nodes.sortedByTotalCapacity.slice(0, 5);
 							include includes/node-card-list.pug
@@ -334,7 +309,7 @@ block content
 
 		if (false)
 			div(class="card mb-4 shadow-sm")
-				div.card-header
+				.card-header
 					div(class="row")
 						div(class="col")
 							h2.h6.mb-0 #{fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()} 
@@ -348,12 +323,12 @@ block content
 								a(href="/channels")
 									span  Browse Channels &raquo;
 
-				div.card-body
+				.card-body
 					ul(class='nav nav-tabs')
 						li(class="nav-item")
-							a(data-toggle="tab", href="#tab-channels-sortedByLastUpdate", class="nav-link active", role="tab") Recently Updated
+							a(data-bs-toggle="tab", href="#tab-channels-sortedByLastUpdate", class="nav-link active", role="tab") Recently Updated
 						li(class="nav-item")
-							a(data-toggle="tab", href="#tab-channels-sortedByCapacity", class="nav-link", role="tab") Most Capacity
+							a(data-bs-toggle="tab", href="#tab-channels-sortedByCapacity", class="nav-link", role="tab") Most Capacity
 
 					div(class="tab-content")
 						div(id="tab-channels-sortedByLastUpdate", class="tab-pane active", role="tabpanel")
@@ -365,6 +340,6 @@ block content
 							include includes/channel-table.pug
 
 	else
-		div.alert.alert-primary No active LND connection. If your app was just started, it may still be connecting. Otherwise, check your RPC connection and your logs for errors.
-			div.mt-2
+		.alert.alert-primary No active LND connection. If your app was just started, it may still be connecting. Otherwise, check your RPC connection and your logs for errors.
+			.mt-2
 				a(href="/manage-nodes") Manage LND Nodes...

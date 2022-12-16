@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title Open Channel
@@ -10,8 +10,8 @@ block breadcrumb
 	li.breadcrumb-item Open Channel
 
 block content
-	h1.h3 Open Channel
-	hr
+	+pageTitle("Open Channel")
+
 
 	if (!session.admin)
 		- var loginRequiredNote = "allow you to open a payment channel.";
@@ -20,26 +20,26 @@ block content
 	else
 
 		if (openChannelError)
-			div.alert.alert-danger.shadow-sm
+			.alert.alert-danger.shadow-sm
 				h4.h5 Error
 
 				if (openChannelError.details)
-					div.mb-2 #{openChannelError.details.substring(0, 1).toUpperCase()}#{openChannelError.details.substring(1)}
+					.mb-2 #{openChannelError.details.substring(0, 1).toUpperCase()}#{openChannelError.details.substring(1)}
 					
 					if (openChannelError.code)
 						div Error code: #{openChannelError.code}
 
 				else
 					pre
-						code.json.bg-light #{JSON.stringify(openChannelError)}
+						code.json #{JSON.stringify(openChannelError)}
 
 		if (openChannelResponse)
-			div.alert.alert-success.shadow-sm
+			.alert.alert-success.shadow-sm
 				h4.h6 Success
 
 				if (openChannelResponse.funding_txid_hex)
 					span New channel opening via transaction output: 
-						span.text-monospace
+						span
 							if (config.blockExplorerUrl)
 								a(href=`${config.blockExplorerUrl}/tx/${openChannelResponse.funding_txid_hex}`)
 									- var btc_txid = openChannelResponse.funding_txid_hex;
@@ -52,7 +52,7 @@ block content
 							if (openChannelResponse.hasOwnProperty("output_index"))
 								span  [#{openChannelResponse.output_index.toLocaleString()}]
 
-					div.mt-2
+					.mt-2
 						span See your 
 						a(href="/local-channels?sort=capacity-desc&status=Pending&localbalance=all&remotebalance=all&limit=20") pending channels
 						span  for details.
@@ -64,49 +64,49 @@ block content
 
 				if (false)
 					pre
-						code.json.bg-light #{JSON.stringify(openChannelResponse)}
+						code.json #{JSON.stringify(openChannelResponse)}
 
 		form(method="post" action="/openchannel" onsubmit="formSubmitted()")
-			div.form-group
-				label(for="pubkey") Remote Node Public Key
-					i.fas.fa-asterisk.text-danger.ml-1.fa-sm(title="Required" data-toggle="tooltip")
-				input.form-control.form-control-lg.text-monospace(type="text" id="pubkey" name="pubkey" value=pubkey)
+			+contentSection("Remote Node")
+				.mb-3
+					label.form-label(for="pubkey") Public Key
+						i.fas.fa-asterisk.text-danger.ms-1.fa-sm(title="Required" data-bs-toggle="tooltip")
+					input.form-control.form-control-lg(type="text" id="pubkey" name="pubkey" value=pubkey)
 
-			if (pubkey)
-				div.card.text-monospace.mb-3.bg-light
-					div.card-body
+				if (pubkey)
+					+card
 						- var card_node_pubkey = pubkey;
 						include includes/node-card.pug
 
-			div.row
-				div.col-sm-6.col-md-4.col-lg-3.col-xl-2
-					div.form-group
-						label(for="local_balance") Local Balance
-							i.fas.fa-asterisk.text-danger.ml-1.fa-sm(title="Required" data-toggle="tooltip")
-						div.input-group
-							input.form-control.form-control-lg.text-monospace(id="local_balance" name="local_balance" value=local_balance)
-							div.input-group-append
-								div.input-group-text.text-monospace sat
+			.row
+				.col-sm-6.col-md-4.col-lg-3.col-xl-2
+					.mb-3
+						label.form-label(for="local_balance") Local Balance
+							i.fas.fa-asterisk.text-danger.ms-1.fa-sm(title="Required" data-bs-toggle="tooltip")
+						.input-group
+							input.form-control.form-control-lg(id="local_balance" name="local_balance" value=local_balance)
+							
+							.input-group-text sat
 
 						span.form-text.text-muted ~ 
 							span(id="local_balance_note") #{new Decimal(local_balance || 0).dividedBy(coinConfig.baseCurrencyUnit.multiplier).times(global.exchangeRates.usd).toDP(2)} 
 							small  USD
 
-				div.col-sm-6.col-md-4.col-lg-3.col-xl-2
-					div.form-group
-						label(for="remote_balance")
-							span.border-dotted(title="This value should only be used if you intend to make a payment to the remote node as part of the channel-opening process." data-toggle="tooltip") Remote Balance
-						div.input-group
-							input.form-control.form-control-lg.text-monospace(id="remote_balance" name="remote_balance" value=remote_balance placeholder="0")
-							div.input-group-append
-								div.input-group-text.text-monospace sat
+				.col-sm-6.col-md-4.col-lg-3.col-xl-2
+					.mb-3
+						label.form-label(for="remote_balance")
+							span.border-dotted(title="This value should only be used if you intend to make a payment to the remote node as part of the channel-opening process." data-bs-toggle="tooltip") Remote Balance
+						.input-group
+							input.form-control.form-control-lg(id="remote_balance" name="remote_balance" value=remote_balance placeholder="0")
 
-						span.form-text.text-muted ~ 
+							.input-group-text sat
+
+						.form-text.text-muted ~ 
 							span(id="remote_balance_note") #{new Decimal(remote_balance || 0).dividedBy(coinConfig.baseCurrencyUnit.multiplier).times(global.exchangeRates.usd).toDP(2)} 
 							small  USD
 
-			div.form-group.mt-2.mb-4
-				label(for="visibility") Visibility
+			.mt-2.mb-4
+				label.form-label(for="visibility") Visibility
 				.custom-control.custom-radio
 					input#visibilityPublic.custom-control-input(type='radio' name='visibility' value="public" checked=(visibility == "public" ? "checked" : false))
 					label.custom-control-label(for='visibilityPublic') Public
@@ -115,11 +115,11 @@ block content
 					label.custom-control-label(for='visibilityPrivate') Private
 
 			button.btn.btn-primary(id="openchannelButton" type="submit")
-				i.fas.fa-plus-square.mr-2
+				i.fas.fa-plus-square.me-2
 				span Open Channel
 
-			div#channelOpenStatus.mt-3(style="display: none;")
-				span.spinner-border.spinner-border-sm.mr-2.text-primary(role="status" aria-hidden="true")
+			#channelOpenStatus.mt-3(style="display: none;")
+				span.spinner-border.spinner-border-sm.me-2.text-primary(role="status" aria-hidden="true")
 				span Channel open request submitted...
 
 

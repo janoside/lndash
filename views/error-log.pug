@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title Error Log
@@ -10,8 +10,8 @@ block breadcrumb
 	li.breadcrumb-item Error Log
 
 block content
-	h1.h3 Error Log
-	hr
+	+pageTitle("Error Log")
+
 
 	if (!session.admin)
 		- var loginRequiredNote = "display recent application errors.";
@@ -20,21 +20,41 @@ block content
 	else
 
 		if (errorLog.length == 0)
-			div.alert.alert-warning.shadow-sm No recent errors found
+			.alert.alert-warning.shadow-sm No recent errors found
 
 		else
 
 			each error, errorIndex in errorLog
-				include includes/error-details-modal.pug
+				+modal("errorModal-" + errorIndex, `Error #${(errorIndex + 1).toLocaleString()}`)
+					h3.h6 Error Details
+					
+					pre
+						code.json #{JSON.stringify(error.error, null, 4)}
 
-			div.table-responsive
-				table.table.table-bordered.border-top
-					thead.bg-light
+					if (error.error.stack)
+						hr
+
+						h4.h6 Stacktrace
+						pre
+							code.json #{error.error.stack}
+
+					if (error.userData)
+						hr
+
+						h4.h6 User Data
+						pre
+							code.json #{JSON.stringify(error.userData, null, 4)}
+
+
+
+			.table-responsive
+				table.table.table-striped
+					thead
 						tr
-							th.text-right #
+							th.text-end #
 							th Date
 							th
-								span.border-dotted(title="This identifies the error in the source code for LND Admin." data-toggle="tooltip") ID
+								span.border-dotted(title="This identifies the error in the source code for LND Admin." data-bs-toggle="tooltip") ID
 
 							th Error
 							th Stacktrace
@@ -42,14 +62,13 @@ block content
 					
 					tbody
 						each error, errorIndex in errorLog
-							tr.text-monospace
-								th.text-right #{(errorIndex + 1).toLocaleString()}
+							tr
+								th.text-end #{(errorIndex + 1).toLocaleString()}
 								td
 									- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(error.date)));
 									- var dateTimeUtc = moment.utc(error.date).format("Y-MM-DD HH:mm:ss");
 
-									div #{timeAgo.humanize()} ago
-									div.text-muted #{dateTimeUtc} utc
+									span.border-dotted(title=`${dateTimeUtc} utc`, data-bs-toggle="tooltip") #{timeAgo.humanize()} ago
 
 								td #{error.errorId}
 								td #{error.error}
@@ -60,4 +79,5 @@ block content
 										span.text-muted No
 
 								td
-									a(href="javascript:void(0)" data-toggle="modal" data-target=("#errorModal-" + errorIndex)) Details
+									a(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#errorModal-" + errorIndex)) Details
+

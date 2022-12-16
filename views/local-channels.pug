@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title Local Channels
@@ -19,194 +19,125 @@ block content
 
 	else
 
-		h1.h3 #{allChannels.length.toLocaleString()} 
-			if (allChannels.length == 1)
-				span Channel
-			else
-				span Channels
-
+		+pageTitle(`${allFilteredChannels.length.toLocaleString()} Channel${(allFilteredChannels.length == 1) ? "" : "s"}`)
 			if (allFilteredChannels.length < allChannels.length)
-				small.text-muted  (showing #{allFilteredChannels.length.toLocaleString()})
-		hr
+				small.text-muted.text-tiny  (+#{(allChannels.length - allFilteredChannels.length).toLocaleString()} hidden)
 
-		div.card.mb-3.shadow-sm
-			div.card-body
-				div.clearfix
-					div.dropdown.mr-4.float-left
-						div Sort
-						button.btn.btn-primary.dropdown-toggle.mb-2.mb-lg-0(type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-							span
-								if (sort == null || sort == "capacity-desc")
-									| Total Capacity (highest first)
-								else if (sort == "localbalance-desc")
-									| Local Balance (highest first)
-								else if (sort == "remotebalance-desc")
-									| Remote Balance (highest first)
-								else if (sort == "valuetransfer-desc")
-									| Value Transferred (highest first)
-								else if (sort == "updated-desc")
-									| Updated Date (recent first)
-								else if (sort == "openblockheight-desc")
-									| Open Block Height (newest first)
+		+card
+			.d-flex.flex-wrap
+				.me-3.mb-3
+					- var sortOptions = [["Capacity", "capacity-desc"], ["Local Balance", "localbalance-desc"], ["Remote Balance", "remotebalance-desc"], ["Σ Transferred", "valuetransfer-desc"], ["Last Update", "updated-desc"], ["Open Block", "openblockheight-desc"]];
 
-						div.dropdown-menu(aria-labelledby="dropdownMenuButton")
-							a.dropdown-item(href=`/local-channels?sort=capacity-desc&open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Total Capacity (highest first)
-							a.dropdown-item(href=`/local-channels?sort=localbalance-desc&open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Local Balance (highest first)
-							a.dropdown-item(href=`/local-channels?sort=remotebalance-desc&open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Remote Balance (highest first)
-							a.dropdown-item(href=`/local-channels?sort=valuetransfer-desc&open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Value Transferred (highest first)
-							a.dropdown-item(href=`/local-channels?sort=updated-desc&open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Updated Date (recent first)
-							a.dropdown-item(href=`/local-channels?sort=openblockheight-desc&open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) Open Block Height (recent first)
-
-					div.mr-4.mb-2.mb-lg-0.float-left
-						div
-							span.border-dotted(title="Includes both open and pending channels" data-toggle="tooltip") Open?
-						- var openFilterOptions = ["Open", "Closed", "All"];
-						div.btn-group.mr-2(role="group")
-							each opt in openFilterOptions
-								if (open != null && open == opt.toLowerCase())
-									span.btn.btn-primary #{opt}
-								else
-									a.btn.btn-light.border(href=`/local-channels?sort=${sort}&open=${opt}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) #{opt}
-
-					if (open != "closed")
-						div.mr-4.mb-2.mb-lg-0.float-left
-							div Status
-							- var statusFilterOptions = ["Active", "Inactive", "Pending", "All"];
-							div.btn-group.mr-2(role="group")
-								each opt in statusFilterOptions
-									if (status != null && status == opt.toLowerCase())
-										span.btn.btn-primary #{opt}
-									else
-										a.btn.btn-light.border(href=`/local-channels?sort=${sort}&open=${open}&status=${opt}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`) #{opt}
-
-						div.mr-4.mb-2.mb-lg-0.float-left
-							div Has Local Balance
-							- var localBalanceFilterOptions = ["Yes", "No", "All"];
-							div.btn-group.mr-2(role="group")
-								each opt in localBalanceFilterOptions
-									if (localbalance != null && localbalance == opt.toLowerCase())
-										span.btn.btn-primary #{opt}
-									else
-										a.btn.btn-light.border(href=`/local-channels?sort=${sort}&open=${open}&status=${status}&localbalance=${opt}&remotebalance=${remotebalance}&limit=${limit}`) #{opt}
-
-						div.mr-4.mb-2.mb-lg-0.float-left
-							div Has Remote Balance
-							- var remoteBalanceFilterOptions = ["Yes", "No", "All"];
-							div.btn-group.mr-2(role="group")
-								each opt in remoteBalanceFilterOptions
-									if (remotebalance != null && remotebalance == opt.toLowerCase())
-										span.btn.btn-primary #{opt}
-									else
-										a.btn.btn-light.border(href=`/local-channels?sort=${sort}&open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${opt}&limit=${limit}`) #{opt}
-
-					div.mr-4.mb-2.mb-lg-0.float-left
-						div Page Size
-						- var pageSizeOptions = ["20", "50", "100"];
-						div.btn-group.mr-2(role="group")
-							each opt in pageSizeOptions
-								if (limit != null && limit == parseInt(opt))
-									span.btn.btn-primary #{opt}
-								else
-									a.btn.btn-light.border(href=`/local-channels?sort=${sort}&open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${opt}`) #{opt}
-
-				hr.my-3
-
-				div
-					if (allFilteredChannels.length > limit)
-						span Showing 
-						span.font-weight-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredChannels.length).toLocaleString()} 
-						span of 
-						span.font-weight-bold #{allFilteredChannels.length.toLocaleString()} 
-						if (allChannels.length > allFilteredChannels.length)
-							span filtered 
-						span channel
-						if (allFilteredChannels.length != 1)
-							span s
-
-					else if (allFilteredChannels.length > 0)
-						span Showing 
-						span.font-weight-bold #{allFilteredChannels.length.toLocaleString()} 
-						if (allChannels.length > allFilteredChannels.length)
-							span filtered 
-
-						span channel
-						if (allFilteredChannels.length > 1)
-							span s
-					else
-						div.alert.alert-warning.shadow-sm.mb-0 No matching channels
-
-				- var itemCount = allFilteredChannels.length;
-				if (itemCount > limit)
-					- var pageNumber = offset / limit + 1;
-					- var pageCount = Math.floor(itemCount / limit);
-					- if (pageCount * limit < itemCount) {
-						- pageCount++;
-					- }
-					- var paginationUrlFunction = function(x) {
-						- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
-					- }
+					+filterBtnGroup("Sort", null, sortOptions, `/local-channels?open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`, "sort", sort)
 					
-					div.mt-2.mb-0
-						include includes/pagination.pug
+
+
+				.me-3.mb-3
+					- var openFilterOptions = [["Open", "open"], ["Closed", "closed"], ["All", "all"]];
+
+					+filterBtnGroup("Open?", "Includes both open and pending channels", openFilterOptions, `/local-channels?sort=${sort}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`, "open", open)
+
+
+					
+
+				if (open != "closed")
+					.me-3.mb-3
+						- var statusOptions = [["Active", "active"], ["Inactive", "inactive"], ["Pending", "pending"], ["All", "all"]];
+
+						+filterBtnGroup("Status", null, statusOptions, `/local-channels?sort=${sort}&open=${open}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`, "status", status)
+
+
+					.me-3.mb-3
+						- var localbalanceOptions = [["Yes", "yes"], ["No", "no"], ["All", "all"]];
+
+						+filterBtnGroup("Has Local Balance", null, localbalanceOptions, `/local-channels?sort=${sort}&open=${open}&status=${status}&remotebalance=${remotebalance}&limit=${limit}`, "localbalance", localbalance)
+
+
+					.me-3.mb-3
+						- var remotebalanceOptions = [["Yes", "yes"], ["No", "no"], ["All", "all"]];
+
+						+filterBtnGroup("Has Remote Balance", null, remotebalanceOptions, `/local-channels?sort=${sort}&open=${open}&status=${status}&localbalance=${localbalance}&limit=${limit}`, "remotebalance", remotebalance)
+
+
+				.me-3.mb-3
+					- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
+
+					+filterBtnGroup("Page Size", null, pageSizeOptions, `/local-channels?sort=${sort}&open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}`, "limit", limit)
+
+
+			hr.my-3
+
+			div
+				if (allFilteredChannels.length > limit)
+					span Showing 
+					span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredChannels.length).toLocaleString()} 
+					span of 
+					span.fw-bold #{allFilteredChannels.length.toLocaleString()} 
+					if (allChannels.length > allFilteredChannels.length)
+						span filtered 
+					span channel
+					if (allFilteredChannels.length != 1)
+						span s
+
+				else if (allFilteredChannels.length > 0)
+					span Showing 
+					span.fw-bold #{allFilteredChannels.length.toLocaleString()} 
+					if (allChannels.length > allFilteredChannels.length)
+						span filtered 
+
+					span channel
+					if (allFilteredChannels.length > 1)
+						span s
+				else
+					.alert.alert-warning.shadow-sm.mb-0 No matching channels
+
+			- var itemCount = allFilteredChannels.length;
+			if (itemCount > limit)
+				- var pageNumber = offset / limit + 1;
+				- var pageCount = Math.floor(itemCount / limit);
+				- if (pageCount * limit < itemCount) {
+					- pageCount++;
+				- }
+				- var paginationUrlFunction = function(x) {
+					- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
+				- }
+				
+				.mt-2.mb-0
+					include includes/pagination.pug
 		
 		if (false)
 			pre
-				code.json.bg-light #{JSON.stringify(allChannels, null, 4)}
+				code.json #{JSON.stringify(allChannels, null, 4)}
 
 		if (pagedFilteredChannels.length > 0)
-			div.table-responsive
-				table.table.table-bordered.border-top
+			.table-responsive
+				table.table.table-striped.table-bordered
 					thead.table-head-with-nav
 						tr
-							th.text-right #
-							th ID
-							th Status
-							th Private
+							th.text-end #
+							th Channel
 							//th.text-center
-							//	span.border-dotted(title="Whether channel was created by the local node", data-toggle="tooltip") Initiator
+							//	span.border-dotted(title="Whether channel was created by the local node", data-bs-toggle="tooltip") Initiator
 							th Remote Node
-							th.text-right
-								if (sort == "openblockheight-desc")
-									span.border-dotted.mr-2(title="The height of the block that confirmed each channel's opening transaction" data-toggle="tooltip") Open Block Height
-									i.fas.fa-arrow-down
-								else
-									a.border-dotted(href=`/local-channels?sort=openblockheight-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort by the height of the block that confirmed each channel's opening transaction" data-toggle="tooltip")
-										span Open Block Height
 
-							th.text-right
-								if (sort == "valuetransfer-desc")
-									span.mr-2 Value Transfer
-									i.fas.fa-arrow-down
-								else
-									a(href=`/local-channels?sort=valuetransfer-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-toggle="tooltip")
-										span Value Transfer
+							if (false)
+								th.text-end
+									if (sort == "openblockheight-desc")
+										span.border-dotted.me-2(title="The height of the block that confirmed each channel's opening transaction" data-bs-toggle="tooltip") Open Block Height
+										i.fas.fa-arrow-down
+									else
+										a.border-dotted(href=`/local-channels?sort=openblockheight-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort by the height of the block that confirmed each channel's opening transaction" data-bs-toggle="tooltip")
+											span Open Block Height
+
+							
 								
-							th.text-right
-								if (sort == "localbalance-desc")
-									span.mr-2 Local Balance
-									i.fas.fa-arrow-down
-								else
-									a(href=`/local-channels?sort=localbalance-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-toggle="tooltip")
-										span Local Balance
+							th.text-end Balances
 
-							th.text-right
-								if (sort == "remotebalance-desc")
-									span.mr-2 Remote Balance
-									i.fas.fa-arrow-down
-								else
-									a(href=`/local-channels?sort=remotebalance-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-toggle="tooltip")
-										span Remote Balance
-
-							th.text-right
-								if (sort == "capacity-desc")
-									span.mr-2 Capacity
-									i.fas.fa-arrow-down
-								else
-									a(href=`/local-channels?sort=capacity-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort" data-toggle="tooltip")
-										span Capacity
+							th.text-end Value Transferred
 
 							th Last Update
-							th Details
+							th
+								i.fas.fa-info-circle
 					
 					tbody
 						each channel, channel_index in pagedFilteredChannels
