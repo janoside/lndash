@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block breadcrumb
 	li.breadcrumb-item
@@ -6,8 +6,8 @@ block breadcrumb
 	li.breadcrumb-item Error
 
 block content
-	h1 Error
-	hr
+	+pageTitle("Error")
+	
 
 	if (message)
 		p !{message}
