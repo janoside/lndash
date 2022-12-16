@@ -50,7 +50,7 @@ block content
 				if (localChannelStatus == "Waiting to Close" || localChannelStatus == "Inactive")
 					span.badge.rounded-pill.text-bg-warning #{localChannelStatus}
 
-			if (localChannel.private)
+			if (localChannel && localChannel.private)
 				span.badge.rounded-pill.text-bg-light.ms-2.align-text-bottom
 					span.me-2 Private
 					i.fas.fa-lock.text-success
