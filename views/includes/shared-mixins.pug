@@ -253,6 +253,17 @@ mixin channelIdInternal(channel_id)
 	span.d-none.d-lg-inline #{utils.ellipsizeMiddle(channel_id, 12)}
 
 
+mixin netAddress(address, network)
+	if (address.length > config.site.addressMaxDisplayLength)
+		span.border-dotted(title=`${network != null ? (network + " ") : ""}${address}`, data-bs-toggle="tooltip") #{utils.ellipsizeMiddle(address, config.site.addressMaxDisplayLength)}
+
+	else
+		if (network)
+			span.border-dotted(title=`${network} ${address}`, data-bs-toggle="tooltip") #{address}
+		else
+			| #{address}
+
+
 mixin date(timestamp, formatType="human")
 	if (formatType == "human")
 		- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timestamp) * 1000))));

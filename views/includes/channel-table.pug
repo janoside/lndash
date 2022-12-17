@@ -2,19 +2,22 @@
 	table.table.table-striped
 		thead
 			tr
-				th.text-end #
+				th.text-end.fw-light #
 				th ID
 				th Node 1
 				th Node 2
+
+				th.text-end Capacity
+
+				th.text-end Last Update
+
 				th.text-end
 					if (sort == "openblockheight-desc")
 						span.border-dotted.me-2(title="The height of the block that confirmed each channel's opening transaction" data-bs-toggle="tooltip") Open Block
 						i.fas.fa-arrow-down
 					else
 						span.border-dotted(title="The height of the block that confirmed each channel's opening transaction" data-bs-toggle="tooltip") Open Block
-
-				th Last Update
-				th(class="text-end") Capacity
+				
 		
 		tbody
 			each channel, index in channels

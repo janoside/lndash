@@ -102,7 +102,7 @@ block content
 			table.table.table-striped
 				thead.table-head-with-nav
 					tr
-						th.text-end #
+						th.text-end.fw-light #
 						th Node
 						th Address
 
@@ -115,12 +115,15 @@ block content
 				tbody
 					each item, item_index in pagedFilteredPeers
 						tr
-							th.text-end #{(item_index + offset + 1).toLocaleString()}
+							th.text-end.fw-light #{(item_index + offset + 1).toLocaleString()}
+
 							td
 								- var card_node_pubkey = item.pub_key;
 								include ./includes/node-card.pug
 
-							td #{item.address}
+							td
+								+netAddress(item.address)
+								
 
 							td.text-end
 								if (item.sat_recv == 0 && item.sat_sent == 0)
@@ -158,8 +161,8 @@ block content
 
 							td.text-center.align-middle
 								if (item.inbound)
-									i(class="fas fa-check text-success")
+									i.fas.fa-circle-check.text-success
 								else
-									i(class="fas fa-times")
+									i.fas.fa-circle-xmark.text-danger
 
-							td(class="text-end") #{parseInt(item.ping_time).toLocaleString()}
+							td.text-end #{parseInt(item.ping_time).toLocaleString()}

@@ -24,11 +24,11 @@ block content
 				span.h3
 					if (nodePubkey == lndRpc.internal_pubkey)
 						span(title="These are the public node details for your active LND node", data-bs-toggle="tooltip")
-							i.fas.fa-certificate.fa-sm.text-primary.ms-2
+							i.fas.fa-certificate.fa-sm.text-primary.ms-3
 
 					if (utils.isObjectStarred(`node:${node_pubkey}`))
 						span(title="This is one of your favorite nodes" data-bs-toggle="tooltip")
-							i.fas.fa-star.text-warning.fa-sm.ms-2
+							i.fas.fa-star.text-warning.fa-sm.ms-3
 
 		if (qrcodeUrls[nodeInfo.node.pub_key])
 			.me-2.ms-2
@@ -60,14 +60,8 @@ block content
 				+summaryItem("Addresses")
 					if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
 						each addressItem in nodeInfo.node.addresses
-							span.badge.text-bg-secondary.me-2 #{addressItem.network}
-							if (addressItem.addr.length > 20)
-								span.border-dotted(title=addressItem.addr, data-bs-toggle="tooltip") #{utils.ellipsizeMiddle(addressItem.addr, 32)}
-								+copyTextButton(addressItem.addr)
-							else
-								span #{addressItem.addr}
-								+copyTextButton(addressItem.addr)
-
+							+netAddress(addressItem.addr, addressItem.network)
+							
 							br
 					else
 						span -
@@ -79,8 +73,12 @@ block content
 					- var dateTimeUtc = moment.utc(new Date(parseInt(nodeInfo.node.last_update) * 1000)).format("Y-MM-DD HH:mm:ss");
 					
 					span #{dateTimeUtc} utc
-					br
-					span.text-muted #{timeAgo.humanize()} ago
+					
+					div
+						span.text-muted.text-tiny
+							| (
+							span #{timeAgo.humanize()}
+							| )
 
 
 			hr.my-4

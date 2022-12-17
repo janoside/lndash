@@ -1,13 +1,17 @@
 tr
 	if (showTableNumbers)
-		th.text-end #{(index + 1).toLocaleString()}
+		th.text-end.fw-light #{(index + 1).toLocaleString()}
 
 	td
-		- var card_node_pubkey = node.node.pub_key;
-		include ./node-card.pug
+		if (nodePubkeys)
+			- var card_node_pubkey = nodePubkeys[index];
+			include ./node-card.pug
+
+		else
+			span -
 
 	td
-		if (node.node.addresses && node.node.addresses.length > 0)
+		if (node && node.node && node.node.addresses && node.node.addresses.length > 0)
 			if (node.node.addresses[0].addr.length > 20)
 				span(title=node.node.addresses[0].addr) -#{node.node.addresses[0].addr.substring(node.node.addresses[0].addr.length - 20, node.node.addresses[0].addr.length - 1)}
 			else
@@ -16,19 +20,31 @@ tr
 			span -
 
 	td
-		if (node.node.last_update == 0)
-			span -
+		if (node && node.node)
+			if (node.node.last_update == 0)
+				span -
+
+			else
+				- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(node.node.last_update) * 1000))));
+				- var dateTimeUtc = moment.utc(new Date(parseInt(node.node.last_update) * 1000)).format("Y-MM-DD HH:mm:ss");
+				
+				span.border-dotted(title=(dateTimeUtc + " utc") data-bs-toggle="tooltip") #{timeAgo.humanize()} ago
+
 		else
-			- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(node.node.last_update) * 1000))));
-			- var dateTimeUtc = moment.utc(new Date(parseInt(node.node.last_update) * 1000)).format("Y-MM-DD HH:mm:ss");
-			
-			span.border-dotted(title=(dateTimeUtc + " utc") data-bs-toggle="tooltip") #{timeAgo.humanize()} ago
+			span -
 
-	td(class="text-end")
-		span #{parseInt(node.num_channels).toLocaleString()}
+	td.text-end
+		if (node)
+			span #{parseInt(node.num_channels).toLocaleString()}
 
-	td(class="text-end")
-		if (node.total_capacity)
+		else
+			span -
+
+	td.text-end
+		if (node && node.total_capacity)
 			- var currencyValue = new Decimal(node.total_capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 			include ./value-display.pug
 			//span #{parseInt(node.total_capacity).toLocaleString()}
+
+		else
+			span -

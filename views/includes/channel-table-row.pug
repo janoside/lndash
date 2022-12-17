@@ -1,17 +1,31 @@
 tr(class="word-wrap")
 	th.text-end.fw-light #{channelTableIndex.toLocaleString()}
 
+
 	td
 		+channelId(channel.channel_id, true)
 		
-		
+
 	td
 		- var card_node_pubkey = channel.node1_pub;
 		include ./node-card.pug
 
+
 	td
 		- var card_node_pubkey = channel.node2_pub;
 		include ./node-card.pug
+
+
+	td.text-end
+		- var currencyValue = new Decimal(channel.capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+		include ./value-display.pug
+	
+
+	td.text-end
+		- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(channel.last_update) * 1000))));
+
+		span.border-dotted(title=moment.utc(new Date(parseInt(channel.last_update) * 1000)).format("Y-MM-DD HH:mm:ss"), data-bs-toggle="tooltip") #{timeAgo.humanize()} ago
+
 
 	td.text-end
 		if (config.blockExplorerUrl)
@@ -20,11 +34,4 @@ tr(class="word-wrap")
 		else
 			span #{fullNetworkDescription.parsedChannelIds[channel.channel_id].blockHeight.toLocaleString()}
 
-	td
-		- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(channel.last_update) * 1000))));
-
-		span.border-dotted(title=moment.utc(new Date(parseInt(channel.last_update) * 1000)).format("Y-MM-DD HH:mm:ss"), data-bs-toggle="tooltip") #{timeAgo.humanize()} ago
-
-	td.text-end
-		- var currencyValue = new Decimal(channel.capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-		include ./value-display.pug
+	
