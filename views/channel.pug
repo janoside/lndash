@@ -40,20 +40,24 @@ block content
 					- localChannelStatus = "Waiting to Close";
 
 
+	mixin titlePillBadge(text, colorClass)
+		span.badge.rounded-pill.text-tiny.ms-2.align-text-bottom(class=colorClass)
+			| #{text}
+			block
 
 	+pageTitle("Channel", channelId, true)
 		span.h3
 			if (localChannelStatus) 
 				if (localChannelStatus == "Active")
-					span.badge.rounded-pill.text-bg-success.text-tiny.ms-2.align-text-bottom #{localChannelStatus}
+					+titlePillBadge(localChannelStatus, "text-bg-success")
 				
 				if (localChannelStatus == "Waiting to Close" || localChannelStatus == "Inactive")
-					span.badge.rounded-pill.text-bg-warning #{localChannelStatus}
+					+titlePillBadge(localChannelStatus, "text-bg-warning")
 
 			if (localChannel && localChannel.private)
-				span.badge.rounded-pill.text-bg-light.ms-2.align-text-bottom
-					span.me-2 Private
-					i.fas.fa-lock.text-success
+				+titlePillBadge("Private", "text-bg-light")
+					i.fas.fa-lock.text-success.ms-2
+					
 
 			if (localChannel)
 				span(title="Your LND node is one of the participants in this channel", data-bs-toggle="tooltip")
@@ -207,24 +211,18 @@ block content
 
 
 						+summaryItem("Channel Point", "On-chain transaction:output-index that opened this channel.")
-							if (config.blockExplorerUrl)
-								a(href=`${config.blockExplorerUrl}/tx/${channelPointTxid}`, target="_blank")
-									- var btc_txid = channelPointTxid;
-									include includes/btc-txid.pug
+							+btcTxid(channelPointTxid)
+							span.ms-2 [#{channelPointIndex}]
+							
 
-								span  [#{channelPointIndex}]
-							else
-								span #{channel.chan_point}
-
-							br
-
-							span.text-small.text-muted (in block
-								span.ms-2
-								if (config.blockExplorerUrl)
-									a(href=`${config.blockExplorerUrl}/block-height/${blockHeight}` target="_blank") #{blockHeight.toLocaleString()}
-								else
-									span #{blockHeight.toLocaleString()}
-								| )
+							div
+								span.text-small.text-muted (in block
+									span.ms-2
+									if (config.blockExplorerUrl)
+										a(href=`${config.blockExplorerUrl}/block-height/${blockHeight}` target="_blank") #{blockHeight.toLocaleString()}
+									else
+										span #{blockHeight.toLocaleString()}
+									| )
 
 						if (localChannel)
 							+summaryItem("Updates")

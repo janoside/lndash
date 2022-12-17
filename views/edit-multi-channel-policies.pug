@@ -169,7 +169,8 @@ block content
 							table.table.table-bordered.border-top
 								thead.table-head-with-nav
 									tr
-										th.text-end #
+										th.text-end.fw-light #
+
 										th.text-center
 											input(type="checkbox")
 										th ID
@@ -229,21 +230,8 @@ block content
 												th.text-center
 													input(type="checkbox")
 												td(class="table-col-channelid")
-													if (channel.active)
-														a(href=("/channel/" + channel.chan_id))
-															- var channel_id = channel.chan_id;
-															include ./includes/channel-id.pug
-
-														if (utils.isObjectStarred(`channel:${channel_id}`))
-															i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite channels" data-bs-toggle="tooltip")
-
-													else if (channel.chan_id)
-														span
-															- var channel_id = channel.chan_id;
-															include ./includes/channel-id.pug
-
-															if (utils.isObjectStarred(`channel:${channel_id}`))
-																i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite channels" data-bs-toggle="tooltip")
+													if (channel.chan_id)
+														+channelId(channel.chan_id, channel.active)
 
 													else
 														span -

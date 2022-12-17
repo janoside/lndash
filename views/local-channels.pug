@@ -111,10 +111,10 @@ block content
 
 		if (pagedFilteredChannels.length > 0)
 			.table-responsive
-				table.table.table-striped.table-bordered
-					thead.table-head-with-nav
+				table.table.table-striped
+					thead
 						tr
-							th.text-end #
+							th.text-end.fw-light #
 							th Channel
 							//th.text-center
 							//	span.border-dotted(title="Whether channel was created by the local node", data-bs-toggle="tooltip") Initiator
@@ -131,13 +131,29 @@ block content
 
 							
 								
-							th.text-end Balances
+							th.text-end
+								span.border-dotted(title="Local and Remote Balances", data-bs-toggle="tooltip") Balances
+								span.text-muted.ms-1
+									| (
+									span.fw-bold
+										span.text-primary L
+										span.mx-1 /
+										span.text-info R
+									| )
 
-							th.text-end Value Transferred
+							th.text-end
+								span.border-dotted(title="Total Inbound and Outbound Value Transfers", data-bs-toggle="tooltip") Value Xfer
+								span.text-muted.ms-1
+									| (
+									span.fw-bold
+										span.text-success In
+										span.mx-1 /
+										span.text-danger Out
+									| )
 
-							th Last Update
-							th
-								i.fas.fa-info-circle
+							th.text-end Last Update
+
+							th.text-end Raw Data
 					
 					tbody
 						each channel, channel_index in pagedFilteredChannels

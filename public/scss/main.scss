@@ -81,6 +81,12 @@ $dropdown-min-width: 11rem;
 	border-top: 0px;
 }
 
+.table td.fit, 
+.table th.fit {
+    white-space: nowrap;
+    width: 1%;
+}
+
 
 .bg-content {
 	background-color: $body-bg !important;

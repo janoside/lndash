@@ -1,14 +1,10 @@
 tr(class="word-wrap")
-	th.text-end #{channelTableIndex.toLocaleString()}
+	th.text-end.fw-light #{channelTableIndex.toLocaleString()}
 
-	td.table-col-channelid
-		a(href=("/channel/" + channel.channel_id))
-			- var channel_id = channel.channel_id;
-			include ./channel-id.pug
-
-		if (utils.isObjectStarred(`channel:${channel_id}`))
-			i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite channels" data-bs-toggle="tooltip")
-
+	td
+		+channelId(channel.channel_id, true)
+		
+		
 	td
 		- var card_node_pubkey = channel.node1_pub;
 		include ./node-card.pug

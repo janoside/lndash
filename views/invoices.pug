@@ -20,9 +20,11 @@ block content
 
 	else
 
-		+pageTitle(`${invoiceCount.toLocaleString()} Invoice${(invoiceCount == 1) ? "" : "s"}`)
-			.text-end
-				a.btn.btn-primary.me-2(href="/create-invoice")
+		.d-flex.justify-content-between
+			+pageTitle(`${invoiceCount.toLocaleString()} Invoice${(invoiceCount == 1) ? "" : "s"}`)
+			
+			.text-end.align-baseline
+				a.btn.btn-primary(href="/create-invoice")
 					i.fas.fa-asterisk.me-2
 					span Create Invoice
 				
@@ -101,24 +103,27 @@ block content
 					table.table.table-striped
 						thead
 							tr
-								th.text-end #
-								th Invoice
+								th.text-end.fw-light #
+								th.fit Status
+
+								th.fit Value
+
+								th Description
 								
-								th.text-end Value
 								th Date
 								
 								if (false)
 									th
 										span.border-dotted(title="Whether a payment has been recieved for the invoice" data-bs-toggle="tooltip") Settled
 
-								th Details
+								th.text-end Raw Data
 						
 						tbody
 							each invoice, invoice_index in pagedFilteredInvoices
 								tr.word-wrap
-									th.text-end #{(sort == "desc" ? (invoiceCount - invoice_index) : (offset + invoice_index + 1)).toLocaleString()}
+									th.text-end.fw-light #{(sort == "desc" ? (invoiceCount - invoice_index) : (offset + invoice_index + 1)).toLocaleString()}
 
-									td
+									td.fit
 										if (invoice.state == "CANCELED")
 											+pillBadgeDanger("Cancelled")
 
@@ -126,34 +131,10 @@ block content
 											+pillBadgeSuccess("Settled")
 
 										else
-											+pillBadgeWarning(invoice.state)
+											span.text-capitalize
+												+pillBadgeWarning(invoice.state.toLowerCase())
 
-										
-										span.me-2
-											if (settled)
-												- var currencyValue = new Decimal(invoice.amt_paid_sat).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-												include ./includes/value-display.pug
-
-											else
-												- var currencyValue = new Decimal(invoice.value).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-												include ./includes/value-display.pug
-
-											span.ms-2 -
-
-										if (invoice.memo)
-											span #{invoice.memo}
-										else
-											span -
-
-									td
-										- var createdAtTime = parseInt(invoice.creation_date);
-										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(createdAtTime) * 1000))));
-										- var dateTimeUtc = moment.utc(new Date(parseInt(createdAtTime) * 1000)).format("Y-MM-DD HH:mm:ss");
-
-										span.border-dotted(title=(dateTimeUtc + " utc") data-bs-toggle="tooltip") #{timeAgo.humanize()} ago
-
-									td.text-end
-
+									td.text-end.fit
 										- var valueColorClass = "text-muted";
 										- var settled = false;
 										if (invoice.state == "CANCELED")
@@ -178,7 +159,23 @@ block content
 												- var currencyValue = new Decimal(invoice.value).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 												include ./includes/value-display.pug
 
-									
 									td
-										a(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#invoiceModal-" + invoice_index)) Details
+										
+										if (invoice.memo)
+											span #{invoice.memo}
+										else
+											span.text-muted (no description)
+
+									td
+										- var createdAtTime = parseInt(invoice.creation_date);
+										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(createdAtTime) * 1000))));
+										- var dateTimeUtc = moment.utc(new Date(parseInt(createdAtTime) * 1000)).format("Y-MM-DD HH:mm:ss");
+
+										span.border-dotted(title=(dateTimeUtc + " utc") data-bs-toggle="tooltip") #{timeAgo.humanize()} ago
+
+									
+									
+									td.text-end
+										a.btn.btn-primary.btn-sm(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#invoiceModal-" + invoice_index))
+											i.fas.fa-file-lines
 

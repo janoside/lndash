@@ -11,8 +11,7 @@ block breadcrumb
 	
 block content
 	if (!session.admin)
-		h1.h3 Payments Sent
-		hr
+		+pageTitle("Payments Sent")
 
 		- var loginRequiredNote = "display details about this node's outgoing payments.";
 		include includes/login-required-alert.pug
@@ -92,26 +91,32 @@ block content
 					table.table.table-striped
 						thead
 							tr
-								th.text-end #
-								th Destination
+								th.text-end.fw-light #
 								th.text-end Value
+								th.text-end Fee
+								th Destination
+								
 								th Date
 								th Hash
 
-								th.text-end Hops
-								th.text-end Fee
-								
-
-								th Details
+								th.text-end Raw Data
 						
 						tbody
 							each payment, paymentIndex in pagedFilteredPayments
 								tr.word-wrap
-									th.text-end #{(paymentIndex + offset + 1).toLocaleString()}
+									th.text-end.fw-light #{(paymentIndex + offset + 1).toLocaleString()}
 									
 									if (false)
 										td
 											span(title=payment.payment_preimage, data-bs-toggle="tooltip") #{payment.payment_preimage.substring(0, 15)}
+
+									td.text-end
+										- var currencyValue = new Decimal(payment.value_msat).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(1000);
+										include ./includes/value-display.pug
+
+									td.text-end
+										- var currencyValue = new Decimal(payment.fee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+										include ./includes/value-display.pug
 
 									td
 										//pre
@@ -120,25 +125,23 @@ block content
 										- var card_node_pubkey = destinationNodePubkey;
 										include ./includes/node-card.pug
 
-									td.text-end(class="table-col-currencyvalue")
-										- var currencyValue = new Decimal(payment.value_msat).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(1000);
-										include ./includes/value-display.pug
+									
 
-									td(class="table-col-time")
+									td
 										- var timestampTime = parseInt(payment.creation_date);
 										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timestampTime) * 1000))));
 										- var dateTimeUtc = moment.utc(new Date(parseInt(timestampTime) * 1000)).format("Y-MM-DD HH:mm:ss");
 
 										span.border-dotted(title=`${dateTimeUtc} utc` data-bs-toggle="tooltip") #{timeAgo.format()} ago
 
+									
 									td
-										span.border-dotted(title=payment.payment_hash, data-bs-toggle="tooltip") #{payment.payment_hash.substring(0, 15)}
+										span.border-dotted(title=payment.payment_hash, data-bs-toggle="tooltip") #{utils.ellipsizeMiddle(payment.payment_hash, 10)}
+										+copyTextButton(payment.payment_hash)
 
-									td.text-end(class="table-col-int") #{payment.htlcs[0].route.hops.length.toLocaleString()}
+									
+									
 
-									td.text-end(class="table-col-currencyvalue")
-										- var currencyValue = new Decimal(payment.fee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										include ./includes/value-display.pug
-
-									td
-										a(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#paymentModal-" + paymentIndex)) Details
+									td.text-end
+										a.btn.btn-sm.btn-primary(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#paymentModal-" + paymentIndex))
+											i.fas.fa-file-lines

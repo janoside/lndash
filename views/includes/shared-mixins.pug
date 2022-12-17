@@ -13,18 +13,31 @@ mixin sharedScriptTags
 
 
 
-mixin pageTitle(text, subtext, copyableSubtext=false)
-	.d-flex.justify-content-between
-		h1.fw-light.word-wrap.mb-1
-			| #{text}
-		
-			if (block)
-				block
+mixin pageTitle(text, subtext, copyableSubtext=false, subtextEllipsizeLength=-1)
+	.mb-4
+		.d-flex.justify-content-between
+			h1.fw-light.word-wrap.mb-1
+				if (typeof text === "string")
+					| #{text}
+					
+				else
+					span.me-2 #{text[0]}
+					span.fst-italic #{text[1]}
+					
+			
+				if (block)
+					block
 
-	h4.fw-light.word-wrap.mb-4 #{subtext}
-		if (copyableSubtext)
-			small
-				+copyTextButton(subtext)
+		if (subtext)
+			h4.fw-light.word-wrap
+				if (subtextEllipsizeLength > 0)
+					| #{utils.ellipsizeMiddle(subtext, subtextEllipsizeLength)}
+				else
+					| #{subtext}
+
+				if (copyableSubtext)
+					small
+						+copyTextButton(subtext)
 	
 	//hr.mb-3
 
@@ -191,4 +204,59 @@ mixin pillBadgeDanger(text)
 mixin pillBadgeLight(text)
 	+pillBadge(text, "text-bg-light")
 		block
+
+
+mixin btcAddress(btc_address)
+	if (config.blockExplorerUrl)
+		a.border-dotted(href=`${config.blockExplorerUrl}/address/${btc_address}`, title=btc_address, data-bs-toggle="tooltip")
+			+btcAddressInternal(btc_address)
+	else
+		span.border-dotted(title=btc_address, data-bs-toggle="tooltip")
+			+btcAddressInternal(btc_address)
+
+mixin btcAddressInternal(btc_address)
+	span.d-inline.d-xl-none #{utils.ellipsizeMiddle(btc_address, 12)}
+	span.d-none.d-xl-inline #{utils.ellipsizeMiddle(btc_address, config.site.addressMaxDisplayLength)}
+
+
+mixin btcTxid(btc_txid)
+	if (config.blockExplorerUrl)
+		a.border-dotted(href=`${config.blockExplorerUrl}/tx/${btc_txid}`, title=btc_txid, data-bs-toggle="tooltip")
+			+btcTxidInternal(btc_txid)
+
+	else
+		span.border-dotted(title=btc_txid, data-bs-toggle="tooltip")
+			+btcTxidInternal(btc_txid)
+
+mixin btcTxidInternal(btc_txid)
+	span.d-inline.d-xl-none #{utils.ellipsizeMiddle(btc_txid, 12)}
+	span.d-none.d-xl-inline #{utils.ellipsizeMiddle(btc_txid, config.site.txidMaxDisplayLength)}
+
+
+mixin channelId(channel_id, isOpen=false)
+	if (isOpen)
+		a(href=`/channel/${channel_id}`)
+			+channelIdInternal(channel_id)
+
+	else
+		span
+			+channelIdInternal(channel_id)
+			span(title="Closed", data-bs-toggle="tooltip")
+				i.fas.fa-circle-xmark.text-danger
+
+
+	if (utils.isObjectStarred(`channel:${channel_id}`))
+		i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite channels" data-bs-toggle="tooltip")
+
+mixin channelIdInternal(channel_id)
+	span.d-inline.d-lg-none #{utils.ellipsizeMiddle(channel_id, 10)}
+	span.d-none.d-lg-inline #{utils.ellipsizeMiddle(channel_id, 12)}
+
+
+mixin date(timestamp, formatType="human")
+	if (formatType == "human")
+		- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timestamp) * 1000))));
+		- var dateTimeUtc = moment.utc(new Date(parseInt(timestamp) * 1000)).format("Y-MM-DD HH:mm:ss");
+
+		span.border-dotted(title=`${dateTimeUtc} utc`, data-bs-toggle="tooltip") #{timeAgo.humanize()}
 

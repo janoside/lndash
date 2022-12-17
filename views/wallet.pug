@@ -99,7 +99,7 @@ block content
 
 								th.text-end Confirmations
 								
-								th Details
+								th.text-end Raw Data
 
 						tbody
 							each utxo, utxoIndex in walletUtxosResponse.utxos
@@ -109,32 +109,17 @@ block content
 									if (false)
 										td #{utxo.type}
 									td
-										- var btc_txid = utxo.outpoint.txid_str;
 
-										if (config.blockExplorerUrl)
-											a(href=`${config.blockExplorerUrl}/tx/${btc_txid}`, title=btc_txid, data-bs-toggle="tooltip")
-												include includes/btc-txid.pug
-										else
-											span(title=tx.tx_hash, data-bs-toggle="tooltip")
-												include includes/btc-txid.pug
-
+										+btcTxid(utxo.outpoint.txid_str)
+										
 										span  [#{utxo.outpoint.output_index}]
 
 									td
-										- var btc_address = utxo.address;
-
-										if (config.blockExplorerUrl)
-											a(href=`${config.blockExplorerUrl}/address/${btc_address}`, title=btc_address, data-bs-toggle="tooltip")
-												include includes/btc-address.pug
-										else
-											span(title=btc_address, data-bs-toggle="tooltip")
-												include includes/btc-address.pug
+										+btcAddress(utxo.address)
 
 									if (false)
 										td
-											- var btc_address = utxo.pk_script;
-											span.border-dotted(title=btc_address data-bs-toggle="tooltip")
-												include includes/btc-address.pug
+											+btcAddress(utxo.pk_script)
 
 									td.text-end
 										- var currencyValue = new Decimal(utxo.amount_sat).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
@@ -143,8 +128,9 @@ block content
 									td.text-end #{parseInt(utxo.confirmations).toLocaleString()}
 										
 									
-									td
-										a(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#utxoModal-" + utxoIndex)) Details
+									td.text-end
+										a.btn.btn-sm.btn-primary(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#utxoModal-" + utxoIndex))
+											i.fas.fa-file-lines
 
 
 
@@ -178,7 +164,7 @@ block content
 
 								th Addresses
 								
-								th Details
+								th.text-end Raw Data
 
 						
 						tbody
@@ -187,16 +173,9 @@ block content
 								tr
 									th.text-end #{(txIndex + 1).toLocaleString()}
 
-									td.table-col-text
-										if (config.blockExplorerUrl)
-											a(href=`${config.blockExplorerUrl}/tx/${tx.tx_hash}`, target="_blank", title=tx.tx_hash, data-bs-toggle="tooltip")
-												- var btc_txid = tx.tx_hash;
-												include includes/btc-txid.pug
-										else
-											span(title=tx.tx_hash, data-bs-toggle="tooltip")
-												- var btc_txid = tx.tx_hash;
-												include includes/btc-txid.pug
-
+									td
+										+btcTxid(tx.tx_hash)
+										
 									td
 										if (localChannels.byTxid[tx.tx_hash] != null)
 											span.text-success Opened channel:
@@ -257,21 +236,14 @@ block content
 											span -
 
 									td(class="table-col-text")
-										if (config.blockExplorerUrl)
-											each addr, addrIndex in tx.dest_addresses
-												a.border-dotted(href=`${config.blockExplorerUrl}/address/${addr}`, target="_blank", title=addr, data-bs-toggle="tooltip")
-													- var btc_address = addr;
-													include includes/btc-address.pug
-												br
-										else
-											each addr, addrIndex in tx.dest_addresses
-												span(title=addr, data-bs-toggle="tooltip")
-													- var btc_address = addr;
-													include includes/btc-address.pug
-												br
+										each addr, addrIndex in tx.dest_addresses
+											div
+												+btcAddress(addr)
 
-									td
-										a(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#txModal-" + tx.tx_hash)) Details
+
+									td.text-end
+										a.btn.btn-sm.btn-primary(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#txModal-" + tx.tx_hash))
+											i.fas.fa-file-lines
 
 
 

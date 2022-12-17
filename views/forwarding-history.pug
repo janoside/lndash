@@ -140,43 +140,33 @@ block content
 							include includes/forwarding-event-details-modal.pug
 
 						.table-responsive
-							table.table.table-bordered.border-top
+							table.table.table-striped
 								thead
 									tr
-										th.text-end #
+										th.text-end.fw-light #
 										th Date
 										th Incoming Channel
 										th Outgoing Channel
 										th.text-end Incoming Amount
 										th.text-end Outgoing Amount
 										th.text-end Fee
-										th Details
+										th.text-end Raw Data
 
 								tbody
 									each forwardingEvent, forwardingEventIndex in pagedFilteredEvents
 										tr
-											th.text-end #{(forwardingEventIndex + offset + 1).toLocaleString()}
+											th.text-end.fw-light #{(forwardingEventIndex + offset + 1).toLocaleString()}
+											
 											td
-												- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(forwardingEvent.timestamp) * 1000))));
-												- var dateTimeUtc = moment.utc(new Date(parseInt(forwardingEvent.timestamp) * 1000)).format("Y-MM-DD HH:mm:ss");
+												+date(forwardingEvent.timestamp)
 
-												div #{dateTimeUtc} utc
-												.text-muted #{timeAgo.humanize()} ago
 
 											td
 												- var channel_id = forwardingEvent.chan_id_in;
 												- var channelInfo = fullNetworkDescription.channelsById[channel_id];
-												if (channelInfo)
-													a(href=`/channel/${forwardingEvent.chan_id_in}`)
-														include includes/channel-id.pug
 
-												else
-													- var channel_id = forwardingEvent.chan_id_in;
-													include includes/channel-id.pug
-													span.text-muted  (closed)
-
-												if (utils.isObjectStarred(`channel:${channel_id}`))
-													i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite channels" data-bs-toggle="tooltip")
+												+channelId(forwardingEvent.chan_id_in, channelInfo != null)
+												
 
 												if (channelInfo)
 													hr
@@ -191,18 +181,9 @@ block content
 												- var channel_id = forwardingEvent.chan_id_out;
 												- var channelInfo = fullNetworkDescription.channelsById[channel_id];
 
-												if (channelInfo)
-													a(href=`/channel/${forwardingEvent.chan_id_out}`)
-														include includes/channel-id.pug
+												+channelId(forwardingEvent.chan_id_out, channelInfo != null)
 
-												else
-													- var channel_id = forwardingEvent.chan_id_out;
-													include includes/channel-id.pug
-													span.text-muted  (closed)
-
-												if (utils.isObjectStarred(`channel:${channel_id}`))
-													i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite channels" data-bs-toggle="tooltip")
-
+												
 												if (channelInfo)
 													hr
 
@@ -228,7 +209,8 @@ block content
 													include includes/value-display.pug
 
 											td
-												a(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#forwardingEventModal-" + forwardingEventIndex)) Details
+												a.btn.btn-sm.btn-primary(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#forwardingEventModal-" + forwardingEventIndex))
+													i.fas.fa-file-lines
 
 					
 				.tab-pane(id="tab-channels" role="tabpanel" class=(tab == "channels" ? "active" : false))
@@ -258,7 +240,7 @@ block content
 									table.table.table-striped
 										thead
 											tr
-												th.text-end #
+												th.text-end.fw-light #
 												th Channel
 												th.text-end Payments
 												th.text-end Value Transferred
@@ -268,21 +250,14 @@ block content
 										tbody
 											each channelForwardingInfo, channelInfoIndex in inChannels
 												tr
-													th.text-end #{(channelInfoIndex + 1).toLocaleString()}
+													th.text-end.fw-light #{(channelInfoIndex + 1).toLocaleString()}
+
 													td
 														- var channel_id = channelForwardingInfo.channelId;
 														- var channelInfo = fullNetworkDescription.channelsById[channel_id];
 
-														if (channelInfo)
-															a(href=`/channel/${channelForwardingInfo.channelId}`)
-																include includes/channel-id.pug
+														+channelId(channelForwardingInfo.channelId, channelInfo != null)
 
-														else
-															include includes/channel-id.pug
-															span.text-muted  (closed)
-
-														if (utils.isObjectStarred(`channel:${channel_id}`))
-															i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite channels" data-bs-toggle="tooltip")
 
 														if (channelInfo)
 															hr
@@ -331,16 +306,8 @@ block content
 														- var channel_id = channelForwardingInfo.channelId;
 														- var channelInfo = fullNetworkDescription.channelsById[channel_id];
 
-														if (channelInfo)
-															a(href=`/channel/${channelForwardingInfo.channelId}`)
-																include includes/channel-id.pug
-
-														else
-															include includes/channel-id.pug
-															span.text-muted  (closed)
-
-														if (utils.isObjectStarred(`channel:${channel_id}`))
-															i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite channels" data-bs-toggle="tooltip")
+														+channelId(channelForwardingInfo.channelId, channelInfo != null)
+														
 
 														if (channelInfo)
 															hr

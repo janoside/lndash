@@ -64,7 +64,7 @@ block content
 
 		+sectionTitle("My Node", false, null, null, null, "This card shows the basic details of your node, and the format is used throughout this app. The image is derived from the node's public key and the color for the outer ring is the node's 'color' property. The first N characters of the public key and the alias are also displayed.")
 
-		.d-flex.mt-3.lead.mb-section
+		.d-flex.mt-3.lead.mb-2
 			+card
 				- var card_node_pubkey = lndRpc.internal_pubkey;
 				include includes/node-card.pug

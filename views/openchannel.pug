@@ -40,17 +40,10 @@ block content
 				if (openChannelResponse.funding_txid_hex)
 					span New channel opening via transaction output: 
 						span
-							if (config.blockExplorerUrl)
-								a(href=`${config.blockExplorerUrl}/tx/${openChannelResponse.funding_txid_hex}`)
-									- var btc_txid = openChannelResponse.funding_txid_hex;
-									include ./includes/btc-txid.pug
-
-							else
-								- var btc_txid = openChannelResponse.funding_txid_hex;
-								include ./includes/btc-txid.pug
+							+btcTxid(openChannelResponse.funding_txid_hex)
 
 							if (openChannelResponse.hasOwnProperty("output_index"))
-								span  [#{openChannelResponse.output_index.toLocaleString()}]
+								span.ms-1 [#{openChannelResponse.output_index.toLocaleString()}]
 
 					.mt-2
 						span See your 
