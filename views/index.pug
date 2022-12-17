@@ -100,6 +100,38 @@ block content
 						span.text-warning.border-dotted(title="Error loading wallet balance. See Error Log for details." data-bs-toggle="tooltip") Unknown
 
 				
+				+summaryItem("Channel Balances")
+					div
+						span.border-dotted.me-2(title="Local, spendable balance across all of your channels.", data-bs-toggle="tooltip") Spendable
+
+						- var currencyValue = new Decimal(totalLocalBalance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+
+						if (currencyValue > 0)
+							- var localBalancePercent = new Decimal(totalLocalBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
+
+						span.badge.fs-6.text-bg-primary
+							i.fas.fa-arrow-right-from-bracket.me-2
+							include includes/value-display.pug
+						
+						if (currencyValue > 0)
+							span.text-muted.fs-75.ms-2 (#{localBalancePercent.toDP(1)}%)
+
+					div
+						span.border-dotted.me-2(title="Total receivable balance on the remote side of all of your channels.", data-bs-toggle="tooltip") Receivable
+						
+						- var currencyValue = new Decimal(parseInt(totalRemoteBalance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+
+						if (currencyValue > 0)
+							- var remoteBalancePercent = new Decimal(totalRemoteBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
+
+						span.badge.fs-6.text-bg-info
+							i.fas.fa-arrow-right-to-bracket.me-2
+							include includes/value-display.pug
+						
+						if (currencyValue > 0)
+							span.text-muted.fs-75.ms-2 (#{remoteBalancePercent.toDP(1)}%)
+
+
 				+summaryItem("Channels")
 					if (getInfo)
 						span.text-success Active:
@@ -126,34 +158,6 @@ block content
 						span.text-warning.border-dotted(title="Error loading channel info. See Error Log for details." data-bs-toggle="tooltip") Unknown
 
 
-				+summaryItem("Channel Balances")
-					div
-						span.border-dotted.me-2(title="Local, spendable balance across all of your channels.", data-bs-toggle="tooltip") Spendable
-
-						- var currencyValue = new Decimal(totalLocalBalance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-
-						if (currencyValue > 0)
-							- var localBalancePercent = new Decimal(totalLocalBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
-
-						include includes/value-display.pug
-						
-						if (currencyValue > 0)
-							span.text-muted.text-tiny.ms-2 (#{localBalancePercent.toDP(1)}%)
-
-					div
-						span.border-dotted.me-2(title="Total receivable balance on the remote side of all of your channels.", data-bs-toggle="tooltip") Receivable
-						
-						- var currencyValue = new Decimal(parseInt(totalRemoteBalance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-
-						if (currencyValue > 0)
-							- var remoteBalancePercent = new Decimal(totalRemoteBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
-
-						include includes/value-display.pug
-						
-						if (currencyValue > 0)
-							span.text-muted.text-tiny.ms-2 (#{remoteBalancePercent.toDP(1)}%)
-
-
 
 			hr.my-4
 
@@ -163,9 +167,13 @@ block content
 				+summaryItem("LND Version")
 					if (getInfo)
 						- var versionParts = getInfo.version.split(" ");
-						each versionPart in versionParts
-							span #{versionPart}
-							br
+						if (versionParts.length == 2 && versionParts[1].endsWith(versionParts[0]))
+							| #{versionParts[0]}
+
+						else
+							each versionPart in versionParts
+								span #{versionPart}
+								br
 					else
 						| Unknown
 
@@ -178,7 +186,7 @@ block content
 				+summaryItem("Current Block")
 					if (config.blockExplorerUrl)
 						a(href=(config.blockExplorerUrl + "/block/" + getInfo.block_hash), target="_blank") ##{getInfo.block_height.toLocaleString()}
-						.text-muted.text-tiny (
+						.text-muted.fs-75 (
 							if (getInfo.synced_to_chain)
 								span.text-muted synchronized
 							else
@@ -246,22 +254,22 @@ block content
 			+summaryRow(2)
 				+summaryItem("Out Degree Stats")
 					span #{new Decimal(networkInfo.avg_out_degree).toDP(2)}
-					span.text-muted.text-tiny.ms-1 (avg)
+					span.text-muted.fs-75.ms-1 (avg)
 					span.text-muted.mx-2 /
 					span #{new Decimal(networkInfo.max_out_degree).toDP(2)}
-					span.text-muted.text-tiny.ms-1 (max)
+					span.text-muted.fs-75.ms-1 (max)
 
 				+summaryItem("Channel Sizes", "Min / max allowed channel size.", "sat")
 					- var currencyValue = new Decimal(networkInfo.min_channel_size).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 					include includes/value-display.pug
 
-					span.text-muted.text-tiny.ms-1 (min)
+					span.text-muted.fs-75.ms-1 (min)
 					span.text-muted.mx-2 /
 					
 					- var currencyValue = new Decimal(networkInfo.max_channel_size).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 					include includes/value-display.pug
 					
-					span.text-muted.text-tiny.ms-1 (max)
+					span.text-muted.fs-75.ms-1 (max)
 					
 					
 

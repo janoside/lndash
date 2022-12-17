@@ -34,7 +34,12 @@ html
 		
 		.container.bg-main
 			.d-flex.flex-row.ms-n3
-				div
+				.d-flex.flex-column.flex-fill-1.p-3.text-bg-dark(style="width: 225px;")
+					div
+						include ./includes/menu-node-list.pug
+
+					hr.my-2
+
 					include ./includes/navbar.pug
 
 				.flex-grow-1

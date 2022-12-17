@@ -41,7 +41,7 @@ block content
 
 
 	mixin titlePillBadge(text, colorClass)
-		span.badge.rounded-pill.text-tiny.ms-2.align-text-bottom(class=colorClass)
+		span.badge.rounded-pill.fs-75.ms-2.align-text-bottom(class=colorClass)
 			| #{text}
 			block
 
@@ -113,7 +113,7 @@ block content
 										- var currencyValue = new Decimal(localChannel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 										include includes/value-display.pug
 									
-									.text-muted.text-tiny (#{localBalancePercent.toDP(1)}%)
+									.text-muted.fs-75 (#{localBalancePercent.toDP(1)}%)
 
 								
 								+summaryItem("Receivable")
@@ -121,7 +121,7 @@ block content
 										- var currencyValue = new Decimal(localChannel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 										include includes/value-display.pug
 									
-									.text-muted.text-tiny (#{remoteBalancePercent.toDP(1)}%)
+									.text-muted.fs-75 (#{remoteBalancePercent.toDP(1)}%)
 
 
 						.progress(style="height: 20px;")
@@ -204,7 +204,7 @@ block content
 							
 							span #{moment.utc(new Date(parseInt(channel.last_update) * 1000)).format("Y-MM-DD HH:mm:ss")} utc
 							
-							.text-muted.text-tiny (#{timeAgo.humanize()})
+							.text-muted.fs-75 (#{timeAgo.humanize()})
 
 
 						+summaryItem("Capacity")
@@ -223,7 +223,7 @@ block content
 							
 
 							div
-								span.text-small.text-muted (in block
+								span.fs-80.text-muted (in block
 									span.ms-2
 									if (config.blockExplorerUrl)
 										a(href=`${config.blockExplorerUrl}/block-height/${blockHeight}` target="_blank") #{blockHeight.toLocaleString()}

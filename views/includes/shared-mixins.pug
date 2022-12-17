@@ -109,7 +109,7 @@ mixin summaryTitle(title, titleDesc, subtitle, subtitleDesc, linkText, linkUrl, 
 
 	if (linkText && linkUrl)
 		if (linkText.startsWith("text:"))
-			a.ms-2.text-tiny(href=linkUrl, data-bs-toggle="tooltip", title=linkDesc) #{linkText.substring("text:".length)}
+			a.ms-2.fs-75(href=linkUrl, data-bs-toggle="tooltip", title=linkDesc) #{linkText.substring("text:".length)}
 
 		else if (linkText.startsWith("icon:"))
 			small
@@ -181,6 +181,9 @@ mixin filterBtnGroup(label, labelSubtext, options, baseUrl, varName, varVal)
 				a.btn.btn-light.border(href=`${baseUrl}&${varName}=${opt[1]}`) #{opt[0]}
 
 
+mixin menuHeading(text)
+	h6.text-uppercase.text-primary.fs-90 #{text}
+
 mixin pillBadge(text, colorClass)
 	span.badge.rounded-pill.me-2(class=colorClass) #{text}
 		block
@@ -208,10 +211,10 @@ mixin pillBadgeLight(text)
 
 mixin btcAddress(btc_address)
 	if (config.blockExplorerUrl)
-		a.border-dotted(href=`${config.blockExplorerUrl}/address/${btc_address}`, title=btc_address, data-bs-toggle="tooltip")
+		a(href=`${config.blockExplorerUrl}/address/${btc_address}`, title=btc_address, data-bs-toggle="tooltip")
 			+btcAddressInternal(btc_address)
 	else
-		span.border-dotted(title=btc_address, data-bs-toggle="tooltip")
+		span(title=btc_address, data-bs-toggle="tooltip")
 			+btcAddressInternal(btc_address)
 
 mixin btcAddressInternal(btc_address)
@@ -221,11 +224,11 @@ mixin btcAddressInternal(btc_address)
 
 mixin btcTxid(btc_txid)
 	if (config.blockExplorerUrl)
-		a.border-dotted(href=`${config.blockExplorerUrl}/tx/${btc_txid}`, title=btc_txid, data-bs-toggle="tooltip")
+		a(href=`${config.blockExplorerUrl}/tx/${btc_txid}`, title=btc_txid, data-bs-toggle="tooltip")
 			+btcTxidInternal(btc_txid)
 
 	else
-		span.border-dotted(title=btc_txid, data-bs-toggle="tooltip")
+		span(title=btc_txid, data-bs-toggle="tooltip")
 			+btcTxidInternal(btc_txid)
 
 mixin btcTxidInternal(btc_txid)
