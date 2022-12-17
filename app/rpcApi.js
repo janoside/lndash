@@ -1,5 +1,5 @@
 var debug = require("debug");
-var debugLog = debug("lnd-admin:rpc");
+var debugLog = debug("lnadmin:rpc");
 
 var utils = require("./utils.js");
 var fs = require("fs");

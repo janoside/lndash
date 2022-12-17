@@ -18,7 +18,7 @@ configPaths.filter(fs.existsSync).forEach(path => {
 var debug = require("debug");
 debug.enable(process.env.DEBUG);
 
-var debugLog = debug("lnd-admin:app");
+var debugLog = debug("lnadmin:app");
 
 var axios = require("axios");
 var express = require('express');
