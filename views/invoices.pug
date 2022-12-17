@@ -106,7 +106,7 @@ block content
 								th.text-end.fw-light #
 								th.fit Status
 
-								th.fit Value
+								th.text-end.fit Value
 
 								th Description
 								
@@ -162,7 +162,12 @@ block content
 									td
 										
 										if (invoice.memo)
-											span #{invoice.memo}
+											if (invoice.memo.length > 40)
+												span.border-dotted(title=`${invoice.memo}`, data-bs-toggle="tooltip") #{utils.ellipsizeMiddle(invoice.memo, 40)}
+
+											else
+												span #{invoice.memo}
+
 										else
 											span.text-muted (no description)
 

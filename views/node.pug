@@ -20,7 +20,11 @@ block content
 			include ./includes/node-icon.pug
 
 		.w-100
-			+pageTitle(["Node", nodeInfo.node.alias], nodePubkey, true, 24)
+			- var nodeAlias = null;
+			if (nodeInfo && nodeInfo.node)
+				- nodeAlias = nodeInfo.node.alias;
+
+			+pageTitle(["Node", nodeAlias], nodePubkey, true, 24)
 				span.h3
 					if (nodePubkey == lndRpc.internal_pubkey)
 						span(title="These are the public node details for your active LND node", data-bs-toggle="tooltip")
@@ -30,7 +34,7 @@ block content
 						span(title="This is one of your favorite nodes" data-bs-toggle="tooltip")
 							i.fas.fa-star.text-warning.fa-sm.ms-3
 
-		if (qrcodeUrls[nodeInfo.node.pub_key])
+		if (qrcodeUrls && qrcodeUrls[node_pubkey])
 			.me-2.ms-2
 				img(src=qrcodeUrls[nodeInfo.node.pub_key], alt=Pubkey QR Code, style="border: solid 1px #ccc; width: 8rem; height: 8rem;")
 

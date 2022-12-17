@@ -242,7 +242,7 @@ mixin channelId(channel_id, isOpen=false)
 		span
 			+channelIdInternal(channel_id)
 			span(title="Closed", data-bs-toggle="tooltip")
-				i.fas.fa-circle-xmark.text-danger
+				i.fas.fa-xmark.text-danger.ms-1
 
 
 	if (utils.isObjectStarred(`channel:${channel_id}`))
