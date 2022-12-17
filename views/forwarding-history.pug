@@ -208,7 +208,7 @@ block content
 													- var currencyValue = new Decimal(forwardingEvent.fee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 													include includes/value-display.pug
 
-											td
+											td.text-end
 												a.btn.btn-sm.btn-primary(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#forwardingEventModal-" + forwardingEventIndex))
 													i.fas.fa-file-lines
 
@@ -307,7 +307,7 @@ block content
 														- var channelInfo = fullNetworkDescription.channelsById[channel_id];
 
 														+channelId(channelForwardingInfo.channelId, channelInfo != null)
-														
+
 
 														if (channelInfo)
 															hr
