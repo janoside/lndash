@@ -27,65 +27,65 @@ block content
 
 			a.btn-close(href="/changeSetting?name=hideChannelsNetworkNote&value=true", aria-label="Close", style="text-decoration: none;")
 
-	.card.mb-3.shadow-sm
-		.card-body
-			.d-flex
-				.dropdown.me-4
-					- var sortOptions = [["Open Block", "openblockheight-desc"], ["Last Update", "last_update-desc"], ["Capacity", "capacity-desc"]];
 
-					+filterBtnGroup("Sort", null, sortOptions, `/channels?starred=${starred}&limit=${limit}`, "sort", sort)
+	+card
+		+filterList
+			+filterItem
+				- var sortOptions = [["Open Block", "openblockheight-desc"], ["Last Update", "last_update-desc"], ["Capacity", "capacity-desc"]];
 
-
-				.me-4.mb-2.mb-lg-0
-					- var starredFilterOptions = [["Yes", "yes"], ["All", "all"]];
-
-					+filterBtnGroup("Starred", "Option to only show channels that you have 'starred' (favorited) in the app", starredFilterOptions, `/channels?sort=${sort}&limit=${limit}`, "starred", starred)
+				+filterBtnGroup("Sort", null, sortOptions, `/channels?starred=${starred}&limit=${limit}`, "sort", sort)
 
 
-				.me-4.mb-2.mb-lg-0
-					- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
+			+filterItem
+				- var starredFilterOptions = [["Yes", "yes"], ["All", "all"]];
 
-					+filterBtnGroup("Page Size", null, pageSizeOptions, `/channels?sort=${sort}&starred=${starred}`, "limit", limit)
+				+filterBtnGroup("Starred", "Option to only show channels that you have 'starred' (favorited) in the app", starredFilterOptions, `/channels?sort=${sort}&limit=${limit}`, "starred", starred)
 
-			hr.my-3
 
-			div
-				if (allFilteredChannels.length > limit)
-					span Showing 
-					span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredChannels.length).toLocaleString()} 
-					span of 
-					span.fw-bold #{allFilteredChannels.length.toLocaleString()} 
-					if (allChannels.length > allFilteredChannels.length)
-						span filtered 
-					span channel
-					if (allFilteredChannels.length != 1)
-						span s
+			+filterItem
+				- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
 
-				else if (allFilteredChannels.length > 0)
-					span Showing 
-					span.fw-bold #{allFilteredChannels.length.toLocaleString()} 
-					if (allChannels.length > allFilteredChannels.length)
-						span filtered 
+				+filterBtnGroup("Page Size", null, pageSizeOptions, `/channels?sort=${sort}&starred=${starred}`, "limit", limit)
 
-					span channel
-					if (allFilteredChannels.length > 1)
-						span s
-				else
-					.alert.alert-warning.shadow-sm.mb-0 No matching channels
+		hr.my-3
 
-			- var itemCount = allFilteredChannels.length;
-			if (itemCount > limit)
-				- var pageNumber = offset / limit + 1;
-				- var pageCount = Math.floor(itemCount / limit);
-				- if (pageCount * limit < itemCount) {
-					- pageCount++;
-				- }
-				- var paginationUrlFunction = function(x) {
-					- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
-				- }
-				
-				.mt-2.mb-0
-					include includes/pagination.pug
+		div
+			if (allFilteredChannels.length > limit)
+				span Showing 
+				span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredChannels.length).toLocaleString()} 
+				span of 
+				span.fw-bold #{allFilteredChannels.length.toLocaleString()} 
+				if (allChannels.length > allFilteredChannels.length)
+					span filtered 
+				span channel
+				if (allFilteredChannels.length != 1)
+					span s
+
+			else if (allFilteredChannels.length > 0)
+				span Showing 
+				span.fw-bold #{allFilteredChannels.length.toLocaleString()} 
+				if (allChannels.length > allFilteredChannels.length)
+					span filtered 
+
+				span channel
+				if (allFilteredChannels.length > 1)
+					span s
+			else
+				.alert.alert-warning.shadow-sm.mb-0 No matching channels
+
+		- var itemCount = allFilteredChannels.length;
+		if (itemCount > limit)
+			- var pageNumber = offset / limit + 1;
+			- var pageCount = Math.floor(itemCount / limit);
+			- if (pageCount * limit < itemCount) {
+				- pageCount++;
+			- }
+			- var paginationUrlFunction = function(x) {
+				- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
+			- }
+			
+			.mt-2.mb-0
+				include includes/pagination.pug
 
 	if (pagedFilteredChannels.length > 0)
 		- var channelTableIndexOffset = offset;

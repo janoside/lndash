@@ -32,24 +32,24 @@ block content
 				
 
 		+card
-			.d-flex
-				.me-3
+			+filterList
+				+filterItem
 					- var sortOptions = [["Date", "created-desc"], ["Value", "value-desc"]];
 
 					+filterBtnGroup("Sort", null, sortOptions, `/invoices?settled=${settled}&created=${created}&limit=${limit}`, "sort", sort)
 
 
-				.me-3
+				+filterItem
 					- var statusFilterOptions = [["Settled", "settled"], ["Unsettled", "unsettled"], ["All", "all"]];
 
 					+filterBtnGroup("Status", null, statusFilterOptions, `/invoices?sort=${sort}&created=${created}&limit=${limit}`, "settled", settled)
 
-				.me-3
+				+filterItem
 					- var createdFilterOptions = [["1h", "60-min"], ["24h", "24-hr"], ["7d", "7-day"], ["30d", "30-day"], ["All", "all"]];
 
 					+filterBtnGroup("Time", null, createdFilterOptions, `/invoices?sort=${sort}&settled=${settled}&limit=${limit}`, "created", created)
 
-				div
+				+filterItem(true)
 					- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
 
 					+filterBtnGroup("Page Size", null, pageSizeOptions, `/invoices?sort=${sort}&settled=${settled}&created=${created}`, "limit", limit)

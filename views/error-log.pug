@@ -51,19 +51,19 @@ block content
 				table.table.table-striped
 					thead
 						tr
-							th.text-end #
+							th.text-end.fw-light #
 							th Date
 							th
 								span.border-dotted(title="This identifies the error in the source code for LND Admin." data-bs-toggle="tooltip") ID
 
 							th Error
-							th Stacktrace
-							th Details
+							th.text-end Details
 					
 					tbody
 						each error, errorIndex in errorLog
 							tr
-								th.text-end #{(errorIndex + 1).toLocaleString()}
+								th.text-end.fw-light #{(errorIndex + 1).toLocaleString()}
+
 								td
 									- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(error.date)));
 									- var dateTimeUtc = moment.utc(error.date).format("Y-MM-DD HH:mm:ss");
@@ -72,12 +72,7 @@ block content
 
 								td #{error.errorId}
 								td #{error.error}
-								td
-									if (error.error.stack)
-										span.text-success Yes
-									else
-										span.text-muted No
-
-								td
+								
+								td.text-end
 									a(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#errorModal-" + errorIndex)) Details
 

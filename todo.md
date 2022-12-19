@@ -2,8 +2,8 @@
 - get rid of most "includes" files and replace with mixins
 - lower-level mixins (e.g. modal, timestamp, etc)
 - popover-style userMessages
-- consistent display of onion addresses
 - mixin for pageTabs
 - fix all checkboxes and radios
 - clean up formatting for JSON-tab content
 - consistent formatting for all "filter" cards
+- pagination mixin (with descriptive text)

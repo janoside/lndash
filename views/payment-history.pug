@@ -23,63 +23,65 @@ block content
 				small.text-muted  (showing #{allFilteredPayments.length.toLocaleString()})
 
 
-		.card.mb-3.shadow-sm
-			.card-body
-				.d-flex
-					.me-3
-						- var sortOptions = [["Date", "date-desc"], ["Value", "value-desc"], ["Destination", "dest-desc"]];
+		+card
+			+filterList
+				+filterItem
+					- var sortOptions = [["Date", "date-desc"], ["Value", "value-desc"], ["Destination", "dest-desc"]];
 
-						+filterBtnGroup("Sort", null, sortOptions, `/payment-history?date=${date}&limit=${limit}`, "sort", sort)
+					+filterBtnGroup("Sort", null, sortOptions, `/payment-history?date=${date}&limit=${limit}`, "sort", sort)
 
-					.me-3.mb-2.mb-lg-0
-						- var createdFilterOptions = [["1h", "60-min"], ["24h", "24-hr"], ["7d", "7-day"], ["30d", "30-day"], ["All", "all"]];
 
-						+filterBtnGroup("Time", null, createdFilterOptions, `/payment-history?sort=${sort}&limit=${limit}`, "date", date)
+				+filterItem
+					- var createdFilterOptions = [["1h", "60-min"], ["24h", "24-hr"], ["7d", "7-day"], ["30d", "30-day"], ["All", "all"]];
 
-					.mb-2.mb-lg-0
-						- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
+					+filterBtnGroup("Time", null, createdFilterOptions, `/payment-history?sort=${sort}&limit=${limit}`, "date", date)
 
-						+filterBtnGroup("Page Size", null, pageSizeOptions, `/payment-history?sort=${sort}&date=${date}`, "limit", limit)
 
-				hr.my-3
+				+filterItem(true)
+					- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
 
-				div
-					if (allFilteredPayments.length > limit)
-						span Showing 
-						span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredPayments.length).toLocaleString()} 
-						span of 
-						span.fw-bold #{allFilteredPayments.length.toLocaleString()} 
-						if (allPayments.length > allFilteredPayments.length)
-							span filtered 
-						span payment
-						if (allFilteredPayments.length != 1)
-							span s
+					+filterBtnGroup("Page Size", null, pageSizeOptions, `/payment-history?sort=${sort}&date=${date}`, "limit", limit)
 
-					else if (allFilteredPayments.length > 0)
-						span Showing 
-						span.fw-bold #{allFilteredPayments.length.toLocaleString()} 
-						if (allPayments.length > allFilteredPayments.length)
-							span filtered 
-						span payment
-						if (allFilteredPayments.length != 1)
-							span s
 
-					else
-						.alert.alert-warning.shadow-sm.mb-0 No matching payments
+			hr.my-3
 
-				- var itemCount = allFilteredPayments.length;
-				if (itemCount > limit)
-					- var pageNumber = offset / limit + 1;
-					- var pageCount = Math.floor(itemCount / limit);
-					- if (pageCount * limit < itemCount) {
-						- pageCount++;
-					- }
-					- var paginationUrlFunction = function(x) {
-						- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
-					- }
-					
-					.mt-2.mb-0
-						include includes/pagination.pug
+			div
+				if (allFilteredPayments.length > limit)
+					span Showing 
+					span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredPayments.length).toLocaleString()} 
+					span of 
+					span.fw-bold #{allFilteredPayments.length.toLocaleString()} 
+					if (allPayments.length > allFilteredPayments.length)
+						span filtered 
+					span payment
+					if (allFilteredPayments.length != 1)
+						span s
+
+				else if (allFilteredPayments.length > 0)
+					span Showing 
+					span.fw-bold #{allFilteredPayments.length.toLocaleString()} 
+					if (allPayments.length > allFilteredPayments.length)
+						span filtered 
+					span payment
+					if (allFilteredPayments.length != 1)
+						span s
+
+				else
+					.alert.alert-warning.shadow-sm.mb-0 No matching payments
+
+			- var itemCount = allFilteredPayments.length;
+			if (itemCount > limit)
+				- var pageNumber = offset / limit + 1;
+				- var pageCount = Math.floor(itemCount / limit);
+				- if (pageCount * limit < itemCount) {
+					- pageCount++;
+				- }
+				- var paginationUrlFunction = function(x) {
+					- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
+				- }
+				
+				.mt-2.mb-0
+					include includes/pagination.pug
 
 
 		if (true)

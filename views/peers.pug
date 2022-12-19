@@ -22,81 +22,61 @@ block content
 		+pageTitle(`${listPeers.peers.length.toLocaleString()} Peer${(listPeers.peers.length == 1) ? "" : "s"}`)
 
 		
+		+card
+			+filterList
+				+filterItem
+					- var sortOptions = [["Public Key", "pubkey-asc"], ["Alias", "alias-asc"], ["IP Addr", "ip-asc"], ["Value Transferred", "valuetransfer-desc"], ["Data Transferred", "datatransfer-desc"]];
 
-		.card.mb-3.shadow-sm
-			.card-body
-				.d-flex
-					.dropdown.me-4
-						div Sort
-						button.btn.btn-primary.dropdown-toggle.mb-2.mb-lg-0(type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-							span
-								if (sort == null || sort == "pubkey-asc")
-									| Public Key
-								else if (sort == "alias-asc")
-									| Alias
-								else if (sort == "ip-asc")
-									| IP Address
-								else if (sort == "valuetransfer-desc")
-									| Value Transferred (highest first)
-								else if (sort == "datatransfer-desc")
-									| Data Transferred (highest first)
+					+filterBtnGroup("Sort", null, sortOptions, `/peers?limit=${limit}`, "sort", sort)
 
-						.dropdown-menu(aria-labelledby="dropdownMenuButton")
-							a.dropdown-item(href=`/peers?sort=pubkey-asc&limit=${limit}`) Public Key
-							a.dropdown-item(href=`/peers?sort=alias-asc&limit=${limit}`) Alias
-							a.dropdown-item(href=`/peers?sort=ip-asc&limit=${limit}`) IP Address
-							a.dropdown-item(href=`/peers?sort=valuetransfer-desc&limit=${limit}`) Value Transferred (highest first)
-							a.dropdown-item(href=`/peers?sort=datatransfer-desc&limit=${limit}`) Data Transferred (highest first)
 
-					.me-4.mb-2.mb-lg-0
-						div Page Size
-						- var pageSizeOptions = ["20", "50", "100"];
-						.btn-group.me-2(role="group")
-							each opt in pageSizeOptions
-								if (limit != null && limit == parseInt(opt))
-									span.btn.btn-primary #{opt}
-								else
-									a.btn.btn-light.border(href=`/peers?sort=${sort}&limit=${opt}`) #{opt}
+				+filterItem(true)
+					- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
 
-				hr.my-3
+					+filterBtnGroup("Page Size", null, pageSizeOptions, `/peers?sort=${sort}`, "limit", limit)
 
-				div
-					if (allFilteredPeers.length > limit)
-						span Showing 
-						span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredPeers.length).toLocaleString()} 
-						span of 
-						span.fw-bold #{allFilteredPeers.length.toLocaleString()} 
-						if (allPeers.length > allFilteredPeers.length)
-							span filtered 
-						span peer
-						if (allFilteredPeers.length != 1)
-							span s
+		
 
-					else if (allFilteredPeers.length > 0)
-						span Showing 
-						span.fw-bold #{allFilteredPeers.length.toLocaleString()} 
-						if (allPeers.length > allFilteredPeers.length)
-							span filtered 
+			hr.my-3
 
-						span peer
-						if (allFilteredPeers.length > 1)
-							span s
-					else
-						.alert.alert-warning.shadow-sm.mb-0 No matching peers
+			div
+				if (allFilteredPeers.length > limit)
+					span Showing 
+					span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredPeers.length).toLocaleString()} 
+					span of 
+					span.fw-bold #{allFilteredPeers.length.toLocaleString()} 
+					if (allPeers.length > allFilteredPeers.length)
+						span filtered 
+					span peer
+					if (allFilteredPeers.length != 1)
+						span s
 
-				- var itemCount = allFilteredPeers.length;
-				if (itemCount > limit)
-					- var pageNumber = offset / limit + 1;
-					- var pageCount = Math.floor(itemCount / limit);
-					- if (pageCount * limit < itemCount) {
-						- pageCount++;
-					- }
-					- var paginationUrlFunction = function(x) {
-						- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
-					- }
+				else if (allFilteredPeers.length > 0)
+					span Showing 
+					span.fw-bold #{allFilteredPeers.length.toLocaleString()} 
+					if (allPeers.length > allFilteredPeers.length)
+						span filtered 
+
+					span peer
+					if (allFilteredPeers.length > 1)
+						span s
+				else
+					.alert.alert-warning.shadow-sm.mb-0 No matching peers
+
+			- var itemCount = allFilteredPeers.length;
+			if (itemCount > limit)
+				- var pageNumber = offset / limit + 1;
+				- var pageCount = Math.floor(itemCount / limit);
+				- if (pageCount * limit < itemCount) {
+					- pageCount++;
+				- }
+				- var paginationUrlFunction = function(x) {
+					- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
+				- }
+				
+				.mt-2.mb-0
+					include includes/pagination.pug
 					
-					.mt-2.mb-0
-						include includes/pagination.pug
 
 		.table-responsive
 			table.table.table-striped

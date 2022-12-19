@@ -84,13 +84,13 @@ block content
 
 					if (tab == "events")
 						+card
-							.d-flex.flex-wrap
-								.me-3
+							+filterList
+								+filterItem
 									- var sortOptions = [["Date", "date-desc"], ["Value", "value-desc"]];
 
 									+filterBtnGroup("Sort", null, sortOptions, `/forwarding-history?tab=${tab}&daterange=${daterange}&limit=${limit}`, "sort", sort)
 
-								.me-3
+								+filterItem(true)
 									- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
 
 									+filterBtnGroup("Page Size", null, pageSizeOptions, `/forwarding-history?sort=${sort}&tab=${tab}&daterange=${daterange}`, "limit", limit)
@@ -220,8 +220,8 @@ block content
 
 					if (tab == "channels")
 						+card
-							.d-flex.flex-wrap
-								.me-3
+							+filterList
+								+filterItem
 									- var sortOptions = [["Σ Transferred", "valuetransfer-desc"], ["Fees", "fees-desc"], ["Payment Count", "eventcount-desc"], ["Channel ID", "channelId-asc"]];
 
 									+filterBtnGroup("Sort", null, sortOptions, `/forwarding-history?tab=${tab}&daterange=${daterange}&limit=${limit}`, "sort", sort)

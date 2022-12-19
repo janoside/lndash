@@ -166,6 +166,20 @@ mixin modal(modalId, title)
 
 
 
+mixin filterList
+	.d-flex.flex-wrap
+		block
+
+
+mixin filterItem(lastInList=false)
+	if (lastInList)
+		div
+			block
+	else
+		.me-3
+			block
+
+
 mixin filterBtnGroup(label, labelSubtext, options, baseUrl, varName, varVal)
 	div
 		if (labelSubtext)
@@ -176,9 +190,9 @@ mixin filterBtnGroup(label, labelSubtext, options, baseUrl, varName, varVal)
 	.btn-group.me-2(role="group")
 		each opt in options
 			if (varVal != null && varVal == opt[1])
-				span.btn.btn-primary #{opt[0]}
+				span.btn.btn-sm.btn-primary #{opt[0]}
 			else
-				a.btn.btn-light.border(href=`${baseUrl}&${varName}=${opt[1]}`) #{opt[0]}
+				a.btn.btn-sm.btn-light.border(href=`${baseUrl}&${varName}=${opt[1]}`) #{opt[0]}
 
 
 mixin menuHeading(text)

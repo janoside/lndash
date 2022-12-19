@@ -31,65 +31,64 @@ block content
 			a.btn-close(href="/changeSetting?name=hideNodesNetworkNote&value=true", aria-label="Close", style="text-decoration: none;")
 
 
-	.card.mb-3.shadow-sm
-		.card-body
-			.d-flex.flex-wrap
-				.dropdown.me-4
-					- var sortOptions = [["Last Update", "last_update-desc"], ["Channels", "num_channels-desc"], ["Capacity", "channel_capacity-desc"]];
-					
-					+filterBtnGroup("Sort", null, sortOptions, `/nodes?starred=${starred}&limit=${limit}`, "sort", sort)
-
-
-				.me-4
-					- var starredFilterOptions = [["Yes", "yes"], ["All", "all"]];
-
-					+filterBtnGroup("Starred", "Option to only show nodes that you have 'starred' (favorited) in the app", starredFilterOptions, `/nodes?sort=${sort}&limit=${limit}`, "starred", starred)
-
-
-				div
-					- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
-
-					+filterBtnGroup("Page Size", null, pageSizeOptions, `/nodes?sort=${sort}&starred=${starred}`, "limit", limit)
-
-			hr.my-3
-
-			div
-				if (allFilteredNodes.length > limit)
-					span Showing 
-					span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredNodes.length).toLocaleString()} 
-					span of 
-					span.fw-bold #{allFilteredNodes.length.toLocaleString()} 
-					if (allNodes.length > allFilteredNodes.length)
-						span filtered 
-					span node
-					if (allFilteredNodes.length != 1)
-						span s
-
-				else if (allFilteredNodes.length > 0)
-					span Showing 
-					span.fw-bold #{allFilteredNodes.length.toLocaleString()} 
-					if (allNodes.length > allFilteredNodes.length)
-						span filtered 
-
-					span node
-					if (allFilteredNodes.length > 1)
-						span s
-				else
-					.alert.alert-warning.shadow-sm.mb-0 No matching nodes
-
-			- var itemCount = allFilteredNodes.length;
-			if (itemCount > limit)
-				- var pageNumber = offset / limit + 1;
-				- var pageCount = Math.floor(itemCount / limit);
-				- if (pageCount * limit < itemCount) {
-					- pageCount++;
-				- }
-				- var paginationUrlFunction = function(x) {
-					- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
-				- }
+	+card
+		+filterList
+			+filterItem
+				- var sortOptions = [["Last Update", "last_update-desc"], ["Channels", "num_channels-desc"], ["Capacity", "channel_capacity-desc"]];
 				
-				.mt-2.mb-0
-					include includes/pagination.pug
+				+filterBtnGroup("Sort", null, sortOptions, `/nodes?starred=${starred}&limit=${limit}`, "sort", sort)
+
+
+			+filterItem
+				- var starredFilterOptions = [["Yes", "yes"], ["All", "all"]];
+
+				+filterBtnGroup("Starred", "Option to only show nodes that you have 'starred' (favorited) in the app", starredFilterOptions, `/nodes?sort=${sort}&limit=${limit}`, "starred", starred)
+
+
+			+filterItem(true)
+				- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
+
+				+filterBtnGroup("Page Size", null, pageSizeOptions, `/nodes?sort=${sort}&starred=${starred}`, "limit", limit)
+
+		hr.my-3
+
+		div
+			if (allFilteredNodes.length > limit)
+				span Showing 
+				span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredNodes.length).toLocaleString()} 
+				span of 
+				span.fw-bold #{allFilteredNodes.length.toLocaleString()} 
+				if (allNodes.length > allFilteredNodes.length)
+					span filtered 
+				span node
+				if (allFilteredNodes.length != 1)
+					span s
+
+			else if (allFilteredNodes.length > 0)
+				span Showing 
+				span.fw-bold #{allFilteredNodes.length.toLocaleString()} 
+				if (allNodes.length > allFilteredNodes.length)
+					span filtered 
+
+				span node
+				if (allFilteredNodes.length > 1)
+					span s
+			else
+				.alert.alert-warning.shadow-sm.mb-0 No matching nodes
+
+		- var itemCount = allFilteredNodes.length;
+		if (itemCount > limit)
+			- var pageNumber = offset / limit + 1;
+			- var pageCount = Math.floor(itemCount / limit);
+			- if (pageCount * limit < itemCount) {
+				- pageCount++;
+			- }
+			- var paginationUrlFunction = function(x) {
+				- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
+			- }
+			
+			.mt-2.mb-0
+				include includes/pagination.pug
 
 
 	if (pagedFilteredNodes.length > 0)

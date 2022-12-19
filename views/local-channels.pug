@@ -24,15 +24,15 @@ block content
 				small.text-muted.fs-75  (+#{(allChannels.length - allFilteredChannels.length).toLocaleString()} hidden)
 
 		+card
-			.d-flex.flex-wrap
-				.me-3.mb-3
+			+filterList
+				+filterItem
 					- var sortOptions = [["Capacity", "capacity-desc"], ["Local Balance", "localbalance-desc"], ["Remote Balance", "remotebalance-desc"], ["Σ Transferred", "valuetransfer-desc"], ["Last Update", "updated-desc"], ["Open Block", "openblockheight-desc"]];
 
 					+filterBtnGroup("Sort", null, sortOptions, `/local-channels?open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`, "sort", sort)
 					
 
 
-				.me-3.mb-3
+				+filterItem
 					- var openFilterOptions = [["Open", "open"], ["Closed", "closed"], ["All", "all"]];
 
 					+filterBtnGroup("Open?", "Includes both open and pending channels", openFilterOptions, `/local-channels?sort=${sort}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`, "open", open)
@@ -41,25 +41,25 @@ block content
 					
 
 				if (open != "closed")
-					.me-3.mb-3
+					+filterItem
 						- var statusOptions = [["Active", "active"], ["Inactive", "inactive"], ["Pending", "pending"], ["All", "all"]];
 
 						+filterBtnGroup("Status", null, statusOptions, `/local-channels?sort=${sort}&open=${open}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`, "status", status)
 
 
-					.me-3.mb-3
+					+filterItem
 						- var localbalanceOptions = [["Yes", "yes"], ["No", "no"], ["All", "all"]];
 
 						+filterBtnGroup("Has Local Balance", null, localbalanceOptions, `/local-channels?sort=${sort}&open=${open}&status=${status}&remotebalance=${remotebalance}&limit=${limit}`, "localbalance", localbalance)
 
 
-					.me-3.mb-3
+					+filterItem
 						- var remotebalanceOptions = [["Yes", "yes"], ["No", "no"], ["All", "all"]];
 
 						+filterBtnGroup("Has Remote Balance", null, remotebalanceOptions, `/local-channels?sort=${sort}&open=${open}&status=${status}&localbalance=${localbalance}&limit=${limit}`, "remotebalance", remotebalance)
 
 
-				.me-3.mb-3
+				+filterItem
 					- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
 
 					+filterBtnGroup("Page Size", null, pageSizeOptions, `/local-channels?sort=${sort}&open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}`, "limit", limit)
