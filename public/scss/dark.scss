@@ -18,6 +18,7 @@ $card-highlight-color: #406fb4;
 
 
 $input-bg: lighten($body-bg, 15%);
+$input-border-color: darken($input-bg, 10%);
 $form-control-bg: lighten($body-bg, 15%);
 
 
