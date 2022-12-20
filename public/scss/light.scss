@@ -29,11 +29,19 @@ $table-striped-bg: rgba(0, 0, 0, 0.04);
 
 
 .bg-background {
-	background-color: #aaa;
+	background-color: #444;
 }
 
 .bg-main {
 	background-color: $main-bg !important;
+}
+
+.bg-menu {
+	background-color: #ffffff;
+}
+
+li.nav-item:hover {
+	background-color: #eee;
 }
 
 .bg-header-footer {

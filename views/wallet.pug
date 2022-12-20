@@ -181,12 +181,12 @@ block content
 
 									td
 										if (localChannels.byTxid[tx.tx_hash] != null)
-											span.text-success Opened channel:
+											+pillBadgeSuccess("Opened Channel")
 											br
 											a(href=`/channel/${localChannels.byTxid[tx.tx_hash].chan_id}`) #{localChannels.byTxid[tx.tx_hash].chan_id}
 
 										else if (closedChannels.byTxid[tx.tx_hash] != null)
-											span.text-success Opened channel:
+											+pillBadgeSuccess("Opened Channel")
 											br
 											span #{closedChannels.byTxid[tx.tx_hash].chan_id} 
 												span.text-muted (closed)
@@ -196,7 +196,7 @@ block content
 											each chan in closedChannels.channels
 												if (chan.closing_tx_hash == tx.tx_hash)
 													- channelClosedByTx = true;
-													span.text-danger Closed channel:
+													+pillBadgeDanger("Closed Channel")
 													br
 													span #{chan.chan_id} 
 														span.text-muted (closed)

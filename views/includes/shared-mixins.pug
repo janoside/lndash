@@ -195,8 +195,12 @@ mixin filterBtnGroup(label, labelSubtext, options, baseUrl, varName, varVal)
 				a.btn.btn-sm.btn-light.border(href=`${baseUrl}&${varName}=${opt[1]}`) #{opt[0]}
 
 
-mixin menuHeading(text)
-	h6.text-uppercase.text-primary.fs-90 #{text}
+mixin menuHeading(text, hoverText)
+	if (hoverText)
+		h6.text-uppercase.text-primary.fs-90
+			span.border-dotted(title=hoverText, data-bs-toggle="tooltip") #{text}
+	else
+		h6.text-uppercase.text-primary.fs-90 #{text}
 
 mixin pillBadge(text, colorClass)
 	span.badge.rounded-pill.me-2(class=colorClass) #{text}

@@ -1,9 +1,8 @@
-- rename project (lnd-admin -> lnadmin)
-- get rid of most "includes" files and replace with mixins
+- rename project (lnd-admin -> lndash)
 - popover-style userMessages
 - mixin for pageTabs
-- value-display.pug
 - fix all checkboxes and radios
 - clean up formatting for JSON-tab content
-- consistent formatting for all "filter" cards
 - pagination mixin (with descriptive text)
+- async-ify rpcApi
+- bring back options menu (aside menu)

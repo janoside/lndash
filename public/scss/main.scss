@@ -129,6 +129,14 @@ code {
 	color: $body-color;
 }
 
+.fs-120 {
+	font-size: 120%;
+}
+
+.fs-100 {
+	font-size: 100%;
+}
+
 .fs-90 {
 	font-size: 90%;
 }
@@ -226,10 +234,6 @@ code, .font-json, .font-data, .font-plaintext {
 
 .summary-row:last-child {
 	margin-bottom: 0 !important;
-}
-
-li.nav-item:hover {
-	background-color: #2e3a4d;
 }
 
 

@@ -223,7 +223,9 @@ block content
 										- var localChannel = channel;
 
 										if (channel.active)
-											include ./includes/local-channel-details-modal.pug
+											+modal(`localChannelModal-${channel.chan_id}`)
+												pre
+													code.json #{JSON.stringify(channel, null, 4)}
 											
 											tr.word-wrap
 												th.text-end #{(channel_index + 1).toLocaleString()}
@@ -311,7 +313,7 @@ block content
 													else if (channel.channel != null)
 														.text-muted
 															+btcValue(channel.channel.remote_balance)
-															
+
 													else
 														span -
 													

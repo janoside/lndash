@@ -1,4 +1,4 @@
-$body-bg: #051c3e;
+$body-bg: #1a2433;
 $body-color: #f7fafa;
 
 $main-bg: darken($body-bg, 6%);
@@ -40,6 +40,7 @@ $pagination-disabled-border-color: 	lighten($border-color, 5%);
 
 
 $tooltip-bg: lighten($body-bg, 15%);
+$tooltip-color: $body-color;
 
 
 $nav-tabs-link-active-color:		darken($body-color, 5%);
@@ -141,6 +142,12 @@ $toast-header-border-color:         rgba(0, 0, 0, .05) !default;
 	background-color: $main-bg !important;
 }
 
+$bg-menu-color: $card-bg;
+
+.bg-menu {
+	background-color: $bg-menu-color;
+}
+
 $header-footer-bg: #112138;
 
 .bg-header-footer {
@@ -157,6 +164,11 @@ $header-footer-bg: #112138;
 
 .bg-card-highlight-badge {
 	background-color: $body-bg !important;
+}
+
+
+li.nav-item:hover {
+	background-color: lighten($bg-menu-color, 5%);
 }
 
 .bg-tx-separator {

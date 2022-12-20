@@ -25,25 +25,23 @@ html
 			var documentReadyFunctions = [];
 
 
-		header.py-3.border-bottom.border-secondary.text-bg-dark
-			.container-xxxl.d-grid.gap-3.align-items-center
-				a.navbar-brand.col-sm-3.col-md-1.me-0(href="/")
-					img.header-image(src="/img/logo/lightning.svg")
-					span #{config.siteInfo.title}
+		.container.bg-main.px-0.min-vh-100
+			.d-flex.flex-row
+				.d-flex.flex-column.border-end.me-2.bg-menu.min-vh-100(style="width: 215px;")
+					.p-3.text-bg-dark
+						a.navbar-brand.col-sm-3.col-md-1.me-0(href="/")
+							img.header-image(src="/img/logo/lightning.svg")
+							span #{config.siteInfo.title}
 
-		
-		.container.bg-main
-			.d-flex.flex-row.ms-n3
-				.d-flex.flex-column.flex-fill-1.p-3.text-bg-dark(style="width: 225px;")
-					div
-						include ./includes/menu-node-list.pug
+					if (global.adminCredentials && global.adminCredentials.lndNodes)
+						.border-bottom.p-3
+							include ./includes/menu-node-list.pug
 
-					hr.my-2
-
-					include ./includes/navbar.pug
+					.p-3
+						include ./includes/navbar.pug
 
 				.flex-grow-1
-					.container-fluid
+					.container.p-0
 						main(role="main")
 							if (userMessage)
 								div(class="alert shadow-sm", class=(userMessageType ? ("alert-"  + userMessageType) : "alert-info"), role="alert")
@@ -54,13 +52,15 @@ html
 									span !{session.userMessage}
 
 
-							.border-bottom.px-3.py-3.mt-2.mb-4.text-bg-dark.ms-n2
-								nav(aria-label="breadcrumb")
-									ol.breadcrumb.mb-0
-										li.me-2 &raquo;
-										block breadcrumb
+							if (false)
+								.px-3.py-3.mb-4.ms-n2
+									nav(aria-label="breadcrumb")
+										ol.breadcrumb.mb-0
+											li.me-2 &raquo;
+											block breadcrumb
 							
-							block content
+							.p-3
+								block content
 			
 
 		if (false)

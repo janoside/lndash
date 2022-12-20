@@ -1,6 +1,6 @@
 
 if (global.adminCredentials && global.adminCredentials.lndNodes)
-	+modal("nodeSelectModal", "Nodes", "modal-lg")
+	+modal("nodeSelectModal", "Nodes", "modal-md")
 		each lndNodeInfo, lndNodeIndex in global.adminCredentials.lndNodes
 			li.nav-item.rounded
 				if (lndConnections.byIndex[lndNodeIndex] != null)
@@ -27,7 +27,7 @@ if (global.adminCredentials && global.adminCredentials.lndNodes)
 		a(href=`/manage-nodes`) Manage Nodes
 
 if (global.adminCredentials && global.adminCredentials.lndNodes)
-	+menuHeading("Connected Node")
+	+menuHeading("Connected Node", `The node that LND Admin is currently connected to. Click the node to select another node.`)
 
 	ul.nav.nav-pills.flex-column
 		each lndNodeInfo, lndNodeIndex in global.adminCredentials.lndNodes
