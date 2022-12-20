@@ -137,7 +137,9 @@ block content
 									include includes/pagination.pug
 
 						each forwardingEvent, forwardingEventIndex in pagedFilteredEvents
-							include includes/forwarding-event-details-modal.pug
+							+modal(`forwardingEventModal-${forwardingEventIndex}`, `Forwarding Event #${(forwardingEventIndex + 1).toLocaleString()}`)
+								pre
+									code.json #{JSON.stringify(forwardingEvent, null, 4)}
 
 						.table-responsive
 							table.table.table-striped

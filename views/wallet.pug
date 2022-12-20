@@ -77,7 +77,10 @@ block content
 			+contentSection(`${walletUtxosResponse.utxos.length.toLocaleString()} UTXO${walletUtxosResponse.utxos.length == 1 ? "" : "s"}`)
 				each utxo, utxoIndex in walletUtxosResponse.utxos
 					- delete utxo.outpoint.txid_bytes;
-					include includes/wallet-utxo-details-modal.pug
+
+					+modal("utxoModal-" + utxoIndex, `UTXO #${(utxoIndex + 1).toLocaleString()}`)
+						pre
+							code.json #{JSON.stringify(utxo, null, 4)}
 
 				.table-responsive
 					table.table.table-striped
@@ -136,7 +139,9 @@ block content
 
 
 		each tx, txIndex in onChainTransactions.transactions
-			include includes/wallet-tx-details-modal.pug
+			+modal("txModal-" + tx.tx_hash, `Transaction ${tx.tx_hash}`)
+				pre
+					code.json #{JSON.stringify(tx, null, 4)}
 
 		
 		- var totalTxCount = confirmedTxCount + unconfirmedTxCount;
@@ -219,7 +224,7 @@ block content
 
 									td
 										+date(tx.time_stamp)
-										
+
 
 									td.text-end
 										- var currencyValue = new Decimal(Math.abs(parseInt(tx.amount))).dividedBy(coinConfig.baseCurrencyUnit.multiplier);

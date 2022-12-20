@@ -160,6 +160,9 @@ block content
 							- var localChannel_index = channel_index;
 							- var localChannel = channel;
 
-							include ./includes/local-channel-details-modal.pug
+							+modal(`localChannelModal-${localChannel_index}`, `Channel ${localChannel.chan_id}`)
+								pre
+									code.json #{JSON.stringify(localChannel, null, 4)}
+									
 							include ./includes/local-channel-table-row.pug
 
