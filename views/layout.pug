@@ -43,13 +43,7 @@ html
 				.flex-grow-1
 					.container.p-0
 						main(role="main")
-							if (userMessage)
-								div(class="alert shadow-sm", class=(userMessageType ? ("alert-"  + userMessageType) : "alert-info"), role="alert")
-									span !{userMessage}
-
-							else if (session.userMessage)
-								div(class="alert shadow-sm", class=(session.userMessageType ? ("alert-"  + session.userMessageType) : "alert-info"), role="alert")
-									span !{session.userMessage}
+							include ./includes/user-message.pug
 
 
 							if (false)
@@ -157,5 +151,16 @@ html
 			});
 
 			hljs.initHighlightingOnLoad();
+
+		if (userMessage || userMessageMarkdown)
+			script.
+				var toastElementList = [].slice.call(document.querySelectorAll('.toast'))
+				var toastList = toastElementList.map(function (toastElement) {
+					return new bootstrap.Toast(toastElement, {});
+				});
+
+				var userMessageToastElement = document.getElementById('userMessageToast');
+				var userMessageToast = bootstrap.Toast.getOrCreateInstance(userMessageToastElement);
+				userMessageToast.show();
 		
 		block endOfBody

@@ -37,10 +37,12 @@ block content
 		if (qrcodeUrls && qrcodeUrls[node_pubkey])
 			.me-2.ms-2
 				img(src=qrcodeUrls[nodeInfo.node.pub_key], alt=Pubkey QR Code, style="border: solid 1px #ccc; width: 8rem; height: 8rem;")
+				.text-center.fs-75.text-muted Public Key
 
 		if (nodeUri && qrcodeUrls[nodeUri])
 			div
 				img(src=qrcodeUrls[nodeUri], alt=URI QR Code, style="border: solid 1px #ccc; width: 8rem; height: 8rem;")
+				.text-center.fs-75.text-muted URI
 
 	
 

@@ -5,7 +5,7 @@ $main-bg: darken($body-bg, 6%);
 
 $text-muted: #b2bac2;
 
-$dark: #22272b;
+$dark: darken($body-bg, 8%);
 
 /*$theme-colors: (
 	"dark": #292e33
@@ -16,6 +16,9 @@ $blue: #0d6efd;
 $link-color: $blue;
 $card-highlight-color: #406fb4;
 
+
+$input-bg: lighten($body-bg, 15%);
+$form-control-bg: lighten($body-bg, 15%);
 
 
 
@@ -68,9 +71,10 @@ $dropdown-header-color: darken($body-color, 25%);
 $dropdown-box-shadow: 0 1.5rem 1rem rgba(#000, .35);
 
 
-$input-bg: darken(#fff, 0%);
 //$input-border-color: lighten($input-bg, 9%);
-$input-color: #212529;
+$input-color: $body-color;
+$input-placeholder-color: darken($input-color, 20%);
+$input-group-addon-bg: darken($input-bg, 12%);
 
 
 $modal-content-bg: $body-bg;
@@ -88,6 +92,7 @@ $toast-header-border-color:         rgba(0, 0, 0, .05) !default;
 
 
 @import "./main";
+
 
 
 
