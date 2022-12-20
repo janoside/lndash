@@ -13,16 +13,15 @@ else if (fullNetworkDescription == null)
 	- menuSections.push({title:null, items: [{url:"javascript:void(0)", text:"Loading...", spinner:true}]});
 
 else
-	- menuSections.push({title:null, items: [{url:"/", text:"Dashboard", icon:"fas fa-home"}]});
+	
 
 
-
-
-	- menuItems.push({url:"/wallet", text:"My Wallet", icon:"fas fa-wallet"});
+	- menuItems.push({url:"/", text:"Dashboard", icon:"fas fa-home"});
 	- menuItems.push({url:"/local-channels", text:"My Channels", icon:"fas fa-exchange-alt"});
+	- menuItems.push({url:"/wallet", text:"My Wallet", icon:"fas fa-wallet"});
 	- menuItems.push({url:"/peers", text:"My Peers", icon:"fas fa-users"});
 	
-	- menuSections.push({title:"My Node", items: menuItems});
+	- menuSections.push({title:"Home", items: menuItems});
 	- menuItems = [];
 
 
@@ -63,7 +62,7 @@ else
 
 
 
-	- menuItems.push({url:"/error-log", text:"Error Log", icon:"fas fa-exclamation-circle"})
+	- menuItems.push({url:"/error-log", text:"Error Log", icon:"fas fa-triangle-exclamation"})
 
 	- menuSections.push({title:"Technical", items: menuItems});
 	- menuItems = [];
@@ -78,7 +77,7 @@ each menuSection in menuSections
 		each menuItem in menuSection.items
 			if (menuItem.url && menuItem.text)
 				li.nav-item.rounded
-					a.nav-link.text-white.p-2.ps-3.py-2(href=menuItem.url, class=(req.path == menuItem.url ? "active" : false))
+					a.nav-link.p-2.ps-3.py-2(href=menuItem.url, class=(req.path == menuItem.url ? "active text-white" : "text-body"))
 						if (menuItem.icon)
 							i.me-2(class=menuItem.icon)
 

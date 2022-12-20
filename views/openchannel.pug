@@ -67,9 +67,10 @@ block content
 					input.form-control.form-control-lg(type="text" id="pubkey" name="pubkey" value=pubkey)
 
 				if (pubkey)
-					+card
-						- var card_node_pubkey = pubkey;
-						include includes/node-card.pug
+					.mb-n3
+						+card
+							- var card_node_pubkey = pubkey;
+							include includes/node-card.pug
 
 			.row
 				.col-sm-6.col-md-4.col-lg-3.col-xl-2

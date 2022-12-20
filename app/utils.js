@@ -427,12 +427,21 @@ function colorHexToHsl(hex) {
 function logError(errorId, err, optionalUserData = null) {
 	if (!global.errorLog) {
 		global.errorLog = [];
+		global.errorSummary = {};
 	}
 
 	global.errorLog.push({errorId:errorId, error:err, userData:optionalUserData, date:new Date()});
 	while (global.errorLog.length > 100) {
 		global.errorLog.splice(0, 1);
 	}
+
+	if (!global.errorSummary[errorId]) {
+		global.errorSummary[errorId] = {error:err, firstOccurrence:new Date(), count:0};
+	}
+
+	global.errorSummary[errorId].lastOccurrence = new Date();
+	global.errorSummary[errorId].count++;
+
 
 	debugLogError("Error " + errorId + ": " + err + ", json: " + JSON.stringify(err) + (optionalUserData != null ? (", userData: " + optionalUserData + " (json: " + JSON.stringify(optionalUserData) + ")") : ""));
 	

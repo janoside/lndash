@@ -2887,6 +2887,18 @@ router.get("/error-log", function(req, res) {
 		res.locals.errorLog = global.errorLog.slice();
 		res.locals.errorLog.reverse();
 	}
+
+	res.locals.errorSummary = global.errorSummary;
+
+	res.locals.errorIdsByRecency = [];
+	utils.objectProperties(global.errorSummary).forEach(errorId => {
+		res.locals.errorIdsByRecency.push(errorId);
+	});
+
+	res.locals.errorIdsByRecency.sort((a, b) => {
+		return (global.errorSummary[b].lastOccurrence.getTime() - global.errorSummary[a].lastOccurrence.getTime());
+	});
+	
 	
 	res.render("error-log");
 });

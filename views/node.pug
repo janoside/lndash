@@ -61,7 +61,7 @@ block content
 					span #{nodeInfo.node.color}
 
 
-				+summaryItem("Addresses")
+				+summaryItem(nodeInfo.node.addresses.length == 1 ? "Address" : "Addresses")
 					if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
 						each addressItem in nodeInfo.node.addresses
 							+netAddress(addressItem.addr, addressItem.network)
@@ -72,18 +72,9 @@ block content
 
 
 				+summaryItem("Last Update")
-					- var timeAgoTime = nodeInfo.node.last_update;
-					- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timeAgoTime) * 1000))));
-					- var dateTimeUtc = moment.utc(new Date(parseInt(nodeInfo.node.last_update) * 1000)).format("Y-MM-DD HH:mm:ss");
+					+date(nodeInfo.node.last_update)
 					
-					span #{dateTimeUtc} utc
 					
-					div
-						span.text-muted.fs-75
-							| (
-							span #{timeAgo.humanize()}
-							| )
-
 
 			hr.my-4
 

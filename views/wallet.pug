@@ -12,13 +12,14 @@ block breadcrumb
 block content
 	if (!session.admin)
 		+pageTitle("My Wallet")
-		h1.h3 My Wallet
-		hr
-
+		
+		
 		- var loginRequiredNote = "display details about this node's wallet.";
 		include includes/login-required-alert.pug
 
 	else
+
+		+pageTitle("My Wallet")
 
 
 		- var unconfirmedTxCount = 0;
@@ -175,7 +176,7 @@ block content
 
 									td
 										+btcTxid(tx.tx_hash)
-										
+
 									td
 										if (localChannels.byTxid[tx.tx_hash] != null)
 											span.text-success Opened channel:

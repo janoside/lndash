@@ -149,9 +149,9 @@ mixin card
 			block
 
 
-mixin modal(modalId, title)
-	.modal.fade(id=modalId role="dialog" aria-hidden="true")
-		.modal-dialog.modal-xl(role="document")
+mixin modal(modalId, title, modalSizeClass="modal-xl")
+	.modal.fade.mt-6(id=modalId role="dialog" aria-hidden="true")
+		.modal-dialog(role="document", class=modalSizeClass)
 			.modal-content
 				.modal-header
 					h5.modal-title.fw-light #{title}
@@ -271,20 +271,39 @@ mixin channelIdInternal(channel_id)
 
 
 mixin netAddress(address, network)
-	if (address.length > config.site.addressMaxDisplayLength)
+	- let addr = address;
+	- let port = "";
+
+	if (addr.includes(":"))
+		- port = addr.substring(addr.indexOf(":") + 1);
+		- addr = addr.substring(0, addr.indexOf(":"));
+		
+	if (addr.includes(".onion"))
+		span.border-dotted(title=`${network != null ? (network + " ") : ""}${address}`, data-bs-toggle="tooltip") #{utils.ellipsizeMiddle(addr.substring(0, addr.indexOf(".onion")), 10)}#{addr.substring(addr.indexOf(".onion"))}
+
+	else if (address.length > config.site.addressMaxDisplayLength)
 		span.border-dotted(title=`${network != null ? (network + " ") : ""}${address}`, data-bs-toggle="tooltip") #{utils.ellipsizeMiddle(address, config.site.addressMaxDisplayLength)}
 
 	else
 		if (network)
-			span.border-dotted(title=`${network} ${address}`, data-bs-toggle="tooltip") #{address}
+			span.border-dotted(title=`${network} ${address}`, data-bs-toggle="tooltip") #{addr}
+
 		else
-			| #{address}
+			| #{addr}
+
+	if (port && port.length > 0)
+		span.text-tiny :#{port}
 
 
 mixin date(timestamp, formatType="human")
 	if (formatType == "human")
-		- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timestamp) * 1000))));
+		- var d1 = new Date();
+		- var d2 = new Date(parseInt(timestamp) * 1000);
+		- var timeAgo = moment.duration(moment.utc(d1).diff(moment.utc(d2)));
 		- var dateTimeUtc = moment.utc(new Date(parseInt(timestamp) * 1000)).format("Y-MM-DD HH:mm:ss");
 
-		span.border-dotted(title=`${dateTimeUtc} utc`, data-bs-toggle="tooltip") #{timeAgo.humanize()}
+		if (d1.getTime() < d2.getTime())
+			span.border-dotted(title=`${dateTimeUtc} utc`, data-bs-toggle="tooltip") +#{timeAgo.humanize()}
+		else
+			span.border-dotted(title=`${dateTimeUtc} utc`, data-bs-toggle="tooltip") #{timeAgo.humanize()}
 

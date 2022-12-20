@@ -1,26 +1,26 @@
 extends layout
 
 block headContent
-	title Manage LND Nodes
+	title Manage Nodes
 
 block breadcrumb
 	li.breadcrumb-item Setup
 	if (setupActive)
-		li.breadcrumb-item Connect to LND
+		li.breadcrumb-item Connect to Node
 	else
-		li.breadcrumb-item Manage LND Nodes
+		li.breadcrumb-item Manage Nodes
 	
 block content
 
 	if (setupActive)
-		+pageTitle("Setup » Connect to LND")
+		+pageTitle("Setup » Connect to Node")
 
 	else
-		+pageTitle("Manage LND Nodes")
+		+pageTitle("Manage Nodes")
 
 
 	if (!setupActive && !session.admin)
-		- var loginRequiredNote = "allow you to add and remove LND nodes.";
+		- var loginRequiredNote = "allow you to add and remove nodes.";
 		include includes/login-required-alert.pug
 
 	else
@@ -54,7 +54,7 @@ block content
 						table.table.table-striped
 							thead
 								tr
-									th.text-end #
+									th.text-end.fw-light #
 									th Node
 									th Status
 									th Configuration
@@ -64,7 +64,7 @@ block content
 								each lndNodeConfig, lndNodeIndex in global.adminCredentials.lndNodes
 									- var lndNode = lndConnections.byIndex[lndNodeIndex];
 									tr
-										th.text-end #{(lndNodeIndex + 1).toLocaleString()}
+										th.text-end.fw-light #{(lndNodeIndex + 1).toLocaleString()}
 										td
 											if (lndNode)
 												- var card_node_pubkey = lndNode.internal_pubkey;
@@ -127,7 +127,7 @@ block content
 
 							input.form-control(id="tlsCertFilepath" name="tlsCertFilepath" value=tlsCertFilepath)
 
-						button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add LND Node
+						button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add Node
 
 				.tab-pane(id="tab-raw" role="tabpanel" class=(inputType == "rawTextInput" ? "active" : false))
 
@@ -156,7 +156,7 @@ block content
 
 							textarea.form-control(id="tlsCertAscii" name="tlsCertAscii") #{tlsCertAscii}
 
-						button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add LND Node
+						button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add Node
 
 				.tab-pane(id="tab-lndconnect" role="tabpanel" class=(inputType == "lndconnectString" ? "active" : false))
 
@@ -174,7 +174,7 @@ block content
 							span More info about 
 							a(href="https://github.com/LN-Zap/lndconnect" target="_blank") LND Connect
 
-						button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add LND Node
+						button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add Node
 
 		.modal(id="connectLndModal" tabindex="-1" role="dialog" aria-hidden="true")
 			.modal-dialog.modal-dialog-centered.modal-sm

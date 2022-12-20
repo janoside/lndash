@@ -202,10 +202,8 @@ block content
 							- var timeAgoTime = channel.last_update;
 							- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timeAgoTime) * 1000))));
 							
-							span #{moment.utc(new Date(parseInt(channel.last_update) * 1000)).format("Y-MM-DD HH:mm:ss")} utc
+							+date(channel.last_update)
 							
-							.text-muted.fs-75 (#{timeAgo.humanize()})
-
 
 						+summaryItem("Capacity")
 							- var currencyValue = new Decimal(channel.capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);

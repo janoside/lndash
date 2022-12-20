@@ -1,24 +1,52 @@
 
-+menuHeading("Active Node")
+if (global.adminCredentials && global.adminCredentials.lndNodes)
+	+modal("nodeSelectModal", "Nodes", "modal-lg")
+		each lndNodeInfo, lndNodeIndex in global.adminCredentials.lndNodes
+			li.nav-item.rounded
+				if (lndConnections.byIndex[lndNodeIndex] != null)
+					- var lndConn = lndConnections.byIndex[lndNodeIndex];
+					- var node_pubkey = lndConn.internal_pubkey;
 
-ul.nav.nav-pills.flex-column
-	each lndNodeInfo, lndNodeIndex in global.adminCredentials.lndNodes
-		li.nav-item.rounded
-			if (lndConnections.byIndex[lndNodeIndex] != null)
-				- var lndConn = lndConnections.byIndex[lndNodeIndex];
-				- var node_pubkey = lndConn.internal_pubkey;
 
+					if (fullNetworkDescription)
+						a.dropdown-item.rounded-0.px-2.py-2.fs-75(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#nodeSelectModal")
+							.d-flex
+								div.me-1
+									- var node_icon_size = "2rem;"
+									include ./node-icon.pug
 
-				if (fullNetworkDescription)
-					a.dropdown-item.rounded-0.px-2.py-2.fs-75(href=('/connect-lnd?index=' + lndNodeIndex), onclick="$('#switchLndModal').modal()")
-						.d-flex
-							div.me-1
-								- var node_icon_size = "2rem;"
-								include ./node-icon.pug
-
-							div
-								include ./node-pubkey.pug
-								
 								div
-									- var node_alias = lndConn.internal_alias;
-									include ./node-alias.pug
+									include ./node-pubkey.pug
+									
+									div
+										- var node_alias = lndConn.internal_alias;
+										include ./node-alias.pug
+
+		hr.my-4
+
+		a(href=`/manage-nodes`) Manage Nodes
+
+if (global.adminCredentials && global.adminCredentials.lndNodes)
+	+menuHeading("Connected Node")
+
+	ul.nav.nav-pills.flex-column
+		each lndNodeInfo, lndNodeIndex in global.adminCredentials.lndNodes
+			li.nav-item.rounded
+				if (lndConnections.byIndex[lndNodeIndex] != null)
+					- var lndConn = lndConnections.byIndex[lndNodeIndex];
+					- var node_pubkey = lndConn.internal_pubkey;
+
+
+					if (fullNetworkDescription)
+						a.dropdown-item.rounded-0.px-2.py-2.fs-75(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#nodeSelectModal")
+							.d-flex
+								div.me-1
+									- var node_icon_size = "2rem;"
+									include ./node-icon.pug
+
+								div
+									include ./node-pubkey.pug
+									
+									div
+										- var node_alias = lndConn.internal_alias;
+										include ./node-alias.pug
