@@ -18,7 +18,7 @@ configPaths.filter(fs.existsSync).forEach(path => {
 var debug = require("debug");
 debug.enable(process.env.DEBUG);
 
-var debugLog = debug("lnadmin:app");
+var debugLog = debug("lndash:app");
 
 var axios = require("axios");
 var express = require('express');
@@ -46,7 +46,7 @@ var semver = require("semver");
 var package_json = require('./package.json');
 global.appVersion = package_json.version;
 
-debugLog(`Starting LND Admin, v${global.appVersion}`);
+debugLog(`Starting LNDash, v${global.appVersion}`);
 
 process.on("unhandledRejection", (reason, p) => {
 	utils.logError("239780g37gtd", reason, {type:"Unhandled rejection", promise:p});
@@ -118,11 +118,11 @@ app.runOnStartup = async () => {
 		fs.mkdirSync(global.userDataDir);
 	}
 
-	/*latestVersion("lnd-admin").then(function(latestAppVersion) {
+	/*latestVersion("lndash").then(function(latestAppVersion) {
 		if (semver.gt(latestAppVersion, global.appVersion)) {
 			global.newAppVersion = latestAppVersion;
 
-			debugLog("New version of LND Admin available: v%s", global.newAppVersion);
+			debugLog("New version of LNDash available: v%s", global.newAppVersion);
 		}
 	});*/
 

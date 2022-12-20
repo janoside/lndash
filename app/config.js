@@ -22,7 +22,7 @@ module.exports = {
 	coin: currentCoin,
 
 	siteInfo: {
-		title: "LND Admin",
+		title: "LNDash",
 		sourceUrl: "https://github.com/janoside/lnd-admin",
 		demoSiteUrl: "https://lnd-admin.btc21.org"
 	},
@@ -54,7 +54,7 @@ module.exports = {
 		title:"Related Sites",
 		links:[
 			{name: "Bitcoin Explorer", url:"https://explorer.btc21.org", imgUrl:"/img/logo/btc.svg"},
-			{name: "LND Admin", url:"https://lnd-admin.btc21.org", imgUrl:"/img/logo/lightning.svg"},
+			{name: "LNDash", url:"https://lndash.btc21.org", imgUrl:"/img/logo/lightning.svg"},
 		]
 	}
 };

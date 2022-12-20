@@ -1,5 +1,5 @@
 var debug = require("debug");
-var debugLog = debug("lnadmin:router");
+var debugLog = debug("lndash:router");
 
 const hashjs = require('hash.js');
 
@@ -1976,7 +1976,7 @@ router.post("/manage-nodes", function(req, res) {
 			rpcApi.connectAllNodes().then(function() {
 				global.setupNeeded = false;
 
-				req.session.userMessage = "<h3 class='h5'>Setup complete</h3><span>Welcome to LND Admin!</span>";
+				req.session.userMessage = "<h3 class='h5'>Setup complete</h3><span>Welcome to LNDash!</span>";
 				req.session.userMessageType = "success";
 
 				res.redirect("/");

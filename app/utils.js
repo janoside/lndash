@@ -1,6 +1,6 @@
 var debug = require("debug");
-var debugLog = debug("lnadmin:utils");
-var debugLogError = debug("lnadmin:error");
+var debugLog = debug("lndash:utils");
+var debugLogError = debug("lndash:error");
 
 var Decimal = require("decimal.js");
 var qrcode = require("qrcode");

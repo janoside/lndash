@@ -1,5 +1,5 @@
 var debug = require("debug");
-var debugLog = debug("lnadmin:router");
+var debugLog = debug("lndash:router");
 
 const hashjs = require('hash.js');
 

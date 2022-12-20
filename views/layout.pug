@@ -28,10 +28,15 @@ html
 		.container.bg-main.px-0.min-vh-100
 			.d-flex.flex-row
 				.d-flex.flex-column.border-end.me-2.bg-menu.min-vh-100(style="width: 215px;")
-					.p-3.text-bg-dark
-						a.navbar-brand.col-sm-3.col-md-1.me-0(href="/")
-							img.header-image(src="/img/logo/lightning.svg")
-							span #{config.siteInfo.title}
+					.p-3.text-bg-dark.d-flex.justify-content-between
+						div
+							a.navbar-brand.me-0(href="/")
+								img.header-image(src="/img/logo/lightning.svg")
+								span #{config.siteInfo.title}
+
+						div
+							a(href="javascript:void(0)")
+								i.fas.fa-gear.text-white
 
 					if (global.adminCredentials && global.adminCredentials.lndNodes)
 						.border-bottom.p-3

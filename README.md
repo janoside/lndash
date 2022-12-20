@@ -1,4 +1,6 @@
-# LND Admin
+# LNDash
+
+(Lightning Network Dashboard)
 
 [![npm version][npm-ver-img]][npm-ver-url] [![NPM downloads][npm-dl-img]][npm-dl-url]
 
@@ -28,22 +30,22 @@ Live demo: https://lnd-admin.btc21.org
 
 * [Install LND](https://github.com/lightningnetwork/lnd/blob/master/docs/INSTALL.md)
 
-### 2a. Install LND Admin (via NPM)
+### 2a. Install LNDash (via NPM)
 
 * `npm install -g lnd-admin`
 * `lnd-admin`
 * Open [http://127.0.0.1:3004/](http://127.0.0.1:3004/)
 
-### 2b. Install LND Admin (from source)
+### 2b. Install LNDash (from source)
 
 * `git clone git@github.com:janoside/lnd-admin.git`
 * `cd lnd-admin; npm install`
 * `npm start`
 * Open [http://127.0.0.1:3004/](http://127.0.0.1:3004/)
 
-### 3. Setup LND Admin via UI
+### 3. Setup LNDash via UI
 
-Once started, LND Admin's UI will guide you to set an admin password and then to connect to any LND nodes you're running. Your hashed password and your LND credentials (encrypted with your password), will be stored in the file `~/.lnd-admin/credentials.json`. If you restart the app after setup, you'll need to "unlock" with your same admin password (in order to decrypt LND credentials). Deleting this file at any time and restarting will prompt you to go through the setup process again.
+Once started, LNDash's UI will guide you to set an admin password and then to connect to any LND nodes you're running. Your hashed password and your LND credentials (encrypted with your password), will be stored in the file `~/.lnd-admin/credentials.json`. If you restart the app after setup, you'll need to "unlock" with your same admin password (in order to decrypt LND credentials). Deleting this file at any time and restarting will prompt you to go through the setup process again.
 
 
 # Credits

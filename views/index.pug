@@ -1,7 +1,7 @@
 extends layout
 
 block headContent
-	title LND Admin
+	title Home - LNDash
 
 block breadcrumb
 	li.breadcrumb-item Home
@@ -11,12 +11,12 @@ block content
 		if (session.hideHomepageBanner != "true")
 			if (global.newAppVersion)
 				.alert.alert-primary.alert-dismissible.shadow-sm.mb-3
-					span You're running LND Admin v#{global.appVersion}. A newer version is available: 
-					a(href="https://www.npmjs.com/package/lnd-admin") LND Admin v#{global.newAppVersion}
+					span You're running LNDash v#{global.appVersion}. A newer version is available: 
+					a(href="https://www.npmjs.com/package/lnd-admin") LNDash v#{global.newAppVersion}
 
 			.alert.alert-primary.alert-dismissible.shadow-sm.mb-3(role="alert")
 				p
-					span.fw-bold LND Admin
+					span.fw-bold LNDash
 					span  is 
 					a(href="https://github.com/janoside/lnd-admin" target="_blank") open-source
 					span  and easy to set up. It communicates with your 

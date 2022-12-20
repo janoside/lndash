@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var debug = require('debug')('lnadmin:app');
+var debug = require('debug')('lndash:app');
 var app = require('../app');
 
 app.set('port', process.env.PORT || process.env.LND_ADMIN_PORT || 3004);
