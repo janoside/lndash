@@ -49,33 +49,27 @@ block content
 
 
 								+summaryItem("Fees Collected", null, "total / max / avg")
-									- var currencyValue = new Decimal(totalFees).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-									include includes/value-display.pug
+									+btcValue(totalFees)
 
 									span.text-muted.mx-2 /
 
-									- var currencyValue = new Decimal(maxFee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-									include includes/value-display.pug
+									+btcValue(maxFee)
 
 									span.text-muted.mx-2 /
 
-									- var currencyValue = new Decimal(avgFee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-									include includes/value-display.pug
+									+btcValue(avgFee)
 
 
 								+summaryItem("Value Transferred", null, "total / max / avg")
-									- var currencyValue = new Decimal(totalValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-									include includes/value-display.pug
+									+btcValue(totalValueTransferred)
 
 									span.text-muted.mx-2 /
 
-									- var currencyValue = new Decimal(maxValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-									include includes/value-display.pug
+									+btcValue(maxValueTransferred)
 
 									span.text-muted.mx-2 /
 
-									- var currencyValue = new Decimal(avgValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-									include includes/value-display.pug
+									+btcValue(avgValueTransferred)
 
 						
 
@@ -196,19 +190,16 @@ block content
 													include includes/node-card.pug
 
 											td.text-end
-												- var currencyValue = new Decimal(forwardingEvent.amt_in).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-												include includes/value-display.pug
+												+btcValue(forwardingEvent.amt_in)
 											
 											td.text-end
-												- var currencyValue = new Decimal(forwardingEvent.amt_out).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-												include includes/value-display.pug
+												+btcValue(forwardingEvent.amt_out)
 
 											td.text-end
 												.text-success
 													span +
 
-													- var currencyValue = new Decimal(forwardingEvent.fee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-													include includes/value-display.pug
+													+btcValue(forwardingEvent.fee)
 
 											td.text-end
 												a.btn.btn-sm.btn-primary(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#forwardingEventModal-" + forwardingEventIndex))
@@ -273,15 +264,13 @@ block content
 													td.text-end #{channelForwardingInfo.eventCount.toLocaleString()}
 													
 													td.text-end
-														- var currencyValue = new Decimal(channelForwardingInfo.totalValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-														include includes/value-display.pug
+														+btcValue(channelForwardingInfo.totalValueTransferred)
 
 													td.text-end
 														.text-success
 															span +
 
-															- var currencyValue = new Decimal(channelForwardingInfo.totalFees).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-															include includes/value-display.pug
+															+btcValue(channelForwardingInfo.totalFees)
 
 							.col-md-6
 								h3.h5 #{outChannels.length.toLocaleString()} Outgoing Channel
@@ -323,8 +312,7 @@ block content
 													td.text-end #{channelForwardingInfo.eventCount.toLocaleString()}
 													
 													td.text-end
-														- var currencyValue = new Decimal(channelForwardingInfo.totalValueTransferred).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-														include includes/value-display.pug
+														+btcValue(channelForwardingInfo.totalValueTransferred)
 
 
 		else

@@ -17,8 +17,7 @@ tr.word-wrap
 
 
 	td.text-end
-		- var currencyValue = new Decimal(channel.capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-		include ./value-display.pug
+		+btcValue(channel.capacity)
 	
 
 	td.text-end

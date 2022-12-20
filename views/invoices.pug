@@ -152,12 +152,10 @@ block content
 												span +
 
 											if (settled)
-												- var currencyValue = new Decimal(invoice.amt_paid_sat).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-												include ./includes/value-display.pug
+												+btcValue(invoice.amt_paid_sat)
 
 											else
-												- var currencyValue = new Decimal(invoice.value).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-												include ./includes/value-display.pug
+												+btcValue(invoice.value)
 
 									td
 										

@@ -82,19 +82,17 @@ block content
 			+summaryRow(3)
 				+summaryItem("On-Chain Balance")
 					if (walletBalance)
-						- var currencyValue = new Decimal(parseInt(walletBalance.confirmed_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-						if (currencyValue > 0)
+						span.badge.text-bg-success(title="Confirmed balance", data-bs-toggle="tooltip")
+							i.fas.fa-check.me-2
+							+btcValue(walletBalance.confirmed_balance)
+								span.text-muted (none)
+
+
+						if (walletBalance.unconfirmed_balance > 0)
 							div
-								include includes/value-display.pug
-
-						else
-							span.text-warning None
-
-						- var currencyValue = new Decimal(parseInt(walletBalance.unconfirmed_balance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-						if (currencyValue > 0)
-							.text-muted
-								include includes/value-display.pug
-								span  (unconfirmed)
+								span.badge.text-bg-warning(title="Unconfirmed balance", data-bs-toggle="tooltip")
+									i.fas.fa-clock.me-2
+									+btcValue(walletBalance.unconfirmed_balance)
 
 					else
 						span.text-warning.border-dotted(title="Error loading wallet balance. See Error Log for details." data-bs-toggle="tooltip") Unknown
@@ -104,55 +102,57 @@ block content
 					div
 						span.border-dotted.me-2(title="Local, spendable balance across all of your channels.", data-bs-toggle="tooltip") Spendable
 
-						- var currencyValue = new Decimal(totalLocalBalance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-
-						if (currencyValue > 0)
+						if (totalLocalBalance > 0)
 							- var localBalancePercent = new Decimal(totalLocalBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
 
-						span.badge.fs-6.text-bg-primary
+						span.badge.text-bg-primary.fs-80
 							i.fas.fa-arrow-right-from-bracket.me-2
-							include includes/value-display.pug
+							+btcValue(totalLocalBalance)
 						
-						if (currencyValue > 0)
+						if (totalLocalBalance > 0)
 							span.text-muted.fs-75.ms-2 (#{localBalancePercent.toDP(1)}%)
 
 					div
 						span.border-dotted.me-2(title="Total receivable balance on the remote side of all of your channels.", data-bs-toggle="tooltip") Receivable
 						
-						- var currencyValue = new Decimal(parseInt(totalRemoteBalance)).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-
-						if (currencyValue > 0)
+						if (totalRemoteBalance > 0)
 							- var remoteBalancePercent = new Decimal(totalRemoteBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
 
-						span.badge.fs-6.text-bg-info
+						span.badge.text-bg-info.fs-80
 							i.fas.fa-arrow-right-to-bracket.me-2
-							include includes/value-display.pug
+							+btcValue(totalRemoteBalance)
 						
-						if (currencyValue > 0)
+						if (totalRemoteBalance > 0)
 							span.text-muted.fs-75.ms-2 (#{remoteBalancePercent.toDP(1)}%)
 
 
 				+summaryItem("Channels")
 					if (getInfo)
-						span.text-success Active:
-						span.ms-2
+						+pillBadgeSuccess("Active")
+						span
 							if (parseInt(getInfo.num_active_channels) > 0)
-								span.text-success #{parseInt(getInfo.num_active_channels).toLocaleString()}
+								span #{parseInt(getInfo.num_active_channels).toLocaleString()}
 
 							else
-								span.text-warning None
+								span.text-muted (none)
 
-						if (getInfo.num_pending_channels > 0 || getInfo.num_inactive_channels > 0)
-							span.text-muted  (
-								if (getInfo.num_pending_channels > 0)
-									span #{parseInt(getInfo.num_pending_channels).toLocaleString()} pending
+						if (getInfo.num_pending_channels)
+							+pillBadgeWarning("Pending")
+							span
+							if (parseInt(getInfo.num_pending_channels) > 0)
+								span #{parseInt(getInfo.num_pending_channels).toLocaleString()}
 
-									if (getInfo.num_inactive_channels > 0)
-										span , 
+							else
+								span.text-muted (none)
 
-								if (getInfo.num_inactive_channels > 0)
-									span #{parseInt(getInfo.num_inactive_channels).toLocaleString()} inactive
-								span )
+						if (getInfo.num_inactive_channels)
+							+pillBadgeWarning("Inactive")
+							span
+							if (parseInt(getInfo.num_inactive_channels) > 0)
+								span #{parseInt(getInfo.num_inactive_channels).toLocaleString()}
+
+							else
+								span.text-muted (none)
 
 					else
 						span.text-warning.border-dotted(title="Error loading channel info. See Error Log for details." data-bs-toggle="tooltip") Unknown
@@ -234,8 +234,7 @@ block content
 		+contentSection("Public Network Summary")
 			+summaryRow(4)
 				+summaryItem("Total Capacity")
-					- var currencyValue = new Decimal(totalCapacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-					include ./includes/value-display.pug
+					+btcValue(totalCapacity)
 
 				+summaryItem("Nodes")
 					span #{fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()}
@@ -244,9 +243,8 @@ block content
 					span #{fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()}
 
 				+summaryItem("Avg Channel Capacity")
-					- var currencyValue = new Decimal(totalCapacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(fullNetworkDescription.channels.sortedByLastUpdate.length);
-
-					include ./includes/value-display.pug
+					- var currencyValue = new Decimal(totalCapacity).dividedBy(fullNetworkDescription.channels.sortedByLastUpdate.length);
+					+btcValue(currencyValue)
 			
 			hr.my-4
 
@@ -260,14 +258,12 @@ block content
 					span.text-muted.fs-75.ms-1 (max)
 
 				+summaryItem("Channel Sizes", "Min / max allowed channel size.", "sat")
-					- var currencyValue = new Decimal(networkInfo.min_channel_size).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-					include includes/value-display.pug
+					+btcValue(networkInfo.min_channel_size)
 
 					span.text-muted.fs-75.ms-1 (min)
 					span.text-muted.mx-2 /
-					
-					- var currencyValue = new Decimal(networkInfo.max_channel_size).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-					include includes/value-display.pug
+
+					+btcValue(networkInfo.max_channel_size)
 					
 					span.text-muted.fs-75.ms-1 (max)
 					

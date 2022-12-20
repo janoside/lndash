@@ -113,12 +113,10 @@ block content
 											span(title=payment.payment_preimage, data-bs-toggle="tooltip") #{payment.payment_preimage.substring(0, 15)}
 
 									td.text-end
-										- var currencyValue = new Decimal(payment.value_msat).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(1000);
-										include ./includes/value-display.pug
+										+btcValue(new Decimal(payment.value_msat).dividedBy(1000))
 
 									td.text-end
-										- var currencyValue = new Decimal(payment.fee).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										include ./includes/value-display.pug
+										+btcValue(payment.fee)
 
 									td
 										//pre

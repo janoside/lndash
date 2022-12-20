@@ -83,13 +83,11 @@ block content
 					| #{parseInt(nodeInfo.num_channels).toLocaleString()}
 
 				+summaryItem("Total Capacity")
-					- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-					include ./includes/value-display.pug
+					+btcValue(nodeInfo.total_capacity)
 
 				if (nodeChannels.length > 1)
 					+summaryItem("Avg Capacity")
-						- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier).dividedBy(nodeChannels.length);
-						include ./includes/value-display.pug
+						+btcValue(new Decimal(nodeInfo.total_capacity).dividedBy(nodeChannels.length))
 
 							
 

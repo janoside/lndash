@@ -25,9 +25,10 @@ block content
 				input.form-control.form-control-lg(id="pubkey" name="pubkey" type="text" value=pubkey)
 
 			if (pubkey)
-				+card
-					- var card_node_pubkey = pubkey;
-					include includes/node-card.pug
+				.d-flex
+					+card
+						- var card_node_pubkey = pubkey;
+						include includes/node-card.pug
 
 			.d-flex
 				.mb-3
@@ -70,22 +71,19 @@ block content
 			+contentSection("Summary")
 				+summaryRow(4)
 					+summaryItem("Total Cost", "The total amount to be transferred in milli-satoshis (the native unit on the lightning network), followed by the amount in your chosen unit")
-						- var currencyValue = new Decimal(route.total_amt_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
-						- var tempCurrencyFormatType = "msat";
-						include includes/value-display.pug
+						+btcValue(route.total_amt_msat, "msat", "msat")
+
 						br
 						span.text-muted.fs-75
 							| (
-							include includes/value-display.pug
+							+btcValue(new Decimal(route.total_amt_msat).dividedBy(1000))
 							| )
 
 
 					+summaryItem("Total Fees")
 						if (parseInt(route.total_fees_msat) > 0)
 							span.text-danger
-								- var currencyValue = new Decimal(route.total_fees_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
-								- var tempCurrencyFormatType = "msat";
-								include includes/value-display.pug
+								+btcValue(route.total_fees_msat, "msat", "msat")
 								
 						else
 							span.text-success 0
@@ -102,11 +100,11 @@ block content
 
 
 			+contentSection("Details")
-				.d-flex
-					.card.text-body.shadow-sm.me-3
+				.d-flex.flex-wrap.mb-n3
+					.card.text-body.shadow-sm.me-3.mb-3
 						.card-header
 							h3.h6.mb-0
-								i.fas.fa-play-circle.me-2.fa-lg
+								i.fas.fa-play-circle.me-2.fa-lg.text-primary
 								span Origin
 						.card-body
 							.fw-bold.mb-2 Node
@@ -116,18 +114,22 @@ block content
 
 					each hop, hopIndex in route.hops
 						
-						.card.text-body.shadow-sm.me-3
+						.card.text-body.shadow-sm.me-3.mb-3
 							.card-header
 								h3.h6.mb-0
 									if (hopIndex == (route.hops.length - 1))
-										i.fas.fa-check-circle.me-2.fa-lg
+										i.fas.fa-check-circle.me-2.fa-lg.text-success
 									else
-										i.fas.fa-arrow-circle-right.me-2.fa-lg
-
-									span Hop ##{(hopIndex + 1).toLocaleString()}
+										i.fas.fa-arrow-circle-right.me-2.fa-lg.text-info
 
 									if (hopIndex == (route.hops.length - 1))
-										span  (Destination)
+										span Destination
+										span.text-muted.fs-80.ms-1 (Hop ##{(hopIndex + 1).toLocaleString()})
+
+									else
+										span Hop ##{(hopIndex + 1).toLocaleString()}
+
+									
 								
 							.card-body
 								.mb-3.border-bottom.pb-3
@@ -140,15 +142,14 @@ block content
 									.fw-bold Channel
 
 									+channelId(hop.chan_id, true)
-									
+
 								div
 									.fw-bold Fees
 									
 									if (parseInt(hop.fee_msat) > 0)
 										span.text-danger +
-											- var currencyValue = new Decimal(hop.fee_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
-											- var tempCurrencyFormatType = "msat";
-											include includes/value-display.pug
+											+btcValue(hop.fee_msat, "msat", "msat")
+											
 									else
 										span.text-success 0
 

@@ -258,23 +258,21 @@ block content
 												td.text-end
 													if (channel.active)
 														- var atLeastOne = false;
-														- var currencyValue = new Decimal(channel.total_satoshis_received).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-														if (currencyValue > 0)
+														if (channel.total_satoshis_received > 0)
 															- var atLeastOne = true;
 
 															span.text-success
 																span +
-																include ./includes/value-display.pug
+																+btcValue(channel.total_satoshis_received)
 
 															br
 
-														- currencyValue = new Decimal(channel.total_satoshis_sent).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-														if (currencyValue > 0)
+														if (channel.total_satoshis_sent > 0)
 															- var atLeastOne = true;
 
 															span.text-danger
 																span -
-																include ./includes/value-display.pug
+																+btcValue(channel.total_satoshis_sent)
 
 														if (!atLeastOne)
 															span -
@@ -284,31 +282,26 @@ block content
 
 												td.text-end
 													if (channel.active)
-														- var currencyValue = new Decimal(channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-														include ./includes/value-display.pug
+														+btcValue(channel.local_balance)
 
 													else if (channel.channel != null)
 														.text-muted
-															- var currencyValue = new Decimal(channel.channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-															include ./includes/value-display.pug
+															+btcValue(channel.channel.local_balance)
 
 													else
 														span -
 
 												td.text-end
 													if (channel.active)
-														- var currencyValue = new Decimal(channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-														include ./includes/value-display.pug
+														+btcValue(channel.remote_balance)
 														
 														if (false)
 															.row
 																.col-md-6.text-end
-																	- var currencyValue = new Decimal(channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-																	include ./includes/value-display.pug
+																	+btcValue(channel.local_balance)
 
 																.col-md-6.text-end
-																	- var currencyValue = new Decimal(channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-																	include ./includes/value-display.pug
+																	+btcValue(channel.remote_balance)
 
 															- var fullPercent = new Decimal(100 * parseFloat(channel.local_balance) / (parseFloat(channel.local_balance) + parseFloat(channel.remote_balance))).toDecimalPlaces(1);
 
@@ -317,9 +310,8 @@ block content
 
 													else if (channel.channel != null)
 														.text-muted
-															- var currencyValue = new Decimal(channel.channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-															include ./includes/value-display.pug
-
+															+btcValue(channel.channel.remote_balance)
+															
 													else
 														span -
 													

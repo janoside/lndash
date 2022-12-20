@@ -86,13 +86,11 @@ tr.word-wrap
 		div
 			if (channel.active)
 				span.badge.text-bg-primary.fs-6(title="Spendable balance", data-bs-toggle="tooltip")
-					- var currencyValue = new Decimal(channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-					include ./value-display.pug
+					+btcValue(channel.local_balance)
 
 			else if (channel.channel != null)
 				span.badge.text-bg-secondary.fs-6(title="Spendable balance", data-bs-toggle="tooltip")
-					- var currencyValue = new Decimal(channel.channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-					include ./value-display.pug
+					+btcValue(channel.channel.local_balance)
 
 			else
 				span -
@@ -102,18 +100,15 @@ tr.word-wrap
 
 			if (channel.active)
 				span.badge.text-bg-info.fs-6(title="Receivable balance", data-bs-toggle="tooltip")
-					- var currencyValue = new Decimal(channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-					include ./value-display.pug
+					+btcValue(channel.remote_balance)
 				
 				if (false)
 					.row
 						.col-md-6.text-end
-							- var currencyValue = new Decimal(channel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-							include ./value-display.pug
+							+btcValue(channel.local_balance)
 
 						.col-md-6.text-end
-							- var currencyValue = new Decimal(channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-							include ./value-display.pug
+							+btcValue(channel.remote_balance)
 
 					- var fullPercent = new Decimal(100 * parseFloat(channel.local_balance) / (parseFloat(channel.local_balance) + parseFloat(channel.remote_balance))).toDecimalPlaces(1);
 
@@ -122,8 +117,7 @@ tr.word-wrap
 
 			else if (channel.channel != null)
 				span.badge.text-bg-secondary.fs-6(title="Receivable balance", data-bs-toggle="tooltip")
-					- var currencyValue = new Decimal(channel.channel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-					include ./value-display.pug
+					+btcValue(channel.channel.remote_balance)
 
 			else
 				span -
@@ -133,17 +127,15 @@ tr.word-wrap
 		div
 			if (channel.active)
 				div
-					- var currencyValue = new Decimal(channel.total_satoshis_received).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 					span.badge.text-bg-success.fs-6(title="Value received", data-bs-toggle="tooltip")
 						span +
-						include ./value-display.pug
+						+btcValue(channel.total_satoshis_received)
 
 
 				div.mt-2
-					- currencyValue = new Decimal(channel.total_satoshis_sent).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 					span.badge.text-bg-danger.fs-6(title="Value sent", data-bs-toggle="tooltip")
 						span -
-						include ./value-display.pug
+						+btcValue(channel.total_satoshis_sent)
 
 			else
 				span -

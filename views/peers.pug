@@ -76,7 +76,7 @@ block content
 				
 				.mt-2.mb-0
 					include includes/pagination.pug
-					
+
 
 		.table-responsive
 			table.table.table-striped
@@ -109,19 +109,17 @@ block content
 								if (item.sat_recv == 0 && item.sat_sent == 0)
 									span -
 								else
-									- var currencyValue = new Decimal(item.sat_recv).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-									if (currencyValue > 0)
-										span.text-success
+									if (item.sat_recv > 0)
+										span.badge.text-bg-success.fs-100
 											span +
-											include includes/value-display.pug
+											+btcValue(item.sat_recv)
 
 										br
 
-									- currencyValue = new Decimal(item.sat_sent).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-									if (currencyValue > 0)
-										span.text-danger
+									if (item.sat_sent > 0)
+										span.badge.text-bg-danger.fs-100
 											span -
-											include includes/value-display.pug
+											+btcValue(item.sat_sent)
 							
 							
 							- var bytesSentData = utils.formatLargeNumber(item.bytes_sent, 1);

@@ -12,10 +12,8 @@ tr
 
 	td
 		if (node && node.node && node.node.addresses && node.node.addresses.length > 0)
-			if (node.node.addresses[0].addr.length > 20)
-				span(title=node.node.addresses[0].addr) -#{node.node.addresses[0].addr.substring(node.node.addresses[0].addr.length - 20, node.node.addresses[0].addr.length - 1)}
-			else
-				span #{node.node.addresses[0].addr}
+			+netAddress(node.node.addresses[0].addr)
+
 		else
 			span -
 
@@ -39,8 +37,8 @@ tr
 
 	td.text-end
 		if (node && node.total_capacity)
-			- var currencyValue = new Decimal(node.total_capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-			include ./value-display.pug
+			+btcValue(node.total_capacity)
+
 			//span #{parseInt(node.total_capacity).toLocaleString()}
 
 		else

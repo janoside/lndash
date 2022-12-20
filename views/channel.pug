@@ -110,16 +110,14 @@ block content
 							+summaryRow(2)
 								+summaryItem("Spendable")
 									span.badge.text-bg-primary.fs-6
-										- var currencyValue = new Decimal(localChannel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										include includes/value-display.pug
+										+btcValue(localChannel.local_balance)
 									
 									.text-muted.fs-75 (#{localBalancePercent.toDP(1)}%)
 
 								
 								+summaryItem("Receivable")
 									span.badge.text-bg-info.fs-6
-										- var currencyValue = new Decimal(localChannel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										include includes/value-display.pug
+										+btcValue(localChannel.remote_balance)
 									
 									.text-muted.fs-75 (#{remoteBalancePercent.toDP(1)}%)
 
@@ -153,19 +151,16 @@ block content
 							+summaryRow(3)
 								+summaryItem("Total Received")
 									span.badge.text-bg-success.fs-6
-										- var currencyValue = new Decimal(localChannel.total_satoshis_received).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										
-										include includes/value-display.pug
+										+btcValue(localChannel.total_satoshis_received)
 
 								
 								+summaryItem("Total Sent")
 									span.badge.text-bg-danger.fs-6
-										- var currencyValue = new Decimal(localChannel.total_satoshis_sent).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										
-										if (currencyValue > 0)
+										if (localChannel.total_satoshis_sent > 0)
 											span -
+
+										+btcValue(localChannel.total_satoshis_sent)
 										
-										include includes/value-display.pug
 
 
 								+summaryItem("Net")
@@ -175,15 +170,11 @@ block content
 										span.text-warning #{totalNetXfer}
 
 										span.badge.text-bg-success
-											- var currencyValue = new Decimal(localChannel.total_satoshis_received).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-											
-											include includes/value-display.pug
+											+btcValue(localChannel.total_satoshis_received)
 
 									else
-										span.badge.text-bg-success
-											- var currencyValue = new Decimal(localChannel.total_satoshis_received).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-											
-											include includes/value-display.pug
+										span.badge.text-bg-danger
+											+btcValue(localChannel.total_satoshis_received)
 
 
 						.progress(style="height: 20px;")
@@ -203,8 +194,7 @@ block content
 
 
 						+summaryItem("Capacity")
-							- var currencyValue = new Decimal(channel.capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-							include ./includes/value-display.pug
+							+btcValue(channel.capacity)
 
 
 						if (localChannel)
@@ -299,9 +289,7 @@ block content
 										td.text-end #{parseInt(channel.node1_policy.time_lock_delta).toLocaleString()}
 										td.text-end #{parseInt(channel.node1_policy.min_htlc).toLocaleString()}
 										td.text-end
-											- var currencyValue = new Decimal(channel.node1_policy.fee_base_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
-											- var tempCurrencyFormatType = "msat";
-											include includes/value-display.pug
+											+btcValue(channel.node1_policy.fee_base_msat, "msat", "msat")
 											
 										td.text-end #{parseInt(channel.node1_policy.fee_rate_milli_msat).toLocaleString()}
 									else
@@ -319,9 +307,7 @@ block content
 										td.text-end #{parseInt(channel.node2_policy.time_lock_delta).toLocaleString()}
 										td.text-end #{parseInt(channel.node2_policy.min_htlc).toLocaleString()}
 										td.text-end
-											- var currencyValue = new Decimal(channel.node2_policy.fee_base_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
-											- var tempCurrencyFormatType = "msat";
-											include includes/value-display.pug
+											+btcValue(channel.node2_policy.fee_base_msat, "msat", "msat")
 
 										td.text-end #{parseInt(channel.node2_policy.fee_rate_milli_msat).toLocaleString()}
 									else

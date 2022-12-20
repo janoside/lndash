@@ -10,7 +10,7 @@ tr.word-wrap
 	td
 		if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
 			+netAddress(nodeInfo.node.addresses[0].addr)
-			
+
 		else
 			span -
 
@@ -20,8 +20,7 @@ tr.word-wrap
 
 
 	td.text-end
-		- var currencyValue = new Decimal(nodeInfo.total_capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-		include ./value-display.pug
+		+btcValue(nodeInfo.total_capacity)
 
 
 	td.text-end

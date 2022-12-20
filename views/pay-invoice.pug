@@ -77,8 +77,8 @@ block content
 						- var dest_pubkey = payInvoiceResponse.payment_route.hops[payInvoiceResponse.payment_route.hops.length - 1].pub_key;
 						span Your payment of 
 						span
-							- var currencyValue = new Decimal(payInvoiceResponse.payment_route.total_amt).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-							include includes/value-display.pug
+							+btcValue(payInvoiceResponse.payment_route.total_amt)
+
 						span  was sent to 
 						span #{dest_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
 						span  in 
@@ -87,9 +87,8 @@ block content
 								span s
 						span . You paid 
 						span
-							- var currencyValue = new Decimal(payInvoiceResponse.payment_route.total_fees_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
-							- var tempCurrencyFormatType = "msat";
-							include includes/value-display.pug
+							+btcValue(payInvoiceResponse.payment_route.total_fees_msat, "msat", "msat")
+
 						span  in fees.
 
 					.d-flex
@@ -137,9 +136,8 @@ block content
 										
 										if (parseInt(hop.fee_msat) > 0)
 											span.text-danger +
-												- var currencyValue = new Decimal(hop.fee_msat).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
-												- tempCurrencyFormatType = "msat";
-												include includes/value-display.pug
+												+btcValue(hop.fee_msat, "msat", "msat")
+
 										else
 											span.text-success 0
 
@@ -175,8 +173,7 @@ block content
 
 									
 									+summaryItem("Amount")
-										- var currencyValue = new Decimal(decodedInvoice.num_satoshis).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-										include ./includes/value-display.pug
+										+btcValue(decodedInvoice.num_satoshis)
 
 
 									+summaryItem("Date")
