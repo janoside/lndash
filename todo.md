@@ -1,8 +1,8 @@
 - rename project (lnd-admin -> lnadmin)
 - get rid of most "includes" files and replace with mixins
-- lower-level mixins (e.g. modal, timestamp, etc)
 - popover-style userMessages
 - mixin for pageTabs
+- value-display.pug
 - fix all checkboxes and radios
 - clean up formatting for JSON-tab content
 - consistent formatting for all "filter" cards

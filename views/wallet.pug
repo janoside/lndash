@@ -13,7 +13,7 @@ block content
 	if (!session.admin)
 		+pageTitle("My Wallet")
 		
-		
+
 		- var loginRequiredNote = "display details about this node's wallet.";
 		include includes/login-required-alert.pug
 
@@ -83,7 +83,7 @@ block content
 					table.table.table-striped
 						thead
 							tr
-								th.text-end #
+								th.text-end.fw-light #
 								
 								if (false)
 									th Type
@@ -105,7 +105,7 @@ block content
 						tbody
 							each utxo, utxoIndex in walletUtxosResponse.utxos
 								tr
-									th.text-end #{(utxoIndex + 1).toLocaleString()}
+									th.text-end.fw-light #{(utxoIndex + 1).toLocaleString()}
 
 									if (false)
 										td #{utxo.type}
@@ -146,7 +146,7 @@ block content
 					table.table.table-striped
 						thead
 							tr
-								th.text-end #
+								th.text-end.fw-light #
 								th Txid
 								
 								th
@@ -172,7 +172,7 @@ block content
 							//- onChainTransactions.transactions.reverse();
 							each tx, txIndex in onChainTransactions.transactions
 								tr
-									th.text-end #{(txIndex + 1).toLocaleString()}
+									th.text-end.fw-light #{(txIndex + 1).toLocaleString()}
 
 									td
 										+btcTxid(tx.tx_hash)
@@ -217,13 +217,11 @@ block content
 										else
 											span.text-warning Unconfirmed
 
-									td(class="table-col-time")
-										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(tx.time_stamp) * 1000))));
-										- var dateTimeUtc = moment.utc(new Date(parseInt(tx.time_stamp) * 1000)).format("Y-MM-DD HH:mm:ss");
+									td
+										+date(tx.time_stamp)
+										
 
-										span.border-dotted(title=(dateTimeUtc + " utc") data-bs-toggle="tooltip") #{timeAgo.humanize()} ago
-
-									td(class="table-col-currencyvalue text-end")
+									td.text-end
 										- var currencyValue = new Decimal(Math.abs(parseInt(tx.amount))).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 										if (parseInt(tx.amount) > 0)
 											div(class="text-success")
@@ -236,7 +234,7 @@ block content
 										else
 											span -
 
-									td(class="table-col-text")
+									td
 										each addr, addrIndex in tx.dest_addresses
 											div
 												+btcAddress(addr)

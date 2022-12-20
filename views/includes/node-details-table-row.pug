@@ -25,10 +25,7 @@ tr
 				span -
 
 			else
-				- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(node.node.last_update) * 1000))));
-				- var dateTimeUtc = moment.utc(new Date(parseInt(node.node.last_update) * 1000)).format("Y-MM-DD HH:mm:ss");
-				
-				span.border-dotted(title=(dateTimeUtc + " utc") data-bs-toggle="tooltip") #{timeAgo.humanize()} ago
+				+date(node.node.last_update)
 
 		else
 			span -

@@ -199,11 +199,8 @@ block content
 
 					+summaryRow(3 + (localChannel ? 1 : 0))
 						+summaryItem("Last Update")
-							- var timeAgoTime = channel.last_update;
-							- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timeAgoTime) * 1000))));
-							
 							+date(channel.last_update)
-							
+
 
 						+summaryItem("Capacity")
 							- var currencyValue = new Decimal(channel.capacity).dividedBy(coinConfig.baseCurrencyUnit.multiplier);

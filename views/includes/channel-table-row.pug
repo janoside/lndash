@@ -1,4 +1,4 @@
-tr(class="word-wrap")
+tr.word-wrap
 	th.text-end.fw-light #{channelTableIndex.toLocaleString()}
 
 
@@ -22,9 +22,7 @@ tr(class="word-wrap")
 	
 
 	td.text-end
-		- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(channel.last_update) * 1000))));
-
-		span.border-dotted(title=moment.utc(new Date(parseInt(channel.last_update) * 1000)).format("Y-MM-DD HH:mm:ss"), data-bs-toggle="tooltip") #{timeAgo.humanize()} ago
+		+date(channel.last_update)
 
 
 	td.text-end

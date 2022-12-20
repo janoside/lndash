@@ -295,15 +295,22 @@ mixin netAddress(address, network)
 		span.text-tiny :#{port}
 
 
-mixin date(timestamp, formatType="human")
-	if (formatType == "human")
-		- var d1 = new Date();
-		- var d2 = new Date(parseInt(timestamp) * 1000);
-		- var timeAgo = moment.duration(moment.utc(d1).diff(moment.utc(d2)));
-		- var dateTimeUtc = moment.utc(new Date(parseInt(timestamp) * 1000)).format("Y-MM-DD HH:mm:ss");
+mixin date(timestamp, formatType="human", includeAgo=false)
+	- var d1 = new Date();
+	- var d2 = new Date(parseInt(timestamp) * 1000);
+	- var timeAgo = moment.duration(moment.utc(d1).diff(moment.utc(d2)));
+	- var dateTimeUtc = moment.utc(new Date(parseInt(timestamp) * 1000)).format("Y-MM-DD HH:mm:ss");
 
+	span.border-dotted(title=`${dateTimeUtc} utc`, data-bs-toggle="tooltip")
 		if (d1.getTime() < d2.getTime())
-			span.border-dotted(title=`${dateTimeUtc} utc`, data-bs-toggle="tooltip") +#{timeAgo.humanize()}
-		else
-			span.border-dotted(title=`${dateTimeUtc} utc`, data-bs-toggle="tooltip") #{timeAgo.humanize()}
+			| +
+
+		if (formatType == "human")
+			| #{timeAgo.humanize()}
+
+		else if (formatType == "detail")
+			| #{timeAgo.format()}
+
+		if (includeAgo)
+			span.ms-1 ago
 

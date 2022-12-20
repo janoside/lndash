@@ -136,10 +136,7 @@ block content
 								th.text-end.fw-light #{(errorIndex + 1).toLocaleString()}
 
 								td
-									- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(error.date)));
-									- var dateTimeUtc = moment.utc(error.date).format("Y-MM-DD HH:mm:ss");
-
-									span.border-dotted(title=`${dateTimeUtc} utc`, data-bs-toggle="tooltip") #{timeAgo.humanize()} ago
+									+date(error.date.getTime()/1000)
 
 								td #{error.errorId}
 								td #{error.error}

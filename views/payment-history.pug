@@ -130,11 +130,7 @@ block content
 									
 
 									td
-										- var timestampTime = parseInt(payment.creation_date);
-										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timestampTime) * 1000))));
-										- var dateTimeUtc = moment.utc(new Date(parseInt(timestampTime) * 1000)).format("Y-MM-DD HH:mm:ss");
-
-										span.border-dotted(title=`${dateTimeUtc} utc` data-bs-toggle="tooltip") #{timeAgo.format()} ago
+										+date(payment.creation_date)
 
 									
 									td

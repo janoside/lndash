@@ -158,8 +158,11 @@ block content
 						.tab-pane.active(id="tab-summary", role="tabpanel")
 							+contentSection("Invoice Details")
 								h6.fw-light.mb-4 Destination
-								- var card_node_pubkey = decodedInvoice.destination;
-								include ./includes/node-card.pug
+
+								.d-flex.mb-n3
+									+card
+										- var card_node_pubkey = decodedInvoice.destination;
+										include ./includes/node-card.pug
 
 								hr.my-4
 
@@ -177,17 +180,12 @@ block content
 
 
 									+summaryItem("Date")
-										- var timestampTime = parseInt(decodedInvoice.timestamp);
-										- var timeAgoTime = timestampTime;
-										- var timeAgo = moment.duration(moment.utc(new Date()).diff(moment.utc(new Date(parseInt(timestampTime) * 1000))));
-
-										span #{moment.utc(new Date(parseInt(timestampTime) * 1000)).format("Y-MM-DD HH:mm:ss")} utc
-										br
-										span.text-muted #{timeAgo.format()} ago
-
+										+date(decodedInvoice.timestamp, "detail", true)
+										
+										
 
 									+summaryItem("Hash")
-										| #{utils.ellipsizeMiddle(decodedInvoice.payment_hash, 24)}
+										| #{utils.ellipsizeMiddle(decodedInvoice.payment_hash, 14)}
 										+copyTextButton(decodedInvoice.payment_hash)
 
 
