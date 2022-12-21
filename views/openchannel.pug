@@ -101,12 +101,12 @@ block content
 
 			.mt-2.mb-4
 				label.form-label(for="visibility") Visibility
-				.custom-control.custom-radio
-					input#visibilityPublic.custom-control-input(type='radio' name='visibility' value="public" checked=(visibility == "public" ? "checked" : false))
-					label.custom-control-label(for='visibilityPublic') Public
-				.custom-control.custom-radio
-					input#visibilityPrivate.custom-control-input(type='radio' name='visibility' value="private" checked=(visibility == "private" ? "checked" : false))
-					label.custom-control-label(for='visibilityPrivate') Private
+				.form-check
+					input#visibilityPublic.form-check-input(type='radio' name='visibility' value="public" checked=(visibility == "public" ? "checked" : false))
+					label.form-check-label(for='visibilityPublic') Public
+				.form-check
+					input#visibilityPrivate.form-check-input(type='radio' name='visibility' value="private" checked=(visibility == "private" ? "checked" : false))
+					label.form-check-label(for='visibilityPrivate') Private
 
 			button.btn.btn-primary(id="openchannelButton" type="submit")
 				i.fas.fa-plus-square.me-2

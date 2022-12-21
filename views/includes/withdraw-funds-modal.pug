@@ -70,13 +70,13 @@
 					input(id="speedTypeValue" type="hidden" name="speedType" value="target_conf")
 
 					.mb-3
-						.custom-control.custom-radio.custom-control-inline
-							input#customRadioInline1.custom-control-input(type='radio' name='speedTypeRadio' value="target_conf" checked="checked")
-							label.custom-control-label(for='customRadioInline1') Try to confirm in 
+						.form-check
+							input#customRadioInline1.form-check-input(type='radio' name='speedTypeRadio' value="target_conf" checked="checked")
+							label.form-check-label(for='customRadioInline1') Try to confirm in 
 								span.border-dotted(for='customRadioInline1' title="LND will compute a fee rate for your on-chain transaction based on the current state of the network. Note that there is no guarantee that your transaction will be confirmed by the network based on what you set here." data-bs-toggle="tooltip") N or fewer blocks
-						.custom-control.custom-radio.custom-control-inline
-							input#customRadioInline2.custom-control-input(type='radio' name='speedTypeRadio' value="sat_per_byte")
-							label.custom-control-label(for='customRadioInline2') Manual fee (sat/byte)
+						.form-check
+							input#customRadioInline2.form-check-input(type='radio' name='speedTypeRadio' value="sat_per_byte")
+							label.form-check-label(for='customRadioInline2') Manual fee (sat/byte)
 
 					input.form-control(id="speedValue" name="speedValue")
 					small#singleAddressSpeedNote.text-muted Number of blocks to try to confirm within

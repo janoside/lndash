@@ -1,6 +1,4 @@
 - mixin for pageTabs
-- fix all checkboxes and radios
 - clean up formatting for JSON-tab content
 - pagination mixin (with descriptive text)
 - async-ify rpcApi
-- bring back options menu (aside menu)
