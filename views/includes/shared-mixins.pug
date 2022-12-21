@@ -167,16 +167,16 @@ mixin modal(modalId, title, modalSizeClass="modal-xl")
 
 
 mixin filterList
-	.d-flex.flex-wrap
+	.d-flex.flex-wrap.mb-n3
 		block
 
 
 mixin filterItem(lastInList=false)
 	if (lastInList)
-		div
+		.mb-3
 			block
 	else
-		.me-3
+		.mb-3.me-3
 			block
 
 

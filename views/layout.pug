@@ -6,7 +6,7 @@ html
 		meta(charset="utf-8")
 		meta(name="viewport", content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no")
 		
-		if (true || session.uiTheme && session.uiTheme == "dark")
+		if (session.uiTheme && session.uiTheme == "dark")
 			link(rel="stylesheet", href="/style/dark.css")
 
 		else
@@ -28,15 +28,19 @@ html
 		.container.bg-main.px-0.min-vh-100
 			.d-flex.flex-row
 				.d-flex.flex-column.border-end.me-2.bg-menu.min-vh-100(style="width: 215px;")
-					.p-3.text-bg-dark.d-flex.justify-content-between
+					.p-3.d-flex.justify-content-between.border-bottom
 						div
 							a.navbar-brand.me-0(href="/")
 								img.header-image(src="/img/logo/lightning.svg")
 								span #{config.siteInfo.title}
 
 						div
-							a(href="javascript:void(0)")
-								i.fas.fa-gear.text-white
+							+modal("optionsMenuModal", "Options", "modal-md")
+								include ./includes/options-menu.pug
+
+							a(href="javascript:void(0)", data-bs-toggle="modal", data-bs-target="#optionsMenuModal")
+								span(title="Options menu", data-bs-toggle="tooltip")
+									i.fas.fa-gear.text-body
 
 					if (global.adminCredentials && global.adminCredentials.lndNodes)
 						.border-bottom.p-3

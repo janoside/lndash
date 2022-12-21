@@ -1,5 +1,3 @@
-- rename project (lnd-admin -> lndash)
-- popover-style userMessages
 - mixin for pageTabs
 - fix all checkboxes and radios
 - clean up formatting for JSON-tab content

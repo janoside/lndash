@@ -1,0 +1,86 @@
+
+.mb-3
+	.d-flex.justify-content-between
+		div
+			div Current user
+
+			if (session.admin)
+				span.badge.text-bg-primary
+					i.fas.fa-user.me-2
+					span Admin
+
+			else
+				span.badge.text-bg-primary
+					i.fas.fa-ban.me-2
+					span None
+
+		div
+			if (session.admin)
+				a.btn.btn-block.btn-danger.mt-2(href="/logout")
+					i.fas.fa-xmark.me-2
+					span Logout
+			else
+				a.btn.btn-block.btn-primary.mt-2(href="/login")
+					i.fas.fa-sign-in-alt.me-2
+					span Login
+
+
+hr
+
+
+.mb-3.d-flex
+	div.me-3
+		label.form-label Currency Unit
+		br
+		.btn-group.me-2(role="group")
+			each currencyId in ["sat", "BTC"]
+				- var currencyUnit = coinConfig.currencyUnitsByName[currencyId];
+				if (currencyUnit.type == "native" || config.queryExchangeRates)
+					- var currencySelected = false;
+					each valueName in currencyUnit.values
+						if (currencyFormatType == valueName)
+							- currencySelected = true;
+
+					if (currencySelected)
+						span.btn.btn-primary #{currencyUnit.name}
+					else
+						a.btn.btn-light.border(href=`/changeSetting?name=currencyFormatType&value=${currencyUnit.values[0]}`) #{currencyUnit.name}
+
+	div
+		label.form-label  Theme
+		br
+		.btn-group.me-2(role="group")
+			each item in [{name:"Light", vals:["light",""]}, {name:"Dark", vals:["dark"]}]
+				- var itemSelected = item.vals.includes(session.uiTheme);
+
+				if (itemSelected)
+					span.btn.btn-primary #{item.name}
+				else
+					a.btn.btn-light.border(href=`/changeSetting?name=uiTheme&value=${item.vals[0]}`) #{item.name}
+
+
+hr
+
+
+.mb-3
+	h5.h6 App Version
+
+	if (global.sourcecodeVersion)
+		.mb-2
+			span.me-2 Commit
+			span
+				a(href=`https://github.com/janoside/lnd-admin/commit/${sourcecodeVersion}`) ##{sourcecodeVersion.substring(0, 8)}
+	
+	if (global.sourcecodeDate)
+		- var timeAgo = moment.duration(moment.utc(new Date()).diff(global.sourcecodeDate));
+		- var dateTimeUtc = moment.utc(global.sourcecodeDate).format("Y-MM-DD");
+
+		.mb-2
+			span.me-2 Date
+			span.border-dotted(title=`${timeAgo.humanize()} ago` data-bs-toggle="tooltip") #{dateTimeUtc}
+			
+	if (global.appVersion)
+		.mb-2
+			span.me-2 Version
+			span v#{global.appVersion}
+
