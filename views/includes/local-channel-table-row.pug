@@ -100,11 +100,11 @@ tr.word-wrap
 
 			.d-flex.justify-content-between
 				.text-start
-					span.badge.text-bg-primary.fs-80(title="Spendable balance", data-bs-toggle="tooltip")
+					span.fs-80(title="Spendable balance", data-bs-toggle="tooltip")
 						+btcValue(localBalance)
 
 				.text-end
-					span.badge.text-bg-info.fs-80(title="Spendable balance", data-bs-toggle="tooltip")
+					span.fs-80(title="Spendable balance", data-bs-toggle="tooltip")
 						+btcValue(remoteBalance)
 
 		else
@@ -131,11 +131,11 @@ tr.word-wrap
 			
 			.d-flex.justify-content-between
 				.text-start
-					span.badge.text-bg-success.fs-80(title="Value received", data-bs-toggle="tooltip")
+					span.fs-80(title="Value received", data-bs-toggle="tooltip")
 						+btcValue(valueReceived)
 
 				.text-end
-					span.badge.text-bg-danger.fs-80(title="Value sent", data-bs-toggle="tooltip")
+					span.fs-80(title="Value sent", data-bs-toggle="tooltip")
 						+btcValue(valueSent)
 
 		else
