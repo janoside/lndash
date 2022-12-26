@@ -87,24 +87,17 @@ tr.word-wrap
 		- let remoteBalance = null;
 
 		if (channel.active)
-			- localBalance = channel.local_balance;
-			- remoteBalance = channel.remote_balance;
+			- localBalance = new Decimal(channel.local_balance);
+			- remoteBalance = new Decimal(channel.remote_balance);
 
 		else if (channel.channel != null)
-			- localBalance = channel.channel.local_balance;
-			- remoteBalance = channel.channel.remote_balance;
+			- localBalance = new Decimal(channel.channel.local_balance);
+			- remoteBalance = new Decimal(channel.channel.remote_balance);
 
 
 		if (localBalance != null)
-			- let localBalancePercent = new Decimal(localBalance).dividedBy(parseInt(localBalance) + parseInt(remoteBalance)).times(100);
-			- let remoteBalancePercent = new Decimal(remoteBalance).dividedBy(parseInt(localBalance) + parseInt(remoteBalance)).times(100);
+			+progressBar([localBalance, remoteBalance], ["text-bg-primary", "text-bg-info"], "10px", false)
 
-			.progress.mb-2(style="height: 15px;")
-				.progress-bar.text-bg-primary.fs-90(role="progressbar", style=`width: ${localBalancePercent.toDP(0)}%;`, aria-valuenow=`${localBalancePercent.toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{localBalancePercent.toDP(1)}%
-
-				.progress-bar.text-bg-info.fs-90(role="progressbar", style=`width: ${remoteBalancePercent.toDP(0)}%;`, aria-valuenow=`${remoteBalancePercent.toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{remoteBalancePercent.toDP(1)}%
-		
-			
 			.d-flex.justify-content-between
 				.text-start
 					span.badge.text-bg-primary.fs-80(title="Spendable balance", data-bs-toggle="tooltip")
@@ -123,22 +116,17 @@ tr.word-wrap
 		- let valueSent = null;
 
 		if (channel.active)
-			- valueReceived = channel.total_satoshis_received;
-			- valueSent = channel.total_satoshis_sent;
+			- valueReceived = new Decimal(channel.total_satoshis_received);
+			- valueSent = new Decimal(channel.total_satoshis_sent);
 
 		else if (channel.channel != null)
-			- valueReceived = channel.channel.total_satoshis_received;
-			- valueSent = channel.channel.total_satoshis_sent;
+			- valueReceived = new Decimal(channel.channel.total_satoshis_received);
+			- valueSent = new Decimal(channel.channel.total_satoshis_sent);
 
 
 		if (valueReceived != null)
-			- let receivedPercent = new Decimal(valueReceived).dividedBy(parseInt(valueReceived) + parseInt(valueSent)).times(100);
-			- let sentPercent = new Decimal(valueSent).dividedBy(parseInt(valueReceived) + parseInt(valueSent)).times(100);
-
-			.progress.mb-2(style="height: 15px;")
-				.progress-bar.text-bg-success.fs-90(role="progressbar", style=`width: ${receivedPercent.toDP(0)}%;`, aria-valuenow=`${receivedPercent.toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{receivedPercent.toDP(1)}%
-
-				.progress-bar.text-bg-danger.fs-90(role="progressbar", style=`width: ${sentPercent.toDP(0)}%;`, aria-valuenow=`${sentPercent.toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{sentPercent.toDP(1)}%
+			if (valueReceived > 0 || valueSent > 0)
+				+progressBar([valueReceived, valueSent], ["text-bg-success", "text-bg-danger"], "10px", false)
 		
 			
 			.d-flex.justify-content-between
