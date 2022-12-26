@@ -32,69 +32,6 @@ block content
 
 
 
-			each errorId, errorIdIndex in errorIdsByRecency
-				+modal("errorIdModal-" + errorIdIndex, `Error #${(errorIdIndex + 1).toLocaleString()}`)
-					h3.h6 Error
-					
-					pre
-						code.json #{JSON.stringify(errorSummary[errorId].error.error, null, 4)}
-
-					if (errorSummary[errorId].error.stack)
-						hr
-
-						h4.h6 Stacktrace
-						pre
-							code.json #{errorSummary[errorId].error.stack}
-
-					if (errorSummary[errorId].error.userData)
-						hr
-
-						h4.h6 User Data
-						pre
-							code.json #{JSON.stringify(errorSummary[errorId].error.userData, null, 4)}
-
-
-
-			.table-responsive
-				table.table.table-striped
-					thead
-						tr
-							th.text-end.fw-light #
-
-							th
-								span.border-dotted(title="This identifies the error in the source code for LNDash." data-bs-toggle="tooltip") ID
-
-							th Count
-							th First
-							th Latest
-							
-
-							th Description
-							th.text-end Details
-					
-					tbody
-						each errorId, errorIdIndex in errorIdsByRecency
-							tr
-								th.text-end.fw-light #{(errorIdIndex + 1).toLocaleString()}
-
-								td #{errorId}
-
-								td #{errorSummary[errorId].count.toLocaleString()}
-								td
-									+date(errorSummary[errorId].firstOccurrence.getTime()/1000)
-
-								td
-									+date(errorSummary[errorId].lastOccurrence.getTime()/1000)
-
-								
-
-								td #{errorSummary[errorId].error}
-								
-								td.text-end
-									a.btn.btn-primary.btn-sm(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#errorIdModal-" + errorIdIndex))
-										i.fas.fa-file-lines
-
-
 			each error, errorIndex in errorLog
 				+modal("errorModal-" + errorIndex, `Error #${(errorIndex + 1).toLocaleString()}`)
 					h3.h6 Error

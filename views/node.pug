@@ -15,9 +15,7 @@ block content
 
 	.d-flex.flex-row
 		.me-3
-			- var node_pubkey = nodePubkey;
-			- var node_icon_size = "5em";
-			include ./includes/node-icon.pug
+			+nodeIcon(nodePubkey, "5em")
 
 		.w-100
 			- var nodeAlias = null;
@@ -58,8 +56,7 @@ block content
 
 
 				+summaryItem("Color")
-					- var node_color = nodeInfo.node.color;
-					include ./includes/node-color-swatch.pug
+					+nodeColorSwatch(nodeInfo.node.color)
 					span #{nodeInfo.node.color}
 
 

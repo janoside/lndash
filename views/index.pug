@@ -66,8 +66,7 @@ block content
 
 		.d-flex.mt-3.lead.mb-2
 			+card
-				- var card_node_pubkey = lndRpc.internal_pubkey;
-				include includes/node-card.pug
+				+nodeCard(lndRpc.internal_pubkey)
 
 		+contentSection("Node Summary")
 			if (false)
@@ -79,80 +78,146 @@ block content
 			
 
 
-			+summaryRow(3)
-				+summaryItem("On-Chain Balance")
+			+summaryRow(2)
+				+summaryItem("On-Chain vs Lightning")
 					if (walletBalance)
-						span.badge.text-bg-success(title="Confirmed balance", data-bs-toggle="tooltip")
-							i.fas.fa-check.me-2
-							+btcValue(walletBalance.confirmed_balance)
-								span.text-muted (none)
 
 
-						if (walletBalance.unconfirmed_balance > 0)
-							div
-								span.badge.text-bg-warning(title="Unconfirmed balance", data-bs-toggle="tooltip")
-									i.fas.fa-clock.me-2
-									+btcValue(walletBalance.unconfirmed_balance)
+						if (totalLocalBalance != null)
+							.d-flex.justify-content-between.fs-90.mb-2
+								.text-start
+									i.fas.fa-circle.text-success.me-2
+									span.border-dotted(title="Local, spendable balance across all of your channels.", data-bs-toggle="tooltip") On-Chain
+
+								.text-end
+									i.fas.fa-circle.text-warning.me-2
+									span.border-dotted(title="Total receivable balance on the remote side of all of your channels.", data-bs-toggle="tooltip") Lightning
+
+
+							.d-flex.justify-content-between.mb-3
+								.text-start
+									span.badge.text-bg-success.fs-80(title=`On-chain balance: ${walletBalance.confirmed_balance}%`, data-bs-toggle="tooltip")
+										+btcValue(walletBalance.confirmed_balance)
+								
+								.text-end
+									span.badge.text-bg-warning.fs-80(title=`Lightning balance: ${totalLocalBalance.toDP(1)}%`, data-bs-toggle="tooltip")
+										+btcValue(totalLocalBalance)
+
+
+							+progressBar([new Decimal(walletBalance.confirmed_balance), new Decimal(walletBalance.unconfirmed_balance), new Decimal(totalLocalBalance)], ["text-bg-success", "text-bg-info", "text-bg-warning"])
+
+						else
+							span -
+
+
+						if (false)
+							span.badge.text-bg-success(title="Confirmed balance", data-bs-toggle="tooltip")
+								i.fas.fa-check.me-2
+								+btcValue(walletBalance.confirmed_balance)
+									span.text-muted (none)
+
+
+							if (walletBalance.unconfirmed_balance > 0)
+								div
+									span.badge.text-bg-warning(title="Unconfirmed balance", data-bs-toggle="tooltip")
+										i.fas.fa-clock.me-2
+										+btcValue(walletBalance.unconfirmed_balance)
 
 					else
 						span.text-warning.border-dotted(title="Error loading wallet balance. See Error Log for details." data-bs-toggle="tooltip") Unknown
 
 				
-				+summaryItem("Channel Balances")
-					div
-						span.border-dotted.me-2(title="Local, spendable balance across all of your channels.", data-bs-toggle="tooltip") Spendable
+				+summaryItem("Lightning: Spendable vs Receivable")
+					if (totalLocalBalance != null)
+						.d-flex.justify-content-between.fs-90.mb-2
+							.text-start
+								i.fas.fa-circle.text-primary.me-2
+								span.border-dotted(title="Local, spendable balance across all of your channels.", data-bs-toggle="tooltip") Spendable
 
-						if (totalLocalBalance > 0)
-							- var localBalancePercent = new Decimal(totalLocalBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
+							.text-end
+								i.fas.fa-circle.text-info.me-2
+								span.border-dotted(title="Total receivable balance on the remote side of all of your channels.", data-bs-toggle="tooltip") Receivable
 
-						span.badge.text-bg-primary.fs-80
-							i.fas.fa-arrow-right-from-bracket.me-2
-							+btcValue(totalLocalBalance)
 						
-						if (totalLocalBalance > 0)
-							span.text-muted.fs-75.ms-2 (#{localBalancePercent.toDP(1)}%)
+						.d-flex.justify-content-between.mb-3
+							.text-start
+								span.badge.text-bg-primary.fs-80
+									+btcValue(totalLocalBalance)
 
-					div
-						span.border-dotted.me-2(title="Total receivable balance on the remote side of all of your channels.", data-bs-toggle="tooltip") Receivable
-						
-						if (totalRemoteBalance > 0)
-							- var remoteBalancePercent = new Decimal(totalRemoteBalance).dividedBy(totalLocalBalance + totalRemoteBalance).times(100);
+							.text-end
+								span.badge.text-bg-info.fs-80
+									+btcValue(totalRemoteBalance)
 
-						span.badge.text-bg-info.fs-80
-							i.fas.fa-arrow-right-to-bracket.me-2
-							+btcValue(totalRemoteBalance)
-						
-						if (totalRemoteBalance > 0)
-							span.text-muted.fs-75.ms-2 (#{remoteBalancePercent.toDP(1)}%)
+
+						+progressBar([totalLocalBalance, totalRemoteBalance], ["text-bg-primary", "text-bg-info"])
+					
+
+					else
+						span -
+
+
+					
 
 
 				+summaryItem("Channels")
 					if (getInfo)
-						+pillBadgeSuccess("Active")
-						span
-							if (parseInt(getInfo.num_active_channels) > 0)
-								span #{parseInt(getInfo.num_active_channels).toLocaleString()}
+						.d-flex.justify-content-center
+							.d-flex
+								div.text-end
+									+pillBadgeSuccess("Active")
 
-							else
-								span.text-muted (none)
+									if (parseInt(getInfo.num_pending_channels) > 0)
+										div
+											+pillBadgeWarning("Pending")
 
-						if (getInfo.num_pending_channels)
-							+pillBadgeWarning("Pending")
+									if (parseInt(getInfo.num_inactive_channels) > 0)
+										div
+											+pillBadgeWarning("Inactive")
+
+								div.text-start.ps-2
+									if (parseInt(getInfo.num_active_channels) > 0)
+										span #{parseInt(getInfo.num_active_channels).toLocaleString()}
+
+									else
+										span 0
+
+									if (parseInt(getInfo.num_pending_channels) > 0)
+										div
+											span #{parseInt(getInfo.num_pending_channels).toLocaleString()}
+
+									if (parseInt(getInfo.num_inactive_channels) > 0)
+										div
+											span #{parseInt(getInfo.num_inactive_channels).toLocaleString()}
+
+
+						if (false)
+							+pillBadgeSuccess("Active")
 							span
-							if (parseInt(getInfo.num_pending_channels) > 0)
-								span #{parseInt(getInfo.num_pending_channels).toLocaleString()}
+								if (parseInt(getInfo.num_active_channels) > 0)
+									span #{parseInt(getInfo.num_active_channels).toLocaleString()}
 
-							else
-								span.text-muted (none)
+								else
+									span.text-muted (none)
 
-						if (getInfo.num_inactive_channels)
-							+pillBadgeWarning("Inactive")
-							span
-							if (parseInt(getInfo.num_inactive_channels) > 0)
-								span #{parseInt(getInfo.num_inactive_channels).toLocaleString()}
+							if (getInfo.num_pending_channels)
+								div
+									+pillBadgeWarning("Pending")
+									span
+									if (parseInt(getInfo.num_pending_channels) > 0)
+										span #{parseInt(getInfo.num_pending_channels).toLocaleString()}
 
-							else
-								span.text-muted (none)
+									else
+										span.text-muted (none)
+
+							if (getInfo.num_inactive_channels)
+								div
+									+pillBadgeWarning("Inactive")
+									span
+									if (parseInt(getInfo.num_inactive_channels) > 0)
+										span #{parseInt(getInfo.num_inactive_channels).toLocaleString()}
+
+									else
+										span.text-muted (none)
 
 					else
 						span.text-warning.border-dotted(title="Error loading channel info. See Error Log for details." data-bs-toggle="tooltip") Unknown
@@ -186,13 +251,15 @@ block content
 				+summaryItem("Current Block")
 					if (config.blockExplorerUrl)
 						a(href=(config.blockExplorerUrl + "/block/" + getInfo.block_hash), target="_blank") ##{getInfo.block_height.toLocaleString()}
-						.text-muted.fs-75 (
+						
+						span.ms-2
 							if (getInfo.synced_to_chain)
-								span.text-muted synchronized
-							else
-								span.text-danger not synchronized
+								span(title="Synchronized", data-bs-toggle="tooltip")
+									i.fas.fa-circle-check.text-success
 
-							span )
+							else
+								span(title="Not synchronized", data-bs-toggle="tooltip")
+									i.fas.fa-clock.text-warning
 
 					else
 						span #{getInfo.block_hash}
@@ -220,13 +287,7 @@ block content
 
 								
 
-			if (false)
-				.row
-					.summary-split-table-label
-						span.border-dotted(title="This image is derived from the node's public key and should be unique to this node. The color for the outer ring is the node's 'color' property.", data-bs-toggle="tooltip") Icon
-					.summary-split-table-content
-						- var node_pubkey = getInfo.identity_pubkey;
-						include includes/node-icon.pug
+
 
 		
 
@@ -298,50 +359,25 @@ block content
 						.col-md-4
 							h3.h4 Recently Updated
 							- var nodeInfos = fullNetworkDescription.nodes.sortedByLastUpdate.slice(0, 5);
-							include includes/node-card-list.pug
+							each nodeInfo in nodeInfos
+								.mb-3
+									+nodeCard(nodeInfo.node.pub_key)
 
 						.col-md-4
 							h3.h4 Top Channel Count
 							- var nodeInfos = fullNetworkDescription.nodes.sortedByChannelCount.slice(0, 5);
-							include includes/node-card-list.pug
+							each nodeInfo in nodeInfos
+								.mb-3
+									+nodeCard(nodeInfo.node.pub_key)
 
 						.col-md-4
 							h3.h4 Top Capacity
 							- var nodeInfos = fullNetworkDescription.nodes.sortedByTotalCapacity.slice(0, 5);
-							include includes/node-card-list.pug
+							each nodeInfo in nodeInfos
+								.mb-3
+									+nodeCard(nodeInfo.node.pub_key)
 				
 
-		if (false)
-			div(class="card mb-4 shadow-sm")
-				.card-header
-					div(class="row")
-						div(class="col")
-							h2.h6.mb-0 #{fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()} 
-								if (fullNetworkDescription.channels.sortedByLastUpdate.length == 1)
-									span Channel
-								else
-									span Channels
-
-						div(class="col")
-							span(style="float: right;")
-								a(href="/channels")
-									span  Browse Channels &raquo;
-
-				.card-body
-					ul(class='nav nav-tabs')
-						li(class="nav-item")
-							a(data-bs-toggle="tab", href="#tab-channels-sortedByLastUpdate", class="nav-link active", role="tab") Recently Updated
-						li(class="nav-item")
-							a(data-bs-toggle="tab", href="#tab-channels-sortedByCapacity", class="nav-link", role="tab") Most Capacity
-
-					div(class="tab-content")
-						div(id="tab-channels-sortedByLastUpdate", class="tab-pane active", role="tabpanel")
-							- var channels = fullNetworkDescription.channels.sortedByLastUpdate.slice(0, 10);
-							include includes/channel-table.pug
-
-						div(id="tab-channels-sortedByCapacity", class="tab-pane", role="tabpanel")
-							- var channels = fullNetworkDescription.channels.sortedByCapacity.slice(0, 10);
-							include includes/channel-table.pug
 
 	else
 		.alert.alert-primary No active LND connection. If your app was just started, it may still be connecting. Otherwise, check your RPC connection and your logs for errors.

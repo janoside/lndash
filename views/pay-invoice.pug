@@ -101,8 +101,7 @@ block content
 							.card-body
 								.fw-bold.mb-2 Node
 								
-								- var card_node_pubkey = lndRpc.internal_pubkey;
-								include includes/node-card.pug
+								+nodeCard(lndRpc.internal_pubkey)
 
 						each hop, hopIndex in payInvoiceResponse.payment_route.hops
 							
@@ -122,9 +121,9 @@ block content
 								.card-body
 									.mb-3.border-bottom.pb-3
 										.fw-bold.mb-2 Node
-										- var card_node_pubkey = hop.pub_key;
-										include includes/node-card.pug
-										
+
+										+nodeCard(hop.pub_key)
+
 
 									.mb-2
 										.fw-bold Channel
@@ -146,62 +145,57 @@ block content
 							code.json #{JSON.stringify(payInvoiceResponse, null, 4)}
 
 		if (decodedInvoice)
-					ul(class='nav nav-tabs mb-3')
-						li(class="nav-item")
-							a.nav-link.active(data-bs-toggle="tab" href="#tab-summary" role="tab") Summary
-						li(class="nav-item")
-							a.nav-link(data-bs-toggle="tab" href="#tab-json" role="tab") JSON
+			+pageTabs(["Summary", "JSON"])
+			
+			.tab-content
+				+pageTab("Summary", true)
+					+contentSection("Invoice Details")
+						h6.fw-light.mb-4 Destination
 
-					.tab-content
-						.tab-pane.active(id="tab-summary", role="tabpanel")
-							+contentSection("Invoice Details")
-								h6.fw-light.mb-4 Destination
-
-								.d-flex.mb-n3
-									+card
-										- var card_node_pubkey = decodedInvoice.destination;
-										include ./includes/node-card.pug
-
-								hr.my-4
-
-								+summaryRow(4)
-									+summaryItem("Description")
-										if (decodedInvoice.description)
-											span #{decodedInvoice.description}
-										else
-											span -
-
-									
-									+summaryItem("Amount")
-										+btcValue(decodedInvoice.num_satoshis)
-
-
-									+summaryItem("Date")
-										+date(decodedInvoice.timestamp, "detail", true)
-										
-										
-
-									+summaryItem("Hash")
-										| #{utils.ellipsizeMiddle(decodedInvoice.payment_hash, 14)}
-										+copyTextButton(decodedInvoice.payment_hash)
-
-
-								hr.my-4
-
-
-								form(method="post")
-									input(type="hidden", name="invoice", value=invoice)
-
-									button.btn.btn-primary(type="submit")
-										i.fas.fa-receipt.me-2
-										span Pay Invoice
-
-
+						.d-flex.mb-n3
+							+card
+								+nodeCard(decodedInvoice.destination)
 								
 
-						.tab-pane(id="tab-json", role="tabpanel")
-							pre
-								code.json #{JSON.stringify(decodedInvoice, null, 4)}
+						hr.my-4
+
+						+summaryRow(4)
+							+summaryItem("Description")
+								if (decodedInvoice.description)
+									span #{decodedInvoice.description}
+								else
+									span -
+
+							
+							+summaryItem("Amount")
+								+btcValue(decodedInvoice.num_satoshis)
+
+
+							+summaryItem("Date")
+								+date(decodedInvoice.timestamp, "detail", true)
+								
+								
+
+							+summaryItem("Hash")
+								| #{utils.ellipsizeMiddle(decodedInvoice.payment_hash, 14)}
+								+copyTextButton(decodedInvoice.payment_hash)
+
+
+						hr.my-4
+
+
+						form(method="post")
+							input(type="hidden", name="invoice", value=invoice)
+
+							button.btn.btn-primary(type="submit")
+								i.fas.fa-receipt.me-2
+								span Pay Invoice
+
+
+						
+				+pageTab("JSON")
+					pre
+						code.json #{JSON.stringify(decodedInvoice, null, 4)}
 
 					
 					

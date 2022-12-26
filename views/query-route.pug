@@ -26,9 +26,10 @@ block content
 
 			if (pubkey)
 				.d-flex
-					+card
-						- var card_node_pubkey = pubkey;
-						include includes/node-card.pug
+					div
+						label.form-label(for="pubkey") Remote Node
+						+card
+							+nodeCard(pubkey)
 
 			.d-flex
 				.mb-3
@@ -109,8 +110,8 @@ block content
 						.card-body
 							.fw-bold.mb-2 Node
 							
-							- var card_node_pubkey = lndRpc.internal_pubkey;
-							include includes/node-card.pug
+							+nodeCard(lndRpc.internal_pubkey)
+
 
 					each hop, hopIndex in route.hops
 						
@@ -134,9 +135,9 @@ block content
 							.card-body
 								.mb-3.border-bottom.pb-3
 									.fw-bold.mb-2 Node
-									- var card_node_pubkey = hop.pub_key;
-									include includes/node-card.pug
-									
+
+									+nodeCard(hop.pub_key)
+
 
 								.mb-2
 									.fw-bold Channel
@@ -149,7 +150,7 @@ block content
 									if (parseInt(hop.fee_msat) > 0)
 										span.text-danger +
 											+btcValue(hop.fee_msat, "msat", "msat")
-											
+
 									else
 										span.text-success 0
 

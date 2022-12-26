@@ -4,8 +4,8 @@ tr
 
 	td
 		if (nodePubkeys)
-			- var card_node_pubkey = nodePubkeys[index];
-			include ./node-card.pug
+			+nodeCard(nodePubkeys[index])
+			
 
 		else
 			span -

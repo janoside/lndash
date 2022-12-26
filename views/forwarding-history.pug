@@ -171,7 +171,7 @@ block content
 													if (card_node_pubkey == lndRpc.internal_pubkey)
 														- card_node_pubkey = channelInfo.node2_pub;
 
-													include includes/node-card.pug
+													+nodeCard(card_node_pubkey)
 
 											td
 												- var channel_id = forwardingEvent.chan_id_out;
@@ -187,7 +187,7 @@ block content
 													if (card_node_pubkey == lndRpc.internal_pubkey)
 														- card_node_pubkey = channelInfo.node2_pub;
 
-													include includes/node-card.pug
+													+nodeCard(card_node_pubkey)
 
 											td.text-end
 												+btcValue(forwardingEvent.amt_in)
@@ -259,7 +259,7 @@ block content
 															if (card_node_pubkey == lndRpc.internal_pubkey)
 																- card_node_pubkey = channelInfo.node2_pub;
 
-															include includes/node-card.pug
+															+nodeCard(card_node_pubkey)
 
 													td.text-end #{channelForwardingInfo.eventCount.toLocaleString()}
 													
@@ -307,8 +307,8 @@ block content
 															if (card_node_pubkey == lndRpc.internal_pubkey)
 																- card_node_pubkey = channelInfo.node2_pub;
 
-															include includes/node-card.pug
-
+															+nodeCard(card_node_pubkey)
+															
 													td.text-end #{channelForwardingInfo.eventCount.toLocaleString()}
 													
 													td.text-end

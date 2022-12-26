@@ -60,17 +60,17 @@ block content
 						code.json #{JSON.stringify(openChannelResponse)}
 
 		form(method="post" action="/openchannel" onsubmit="formSubmitted()")
-			+contentSection("Remote Node")
-				.mb-3
-					label.form-label(for="pubkey") Public Key
-						i.fas.fa-asterisk.text-danger.ms-1.fa-sm(title="Required" data-bs-toggle="tooltip")
-					input.form-control.form-control-lg(type="text" id="pubkey" name="pubkey" value=pubkey)
+			.mb-3
+				label.form-label(for="pubkey") Remote Node Public Key
+					i.fas.fa-asterisk.text-danger.ms-1.fa-sm(title="Required" data-bs-toggle="tooltip")
+				input.form-control.form-control-lg(type="text" id="pubkey" name="pubkey" value=pubkey)
 
-				if (pubkey)
-					.mb-n3
+			if (pubkey)
+				.d-flex
+					div
+						label.form-label(for="pubkey") Remote Node
 						+card
-							- var card_node_pubkey = pubkey;
-							include includes/node-card.pug
+							+nodeCard(pubkey)
 
 			.row
 				.col-sm-6.col-md-4.col-lg-3.col-xl-2

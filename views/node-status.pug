@@ -60,7 +60,7 @@ block content
 									.summary-split-table-label Color
 									.summary-split-table-content
 										- var node_color = fullNetworkDescription.nodeInfoByPubkey[getInfo.identity_pubkey].node.color;
-										include ./includes/node-color-swatch.pug
+										+nodeColorSwatch(node_color)
 										span #{node_color}
 
 								div(class="row")
@@ -130,8 +130,7 @@ block content
 								each item in listPeers.peers
 									tr
 										td
-											- var card_node_pubkey = item.pub_key;
-											include ./includes/node-card.pug
+											+nodeCard(item.pub_key)
 
 										td #{item.address}
 

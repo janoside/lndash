@@ -33,7 +33,7 @@ block content
 		if (!localChannel)
 			- localChannel = localClosedChannels.byId && localClosedChannels.byId[channel.channel_id];
 
-		if (!localChannel)
+		if (!localChannel && localPendingChannels.waitingCloseChannels)
 			each waitingCloseChannel in localPendingChannels.waitingCloseChannels
 				if (waitingCloseChannel.channel.channel_point == channel.chan_point)
 					- localChannel = true;
@@ -85,14 +85,10 @@ block content
 		- var channelPointTxid = channelPointParts[0];
 		- var channelPointIndex = channelPointParts[1];
 
-		ul.nav.nav-tabs.mb-3
-			li.nav-item
-				a.nav-link.active(data-bs-toggle="tab" href="#tab-details" role="tab") Details
-			li.nav-item
-				a.nav-link(data-bs-toggle="tab"  href="#tab-json" role="tab") JSON
+		+pageTabs(["Details", "JSON"])
 
 		.tab-content
-			.tab-pane.active(id="tab-details" role="tabpanel")
+			+pageTab("Details", true)
 				+contentSection("Summary")
 					if (localChannels.byId && localChannels.byId[channel.channel_id])
 						- var localChannel = localChannels.byId[channel.channel_id];
@@ -203,18 +199,8 @@ block content
 
 
 						+summaryItem("Channel Point", "On-chain transaction:output-index that opened this channel.")
-							+btcTxid(channelPointTxid)
-							span.ms-2 [#{channelPointIndex}]
+							+channelPoint(channelPointTxid, channelPointIndex, blockHeight)
 							
-
-							div
-								span.fs-80.text-muted (in block
-									span.ms-2
-									if (config.blockExplorerUrl)
-										a(href=`${config.blockExplorerUrl}/block-height/${blockHeight}` target="_blank") #{blockHeight.toLocaleString()}
-									else
-										span #{blockHeight.toLocaleString()}
-									| )
 
 					
 							
@@ -282,8 +268,7 @@ block content
 								tr
 									th.text-end.fw-light 1
 									td
-										- var card_node_pubkey = channel.node1_pub;
-										include ./includes/node-card.pug
+										+nodeCard(channel.node1_pub)
 
 									if (channel.node1_policy)
 										td.text-end #{parseInt(channel.node1_policy.time_lock_delta).toLocaleString()}
@@ -300,8 +285,7 @@ block content
 								tr
 									th.text-end.fw-light 2
 									td
-										- var card_node_pubkey = channel.node2_pub;
-										include ./includes/node-card.pug
+										+nodeCard(channel.node2_pub)
 
 									if (channel.node2_policy)
 										td.text-end #{parseInt(channel.node2_policy.time_lock_delta).toLocaleString()}
@@ -324,20 +308,20 @@ block content
 					include includes/node-details-table.pug
 						
 
-			div(id="tab-json", class="tab-pane", role="tabpanel")
-				h4 channelInfo
-				pre
-					code.json #{JSON.stringify(channel, null, 4)}
+			+pageTab("JSON")
+				+contentSection("channelInfo")
+					pre
+						code.json #{JSON.stringify(channel, null, 4)}
 
 				if (localChannels.byId[channel.channel_id])
-					h4 localChannelInfo
+					+contentSection("localChannelInfo")
+						pre
+							code.json #{JSON.stringify(localChannels.byId[channel.channel_id], null, 4)}
+
+				+contentSection("node1Info")
 					pre
-						code.json #{JSON.stringify(localChannels.byId[channel.channel_id], null, 4)}
+						code.json #{JSON.stringify(node1, null, 4)}
 
-				h4 node1Info
-				pre
-					code.json #{JSON.stringify(node1, null, 4)}
-
-				h4 node2Info
-				pre
-					code.json #{JSON.stringify(node2, null, 4)}
+				+contentSection("node2Info")
+					pre
+						code.json #{JSON.stringify(node2, null, 4)}

@@ -1,33 +1,41 @@
 
 if (global.adminCredentials && global.adminCredentials.lndNodes)
 	+modal("nodeSelectModal", "Nodes", "modal-md")
-		each lndNodeInfo, lndNodeIndex in global.adminCredentials.lndNodes
-			li.nav-item.rounded
-				if (lndConnections.byIndex[lndNodeIndex] != null)
-					- var lndConn = lndConnections.byIndex[lndNodeIndex];
-					- var node_pubkey = lndConn.internal_pubkey;
+		ul.nav.nav-pills.flex-column
+			each lndNodeInfo, lndNodeIndex in global.adminCredentials.lndNodes
+				li.nav-item.rounded
+					if (lndConnections.byIndex[lndNodeIndex] != null)
+						- var lndConn = lndConnections.byIndex[lndNodeIndex];
+						- var node_pubkey = lndConn.internal_pubkey;
 
 
-					if (fullNetworkDescription)
-						a.dropdown-item.rounded-0.px-2.py-2.fs-75(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#nodeSelectModal")
-							.d-flex
-								div.me-1
-									- var node_icon_size = "2rem;"
-									include ./node-icon.pug
+						if (fullNetworkDescription)
+							a.dropdown-item.rounded-0.px-2.py-2.fs-75(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#nodeSelectModal")
+								.d-flex.justify-content-between
+									.d-flex.justify-content-start
+										.me-1
+											+nodeIcon(node_pubkey, "2rem")
 
-								div
-									include ./node-pubkey.pug
-									
-									div
-										- var node_alias = lndConn.internal_alias;
-										include ./node-alias.pug
+										div
+											+nodePubkey(node_pubkey)
+											
+											div
+												+nodeAlias(lndConn.internal_alias)
+
+									.mt-1.fs-120
+										if (true)
+											+pillBadgeSuccess("Active")
 
 		hr.my-4
 
 		a(href=`/manage-nodes`) Manage Nodes
 
 if (global.adminCredentials && global.adminCredentials.lndNodes)
-	+menuHeading("Connected Node", `The node that LNDash is currently connected to. Click the node to select another node.`)
+	.d-flex.justify-content-start
+		+menuHeading("Connected Node", `The node that LNDash is currently connected to. Click the node to select another node.`)
+		.ms-3
+			a(href="/manage-nodes", title="Manage connected nodes", data-bs-toggle="tooltip")
+				i.fas.fa-pen-to-square.text-body.align-top
 
 	ul.nav.nav-pills.flex-column
 		each lndNodeInfo, lndNodeIndex in global.adminCredentials.lndNodes
@@ -40,13 +48,11 @@ if (global.adminCredentials && global.adminCredentials.lndNodes)
 					if (fullNetworkDescription)
 						a.dropdown-item.rounded-0.px-2.py-2.fs-75(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#nodeSelectModal")
 							.d-flex
-								div.me-1
-									- var node_icon_size = "2rem;"
-									include ./node-icon.pug
+								.me-1
+									+nodeIcon(node_pubkey, "2rem")
 
 								div
-									include ./node-pubkey.pug
+									+nodePubkey(node_pubkey)
 									
 									div
-										- var node_alias = lndConn.internal_alias;
-										include ./node-alias.pug
+										+nodeAlias(lndConn.internal_alias)

@@ -36,14 +36,11 @@
 			return false;
 		}
 
-	ul.nav.nav-tabs.mb-3
-		li.nav-item
-			a.nav-link.active(data-bs-toggle="tab" href="#tab-single" role="tab") Single Address
-		li.nav-item
-			a.nav-link(data-bs-toggle="tab" href="#tab-multi" role="tab") Multiple Addresses
 
+	+pageTabs(["Single Address", "Multiple Addresses"])
+	
 	.tab-content
-		.tab-pane.active(id="tab-single" role="tabpanel")
+		+pageTab("Single Address", true)
 
 			.alert(id="responseAlertSingle" style="display: none;")
 
@@ -90,7 +87,7 @@
 					i.fas.fa-external-link-alt.me-2
 					span Withdraw Funds
 
-		.tab-pane(id="tab-multi" role="tabpanel")
+		+pageTab("Multiple Addresses")
 			.alert.alert-primary.shadow-sm
 				span TODO 
 				a(href="https://github.com/janoside/lnd-admin/issues/13" target="_blank") #13

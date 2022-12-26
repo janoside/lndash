@@ -3,9 +3,8 @@ tr.word-wrap
 
 
 	td
-		- var card_node_pubkey = nodeInfo.node.pub_key;
-		include ./node-card.pug
-
+		+nodeCard(nodeInfo.node.pub_key)
+		
 
 	td
 		if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)

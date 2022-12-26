@@ -7,13 +7,11 @@ tr.word-wrap
 		
 
 	td
-		- var card_node_pubkey = channel.node1_pub;
-		include ./node-card.pug
+		+nodeCard(channel.node1_pub)
 
 
 	td
-		- var card_node_pubkey = channel.node2_pub;
-		include ./node-card.pug
+		+nodeCard(channel.node2_pub)
 
 
 	td.text-end

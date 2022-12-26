@@ -47,9 +47,8 @@ block content
 			if (destPubkey)
 				.card.mb-3.bg-light
 					.card-body
-						- var card_node_pubkey = destPubkey;
-						include includes/node-card.pug
-
+						+nodeCard(destPubkey)
+						
 			.row
 				.col-md-2
 					.mb-3

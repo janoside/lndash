@@ -10,15 +10,12 @@ block breadcrumb
 	li.breadcrumb-item All Nodes
 	
 block content
-	//h1(class="h2") Nodes
-	//hr
-
+	
 	+pageTitle(`${fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()} Node${(fullNetworkDescription.nodes.sortedByLastUpdate.length == 1) ? "" : "s"}`)
 	
 
 	if (!session.hideNodesNetworkNote)
 		.alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
-			h3.h5 Note
 			.mb-2
 				span This shows all public nodes on that network, 
 				span.fw-bold from the perspective of your node

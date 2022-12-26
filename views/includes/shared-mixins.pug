@@ -162,7 +162,7 @@ mixin modal(modalId, title, modalSizeClass="modal-xl")
 					block
 
 				.modal-footer
-					button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Close
+					button.btn.btn-dark(type="button" data-bs-dismiss="modal") Close
 
 
 
@@ -240,18 +240,18 @@ mixin btcAddressInternal(btc_address)
 	span.d-none.d-xl-inline #{utils.ellipsizeMiddle(btc_address, config.site.addressMaxDisplayLength)}
 
 
-mixin btcTxid(btc_txid)
+mixin btcTxid(btc_txid, length=-1)
 	if (config.blockExplorerUrl)
 		a(href=`${config.blockExplorerUrl}/tx/${btc_txid}`, title=btc_txid, data-bs-toggle="tooltip")
-			+btcTxidInternal(btc_txid)
+			+btcTxidInternal(btc_txid, length)
 
 	else
 		span(title=btc_txid, data-bs-toggle="tooltip")
-			+btcTxidInternal(btc_txid)
+			+btcTxidInternal(btc_txid, length)
 
-mixin btcTxidInternal(btc_txid)
-	span.d-inline.d-xl-none #{utils.ellipsizeMiddle(btc_txid, 12)}
-	span.d-none.d-xl-inline #{utils.ellipsizeMiddle(btc_txid, config.site.txidMaxDisplayLength)}
+mixin btcTxidInternal(btc_txid, length=-1)
+	span.d-inline.d-xl-none #{utils.ellipsizeMiddle(btc_txid, length == -1 ? 12 : length)}
+	span.d-none.d-xl-inline #{utils.ellipsizeMiddle(btc_txid, length == -1 ? config.site.txidMaxDisplayLength : length)}
 
 
 mixin channelId(channel_id, isOpen=false)
@@ -272,6 +272,18 @@ mixin channelId(channel_id, isOpen=false)
 mixin channelIdInternal(channel_id)
 	span.d-inline.d-lg-none #{utils.ellipsizeMiddle(channel_id, 10)}
 	span.d-none.d-lg-inline #{utils.ellipsizeMiddle(channel_id, 12)}
+
+
+mixin channelPoint(txid, outputIndex, blockHeight)
+	+btcTxid(channelPointTxid, 8)
+	span.ms-1 [#{channelPointIndex}]
+	
+	span.fs-80.text-muted.ms-2(title="Block height of this transaction", data-bs-toggle="tooltip") (
+		if (config.blockExplorerUrl)
+			a(href=`${config.blockExplorerUrl}/block-height/${blockHeight}` target="_blank") #{blockHeight.toLocaleString()}
+		else
+			span #{blockHeight.toLocaleString()}
+		| )
 
 
 mixin netAddress(address, network)
@@ -352,3 +364,158 @@ mixin btcValue(value, currencyUnit="sat", formatType=null)
 		else
 			span 0
 
+
+
+mixin progressBar(rawValues, colorClasses, height="15px")
+	- let ratioValues = [];
+
+	- let total = new Decimal(0);
+	each rawValue in rawValues
+		- total = total.plus(rawValue);
+
+	each rawValue in rawValues
+		- ratioValues.push(rawValue.dividedBy(total));
+
+	.progress.mb-2(style=`height: ${height};`)
+		each ratioValue, valueIndex in ratioValues
+			.progress-bar.fs-90(class=colorClasses[valueIndex], role="progressbar", style=`width: ${ratioValue.times(100).toDP(0)}%;`, aria-valuenow=`${ratioValue.times(100).toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{ratioValue.times(100).toDP(1)}%
+
+
+
+mixin pageTabs(names, bottomGradient=true)
+	ul.nav.nav-tabs#page-tabs
+		each name, nameIndex in names
+			li.nav-item.page-tab(style=(nameIndex == 0 ? "margin-left: 10px;" : false))
+				a.nav-link(class=(nameIndex == 0 ? "active" : false), data-bs-toggle="tab", data-default-tab=(nameIndex == 0 ? "true" : false) href=`#${name.replaceAll(" ", "-")}`, role="tab") #{name}
+
+	if (bottomGradient)
+		.bg-gradient-body-to-main.pb-4.mb-2
+
+	else
+		.pb-4.mb-2
+
+mixin pillTabs(names)
+	ul.nav.nav-pills.mb-3
+		each name, nameIndex in names
+			li.nav-item
+				a.nav-link(class=(nameIndex == 0 ? "active" : false), data-bs-toggle="tab", href=`#${name.replaceAll(" ", "-")}`, role="tab") #{name}
+
+
+mixin pageTab(name, defaultActive=false)
+	.tab-pane(id=`${name.replaceAll(" ", "-")}`, class=(defaultActive ? "active" : false), role="tabpanel")
+		block
+
+
+
+mixin nodePubkey(node_pubkey)
+	span.d-inline.d-md-none #{utils.ellipsizeMiddle(node_pubkey, 10)}
+	span.d-none.d-lg-inline.d-xxl-none #{utils.ellipsizeMiddle(node_pubkey, 12)}
+	span.d-none.d-xxl-inline #{utils.ellipsizeMiddle(node_pubkey, config.site.pubkeyMaxDisplayLength)}
+
+
+
+mixin nodeIcon(node_pubkey, node_icon_size)
+	//- var hsl = utils.colorHexToHsl(fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.color);
+
+	- var node_icon_color = "#000000";
+	if (fullNetworkDescription && fullNetworkDescription.nodeInfoByPubkey[node_pubkey])
+		- var node_icon_color = fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.color;
+
+	.node-color-circle-wrapper
+		.node-color-circle-outer(style=("background-color: " +  node_icon_color + "; width: " + node_icon_size + "; height: " + node_icon_size + ";"))
+			.node-color-circle-inner(style="background-color: white;")
+				svg.node-icon(data-jdenticon-value=node_pubkey)
+
+
+
+mixin nodeColorSwatch(node_color)
+	- var hsl = utils.colorHexToHsl(node_color);
+
+	if (hsl.s < 0.1)
+		div(style=("display: inline-block; width: 2em; height: 1.25em; margin-bottom: -4px !important; margin-right: 5px !important; padding: 0; margin: 0; border-radius: 0.2em; border: solid 1px #aaa; background: " + node_color), title=node_color, data-bs-toggle="tooltip")
+
+	else
+		div(style=("display: inline-block; width: 2em; height: 1.25em; margin-bottom: -4px !important; margin-right: 5px !important; padding: 0; margin: 0; border-radius: 0.2em; background: " + node_color), title=node_color, data-bs-toggle="tooltip")
+
+
+
+mixin nodeAlias(node_alias)
+	- var cutoffs = [12, 16];
+	- var aliasChars = runes(node_alias);
+
+	span.fst-italic
+		if (aliasChars.length > 0)
+			if (aliasChars.length > cutoffs[0])
+				if (aliasChars.length > cutoffs[1])
+					if (aliasChars.length > config.site.aliasMaxDisplayLength)
+						span.border-dotted(title=node_alias, data-bs-toggle="tooltip")
+							span #{aliasChars.slice(0, cutoffs[0]).join("")}
+							span.d-none.d-lg-inline #{aliasChars.slice(cutoffs[0], cutoffs[1]).join("")}
+							span.d-none.d-xl-inline #{aliasChars.slice(cutoffs[1], config.site.aliasMaxDisplayLength).join("")}
+							span …
+
+					else
+						span #{aliasChars.slice(0, cutoffs[0]).join("")}
+						span.d-none.d-lg-inline #{aliasChars.slice(cutoffs[0], cutoffs[1]).join("")}
+						span.d-none.d-xl-inline #{aliasChars.slice(cutoffs[1]).join("")}
+				else
+					span #{aliasChars.slice(0, cutoffs[0]).join("")}
+					span.d-none.d-lg-inline #{aliasChars.slice(cutoffs[0]).join("")}
+			else
+				span #{node_alias}
+			
+		else
+			span -
+	
+
+
+mixin nodeCard(card_node_pubkey, node_card_include_wrapper=false, includeStars=true)
+	if (fullNetworkDescription && fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey])
+		- var card_node = {pubkey:card_node_pubkey, alias:fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey].node.alias, color:fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey].node.color};
+
+	if (node_card_include_wrapper)
+		.card.shadow-sm(style="min-width: 275px;")
+			.card-body.p-2
+				.d-flex.flex-row
+					.me-2
+						if (card_node)
+							+nodeIcon(card_node.pubkey, "2.75rem")
+							
+					div
+						if (card_node)
+							a(href=`/node/${card_node.pubkey}`, title=card_node.pubkey, data-bs-toggle="tooltip")
+								+nodePubkey(card_node.pubkey)
+							
+							br
+							+nodeAlias(card_node.alias)
+
+	else
+		.d-flex.flex-row
+			.me-2
+				+nodeIcon(card_node_pubkey, "2.75rem")
+
+			div
+				if (card_node)
+					a(href=`/node/${card_node.pubkey}`)
+						+nodePubkey(card_node.pubkey)
+
+					if (includeStars && utils.isObjectStarred(`node:${card_node.pubkey}`))
+						i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite nodes" data-bs-toggle="tooltip")
+					
+					br
+
+					+nodeAlias(card_node.alias)
+
+					if (card_node.pubkey == lndRpc.internal_pubkey)
+						i.fa.fa-certificate.ms-2.text-primary(title="This is your LND Node" data-bs-toggle="tooltip")
+
+				else
+					a(href=`/node/${card_node_pubkey}`, title=card_node_pubkey, data-bs-toggle="tooltip")
+						+nodePubkey(card_node_pubkey)
+
+					br
+
+					span.text-danger.border-dotted(title="Details for this node's public key seem to be unavailable." data-bs-toggle="tooltip") Unknown Node
+
+	- card_node_pubkey = null;
+	- card_node = null;

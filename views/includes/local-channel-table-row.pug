@@ -47,7 +47,7 @@ tr.word-wrap
 			span -
 
 
-		if (pendingOpenChannels.includes(channel))
+		if (pendingOpenChannels && pendingOpenChannels.includes(channel))
 			.mt-3
 				div Opening tx:
 				- var btc_txid = channel.channel.channel_point.substring(0, channel.channel.channel_point.indexOf(":"));
@@ -67,7 +67,7 @@ tr.word-wrap
 		else if (channel.channel.remote_node_pub)
 			- var card_node_pubkey = channel.channel.remote_node_pub;
 
-		include ./node-card.pug
+		+nodeCard(card_node_pubkey)
 
 	if (false)
 		td.text-end
@@ -82,63 +82,79 @@ tr.word-wrap
 
 	
 
-	td.text-end
-		div
-			if (channel.active)
-				span.badge.text-bg-primary.fs-6(title="Spendable balance", data-bs-toggle="tooltip")
-					+btcValue(channel.local_balance)
+	td
+		- let localBalance = null;
+		- let remoteBalance = null;
 
-			else if (channel.channel != null)
-				span.badge.text-bg-secondary.fs-6(title="Spendable balance", data-bs-toggle="tooltip")
-					+btcValue(channel.channel.local_balance)
+		if (channel.active)
+			- localBalance = channel.local_balance;
+			- remoteBalance = channel.remote_balance;
 
-			else
-				span -
-
-
-		div.mt-2
-
-			if (channel.active)
-				span.badge.text-bg-info.fs-6(title="Receivable balance", data-bs-toggle="tooltip")
-					+btcValue(channel.remote_balance)
-				
-				if (false)
-					.row
-						.col-md-6.text-end
-							+btcValue(channel.local_balance)
-
-						.col-md-6.text-end
-							+btcValue(channel.remote_balance)
-
-					- var fullPercent = new Decimal(100 * parseFloat(channel.local_balance) / (parseFloat(channel.local_balance) + parseFloat(channel.remote_balance))).toDecimalPlaces(1);
-
-					.progress.mt-2(style="height: 6px;")
-						div(class="progress-bar", role="progressbar", style=("width: " + fullPercent + "%;"), aria-valuenow=parseInt(fullPercent), aria-valuemin="0", aria-valuemax="100")
-
-			else if (channel.channel != null)
-				span.badge.text-bg-secondary.fs-6(title="Receivable balance", data-bs-toggle="tooltip")
-					+btcValue(channel.channel.remote_balance)
-
-			else
-				span -
+		else if (channel.channel != null)
+			- localBalance = channel.channel.local_balance;
+			- remoteBalance = channel.channel.remote_balance;
 
 
-	td.text-end
-		div
-			if (channel.active)
-				div
-					span.badge.text-bg-success.fs-6(title="Value received", data-bs-toggle="tooltip")
-						span +
-						+btcValue(channel.total_satoshis_received)
+		if (localBalance != null)
+			- let localBalancePercent = new Decimal(localBalance).dividedBy(parseInt(localBalance) + parseInt(remoteBalance)).times(100);
+			- let remoteBalancePercent = new Decimal(remoteBalance).dividedBy(parseInt(localBalance) + parseInt(remoteBalance)).times(100);
+
+			.progress.mb-2(style="height: 15px;")
+				.progress-bar.text-bg-primary.fs-90(role="progressbar", style=`width: ${localBalancePercent.toDP(0)}%;`, aria-valuenow=`${localBalancePercent.toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{localBalancePercent.toDP(1)}%
+
+				.progress-bar.text-bg-info.fs-90(role="progressbar", style=`width: ${remoteBalancePercent.toDP(0)}%;`, aria-valuenow=`${remoteBalancePercent.toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{remoteBalancePercent.toDP(1)}%
+		
+			
+			.d-flex.justify-content-between
+				.text-start
+					span.badge.text-bg-primary.fs-80(title="Spendable balance", data-bs-toggle="tooltip")
+						+btcValue(localBalance)
+
+				.text-end
+					span.badge.text-bg-info.fs-80(title="Spendable balance", data-bs-toggle="tooltip")
+						+btcValue(remoteBalance)
+
+		else
+			.text-end -
 
 
-				div.mt-2
-					span.badge.text-bg-danger.fs-6(title="Value sent", data-bs-toggle="tooltip")
-						span -
-						+btcValue(channel.total_satoshis_sent)
+	td
+		- let valueReceived = null;
+		- let valueSent = null;
 
-			else
-				span -
+		if (channel.active)
+			- valueReceived = channel.total_satoshis_received;
+			- valueSent = channel.total_satoshis_sent;
+
+		else if (channel.channel != null)
+			- valueReceived = channel.channel.total_satoshis_received;
+			- valueSent = channel.channel.total_satoshis_sent;
+
+
+		if (valueReceived != null)
+			- let receivedPercent = new Decimal(valueReceived).dividedBy(parseInt(valueReceived) + parseInt(valueSent)).times(100);
+			- let sentPercent = new Decimal(valueSent).dividedBy(parseInt(valueReceived) + parseInt(valueSent)).times(100);
+
+			.progress.mb-2(style="height: 15px;")
+				.progress-bar.text-bg-success.fs-90(role="progressbar", style=`width: ${receivedPercent.toDP(0)}%;`, aria-valuenow=`${receivedPercent.toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{receivedPercent.toDP(1)}%
+
+				.progress-bar.text-bg-danger.fs-90(role="progressbar", style=`width: ${sentPercent.toDP(0)}%;`, aria-valuenow=`${sentPercent.toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{sentPercent.toDP(1)}%
+		
+			
+			.d-flex.justify-content-between
+				.text-start
+					span.badge.text-bg-success.fs-80(title="Value received", data-bs-toggle="tooltip")
+						+btcValue(valueReceived)
+
+				.text-end
+					span.badge.text-bg-danger.fs-80(title="Value sent", data-bs-toggle="tooltip")
+						+btcValue(valueSent)
+
+		else
+			.text-end -
+
+
+
 
 
 

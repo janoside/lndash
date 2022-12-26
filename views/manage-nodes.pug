@@ -58,7 +58,7 @@ block content
 									th Node
 									th Status
 									th Configuration
-									th Actions
+									th.text-end Actions
 							
 							tbody
 								each lndNodeConfig, lndNodeIndex in global.adminCredentials.lndNodes
@@ -72,7 +72,8 @@ block content
 											else
 												- var card_node_pubkey = "Unknown";
 
-											include includes/node-card.pug
+											+nodeCard(card_node_pubkey)
+
 										td
 											if (lndNode == lndRpc)
 												+pillBadgeSuccess("Active")
@@ -80,28 +81,26 @@ block content
 												+pillBadgeWarning("Inactive")
 										
 										td
-											a(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#lndNodeDetailsModal-" + lndNodeIndex)) Details
-										td
+											a.btn.btn-primary.btn-sm(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#lndNodeDetailsModal-" + lndNodeIndex))
+												i.fas.fa-file-lines
+
+										td.text-end
 											if (lndNode != lndRpc)
-												.mb-2
-													a(href=`/connect-lnd?index=${lndNodeIndex}` onclick="$('#switchLndModal').modal()") Set Active
+												a.btn.btn-sm.btn-primary.me-2(href=`/connect-lnd?index=${lndNodeIndex}` onclick="$('#switchLndModal').modal()")
+													i.fas.fa-check.me-2
+													| Set Active
+
 											a.btn.btn-danger.btn-sm(href=`/delete-lnd-node?index=${lndNodeIndex}` onclick="$('#refreshLndModal').modal()")
 												i.fas.fa-times.me-2
 												| Delete
 						
 
 		+contentSection("Add New Node")
-			ul.nav.nav-tabs.mb-3
-				li.nav-item
-					a.nav-link(data-bs-toggle="tab" href="#tab-file" role="tab" class=(inputType == "fileInput" ? "active" : false)) File Input
-				li.nav-item
-					a.nav-link(data-bs-toggle="tab" href="#tab-raw" role="tab" class=(inputType == "rawTextInput" ? "active" : false)) Raw Text Input
-				li.nav-item
-					a.nav-link(data-bs-toggle="tab" href="#tab-lndconnect" role="tab" class=(inputType == "lndconnectString" ? "active" : false)) LND Connect
+			+pageTabs(["File Input", "Raw Text Input", "LND Connect"], false)
 
 			.tab-content
-				.tab-pane(id="tab-file" role="tabpanel" class=(inputType == "fileInput" ? "active" : false))
-
+				+pageTab("File Input", true)
+				
 					form(method="post")
 						input(type="hidden" name="inputType" value="fileInput")
 
@@ -129,7 +128,8 @@ block content
 
 						button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add Node
 
-				.tab-pane(id="tab-raw" role="tabpanel" class=(inputType == "rawTextInput" ? "active" : false))
+				
+				+pageTab("Raw Text Input")
 
 					form(method="post")
 						input(type="hidden" name="inputType" value="rawTextInput")
@@ -158,7 +158,7 @@ block content
 
 						button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add Node
 
-				.tab-pane(id="tab-lndconnect" role="tabpanel" class=(inputType == "lndconnectString" ? "active" : false))
+				+pageTab("LND Connect")
 
 					form(method="post")
 						input(type="hidden" name="inputType" value="lndconnectString")
@@ -176,6 +176,7 @@ block content
 
 						button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add Node
 
+
 		.modal(id="connectLndModal" tabindex="-1" role="dialog" aria-hidden="true")
 			.modal-dialog.modal-dialog-centered.modal-sm
 				.modal-content
@@ -184,6 +185,7 @@ block content
 						span Refreshing the full public network often takes ~5-15 seconds...
 						.text-center.mb-4.mt-5
 							.spinner-border.text-primary(role="status" style="width: 3rem; height: 3rem;")
+
 
 		.modal(id="refreshLndModal" tabindex="-1" role="dialog" aria-hidden="true")
 			.modal-dialog.modal-dialog-centered.modal-sm

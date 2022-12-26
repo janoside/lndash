@@ -142,7 +142,7 @@ block content
 									| )
 
 							th.text-end
-								span.border-dotted(title="Total Inbound and Outbound Value Transfers", data-bs-toggle="tooltip") Value Xfer
+								span.border-dotted(title="Total Inbound and Outbound Value Transfers", data-bs-toggle="tooltip") Transfer
 								span.text-muted.ms-1
 									| (
 									span.fw-bold
@@ -163,6 +163,6 @@ block content
 							+modal(`localChannelModal-${localChannel_index}`, `Channel ${localChannel.chan_id}`)
 								pre
 									code.json #{JSON.stringify(localChannel, null, 4)}
-									
+
 							include ./includes/local-channel-table-row.pug
 

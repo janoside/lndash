@@ -122,8 +122,8 @@ block content
 										//pre
 										//	code.json #{JSON.stringify(payment.htlcs[0], null, 4)}
 										- var destinationNodePubkey = payment.htlcs[0].route.hops[payment.htlcs[0].route.hops.length - 1].pub_key;
-										- var card_node_pubkey = destinationNodePubkey;
-										include ./includes/node-card.pug
+										
+										+nodeCard(destinationNodePubkey)
 
 									
 

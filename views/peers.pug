@@ -78,69 +78,69 @@ block content
 					include includes/pagination.pug
 
 
-		.table-responsive
-			table.table.table-striped
-				thead.table-head-with-nav
-					tr
-						th.text-end.fw-light #
-						th Node
-						th Address
-
-						th.text-end Value Transfer
-						th.text-end Data Transfer
-						
-						th.text-center Inbound?
-						th.text-end Ping
-
-				tbody
-					each item, item_index in pagedFilteredPeers
+		if (listPeers.peers.length > 0)
+			.table-responsive
+				table.table.table-striped
+					thead.table-head-with-nav
 						tr
-							th.text-end.fw-light #{(item_index + offset + 1).toLocaleString()}
+							th.text-end.fw-light #
+							th Node
+							th Address
 
-							td
-								- var card_node_pubkey = item.pub_key;
-								include ./includes/node-card.pug
+							th.text-end Value Transfer
+							th.text-end Data Transfer
+							
+							th.text-center Inbound?
+							th.text-end Ping
 
-							td
-								+netAddress(item.address)
+					tbody
+						each item, item_index in pagedFilteredPeers
+							tr
+								th.text-end.fw-light #{(item_index + offset + 1).toLocaleString()}
+
+								td
+									+nodeCard(item.pub_key)
+									
+								td
+									+netAddress(item.address)
+									
+
+								td.text-end
+									if (item.sat_recv == 0 && item.sat_sent == 0)
+										span -
+									else
+										if (item.sat_recv > 0)
+											span.badge.text-bg-success.fs-100
+												span +
+												+btcValue(item.sat_recv)
+
+											br
+
+										if (item.sat_sent > 0)
+											span.badge.text-bg-danger.fs-100
+												span -
+												+btcValue(item.sat_sent)
+								
+								
+								- var bytesSentData = utils.formatLargeNumber(item.bytes_sent, 1);
+								- var bytesRecvData = utils.formatLargeNumber(item.bytes_recv, 1);
+								
+								td.text-end
+									span #{bytesSentData[0]} #{bytesSentData[1].abbreviation}B
+									i.fas.fa-arrow-up.ms-2
+									
+									br
+
+									span #{bytesRecvData[0]} #{bytesRecvData[1].abbreviation}B
+									i.fas.fa-arrow-down.ms-2
+									
+
 								
 
-							td.text-end
-								if (item.sat_recv == 0 && item.sat_sent == 0)
-									span -
-								else
-									if (item.sat_recv > 0)
-										span.badge.text-bg-success.fs-100
-											span +
-											+btcValue(item.sat_recv)
+								td.text-center.align-middle
+									if (item.inbound)
+										i.fas.fa-circle-check.text-success
+									else
+										i.fas.fa-circle-xmark.text-danger
 
-										br
-
-									if (item.sat_sent > 0)
-										span.badge.text-bg-danger.fs-100
-											span -
-											+btcValue(item.sat_sent)
-							
-							
-							- var bytesSentData = utils.formatLargeNumber(item.bytes_sent, 1);
-							- var bytesRecvData = utils.formatLargeNumber(item.bytes_recv, 1);
-							
-							td.text-end
-								span #{bytesSentData[0]} #{bytesSentData[1].abbreviation}B
-								i.fas.fa-arrow-up.ms-2
-								
-								br
-
-								span #{bytesRecvData[0]} #{bytesRecvData[1].abbreviation}B
-								i.fas.fa-arrow-down.ms-2
-								
-
-							
-
-							td.text-center.align-middle
-								if (item.inbound)
-									i.fas.fa-circle-check.text-success
-								else
-									i.fas.fa-circle-xmark.text-danger
-
-							td.text-end #{parseInt(item.ping_time).toLocaleString()}
+								td.text-end #{parseInt(item.ping_time).toLocaleString()}
