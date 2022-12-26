@@ -165,17 +165,17 @@ block content
 					if (getInfo)
 						.d-flex.justify-content-center
 							.d-flex
-								.me-2
+								.me-4
 									+pillBadgeSuccess("Active")
 									span.ms-1 #{parseInt(getInfo.num_active_channels).toLocaleString()}
 
 								if (parseInt(getInfo.num_pending_channels) > 0)
-									.me-2
+									.me-4
 										+pillBadgeWarning("Pending")
 										span.ms-1 #{parseInt(getInfo.num_pending_channels).toLocaleString()}
 
 								if (parseInt(getInfo.num_inactive_channels) > 0)
-									.me-2
+									div
 										+pillBadgeWarning("Inactive")
 										span.ms-1 #{parseInt(getInfo.num_inactive_channels).toLocaleString()}
 
