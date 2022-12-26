@@ -170,7 +170,7 @@ block content
 									span.ms-1 #{parseInt(getInfo.num_active_channels).toLocaleString()}
 
 								if (parseInt(getInfo.num_pending_channels) > 0)
-									.me-4
+									div(class=(parseInt(getInfo.num_inactive_channels) > 0 ? "me-4" : false))
 										+pillBadgeWarning("Pending")
 										span.ms-1 #{parseInt(getInfo.num_pending_channels).toLocaleString()}
 
