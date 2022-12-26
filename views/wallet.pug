@@ -110,9 +110,10 @@ block content
 
 									if (false)
 										td #{utxo.type}
+
 									td
 
-										+btcTxid(utxo.outpoint.txid_str)
+										+btcTxid(utxo.outpoint.txid_str, 12)
 										
 										span  [#{utxo.outpoint.output_index}]
 
@@ -177,43 +178,36 @@ block content
 									th.text-end.fw-light #{(txIndex + 1).toLocaleString()}
 
 									td
-										+btcTxid(tx.tx_hash)
+										+btcTxid(tx.tx_hash, 12)
 
 									td
 										if (localChannels.byTxid[tx.tx_hash] != null)
-											+pillBadgeSuccess("Opened Channel")
-											br
-											a(href=`/channel/${localChannels.byTxid[tx.tx_hash].chan_id}`) #{localChannels.byTxid[tx.tx_hash].chan_id}
+											.mb-1
+												+pillBadgeSuccess("Opened Channel")
+											
+											+channelId(localChannels.byTxid[tx.tx_hash].chan_id, true)
 
 										else if (closedChannels.byTxid[tx.tx_hash] != null)
-											+pillBadgeSuccess("Opened Channel")
-											br
-											span #{closedChannels.byTxid[tx.tx_hash].chan_id} 
-												span.text-muted (closed)
+											.mb-1
+												+pillBadgeSuccess("Opened Channel")
+
+											+channelId(closedChannels.byTxid[tx.tx_hash].chan_id, false)
 
 										else
 											- var channelClosedByTx = false;
 											each chan in closedChannels.channels
 												if (chan.closing_tx_hash == tx.tx_hash)
 													- channelClosedByTx = true;
-													+pillBadgeDanger("Closed Channel")
-													br
-													span #{chan.chan_id} 
-														span.text-muted (closed)
+													.mb-1
+														+pillBadgeDanger("Closed Channel")
+													
+													+channelId(chan.chan_id, false)
 
 											if (!channelClosedByTx)
 												span -
 
-									td(class="table-col-int text-end")
+									td.text-end
 										if (tx.num_confirmations > 0)
-											if (false)
-												if (config.blockExplorerUrl)
-													a(href=`${config.blockExplorerUrl}/block-height/${tx.block_height}`, target="_blank") #{parseInt(tx.block_height).toLocaleString()}
-												else
-													span(title=tx.tx_hash, data-bs-toggle="tooltip") #{parseInt(tx.block_height).toLocaleString()}
-
-												br
-
 											span #{tx.num_confirmations.toLocaleString()}
 
 										else
