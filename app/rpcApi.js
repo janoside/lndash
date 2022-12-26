@@ -462,7 +462,7 @@ async function refreshLocalClosedChannels() {
 
 async function refreshLocalPendingChannels() {
 	let PendingChannels = util.promisify(lndRpc.PendingChannels.bind(lndRpc));
-	let pendingChannelsResponse = PendingChannels({});
+	let pendingChannelsResponse = await PendingChannels({});
 		
 	if (pendingChannelsResponse == null) {
 		return new Error("null PendingChannels response");
