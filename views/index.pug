@@ -87,11 +87,11 @@ block content
 							.d-flex.justify-content-between.fs-90.mb-2
 								.text-start
 									i.fas.fa-circle.text-success.me-2
-									span.border-dotted(title="Local, spendable balance across all of your channels.", data-bs-toggle="tooltip") On-Chain
+									span.border-dotted(title="Confirmed, on-chain wallet balance.", data-bs-toggle="tooltip") On-Chain
 
 								.text-end
 									i.fas.fa-circle.text-warning.me-2
-									span.border-dotted(title="Total receivable balance on the remote side of all of your channels.", data-bs-toggle="tooltip") Lightning
+									span.border-dotted(title="Total spendable balance of all of your channels.", data-bs-toggle="tooltip") Lightning
 
 
 							.d-flex.justify-content-between.mb-3
@@ -157,67 +157,30 @@ block content
 
 
 					
+			hr.mt-4.mb-3
 
+			+summaryRow("Channel Details")
 
 				+summaryItem("Channels")
 					if (getInfo)
 						.d-flex.justify-content-center
 							.d-flex
-								div.text-end
+								.me-2
 									+pillBadgeSuccess("Active")
+									span.ms-1 #{parseInt(getInfo.num_active_channels).toLocaleString()}
 
-									if (parseInt(getInfo.num_pending_channels) > 0)
-										div
-											+pillBadgeWarning("Pending")
+								if (parseInt(getInfo.num_pending_channels) > 0)
+									.me-2
+										+pillBadgeWarning("Pending")
+										span.ms-1 #{parseInt(getInfo.num_pending_channels).toLocaleString()}
 
-									if (parseInt(getInfo.num_inactive_channels) > 0)
-										div
-											+pillBadgeWarning("Inactive")
-
-								div.text-start.ps-2
-									if (parseInt(getInfo.num_active_channels) > 0)
-										span #{parseInt(getInfo.num_active_channels).toLocaleString()}
-
-									else
-										span 0
-
-									if (parseInt(getInfo.num_pending_channels) > 0)
-										div
-											span #{parseInt(getInfo.num_pending_channels).toLocaleString()}
-
-									if (parseInt(getInfo.num_inactive_channels) > 0)
-										div
-											span #{parseInt(getInfo.num_inactive_channels).toLocaleString()}
+								if (parseInt(getInfo.num_inactive_channels) > 0)
+									.me-2
+										+pillBadgeWarning("Inactive")
+										span.ms-1 #{parseInt(getInfo.num_inactive_channels).toLocaleString()}
 
 
-						if (false)
-							+pillBadgeSuccess("Active")
-							span
-								if (parseInt(getInfo.num_active_channels) > 0)
-									span #{parseInt(getInfo.num_active_channels).toLocaleString()}
 
-								else
-									span.text-muted (none)
-
-							if (getInfo.num_pending_channels)
-								div
-									+pillBadgeWarning("Pending")
-									span
-									if (parseInt(getInfo.num_pending_channels) > 0)
-										span #{parseInt(getInfo.num_pending_channels).toLocaleString()}
-
-									else
-										span.text-muted (none)
-
-							if (getInfo.num_inactive_channels)
-								div
-									+pillBadgeWarning("Inactive")
-									span
-									if (parseInt(getInfo.num_inactive_channels) > 0)
-										span #{parseInt(getInfo.num_inactive_channels).toLocaleString()}
-
-									else
-										span.text-muted (none)
 
 					else
 						span.text-warning.border-dotted(title="Error loading channel info. See Error Log for details." data-bs-toggle="tooltip") Unknown

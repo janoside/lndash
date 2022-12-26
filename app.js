@@ -152,7 +152,8 @@ app.runOnStartup = async () => {
 		});
 	}
 	
-	await getSourcecodeProjectMetadata();
+
+	getSourcecodeProjectMetadata();
 	setInterval(getSourcecodeProjectMetadata, 3 * 3600000);
 
 
@@ -184,6 +185,8 @@ app.runOnStartup = async () => {
 			global.adminPassword = fs.readFileSync(path.join(global.userDataDir, ".debugAdminPassword"), "utf8").trim();
 		}
 
+		debugLog("Loading admin credentials");
+
 		global.adminCredentials = utils.loadAdminCredentials(global.adminPassword);
 
 		if (global.adminPassword) {
@@ -195,7 +198,7 @@ app.runOnStartup = async () => {
 				global.setupNeeded = true;
 
 			} else {
-				rpcApi.connectAllNodes();
+				rpcApi.connectActiveNode();
 			}
 		}
 	} else {

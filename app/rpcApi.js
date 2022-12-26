@@ -1,3 +1,6 @@
+const util = require('util');
+
+
 var debug = require("debug");
 var debugLog = debug("lndash:rpc");
 
@@ -16,342 +19,273 @@ var localChannels = null;
 var localClosedChannels = null;
 var localPendingChannels = null;
 
-function connect(rpcConfig, index) {
+function parseRpcConfig(rpcConfig) {
+	let host = null;
+	let port = 10009;
+
+	let macaroon = null;
+	let lndCert = null;
+
+	if (rpcConfig.type == "fileInput") {
+		host = rpcConfig.host;
+		port = rpcConfig.port;
+
+		// Lnd admin macaroon is at ~/.lnd/admin.macaroon on Linux and
+		// ~/Library/Application Support/Lnd/admin.macaroon on Mac
+		let m = fs.readFileSync(rpcConfig.adminMacaroonFilepath);
+		macaroon = m.toString('hex');
+
+		//debugLog("macHex: " + macaroon);
+
+		//  Lnd cert is at ~/.lnd/tls.cert on Linux and
+		//  ~/Library/Application Support/Lnd/tls.cert on Mac
+		lndCert = fs.readFileSync(rpcConfig.tlsCertFilepath);
+
+		//debugLog("fileInput.cert: " + lndCert);
+
+	} else if (rpcConfig.type == "rawTextInput") {
+		host = rpcConfig.host;
+		port = rpcConfig.port;
+
+		macaroon = rpcConfig.adminMacaroonHex;
+		lndCert = Buffer.from(rpcConfig.tlsCertAscii, 'utf-8');
+
+	} else if (rpcConfig.type == "lndconnectString") {
+		let lndconnectString = rpcConfig.lndconnectString;
+		let parsedData = utils.parseLndconnectString(lndconnectString);
+
+		//debugLog("lndconnectString.cert: " + parsedData.tlsCertAscii);
+
+		host = parsedData.host;
+		port = parsedData.port;
+		macaroon = parsedData.adminMacaroonHex;
+		lndCert = Buffer.from(parsedData.tlsCertAscii, 'utf-8');
+	}
+
+	return [host, port, macaroon, lndCert];
+}
+
+function buildProtocolConnector(rpcConfig) {
+	[host, port, macaroon, lndCert] = parseRpcConfig(rpcConfig);
+
+
+	// Ref: https://github.com/lightningnetwork/lnd/blob/master/docs/grpc/javascript.md
+
+	// Due to updated ECDSA generated tls.cert we need to let gprc know that
+	// we need to use that cipher suite otherwise there will be a handhsake
+	// error when we communicate with the lnd rpc server.
+	process.env.GRPC_SSL_CIPHER_SUITES = 'HIGH+ECDSA';
+
+
+	// build meta data credentials
+	let metadata = new grpc.Metadata();
+	metadata.add('macaroon', macaroon);
+	let macaroonCreds = grpc.credentials.createFromMetadataGenerator((_args, callback) => {
+		callback(null, metadata);
+	});
+
+	let sslCreds = grpc.credentials.createSsl(lndCert);
+
+	// combine the cert credentials and the macaroon auth credentials
+	// such that every call is properly encrypted and authenticated
+	let credentials = grpc.credentials.combineChannelCredentials(sslCreds, macaroonCreds);
+
+	let protoFilepath = path.join(global.packageRootDir, 'rpc.proto');
+
+	let packageDefinition = protoLoader.loadSync(
+		protoFilepath,
+		{
+			keepCase: true,
+			longs: String,
+			enums: String,
+			defaults: true,
+			oneofs: true
+		}
+	);
+
+	let protoDescriptor = grpc.loadPackageDefinition(packageDefinition);
+
+	let lnrpc = protoDescriptor.lnrpc;
+
+	// uncomment to print available function of RPC protocol
+	//debugLog(lnrpc);
+
+	let lndConnection = new lnrpc.Lightning(`${host}:${port}`, credentials, {'grpc.max_receive_message_length': 100*1024*1024});
+
+	return lndConnection;
+}
+
+async function connect(rpcConfig, index) {
 	debugLog(`Connecting to LND Node: ${rpcConfig.host}:${rpcConfig.port}`);
 
-	return new Promise(function(resolve, reject) {
-		// Ref: https://github.com/lightningnetwork/lnd/blob/master/docs/grpc/javascript.md
+	let lndConnection = buildProtocolConnector(rpcConfig);
+	
+	let getInfo = util.promisify(lndConnection.GetInfo.bind(lndConnection));
 
-		// Due to updated ECDSA generated tls.cert we need to let gprc know that
-		// we need to use that cipher suite otherwise there will be a handhsake
-		// error when we communicate with the lnd rpc server.
-		process.env.GRPC_SSL_CIPHER_SUITES = 'HIGH+ECDSA';
+	let response = await getInfo({});
 
-		var host = null;
-		var port = 10009;
+	if (response == null) {
+		throw new Error("No response for node.getInfo()");
+	}
 
-		var macaroon = null;
-		var lndCert = null;
+	if (response != null) {
+		debugLog("Connected to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC.\n\nGetInfo=" + JSON.stringify(response, null, 4));
+	}
 
-		if (rpcConfig.type == "fileInput") {
-			host = rpcConfig.host;
-			port = rpcConfig.port;
+	global.lndConnections.byIndex[index] = lndConnection;
+	global.lndConnections.byAlias[response.alias] = lndConnection;
+	global.lndConnections.aliases.push(response.alias);
+	global.lndConnections.indexes.push(index);
 
-			// Lnd admin macaroon is at ~/.lnd/admin.macaroon on Linux and
-			// ~/Library/Application Support/Lnd/admin.macaroon on Mac
-			var m = fs.readFileSync(rpcConfig.adminMacaroonFilepath);
-			macaroon = m.toString('hex');
+	if (index == 0) {
+		global.lndRpc = lndConnection;
+	}
 
-			//debugLog("macHex: " + macaroon);
+	lndConnection.internal_index = index;
+	lndConnection.internal_alias = response.alias;
+	lndConnection.internal_pubkey = response.identity_pubkey;
+	lndConnection.internal_version = response.version;
 
-			//  Lnd cert is at ~/.lnd/tls.cert on Linux and
-			//  ~/Library/Application Support/Lnd/tls.cert on Mac
-			lndCert = fs.readFileSync(rpcConfig.tlsCertFilepath);
-
-			//debugLog("fileInput.cert: " + lndCert);
-
-		} else if (rpcConfig.type == "rawTextInput") {
-			host = rpcConfig.host;
-			port = rpcConfig.port;
-
-			macaroon = rpcConfig.adminMacaroonHex;
-			lndCert = Buffer.from(rpcConfig.tlsCertAscii, 'utf-8');
-
-		} else if (rpcConfig.type == "lndconnectString") {
-			var lndconnectString = rpcConfig.lndconnectString;
-			var parsedData = utils.parseLndconnectString(lndconnectString);
-
-			//debugLog("lndconnectString.cert: " + parsedData.tlsCertAscii);
-
-			host = parsedData.host;
-			port = parsedData.port;
-			macaroon = parsedData.adminMacaroonHex;
-			lndCert = Buffer.from(parsedData.tlsCertAscii, 'utf-8');
-		}
-
-		try {
-			// build meta data credentials
-			var metadata = new grpc.Metadata();
-			metadata.add('macaroon', macaroon);
-			var macaroonCreds = grpc.credentials.createFromMetadataGenerator((_args, callback) => {
-				callback(null, metadata);
-			});
-
-			var sslCreds = grpc.credentials.createSsl(lndCert);
-
-			// combine the cert credentials and the macaroon auth credentials
-			// such that every call is properly encrypted and authenticated
-			var credentials = grpc.credentials.combineChannelCredentials(sslCreds, macaroonCreds);
-
-			var protoFilepath = path.join(global.packageRootDir, 'rpc.proto');
-
-			var packageDefinition = protoLoader.loadSync(
-				protoFilepath,
-				{
-					keepCase: true,
-					longs: String,
-					enums: String,
-					defaults: true,
-					oneofs: true
-				}
-			);
-
-			var protoDescriptor = grpc.loadPackageDefinition(packageDefinition);
-
-			var lnrpc = protoDescriptor.lnrpc;
-
-			// uncomment to print available function of RPC protocol
-			//debugLog(lnrpc);
-
-			var lndConnection = new lnrpc.Lightning(`${host}:${port}`, credentials, {'grpc.max_receive_message_length': 100*1024*1024});
-
-			lndConnection.GetInfo({}, function(err, response) {
-				if (err) {
-					utils.logError("3208r2ugddsh", err, {rpcConfig:rpcConfig, rpcConfigIndex:index});
-
-					reject(err);
-
-					return;
-				}
-
-				if (response == null) {
-					utils.logError("923ehrfheu", `Failed connecting to LND @ ${rpcConfig.host}:${rpcConfig.port} via RPC: null GetInfo response`);
-					
-					reject("No response for node.getInfo()");
-					
-					return;
-				}
-
-				if (response != null) {
-					debugLog("Connected to LND @ " + rpcConfig.host + ":" + rpcConfig.port + " via RPC.\n\nGetInfo=" + JSON.stringify(response, null, 4));
-				}
-
-				global.lndConnections.byIndex[index] = lndConnection;
-				global.lndConnections.byAlias[response.alias] = lndConnection;
-				global.lndConnections.aliases.push(response.alias);
-				global.lndConnections.indexes.push(index);
-
-				if (index == 0) {
-					global.lndRpc = lndConnection;
-				}
-
-				lndConnection.internal_index = index;
-				lndConnection.internal_alias = response.alias;
-				lndConnection.internal_pubkey = response.identity_pubkey;
-				lndConnection.internal_version = response.version;
-
-				resolve({lndConnection:lndConnection, index:index});
-			});
-
-		} catch (err) {
-			utils.logError("973gsgd90sgfsgs", err);
-
-			reject(err);
-
-			return;
-		}
-	});
+	return {lndConnection:lndConnection, index:index};
 }
 
-function connectAllNodes() {
-	return new Promise(function(resolve, reject) {
-		global.lndConnections = {
-			byIndex: {},
-			byAlias: {},
+async function connectAllNodes() {
+	global.lndConnections = {
+		byIndex: {},
+		byAlias: {},
 
-			aliases:[],
-			indexes:[]
-		};
+		aliases:[],
+		indexes:[]
+	};
 
-		var promises = [];
+	for (let i = 0; i < global.adminCredentials.lndNodes.length; i++) {
+		let rpcConfig = global.adminCredentials.lndNodes[i];
 
-		var index = -1;
-		global.adminCredentials.lndNodes.forEach(function(rpcConfig) {
-			index++;
+		let response = await connect(rpcConfig, i);
 
-			promises.push(new Promise(function(resolveInner, rejectInner) {
-				connect(rpcConfig, index).then(function(response) {
-					debugLog("RPC connected: " + response.index);
+		debugLog(`RPC Connected: ${response.index}`);
 
-					if (response.index == 0) {
-						refreshCachedValues(true).then(function() {
-							resolveInner();
+		if (response.index == 0) {
+			await refreshCachedValues(true);
+		}
+	}
+}
 
-						}).catch(function(err) {
-							utils.logError("379regwd9f7gsdgs", err);
+async function connectActiveNode() {
+	global.lndConnections = {
+		byIndex: {},
+		byAlias: {},
 
-							rejectInner(err);
-						});
+		aliases:[],
+		indexes:[]
+	};
 
-					} else {
-						resolveInner();
-					}
-				}).catch(function(err) {
-					utils.logError("2397rgsd9gsgs", err);
+	let rpcConfig = global.adminCredentials.lndNodes[0];
 
-					rejectInner(err);
-				});
-			}));
-		});
+	let response = await connect(rpcConfig, 0);
 
-		Promise.all(promises).then(function() {
-			resolve();
+	debugLog(`RPC Connected: ${response.index}`);
 
-		}).catch(function(err) {
-			utils.logError("23r97sdg97sgs", err);
-
-			reject(err);
-		});
-	});
+	if (response.index == 0) {
+		await refreshCachedValues(true);
+	}
 }
 
 
-function refreshCachedValues(forceFullRefresh=false) {
-	return new Promise(function(resolve, reject) {
-		var promises = [];
+async function refreshCachedValues(forceFullRefresh=false) {
+	var startTime = new Date();
+
+	await refreshFullNetworkDescription(forceFullRefresh);
+	await refreshLocalChannels();
+	await refreshLocalPendingChannels();
+	await refreshLocalClosedChannels();
+	await getNetworkInfo();
+
+	debugLog(`Refreshed network graph in ${(new Date().getTime() - startTime.getTime())}ms`);
+}
+
+
+async function getFullNetworkDescription(acceptCachedValues=false) {
+	if (acceptCachedValues && fullNetworkDescription) {
+		return fullNetworkDescription;
+
+	} else {
+		return await refreshFullNetworkDescription();
+	}
+}
+
+async function refreshFullNetworkDescription(forceRefresh=false) {
+	if (!forceRefresh && pendingFNDRequest) {
+		// avoid piling up these heavy requests
+		return null;
+	}
+
+	try {
+		pendingFNDRequest = true;
 
 		var startTime = new Date();
 
-		promises.push(refreshFullNetworkDescription(forceFullRefresh));
-		promises.push(refreshLocalChannels());
-		promises.push(refreshLocalPendingChannels());
-		promises.push(refreshLocalClosedChannels());
-		promises.push(getNetworkInfo());
-
-		Promise.all(promises).then(function() {
-			debugLog(`Refreshed network graph in ${(new Date().getTime() - startTime.getTime())}ms`);
-
-			resolve();
-
-		}).catch(function(err) {
-			utils.logError("327rhsd0ghssE", err);
-
-			reject(err);
-		});
-	});
-}
-
-
-function getFullNetworkDescription(acceptCachedValues=false) {
-	return new Promise(function(resolve, reject) {
-		if (acceptCachedValues && fullNetworkDescription) {
-			resolve(fullNetworkDescription);
-
-		} else {
-			refreshFullNetworkDescription().then(function(response) {
-				resolve(response);
-
-			}).catch(function(err) {
-				utils.logError("43208hesdhds", err);
-
-				reject(err);
-			});
+		let describeGraph = util.promisify(lndRpc.describeGraph.bind(lndRpc));
+		
+		let describeGraphResponse = await describeGraph({include_unannounced:true});//, function(err, describeGraphResponse) {
+		
+		if (describeGraphResponse == null) {
+			throw new Error("null describeGraph response");
 		}
-	});
-}
 
-function refreshFullNetworkDescription(forceRefresh=false) {
-	if (!forceRefresh && pendingFNDRequest) {
-		// avoid piling up these heavy requests
-		return new Promise(function(resolve, reject) {
-			resolve();
+		var nodeInfoByPubkey = {};
+
+		if (!forceRefresh) {
+			if (fullNetworkDescription && fullNetworkDescription.nodeInfoByPubkey) {
+				nodeInfoByPubkey = fullNetworkDescription.nodeInfoByPubkey;
+			}
+		}
+
+		var promises = [];
+		var refreshedNodeCount = 0;
+		var currentNodePubkeys = [];
+		describeGraphResponse.nodes.forEach(async (node) => {
+			// build list of current node pubkeys to assist in clearing out cached-but-now-gone nodes
+			currentNodePubkeys.push(node.pub_key);
+
+			if (forceRefresh || node.last_update * 1000 > fullNetworkDescriptionDate.getTime()) {
+				//debugLog("Refreshing node details: " + node.last_update + " - " + fullNetworkDescriptionDate.getTime());
+				refreshedNodeCount++;
+
+				let getNodeInfo = util.promisify(lndRpc.getNodeInfo.bind(lndRpc));
+
+				let nodeInfoResponse = await getNodeInfo({pub_key:node.pub_key});
+
+				nodeInfoByPubkey[node.pub_key] = nodeInfoResponse;
+			}
 		});
+
+		for (var pubkey in nodeInfoByPubkey) {
+			if (nodeInfoByPubkey.hasOwnProperty(pubkey)) {
+				if (!currentNodePubkeys.includes(pubkey)) {
+					// the node for this pubkey is cached but was absent from latest DescribeGraph response...remove it
+					delete nodeInfoByPubkey[pubkey];
+
+					debugLog("Removing deleted cached node: pubkey=%s", pubkey);
+				}
+			}
+		}
+
+		fullNetworkDescription = compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey);
+		fullNetworkDescriptionDate = new Date();
+
+		if (refreshedNodeCount > 0) {
+			debugLog(`Refreshed ${refreshedNodeCount} nodes in ${(new Date().getTime() - startTime.getTime())}ms`);
+		}
+		
+
+		pendingFNDRequest = false;
+
+		return fullNetworkDescription;
+
+	} finally {
+		pendingFNDRequest = false;
 	}
-
-	pendingFNDRequest = true;
-
-	var startTime = new Date();
-	
-	return new Promise(function(resolve, reject) {
-		lndRpc.describeGraph({include_unannounced:true}, function(err, describeGraphResponse) {
-			if (err) {
-				utils.logError("2397gr2039rf6g2", err);
-
-				pendingFNDRequest = false;
-				
-				reject(err);
-
-				return;
-			}
-
-			if (describeGraphResponse == null) {
-				utils.logError("23ufhg024ge", "null describeGraph response");
-
-				pendingFNDRequest = false;
-
-				reject("null describeGraph response");
-
-				return;
-			}
-
-			var nodeInfoByPubkey = {};
-
-			if (!forceRefresh) {
-				if (fullNetworkDescription && fullNetworkDescription.nodeInfoByPubkey) {
-					nodeInfoByPubkey = fullNetworkDescription.nodeInfoByPubkey;
-				}
-			}
-
-			var promises = [];
-			var refreshedNodeCount = 0;
-			var currentNodePubkeys = [];
-			describeGraphResponse.nodes.forEach(function(node) {
-				// build list of current node pubkeys to assist in clearing out cached-but-now-gone nodes
-				currentNodePubkeys.push(node.pub_key);
-
-				if (forceRefresh || node.last_update * 1000 > fullNetworkDescriptionDate.getTime()) {
-					//debugLog("Refreshing node details: " + node.last_update + " - " + fullNetworkDescriptionDate.getTime());
-					refreshedNodeCount++;
-
-					promises.push(new Promise(function(resolveInner, rejectInner) {
-						lndRpc.getNodeInfo({pub_key:node.pub_key}, function(err2, nodeInfoResponse) {
-							if (err2) {
-								utils.logError("312r9ygef9y", err2);
-
-								rejectInner(err2);
-
-								return;
-							}
-
-							nodeInfoByPubkey[node.pub_key] = nodeInfoResponse;
-
-							resolveInner();
-						});
-					}));
-				}
-			});
-
-			Promise.all(promises.map(utils.reflectPromise)).then(function() {
-				for (var pubkey in nodeInfoByPubkey) {
-					if (nodeInfoByPubkey.hasOwnProperty(pubkey)) {
-						if (!currentNodePubkeys.includes(pubkey)) {
-							// the node for this pubkey is cached but was absent from latest DescribeGraph response...remove it
-							delete nodeInfoByPubkey[pubkey];
-
-							debugLog("Removing deleted cached node: pubkey=%s", pubkey);
-						}
-					}
-				}
-
-				fullNetworkDescription = compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey);
-				fullNetworkDescriptionDate = new Date();
-
-				if (refreshedNodeCount > 0) {
-					debugLog(`Refreshed ${refreshedNodeCount} nodes in ${(new Date().getTime() - startTime.getTime())}ms`);
-				}
-				
-
-				pendingFNDRequest = false;
-
-				resolve(fullNetworkDescription);
-
-			}).catch(function(err) {
-				utils.logError("20978ghw07ysgs", err);
-
-				reject(err);
-			});
-		});
-	});
 }
 
 function compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey) {
@@ -447,440 +381,228 @@ function compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey) 
 
 
 
-function getLocalChannels(acceptCachedValues=false) {
-	return new Promise(function(resolve, reject) {
-		if (acceptCachedValues && localChannels) {
-			resolve(localChannels);
+async function getLocalChannels(acceptCachedValues=false) {
+	if (acceptCachedValues && localChannels) {
+		return localChannels;
+	}
 
-		} else {
-			refreshLocalChannels().then(function(response) {
-				resolve(response);
 
-			}).catch(function(err) {
-				utils.logError("asdf79234gwss", err);
+	return await refreshLocalChannels();
+}
 
-				reject(err);
-			});
+async function getLocalClosedChannels(acceptCachedValues=false) {
+	if (acceptCachedValues && localClosedChannels) {
+		return localClosedChannels;
+
+	} else {
+		return await refreshLocalClosedChannels();
+	}
+}
+
+async function getLocalPendingChannels(acceptCachedValues=false) {
+	if (acceptCachedValues && localPendingChannels) {
+		return localPendingChannels;
+
+	} else {
+		return await refreshLocalPendingChannels();
+	}
+}
+
+async function refreshLocalChannels() {
+	let listChannels = util.promisify(lndRpc.ListChannels.bind(lndRpc));
+	let listChannelsResponse = await listChannels({});
+
+	var byId = {};
+	var byTxid = {};
+
+	listChannelsResponse.channels.forEach(function(channel) {
+		byId[channel.chan_id] = channel;
+
+		if (channel.channel_point != null) {
+			byTxid[channel.channel_point.substring(0, channel.channel_point.indexOf(":"))] = channel;
 		}
 	});
+
+	localChannels = {};
+	localChannels.channels = listChannelsResponse.channels;
+	localChannels.byId = byId;
+	localChannels.byTxid = byTxid;
+
+	return localChannels;
 }
 
-function getLocalClosedChannels(acceptCachedValues=false) {
-	return new Promise(function(resolve, reject) {
-		if (acceptCachedValues && localClosedChannels) {
-			resolve(localClosedChannels);
+async function refreshLocalClosedChannels() {
+	let closedChannels = util.promisify(lndRpc.ClosedChannels.bind(lndRpc));
+	let closedChannelsResponse = await closedChannels({});
+		
+	if (closedChannelsResponse == null) {
+		throw new Error("null ClosedChannels response");
+	}
 
-		} else {
-			refreshLocalClosedChannels().then(function(response) {
-				resolve(response);
+	var byId = {};
+	var byTxid = {};
 
-			}).catch(function(err) {
-				utils.logError("23097hfsd07ghs", err);
+	closedChannelsResponse.channels.forEach(function(channel) {
+		byId[channel.chan_id] = channel;
 
-				reject(err);
-			});
+		if (channel.channel_point != null) {
+			byTxid[channel.channel_point.substring(0, channel.channel_point.indexOf(":"))] = channel;
 		}
 	});
+
+	localClosedChannels = {};
+	localClosedChannels.channels = closedChannelsResponse.channels;
+	localClosedChannels.byId = byId;
+	localClosedChannels.byTxid = byTxid;
+
+	//debugLog("Closed channels: " + JSON.stringify(localClosedChannels, null, 4));
+
+	return localClosedChannels;
 }
 
-function getLocalPendingChannels(acceptCachedValues=false) {
-	return new Promise(function(resolve, reject) {
-		if (acceptCachedValues && localPendingChannels) {
-			resolve(localPendingChannels);
+async function refreshLocalPendingChannels() {
+	let PendingChannels = util.promisify(lndRpc.PendingChannels.bind(lndRpc));
+	let pendingChannelsResponse = PendingChannels({});
+		
+	if (pendingChannelsResponse == null) {
+		return new Error("null PendingChannels response");
+	}
 
-		} else {
-			refreshLocalPendingChannels().then(function(response) {
-				resolve(response);
+	var pendingOpenChannels = pendingChannelsResponse.pending_open_channels;
+	var pendingCloseChannels = pendingChannelsResponse.pending_closing_channels;
+	var pendingForceCloseChannels = pendingChannelsResponse.pending_force_closing_channels;
+	var waitingCloseChannels = pendingChannelsResponse.waiting_close_channels;
 
-			}).catch(function(err) {
-				utils.logError("2340xr8hwe07hus", err);
-
-				reject(err);
-			});
-		}
-	});
-}
-
-function refreshLocalChannels() {
-	return new Promise(function(resolve, reject) {
-		lndRpc.ListChannels({}, function(err, listChannelsResponse) {
-			if (err) {
-				utils.logError("23179egwqeufgsd", err);
-
-				reject(err);
-
-				return;
-			}
-
-			if (listChannelsResponse == null) {
-				utils.logError("76dfhg12328", "null listChannels response");
-
-				reject("null listChannels response");
-
-				return;
-			}
-
-			var byId = {};
-			var byTxid = {};
-
-			listChannelsResponse.channels.forEach(function(channel) {
-				byId[channel.chan_id] = channel;
-
-				if (channel.channel_point != null) {
-					byTxid[channel.channel_point.substring(0, channel.channel_point.indexOf(":"))] = channel;
-				}
-			});
-
-			localChannels = {};
-			localChannels.channels = listChannelsResponse.channels;
-			localChannels.byId = byId;
-			localChannels.byTxid = byTxid;
-
-			resolve(localChannels);
-		});
-	});
-}
-
-function refreshLocalClosedChannels() {
-	return new Promise(function(resolve, reject) {
-		lndRpc.ClosedChannels({}, function(err, closedChannelsResponse) {
-			if (err) {
-				utils.logError("23r07wehf7dsf", err);
-
-				reject(err);
-
-				return;
-			}
-
-			if (closedChannelsResponse == null) {
-				utils.logError("2183ryu243r7034w", "null listChannels response");
-
-				reject("null ClosedChannels response");
-
-				return;
-			}
-
-			var byId = {};
-			var byTxid = {};
-
-			closedChannelsResponse.channels.forEach(function(channel) {
-				byId[channel.chan_id] = channel;
-
-				if (channel.channel_point != null) {
-					byTxid[channel.channel_point.substring(0, channel.channel_point.indexOf(":"))] = channel;
-				}
-			});
-
-			localClosedChannels = {};
-			localClosedChannels.channels = closedChannelsResponse.channels;
-			localClosedChannels.byId = byId;
-			localClosedChannels.byTxid = byTxid;
-
-			//debugLog("Closed channels: " + JSON.stringify(localClosedChannels, null, 4));
-
-			resolve(localClosedChannels);
-		});
-	});
-}
-
-function refreshLocalPendingChannels() {
-	return new Promise(function(resolve, reject) {
-		lndRpc.PendingChannels({}, function(err, pendingChannelsResponse) {
-			if (err) {
-				utils.logError("32r08hdsf0h8s", err);
-
-				reject(err);
-
-				return;
-			}
-
-			if (pendingChannelsResponse == null) {
-				utils.logError("320r8hsd08hsds", "null PendingChannels response");
-
-				reject("null PendingChannels response");
-
-				return;
-			}
-
-			var pendingOpenChannels = pendingChannelsResponse.pending_open_channels;
-			var pendingCloseChannels = pendingChannelsResponse.pending_closing_channels;
-			var pendingForceCloseChannels = pendingChannelsResponse.pending_force_closing_channels;
-			var waitingCloseChannels = pendingChannelsResponse.waiting_close_channels;
-
-			// aggregate into single array for ease of use
-			var pendingChannels = {};
-			pendingChannels.allChannels = [];
-			pendingChannels.pendingOpenChannels = pendingOpenChannels;
-			pendingChannels.pendingCloseChannels = pendingCloseChannels;
-			pendingChannels.pendingForceCloseChannels = pendingForceCloseChannels;
-			pendingChannels.waitingCloseChannels = waitingCloseChannels;
+	// aggregate into single array for ease of use
+	var pendingChannels = {};
+	pendingChannels.allChannels = [];
+	pendingChannels.pendingOpenChannels = pendingOpenChannels;
+	pendingChannels.pendingCloseChannels = pendingCloseChannels;
+	pendingChannels.pendingForceCloseChannels = pendingForceCloseChannels;
+	pendingChannels.waitingCloseChannels = waitingCloseChannels;
 
 
-			pendingOpenChannels.forEach(function(chan) {
-				pendingChannels.allChannels.push(chan);
-			});
-
-			pendingCloseChannels.forEach(function(chan) {
-				pendingChannels.allChannels.push(chan);
-			});
-
-			pendingForceCloseChannels.forEach(function(chan) {
-				pendingChannels.allChannels.push(chan);
-			});
-
-			waitingCloseChannels.forEach(function(chan) {
-				pendingChannels.allChannels.push(chan);
-			});
-
-			localPendingChannels = pendingChannels;
-
-			resolve(localPendingChannels);
-		});
-	});
-}
-
-
-
-
-function createInvoice(memo, valueSats, expirySeconds) {
-	return new Promise(function(resolve, reject) {
-		lndRpc.AddInvoice({memo:memo, value:valueSats, expiry:expirySeconds}, function(err, response) {
-			if (err) {
-				utils.logError("29073tgwgedf", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
-}
-
-function connectToPeer(pubKey, address) {
-	return new Promise(function(resolve, reject) {
-		lndRpc.ConnectPeer({addr:{pubkey:pubKey, host:address}}, function(err, response) {
-			if (err) {
-				utils.logError("82320ghfwreg", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
-}
-
-function disconnectFromPeer(pubKey) {
-	return new Promise(function(resolve, reject) {
-		lndRpc.DisconnectPeer({pub_key:pubKey}, function(err, response) {
-			if (err) {
-				utils.logError("23r097hwef07ghds", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
-}
-
-function listPayments() {
-	return new Promise(function(resolve, reject) {
-		lndRpc.ListPayments({}, function(err, response) {
-			if (err) {
-				utils.logError("3297rfhwe7fesuwy", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
-}
-
-function getNetworkInfo(acceptCachedValues=false) {
-	if (acceptCachedValues && networkInfo != null) {
-		return new Promise(function(resolve, reject) {
-			resolve(networkInfo);
+	if (pendingOpenChannels) {
+		pendingOpenChannels.forEach(function(chan) {
+			pendingChannels.allChannels.push(chan);
 		});
 	}
 
-	return new Promise(function(resolve, reject) {
-		lndRpc.GetNetworkInfo({}, function(err, response) {
-			if (err) {
-				utils.logError("32r9yg4329t655", err);
-
-				reject(err);
-
-				return;
-			}
-
-			networkInfo = response;
-
-			resolve(response);
+	if (pendingCloseChannels) {
+		pendingCloseChannels.forEach(function(chan) {
+			pendingChannels.allChannels.push(chan);
 		});
-	});
+	}
+
+	if (pendingForceCloseChannels) {
+		pendingForceCloseChannels.forEach(function(chan) {
+			pendingChannels.allChannels.push(chan);
+		});
+	}
+
+	if (waitingCloseChannels) {
+		waitingCloseChannels.forEach(function(chan) {
+			pendingChannels.allChannels.push(chan);
+		});
+	}
+
+
+	localPendingChannels = pendingChannels;
+
+	return localPendingChannels;
 }
 
-function getChannelFeePolicies() {
+
+
+
+async function getInfo() {
+	let getInfo = util.promisify(lndRpc.GetInfo.bind(lndRpc));
+	return await getInfo({});
+}
+
+async function createInvoice(memo, valueSats, expirySeconds) {
+	let addInvoice = util.promisify(lndRpc.AddInvoice.bind(lndRpc));
+	return await addInvoice({memo:memo, value:valueSats, expiry:expirySeconds});
+}
+
+async function connectToPeer(pubKey, address) {
+	let connectPeer = util.promisify(lndRpc.ConnectPeer.bind(lndRpc));
+	return await connectPeer({addr:{pubkey:pubKey, host:address}});
+}
+
+async function disconnectFromPeer(pubKey) {
+	let disconnectPeer = util.promisify(lndRpc.DisconnectPeer.bind(lndRpc));
+	return await cisconnectPeer({pub_key:pubKey});
+}
+
+async function listPayments() {
+	let listPayments = util.promisify(lndRpc.ListPayments.bind(lndRpc));
+	return await listPayments({});
+}
+
+async function getNetworkInfo(acceptCachedValues=false) {
+	if (acceptCachedValues && networkInfo != null) {
+		return networkInfo;
+	}
+
+	let getNetworkInfo = util.promisify(lndRpc.GetNetworkInfo.bind(lndRpc));
+	networkInfo = await getNetworkInfo({});
+
+	return networkInfo;
+}
+
+async function getChannelFeePolicies() {
 	debugLog("getChannelFeePolicies");
 
-	return new Promise(function(resolve, reject) {
-		lndRpc.FeeReport({}, function(err, response) {
-			if (err) {
-				utils.logError("30r87324fdgh", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+	let feeReport = util.promisify(lndRpc.FeeReport.bind(lndRpc));
+	return await feeReport({});
 }
 
 
-function decodeInvoiceString(invoiceStr) {
-	return new Promise(function(resolve, reject) {
-		lndRpc.DecodePayReq({pay_req:invoiceStr}, function(err, response) {
-			if (err) {
-				utils.logError("08342ht074gtw", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+async function decodeInvoiceString(invoiceStr) {
+	let decodePayReq = util.promisify(lnd.DecodePayReq.bind(lndRpc));
+	return await decodePayReq({pay_req:invoiceStr});
 }
 
-function payInvoice(invoiceStr) {
+async function payInvoice(invoiceStr) {
 	debugLog("Sending payment for invoice: " + invoiceStr);
 
-	return new Promise(function(resolve, reject) {
-		lndRpc.SendPaymentSync({payment_request:invoiceStr}, function(err, response) {
-			if (err) {
-				utils.logError("10r38dhf8shf", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+	let sendPaymentSync = util.promisify(lndRpc.SendPaymentSync.bind(lndRpc));
+	return await sendPaymentSync({payment_request:invoiceStr});
 }
 
-function sendPayment(destPubkey, amountSat) {
+async function sendPayment(destPubkey, amountSat) {
 	debugLog("Sending payment: dest=" + destPubkey + ", amt=" + amountSat);
 
-	return new Promise(function(resolve, reject) {
-		lndRpc.SendPaymentSync({dest_string:destPubkey, amt:amountSat}, function(err, response) {
-			if (err) {
-				utils.logError("32r0uhsd0uhds0", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+	let sendPaymentSync = util.promisify(lndRpc.SendPaymentSync.bind(lndRpc));
+	return await sendPaymentSync({dest_string:destPubkey, amt:amountSat});
 }
 
 
 
-function getWalletBalance() {
-	return new Promise(function(resolve, reject) {
-		lndRpc.WalletBalance({}, function(err, response) {
-			if (err) {
-				utils.logError("23ge072g30dwevf", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+async function getWalletBalance() {
+	let walletBalance = util.promisify(lndRpc.WalletBalance.bind(lndRpc));
+	return await walletBalance({});
 }
 
-function getChannelBalance() {
-	return new Promise(function(resolve, reject) {
-		lndRpc.ChannelBalance({}, function(err, response) {
-			if (err) {
-				utils.logError("0uefbwdbfb", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+async function getChannelBalance() {
+	let channelBalance = util.promisify(lndRpc.ChannelBalance.bind(lndRpc));
+	return await channelBalance({});
 }
 
-function getChannelInfo(channelId) {
-	return new Promise(function(resolve, reject) {
-		lndRpc.GetChanInfo({chan_id:channelId}, function(err, response) {
-			if (err) {
-				utils.logError("32r97sdghsgsss", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+async function getChannelInfo(channelId) {
+	let getChanInfo = util.promisify(lndRpc.GetChanInfo.bind(lndRpc));
+	return await getChanInfo({chan_id:channelId});
 }
 
-function getOnChainTransactions() {
-	return new Promise(function(resolve, reject) {
-		lndRpc.GetTransactions({}, function(err, response) {
-			if (err) {
-				utils.logError("123084r723yd", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+async function getOnChainTransactions() {
+	let getTransactions = util.promisify(lndRpc.GetTransactions.bind(lndRpc));
+	return await getTransactions({});
 }
 
-function getInvoices() {
-	return new Promise(function(resolve, reject) {
-		lndRpc.ListInvoices({num_max_invoices:1000000}, function(err, response) {
-			if (err) {
-				utils.logError("213r07h23e07few", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+async function getInvoices() {
+	let listInvoices = util.promisify(lndRpc.ListInvoices.bind(lndRpc));
+	return await listInvoices({num_max_invoices:1000000});
 }
 
 function openChannel(remoteNodePubkey, localAmount, sendAmount, private=false) {
@@ -1152,6 +874,7 @@ function sendCoins(addressValueStr, speedType, speedValue) {
 
 module.exports = {
 	connect: connect,
+	connectActiveNode: connectActiveNode,
 	connectAllNodes: connectAllNodes,
 	refreshCachedValues: refreshCachedValues,
 
@@ -1175,6 +898,7 @@ module.exports = {
 
 	getChannelFeePolicies: getChannelFeePolicies,
 
+	getInfo: getInfo,
 	getChannelBalance: getChannelBalance,
 	getChannelInfo: getChannelInfo,
 	getWalletBalance: getWalletBalance,

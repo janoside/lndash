@@ -13,85 +13,47 @@ var qrcode = require('qrcode');
 var fs = require("fs");
 var qrImage = require('qr-image');
 var untildify = require("untildify");
+const asyncHandler = require("express-async-handler");
+const Decimal = require('decimal.js');
 
-router.get("/", function(req, res) {
+router.get("/", asyncHandler(async (req, res, next) => {
 	var promises = [];
 
-	promises.push(new Promise(function(resolve, reject) {
-		lndRpc.getInfo({}, function(err, response) {
-			if (err) {
-				res.locals.pageErrors.push(utils.logError("3u1rh2yugfew0fwe", err));
-
-				reject(err);
-
-				return;
-			}
-
-			res.locals.getInfo = response;
-			
-			resolve();
-		});
-	}));
-
-	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getNetworkInfo(true).then(function(networkInfoResponse) {
-			res.locals.networkInfo = networkInfoResponse;
-
-			resolve();
+	try {
+		res.locals.getInfo = await rpcApi.getInfo();
+		res.locals.networkInfo = await rpcApi.getNetworkInfo();
 		
-		}).catch(function(err) {
-			res.locals.pageErrors.push(utils.logError("234r078sdh907gsdgs", err));
-			
-			reject(err);
-		});
-	}));
+		let localChannelsResponse = await rpcApi.getLocalChannels(false);
 
-	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getLocalChannels(false).then(function(localChannelsResponse) {
-			res.locals.localChannelsResponse = localChannelsResponse;
-
-			var totalLocalBalance = 0;
-			var totalRemoteBalance = 0;
-			
-			localChannelsResponse.channels.forEach(function(chan) {
-				totalLocalBalance += parseInt(chan.local_balance);
-				totalRemoteBalance += parseInt(chan.remote_balance);
-			});
-
-			res.locals.totalLocalBalance = totalLocalBalance;
-			res.locals.totalRemoteBalance = totalRemoteBalance;
-
-			resolve();
+		let totalLocalBalance = new Decimal(0);
+		let totalRemoteBalance = new Decimal(0);
 		
-		}).catch(function(err) {
-			res.locals.pageErrors.push(utils.logError("325078whs0d7hg8s", err));
-			
-			reject(err);
+		localChannelsResponse.channels.forEach(function(chan) {
+			totalLocalBalance = totalLocalBalance.plus(parseInt(chan.local_balance));
+			totalRemoteBalance = totalRemoteBalance.plus(parseInt(chan.remote_balance));
 		});
-	}));
 
-	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getWalletBalance().then(function(walletBalanceResponse) {
-			res.locals.walletBalance = walletBalanceResponse;
+		res.locals.totalLocalBalance = totalLocalBalance;
+		res.locals.totalRemoteBalance = totalRemoteBalance;
 
-			resolve();
-		
-		}).catch(function(err) {
-			res.locals.pageErrors.push(utils.logError("23r079uhsd0gsh", err));
-			
-			reject(err);
-		});
-	}));
 
-	Promise.all(promises.map(utils.reflectPromise)).then(function(results) {
+		res.locals.walletBalance = await rpcApi.getWalletBalance();
+
 		res.render("index");
 
-	}).catch(function(err) {
-		res.locals.pageErrors.push(utils.logError("3972hrwe07fgedwfds", err));
+		next();
+
+
+	} catch (e) {
+		utils.logError("3208ywheew3", e);
+
+		res.locals.pageErrors.push(utils.logError("3208ywheew3", e));
 
 		res.render("index");
-	});
-});
+
+		next();
+	}
+}));
 
 router.get("/node/:nodePubkey", function(req, res) {
 	var nodePubkey = req.params.nodePubkey;
@@ -673,7 +635,7 @@ router.get("/login", function(req, res) {
 	res.render("login");
 });
 
-router.post("/login", function(req, res) {
+router.post("/login", asyncHandler(async (req, res, next) => {
 	if (req.session.admin) {
 		res.redirect("/");
 
@@ -696,30 +658,15 @@ router.post("/login", function(req, res) {
 		req.session.admin = true;
 
 		if (connectToLndNeeded && global.adminCredentials.lndNodes && global.adminCredentials.lndNodes.length > 0) {
-			rpcApi.connectAllNodes().then(function() {
-				if (req.session.loginRedirect) {
-					res.redirect(req.session.loginRedirect);
+			await rpcApi.connectActiveNode();
 
-					return;
-				}
+			if (req.session.loginRedirect) {
+				res.redirect(req.session.loginRedirect);
 
-				res.redirect("/");
+				return;
+			}
 
-			}).catch(function(err) {
-				req.session.userMessage = "Error encountered while connecting to LND. See logs for details.";
-				req.session.userMessageType = "danger";
-
-				// TODO pageErrors won't save across redirect
-				res.locals.pageErrors.push(utils.logError("23r97gsd97gss", err));
-
-				if (req.session.loginRedirect) {
-					res.redirect(req.session.loginRedirect);
-
-					return;
-				}
-
-				res.redirect("/");
-			});
+			res.redirect("/");
 
 		} else {
 			if (!global.adminCredentials.lndNodes || global.adminCredentials.lndNodes.length == 0) {
@@ -735,7 +682,7 @@ router.post("/login", function(req, res) {
 			res.redirect("/");
 		}
 
-		return;
+		next();
 
 	} else {
 		debugLog(`Password hash mismatch: ${pwdHash} vs ${global.adminCredentials.adminPasswordSha256}`);
@@ -753,8 +700,10 @@ router.post("/login", function(req, res) {
 		}
 
 		res.render("login");
+
+		next();
 	}
-});
+}));
 
 router.get("/query-route", function(req, res) {
 	if (req.query.pubkey) {
@@ -1377,7 +1326,7 @@ router.get("/channels", function(req, res) {
 	});
 });
 
-router.get("/local-channels", function(req, res) {
+router.get("/local-channels", asyncHandler(async (req, res, next) => {
 	var limit = 20;
 	var offset = 0;
 	var sort = "capacity-desc";
@@ -1426,296 +1375,261 @@ router.get("/local-channels", function(req, res) {
 	var sortProperty = sort.substring(0, sort.indexOf("-"));
 	var sortDirection = sort.substring(sort.indexOf("-") + 1);
 
-	var promises = [];
+	res.locals.localChannels = await rpcApi.getLocalChannels();
 
-	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getLocalChannels().then(function(localChannels) {
-			res.locals.localChannels = localChannels;
 
-			resolve();
+	let localPendingChannels = await rpcApi.getLocalPendingChannels();
 
-		}).catch(function(err) {
-			res.locals.pageErrors.push(utils.logError("2308rhsd0u7fhgsd", err));
+	res.locals.localPendingChannels = localPendingChannels;
 
-			reject(err);
-		});
-	}));
+	res.locals.pendingOpenChannels = localPendingChannels.pendingOpenChannels;
+	res.locals.pendingCloseChannels = localPendingChannels.pendingCloseChannels;
+	res.locals.pendingForceCloseChannels = localPendingChannels.pendingForceCloseChannels;
+	res.locals.waitingCloseChannels = localPendingChannels.waitingCloseChannels;
 
-	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getLocalPendingChannels().then(function(localPendingChannels) {
-			res.locals.localPendingChannels = localPendingChannels;
+	// aggregate into single array for ease of use
+	res.locals.pendingChannels = localPendingChannels.allChannels;
 
-			res.locals.pendingOpenChannels = localPendingChannels.pendingOpenChannels;
-			res.locals.pendingCloseChannels = localPendingChannels.pendingCloseChannels;
-			res.locals.pendingForceCloseChannels = localPendingChannels.pendingForceCloseChannels;
-			res.locals.waitingCloseChannels = localPendingChannels.waitingCloseChannels;
 
-			// aggregate into single array for ease of use
-			res.locals.pendingChannels = localPendingChannels.allChannels;
+	res.locals.closedChannels = await rpcApi.getLocalClosedChannels();
 
-			resolve();
 
-		}).catch(function(err) {
-			res.locals.pageErrors.push(utils.logError("23r83n2whw", err));
+	var allChannels = [];
+	
+	res.locals.localChannels.channels.forEach(function(chan) {
+		allChannels.push(chan);
+	});
 
-			reject(err);
-		});
-	}));
+	res.locals.pendingChannels.forEach(function(openingChan) {
+		allChannels.push(openingChan);
+	});
 
-	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getLocalClosedChannels().then(function(closedChannels) {
-			res.locals.closedChannels = closedChannels;
+	res.locals.closedChannels.channels.forEach(function(chan) {
+		allChannels.push(chan);
+	});
 
-			resolve();
-
-		}).catch(function(err) {
-			res.locals.pageErrors.push(utils.logError("23r0789h7dsss", err));
-
-			reject(err);
-		});
-	}));
-
-	Promise.all(promises.map(utils.reflectPromise)).then(function() {
-		var allChannels = [];
-		
-		res.locals.localChannels.channels.forEach(function(chan) {
-			allChannels.push(chan);
-		});
-
-		res.locals.pendingChannels.forEach(function(openingChan) {
-			allChannels.push(openingChan);
-		});
-
-		res.locals.closedChannels.channels.forEach(function(chan) {
-			allChannels.push(chan);
-		});
-
-		var allFilteredChannels = [];
+	var allFilteredChannels = [];
 
 
 
 
 
-		var predicates = [
-			// open
-			function(chan) {
-				if (open == "all") {
-					return true;
-				}
-
-				if (open == "open") {
-					return res.locals.localChannels.channels.includes(chan) || res.locals.pendingChannels.includes(chan);
-
-				} else if (open == "closed") {
-					return res.locals.closedChannels.channels.includes(chan);
-				}
-
-				// should never happen
-				utils.logError("3208hd07se", `Unexpected filter value: open=${open}`);
-
+	var predicates = [
+		// open
+		function(chan) {
+			if (open == "all") {
 				return true;
-			},
-			// status
-			function(chan) {
-				if (status == "all") {
-					return true;
-				}
-
-				if (status == "active") {
-					return res.locals.localChannels.channels.includes(chan) && chan.active;
-
-				} else if (status == "inactive") {
-					return res.locals.localChannels.channels.includes(chan) && !chan.active;
-
-				} else if (status == "pending") {
-					return res.locals.pendingChannels.includes(chan);
-
-				} else if (status == "closed") {
-					return res.locals.closedChannels.channels.includes(chan);
-				}
-
-				// should never happen
-				utils.logError("23r087hwfed0hsd", `Unexpected filter value: status=${status}`);
-
-				return true;
-			},
-			// localbalance
-			function(chan) {
-				if (localbalance == "all") {
-					return true;
-				}
-
-				if (localbalance == "yes") {
-					return res.locals.localChannels.channels.includes(chan) && chan.local_balance > 0;
-
-				} else if (localbalance == "no") {
-					return res.locals.closedChannels.channels.includes(chan) || res.locals.pendingChannels.includes(chan) || chan.local_balance <= 0;
-				}
-
-				// should never happen
-				utils.logError("432t07hsd0fghs", `Unexpected filter value: localbalance=${localbalance}`);
-
-				return true;
-			},
-			// remotebalance
-			function(chan) {
-				if (remotebalance == "all") {
-					return true;
-				}
-
-				if (remotebalance == "yes") {
-					return res.locals.localChannels.channels.includes(chan) && chan.remote_balance > 0;
-
-				} else if (remotebalance == "no") {
-					return res.locals.closedChannels.channels.includes(chan) || res.locals.pendingChannels.includes(chan) ||chan.remote_balance <= 0;
-				}
-
-				// should never happen
-				utils.logError("23r9uyewhb0s9gys", `Unexpected filter value: remotebalance=${remotebalance}`);
-
-				return true;
-			},
-		];
-
-		for (var i = 0; i < allChannels.length; i++) {
-			var channel = allChannels[i];
-
-			var excluded = false;
-			for (var j = 0; j < predicates.length; j++) {
-				if (!predicates[j](channel)) {
-					excluded = true;
-
-					break;
-				}
 			}
 
-			if (!excluded) {
-				allFilteredChannels.push(channel);
+			if (open == "open") {
+				return res.locals.localChannels.channels.includes(chan) || res.locals.pendingChannels.includes(chan);
+
+			} else if (open == "closed") {
+				return res.locals.closedChannels.channels.includes(chan);
+			}
+
+			// should never happen
+			utils.logError("3208hd07se", `Unexpected filter value: open=${open}`);
+
+			return true;
+		},
+		// status
+		function(chan) {
+			if (status == "all") {
+				return true;
+			}
+
+			if (status == "active") {
+				return res.locals.localChannels.channels.includes(chan) && chan.active;
+
+			} else if (status == "inactive") {
+				return res.locals.localChannels.channels.includes(chan) && !chan.active;
+
+			} else if (status == "pending") {
+				return res.locals.pendingChannels.includes(chan);
+
+			} else if (status == "closed") {
+				return res.locals.closedChannels.channels.includes(chan);
+			}
+
+			// should never happen
+			utils.logError("23r087hwfed0hsd", `Unexpected filter value: status=${status}`);
+
+			return true;
+		},
+		// localbalance
+		function(chan) {
+			if (localbalance == "all") {
+				return true;
+			}
+
+			if (localbalance == "yes") {
+				return res.locals.localChannels.channels.includes(chan) && chan.local_balance > 0;
+
+			} else if (localbalance == "no") {
+				return res.locals.closedChannels.channels.includes(chan) || res.locals.pendingChannels.includes(chan) || chan.local_balance <= 0;
+			}
+
+			// should never happen
+			utils.logError("432t07hsd0fghs", `Unexpected filter value: localbalance=${localbalance}`);
+
+			return true;
+		},
+		// remotebalance
+		function(chan) {
+			if (remotebalance == "all") {
+				return true;
+			}
+
+			if (remotebalance == "yes") {
+				return res.locals.localChannels.channels.includes(chan) && chan.remote_balance > 0;
+
+			} else if (remotebalance == "no") {
+				return res.locals.closedChannels.channels.includes(chan) || res.locals.pendingChannels.includes(chan) ||chan.remote_balance <= 0;
+			}
+
+			// should never happen
+			utils.logError("23r9uyewhb0s9gys", `Unexpected filter value: remotebalance=${remotebalance}`);
+
+			return true;
+		},
+	];
+
+	for (var i = 0; i < allChannels.length; i++) {
+		var channel = allChannels[i];
+
+		var excluded = false;
+		for (var j = 0; j < predicates.length; j++) {
+			if (!predicates[j](channel)) {
+				excluded = true;
+
+				break;
 			}
 		}
 
+		if (!excluded) {
+			allFilteredChannels.push(channel);
+		}
+	}
 
-		allFilteredChannels.sort(function(a, b) {
-			var aInfo = res.locals.fullNetworkDescription.channelsById[a.chan_id];
-			var bInfo = res.locals.fullNetworkDescription.channelsById[b.chan_id];
 
-			var fallback = 0;
-			if (a.active && !b.active) {
-				fallback = -1;
+	allFilteredChannels.sort(function(a, b) {
+		var aInfo = res.locals.fullNetworkDescription.channelsById[a.chan_id];
+		var bInfo = res.locals.fullNetworkDescription.channelsById[b.chan_id];
 
-			} else if (!a.active && b.active) {
-				fallback = 1;
+		var fallback = 0;
+		if (a.active && !b.active) {
+			fallback = -1;
 
-			} else if (aInfo != null && bInfo != null) {
-				fallback = bInfo.last_update - aInfo.last_update;
-			}
+		} else if (!a.active && b.active) {
+			fallback = 1;
 
-			if (sort == "capacity-desc") {
-				var a1 = (a.active ? a.capacity : 0);
-				var b1 = (b.active ? b.capacity : 0);
-				var diff = b1 - a1;
+		} else if (aInfo != null && bInfo != null) {
+			fallback = bInfo.last_update - aInfo.last_update;
+		}
 
-				if (diff == 0) {
-					return fallback;
+		if (sort == "capacity-desc") {
+			var a1 = (a.active ? a.capacity : 0);
+			var b1 = (b.active ? b.capacity : 0);
+			var diff = b1 - a1;
 
-				} else {
-					return diff;
-				}
-			} else if (sort == "localbalance-desc") {
-				var a1 = (a.active ? a.local_balance : 0);
-				var b1 = (b.active ? b.local_balance : 0);
-				var diff = b1 - a1;
-
-				if (diff == 0) {
-					return fallback;
-					
-				} else {
-					return diff;
-				}
-			} else if (sort == "remotebalance-desc") {
-				var a1 = (a.active ? a.remote_balance : 0);
-				var b1 = (b.active ? b.remote_balance : 0);
-				var diff = b1 - a1;
-
-				if (diff == 0) {
-					return fallback;
-					
-				} else {
-					return diff;
-				}
-			} else if (sort == "valuetransfer-desc") {
-				var a1 = (a.active ? parseInt(a.total_satoshis_sent) + parseInt(a.total_satoshis_received) : 0);
-				var b1 = (b.active ? parseInt(b.total_satoshis_sent) + parseInt(b.total_satoshis_received) : 0);
-				var diff = b1 - a1;
-
-				if (diff == 0) {
-					return fallback;
-					
-				} else {
-					return diff;
-				}
-			} else if (sort == "updated-desc") {
+			if (diff == 0) {
 				return fallback;
 
-			} else if (sort == "openblockheight-desc") {
-				var parsedChannelId1 = res.locals.fullNetworkDescription.parsedChannelIds[a.chan_id];
-				var parsedChannelId2 = res.locals.fullNetworkDescription.parsedChannelIds[b.chan_id];
-
-				if (!parsedChannelId1) {
-					parsedChannelId1 = utils.parseChannelId(a.chan_id);
-				}
-
-				if (!parsedChannelId2) {
-					parsedChannelId2 = utils.parseChannelId(b.chan_id);
-				}
-
-				var aBlockHeight = parsedChannelId1 ? parsedChannelId1.blockHeight : 0;
-				var bBlockHeight = parsedChannelId2 ? parsedChannelId2.blockHeight : 0;
-
-				var heightDiff = bBlockHeight - aBlockHeight;
-				if (heightDiff == 0) {
-					return fallback;
-
-				} else {
-					return heightDiff;
-				}
+			} else {
+				return diff;
 			}
-		});
+		} else if (sort == "localbalance-desc") {
+			var a1 = (a.active ? a.local_balance : 0);
+			var b1 = (b.active ? b.local_balance : 0);
+			var diff = b1 - a1;
 
+			if (diff == 0) {
+				return fallback;
+				
+			} else {
+				return diff;
+			}
+		} else if (sort == "remotebalance-desc") {
+			var a1 = (a.active ? a.remote_balance : 0);
+			var b1 = (b.active ? b.remote_balance : 0);
+			var diff = b1 - a1;
 
+			if (diff == 0) {
+				return fallback;
+				
+			} else {
+				return diff;
+			}
+		} else if (sort == "valuetransfer-desc") {
+			var a1 = (a.active ? parseInt(a.total_satoshis_sent) + parseInt(a.total_satoshis_received) : 0);
+			var b1 = (b.active ? parseInt(b.total_satoshis_sent) + parseInt(b.total_satoshis_received) : 0);
+			var diff = b1 - a1;
 
-		// this handles the case where user is viewing page with offset > 0
-		// and switches LND nodes to one where the total number of items
-		// is less than the current offset
-		while (offset >= allFilteredChannels.length) {
-			offset -= limit;
-		}
+			if (diff == 0) {
+				return fallback;
+				
+			} else {
+				return diff;
+			}
+		} else if (sort == "updated-desc") {
+			return fallback;
 
-		res.locals.offset = offset;
+		} else if (sort == "openblockheight-desc") {
+			var parsedChannelId1 = res.locals.fullNetworkDescription.parsedChannelIds[a.chan_id];
+			var parsedChannelId2 = res.locals.fullNetworkDescription.parsedChannelIds[b.chan_id];
 
-		res.locals.allChannels = allChannels;
-		res.locals.allFilteredChannels = allFilteredChannels;
-		
-		res.locals.pagedFilteredChannels = [];
-		res.locals.parsedChannelIds = {};
+			if (!parsedChannelId1) {
+				parsedChannelId1 = utils.parseChannelId(a.chan_id);
+			}
 
-		if (allFilteredChannels.length > 0) {
-			for (var i = offset; i < Math.min(offset + limit, allFilteredChannels.length); i++) {
-				res.locals.pagedFilteredChannels.push(allFilteredChannels[i]);
+			if (!parsedChannelId2) {
+				parsedChannelId2 = utils.parseChannelId(b.chan_id);
+			}
 
-				res.locals.parsedChannelIds[allFilteredChannels[i].chan_id] = utils.parseChannelId(allFilteredChannels[i].chan_id);
+			var aBlockHeight = parsedChannelId1 ? parsedChannelId1.blockHeight : 0;
+			var bBlockHeight = parsedChannelId2 ? parsedChannelId2.blockHeight : 0;
+
+			var heightDiff = bBlockHeight - aBlockHeight;
+			if (heightDiff == 0) {
+				return fallback;
+
+			} else {
+				return heightDiff;
 			}
 		}
-
-
-		res.render("local-channels");
-
-	}).catch(function(err) {
-		res.locals.pageErrors.push(utils.logError("23r97hwef7usdgdsf", err));
-
-		res.render("local-channels");
 	});
-});
+
+
+
+	// this handles the case where user is viewing page with offset > 0
+	// and switches LND nodes to one where the total number of items
+	// is less than the current offset
+	while (offset >= allFilteredChannels.length) {
+		offset -= limit;
+	}
+
+	res.locals.offset = offset;
+
+	res.locals.allChannels = allChannels;
+	res.locals.allFilteredChannels = allFilteredChannels;
+	
+	res.locals.pagedFilteredChannels = [];
+	res.locals.parsedChannelIds = {};
+
+	if (allFilteredChannels.length > 0) {
+		for (var i = offset; i < Math.min(offset + limit, allFilteredChannels.length); i++) {
+			res.locals.pagedFilteredChannels.push(allFilteredChannels[i]);
+
+			res.locals.parsedChannelIds[allFilteredChannels[i].chan_id] = utils.parseChannelId(allFilteredChannels[i].chan_id);
+		}
+	}
+
+
+	res.render("local-channels");
+
+	next();
+}));
 
 router.get("/search", function(req, res) {
 	if (!req.query.query) {

@@ -38,6 +38,7 @@
 		"decimal.js": "^10.3.1",
 		"dotenv": "^16.0.0",
 		"express": "^4.17.1",
+		"express-async-handler": "^1.1.4",
 		"express-session": "^1.17.2",
 		"hash.js": "1.1.7",
 		"latest-version": "^7.0.0",
