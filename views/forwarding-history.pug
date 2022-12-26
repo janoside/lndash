@@ -43,32 +43,39 @@ block content
 				.tab-pane(id="tab-summary" role="tabpanel" class=(tab == "summary" ? "active" : false))
 					if (tab == "summary")
 						+contentSection("Summary")
-							+summaryRow(3)
+							+summaryRow(1)
 								+summaryItem("Forwarded Payments")
 									| #{allFilteredEventsCount.toLocaleString()}
+							
+							+summaryRow(1)
+								+summaryItem("Fees Collected")
 
-
-								+summaryItem("Fees Collected", null, "total / max / avg")
+							+summaryRow(3)
+								+summaryItem("Total", "Total of all fees collected for forwarding payments")
 									+btcValue(totalFees)
 
-									span.text-muted.mx-2 /
-
+								+summaryItem("Max", "Highest fee for forwarding a single payment")
 									+btcValue(maxFee)
 
-									span.text-muted.mx-2 /
-
+								+summaryItem("Avg", "Average fee collected for all forwarded payments")
 									+btcValue(avgFee)
+								
 
 
-								+summaryItem("Value Transferred", null, "total / max / avg")
+							
+							hr.my-4
+
+							+summaryRow(1)
+								+summaryItem("Value Transferred")
+
+							+summaryRow(3)
+								+summaryItem("Total", "Total value transferred across all forwarded payments")
 									+btcValue(totalValueTransferred)
 
-									span.text-muted.mx-2 /
-
+								+summaryItem("Max", "Highest forwarded payment amount")
 									+btcValue(maxValueTransferred)
 
-									span.text-muted.mx-2 /
-
+								+summaryItem("Avg", "Average forwarded payment amount")
 									+btcValue(avgValueTransferred)
 
 						
@@ -308,7 +315,7 @@ block content
 																- card_node_pubkey = channelInfo.node2_pub;
 
 															+nodeCard(card_node_pubkey)
-															
+
 													td.text-end #{channelForwardingInfo.eventCount.toLocaleString()}
 													
 													td.text-end
