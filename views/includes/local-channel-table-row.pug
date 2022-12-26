@@ -41,20 +41,20 @@ tr.word-wrap
 
 
 		if (channel.chan_id)
-			+channelId(channel.chan_id, channel.active || (channel.chan_id && !channel.close_type))
+			.mb-2
+				+channelId(channel.chan_id, channel.active || (channel.chan_id && !channel.close_type))
 
-		else
-			span -
 
 
 		if (pendingOpenChannels && pendingOpenChannels.includes(channel))
-			.mt-3
-				div Opening tx:
-				- var btc_txid = channel.channel.channel_point.substring(0, channel.channel.channel_point.indexOf(":"));
-				- var outpoint_output_index = channel.channel.channel_point.substring(channel.channel.channel_point.indexOf(":") + 1);
+			.mb-1
+				+pillBadgeInfo("Opening Tx")
+			
+			- var btc_txid = channel.channel.channel_point.substring(0, channel.channel.channel_point.indexOf(":"));
+			- var outpoint_output_index = channel.channel.channel_point.substring(channel.channel.channel_point.indexOf(":") + 1);
 
-				+btcTxid(btc_txid)
-				span.ms-1 [#{outpoint_output_index}]
+			+btcTxid(btc_txid, 12)
+			span.ms-1 [#{outpoint_output_index}]
 
 
 
