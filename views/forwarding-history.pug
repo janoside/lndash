@@ -46,9 +46,14 @@ block content
 							+summaryRow(1)
 								+summaryItem("Forwarded Payments")
 									| #{allFilteredEventsCount.toLocaleString()}
+
+
+							hr.my-4
+
 							
 							+summaryRow(1)
-								+summaryItem("Fees Collected")
+								.mb-2
+									+summaryItem("Fees Collected")
 
 							+summaryRow(3)
 								+summaryItem("Total", "Total of all fees collected for forwarding payments")
@@ -66,7 +71,8 @@ block content
 							hr.my-4
 
 							+summaryRow(1)
-								+summaryItem("Value Transferred")
+								.mb-2
+									+summaryItem("Value Transferred")
 
 							+summaryRow(3)
 								+summaryItem("Total", "Total value transferred across all forwarded payments")
