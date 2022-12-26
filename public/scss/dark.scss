@@ -1,7 +1,7 @@
 $body-bg: #1a2433;
 $body-color: #f7fafa;
 
-$main-bg: darken($body-bg, 6%);
+$main-bg: darken($body-bg, 4%);
 
 $text-muted: #b2bac2;
 
@@ -141,7 +141,7 @@ $toast-header-border-color:         rgba(0, 0, 0, .05) !default;
 
 
 .bg-background {
-	background-color: darken($main-bg, 25%);
+	background-color: #000;
 }
 
 .bg-main {
