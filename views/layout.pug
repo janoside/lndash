@@ -26,12 +26,6 @@ html
 
 
 
-		.position-absolute.top-0.end-0.rounded-circle.m-5
-			a.btn.btn-primary.btn-sm(href="javascript:void(0)", data-bs-toggle="modal", data-bs-target="#global-search")
-				span(title="Global search", data-bs-toggle="tooltip")
-					i.fas.fa-search
-
-
 		+modal("global-search", "Search")
 			if (session.hideSearchNote)
 				// show nothing
@@ -67,7 +61,12 @@ html
 			});
 
 
-		.container.bg-main.px-0.min-vh-100
+		.container.bg-main.px-0.min-vh-100.position-relative
+			.position-absolute.top-0.end-0.rounded-circle.mt-2(style="margin-right: -40px !important;")
+				a.btn.btn-primary.btn-sm(href="javascript:void(0)", data-bs-toggle="modal", data-bs-target="#global-search")
+					span(title="Global search", data-bs-toggle="tooltip")
+						i.fas.fa-search
+
 			.d-flex.flex-row
 				.d-flex.flex-column.border-end.me-2.bg-menu.min-vh-100(style="width: 215px;")
 					.p-3.d-flex.justify-content-between.border-bottom
