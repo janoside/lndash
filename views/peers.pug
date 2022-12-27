@@ -63,19 +63,10 @@ block content
 				else
 					.alert.alert-warning.shadow-sm.mb-0 No matching peers
 
-			- var itemCount = allFilteredPeers.length;
-			if (itemCount > limit)
-				- var pageNumber = offset / limit + 1;
-				- var pageCount = Math.floor(itemCount / limit);
-				- if (pageCount * limit < itemCount) {
-					- pageCount++;
-				- }
-				- var paginationUrlFunction = function(x) {
-					- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
-				- }
-				
-				.mt-2.mb-0
-					include includes/pagination.pug
+
+			+pagination(allFilteredPeers.length, limit, offset, paginationBaseUrl)
+
+
 
 
 		if (listPeers.peers.length > 0)
@@ -100,7 +91,7 @@ block content
 
 								td
 									+nodeCard(item.pub_key)
-									
+
 								td
 									+netAddress(item.address)
 									

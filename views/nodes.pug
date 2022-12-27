@@ -73,19 +73,10 @@ block content
 			else
 				.alert.alert-warning.shadow-sm.mb-0 No matching nodes
 
-		- var itemCount = allFilteredNodes.length;
-		if (itemCount > limit)
-			- var pageNumber = offset / limit + 1;
-			- var pageCount = Math.floor(itemCount / limit);
-			- if (pageCount * limit < itemCount) {
-				- pageCount++;
-			- }
-			- var paginationUrlFunction = function(x) {
-				- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
-			- }
-			
-			.mt-2.mb-0
-				include includes/pagination.pug
+
+		+pagination(allFilteredNodes.length, limit, offset, paginationBaseUrl)
+
+
 
 
 	if (pagedFilteredNodes.length > 0)

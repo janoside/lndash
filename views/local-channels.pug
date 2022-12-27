@@ -66,7 +66,7 @@ block content
 
 
 			hr.my-3
-				
+
 			div
 				if (allFilteredChannels.length > limit)
 					span Showing 
@@ -91,19 +91,10 @@ block content
 				else
 					.alert.alert-warning.shadow-sm.mb-0 No matching channels
 
-			- var itemCount = allFilteredChannels.length;
-			if (itemCount > limit)
-				- var pageNumber = offset / limit + 1;
-				- var pageCount = Math.floor(itemCount / limit);
-				- if (pageCount * limit < itemCount) {
-					- pageCount++;
-				- }
-				- var paginationUrlFunction = function(x) {
-					- return paginationBaseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
-				- }
-				
-				.mt-2.mb-0
-					include includes/pagination.pug
+
+			+pagination(allFilteredChannels.length, limit, offset, paginationBaseUrl)
+
+
 		
 		if (false)
 			pre

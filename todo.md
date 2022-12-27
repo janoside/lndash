@@ -1,4 +1,3 @@
-- pagination mixin (with descriptive text)
 - async-ify rpcApi
 - stronger hash for password
 - fix for duplicate headers errors

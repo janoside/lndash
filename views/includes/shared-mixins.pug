@@ -526,3 +526,50 @@ mixin nodeCard(card_node_pubkey, node_card_include_wrapper=false, includeStars=t
 
 	- card_node_pubkey = null;
 	- card_node = null;
+
+
+
+mixin pagination(itemCount, limit, offset, baseUrl)
+	if (itemCount > limit)
+		- let pageNumber = offset / limit + 1;
+		- let pageCount = Math.floor(itemCount / limit);
+		
+		- if (pageCount * limit < itemCount) {
+			- pageCount++;
+		- }
+
+		- let paginationUrlFunction = function(x) {
+			- return baseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
+		- }
+		
+		.mt-2.mb-0
+			- var pageNumbers = [];
+			- for (var x = 1; x <= pageCount; x++) {
+				- pageNumbers.push(x);
+			- }
+
+			nav(aria-label="Page navigation")
+				ul.pagination.mb-0
+					li.page-item(class=(pageNumber == 1 ? "disabled" : false))
+						a.page-link(href=(pageNumber == 1 ? "javascript:void(0)" : paginationUrlFunction(pageNumber - 1)), aria-label="Previous")
+							span(aria-hidden="true") &laquo;
+
+					each x, xIndex in pageNumbers
+						if (x >= (pageNumber - 4) && x <= (pageNumber + 4) || xIndex == 0 || xIndex == (pageNumbers.length - 1))
+							li.page-item(class=(x == pageNumber ? "active" : false))
+								a.page-link(href=(paginationUrlFunction(x))) #{x}
+
+							if (x == 1 && pageNumber > 6)
+								li.page-item.disabled
+									a.page-link(href="javascript:void(0)") ...
+
+						else if (x == (pageCount - 1) && pageNumber < (pageCount - 5))
+							li.page-item.disabled
+								a.page-link(href="javascript:void(0)") ...
+						
+					li.page-item(class=(pageNumber == pageCount ? "disabled" : false))
+						a.page-link(href=(pageNumber == pageCount ? "javascript:void(0)" : paginationUrlFunction(pageNumber + 1)), aria-label="Next")
+							span(aria-hidden="true") &raquo;
+
+
+
