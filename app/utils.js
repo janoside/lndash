@@ -702,6 +702,14 @@ function ellipsizeMiddle(str, length, replacement="…", extraCharAtStart=true) 
 	}
 }
 
+function formatHex(hex, outputFormat="utf8") {
+	return Buffer.from(hex, "hex").toString(outputFormat);
+}
+
+const formatBuffer = (buffer, format="base64", fullDetail=false) => {
+	return buffer.toString(format);
+};
+
 
 module.exports = {
 	reflectPromise: reflectPromise,
@@ -744,5 +752,7 @@ module.exports = {
 	objectProperties: objectProperties,
 	objHasProperty: objHasProperty,
 	stringifySimple: stringifySimple,
-	ellipsizeMiddle: ellipsizeMiddle
+	ellipsizeMiddle: ellipsizeMiddle,
+	formatHex: formatHex,
+	formatBuffer: formatBuffer
 };
