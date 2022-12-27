@@ -29,7 +29,7 @@ block content
 
 		- var confirmedTxCount = (onChainTransactions.transactions.length - unconfirmedTxCount);
 
-		+contentSection("Wallet Summary")
+		+contentSection("Summary")
 			+summaryRow(3 + ((walletBalance && walletBalance.unconfirmed_balance > 0) ? 1 : 0))
 
 				+summaryItem("Balance", "The value in your wallet that's not currently committed to any payment channels.")

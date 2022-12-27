@@ -1,10 +1,13 @@
 if (userMessage || userMessageMarkdown)
-	.position-fixed.top-0.start-50.translate-middle-x.p-3
-		.toast.align-items-center.text-white.border-0(id="userMessageToast", class=(userMessageType ? `bg-${userMessageType}` : "bg-primary") role="alert", aria-live="assertive", aria-atomic="true")
+	.position-fixed.top-0.start-50.translate-middle-x.p-3(style="z-index: 1200;")
+		.toast.align-items-center.text-white.border-0(id="userMessageToast", class=(userMessageType ? `bg-${userMessageType}` : "bg-primary") role="alert", aria-live="assertive", aria-atomic="true", data-bs-autohide="false")
 			.d-flex
 				.toast-body
 					if (userMessage)
-						span #{userMessage}
+						if (userMessage.length > 64)
+							span.border-dotted(title=userMessage, data-bs-toggle="tooltip") #{utils.ellipsizeMiddle(userMessage, 64)}
+						else
+							span #{userMessage}
 
 					if (userMessageMarkdown)
 						.user-message-markdown

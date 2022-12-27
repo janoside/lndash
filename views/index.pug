@@ -8,6 +8,10 @@ block breadcrumb
 
 block content
 	if (fullNetworkDescription)
+
+		+pageTitle("Home")
+
+
 		if (session.hideHomepageBanner != "true")
 			if (global.newAppVersion)
 				.alert.alert-primary.alert-dismissible.shadow-sm.mb-3
@@ -211,7 +215,7 @@ block content
 						br
 
 
-				+summaryItem("Current Block")
+				+summaryItem("Current Block", "This is the latest Bitcoin block that your node is aware of.")
 					if (config.blockExplorerUrl)
 						a(href=(config.blockExplorerUrl + "/block/" + getInfo.block_hash), target="_blank") ##{getInfo.block_height.toLocaleString()}
 						

@@ -1,5 +1,4 @@
-- clean up formatting for JSON-tab content
 - pagination mixin (with descriptive text)
 - async-ify rpcApi
 - stronger hash for password
-- very long error text in toasts overflows
+- fix for duplicate headers errors
