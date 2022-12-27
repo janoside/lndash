@@ -25,6 +25,42 @@ html
 			var documentReadyFunctions = [];
 
 
+
+		.position-absolute.top-0.end-0.rounded-circle.m-5
+			a.btn.btn-primary.btn-sm(href="javascript:void(0)", data-bs-toggle="modal", data-bs-target="#global-search")
+				span(title="Global search", data-bs-toggle="tooltip")
+					i.fas.fa-search
+
+
+		+modal("global-search", "Search")
+			if (session.hideSearchNote)
+				// show nothing
+			else
+				.alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
+					.mb-2
+						.mb-2 Searching here will find all public nodes and/or channels visible to your node. It will match on public keys, aliases, addresses, colors, and channel ids.
+						span.fw-bold Important: 
+						span Please be aware that the 
+						span.fw-bold alias 
+						span property can be set to any value by node owners - even to impersonate a person or company you might be familiar with. Use caution when evaluating nodes.
+
+					div
+						a(href="/changeSetting?name=hideSearchNote&value=true") Don't show this note again
+						
+
+					a.btn-close(href="/changeSetting?name=hideSearchNote&value=true", aria-label="Close", style="text-decoration: none;")
+
+			form.mb-4(method="get", action="/search")
+				.input-group
+					label.input-group-text(for="query")
+						i.fas.fa-search
+
+					input.form-control.form-control-lg(id="query" type="text" name="query" value=query placeholder="public key, channel id, alias, color, or address")
+					
+					button.btn.btn-primary.btn-lg(type="submit")
+						span Search
+
+
 		.container.bg-main.px-0.min-vh-100
 			.d-flex.flex-row
 				.d-flex.flex-column.border-end.me-2.bg-menu.min-vh-100(style="width: 215px;")

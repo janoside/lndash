@@ -388,8 +388,10 @@ mixin progressBar(rawValues, colorClasses, height="15px", textInBar=true)
 mixin pageTabs(names, bottomGradient=true)
 	ul.nav.nav-tabs#page-tabs
 		each name, nameIndex in names
+			- let normalizedName = name.replaceAll(" ", "-").replaceAll(/[^a-zA-Z\d\s]/g, "");
+
 			li.nav-item.page-tab(style=(nameIndex == 0 ? "margin-left: 10px;" : false))
-				a.nav-link(class=(nameIndex == 0 ? "active" : false), data-bs-toggle="tab", data-default-tab=(nameIndex == 0 ? "true" : false) href=`#${name.replaceAll(" ", "-")}`, role="tab") #{name}
+				a.nav-link(class=(nameIndex == 0 ? "active" : false), data-bs-toggle="tab", data-default-tab=(nameIndex == 0 ? "true" : false) href=`#${normalizedName}`, role="tab") #{name}
 
 	if (bottomGradient)
 		.bg-gradient-body-to-main.pb-4.mb-2
@@ -405,7 +407,9 @@ mixin pillTabs(names)
 
 
 mixin pageTab(name, defaultActive=false)
-	.tab-pane(id=`${name.replaceAll(" ", "-")}`, class=(defaultActive ? "active" : false), role="tabpanel")
+	- let normalizedName = name.replaceAll(" ", "-").replaceAll(/[^a-zA-Z\d\s]/g, "");
+
+	.tab-pane(id=`${normalizedName}`, class=(defaultActive ? "active" : false), role="tabpanel")
 		block
 
 

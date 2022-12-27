@@ -18,6 +18,7 @@ block content
 
 	+pageTitle("Search")
 
+
 	if (session.hideSearchNote)
 		// show nothing
 	else
@@ -35,53 +36,82 @@ block content
 
 			a.btn-close(href="/changeSetting?name=hideSearchNote&value=true", aria-label="Close", style="text-decoration: none;")
 
-	form.mb-4(method="get")
-		.input-group
-			label.input-group-text(for="query")
-				i.fas.fa-search
 
-			input.form-control.form-control-lg(id="query" type="text" name="query" value=query placeholder="public key, channel id, alias, color, or address")
-			
-			button.btn.btn-primary.btn-lg(type="submit")
-				span Search
+	+contentSection("Query")
+		form(method="get")
+			.input-group
+				label.input-group-text(for="query")
+					i.fas.fa-search
+
+				input.form-control.form-control-lg(id="query" type="text" name="query" value=query placeholder="public key, channel id, alias, color, or address")
+				
+				button.btn.btn-primary.btn-lg(type="submit")
+					span Search
+
+		if (query)
+			hr.my-3
+					
+			div
+				span Found 
+				
+				span.fw-bold #{searchResults.nodes.length.toLocaleString()}
+				span.ms-1 node
+				if (searchResults.nodes.length != 1)
+					| s
+
+				span.ms-1 and 
+
+				span.fw-bold #{searchResults.channels.length.toLocaleString()}
+				span.ms-1 channel
+				if (searchResults.channels.length != 1)
+					| s
+
 
 
 	if (query)
-		- var noNodes = true;
+		- var hasNodes = false;
+		- var hasChannels = false;
+
 		if (searchResults && searchResults.nodes && searchResults.nodes.length > 0)
-			- noNodes = false;
+			- hasNodes = true;
 
-			.mb-4
-				h4.h5
-					span Found #{searchResults.nodes.length.toLocaleString()} 
-					if (searchResults.nodes.length == 1)
-						span Node
-					else
-						span Nodes
-				hr
-
-				- var nodeInfos = searchResults.nodes;
-				- var nodeTableIndexOffset = 0;
-				include includes/node-table.pug
-			
-
-
-		- var noChannels = true;
 		if (searchResults && searchResults.channels && searchResults.channels.length > 0)
-			- noChannels = false;
+			- hasChannels = true;
 
-			.mb-4
-				h4.h5
-					span Found #{searchResults.channels.length.toLocaleString()} 
-					if (searchResults.channels.length == 1)
-						span Channel
-					else
-						span Channels
-				hr
 
-				- var channels = searchResults.channels;
-				- var channelTableIndexOffset = 0;
-				include includes/channel-table.pug
 
-		if (noNodes && noChannels)
+		- let tabs = [];
+
+		if (hasNodes)
+			- tabs.push(`Nodes (${searchResults.nodes.length.toLocaleString()})`)
+
+		if (hasChannels)
+			- tabs.push(`Channels (${searchResults.channels.length.toLocaleString()})`)
+
+
+		if (tabs.length > 0)
+
+			+pageTabs(tabs)
+
+
+			.tab-content
+				if (hasNodes)
+					+pageTab(tabs[0], true)
+						
+						- var nodeInfos = searchResults.nodes;
+						- var nodeTableIndexOffset = 0;
+						include includes/node-table.pug
+					
+
+				if (hasChannels)
+					+pageTab(hasNodes ? tabs[1] : tabs[0], !hasNodes)
+
+						- var channels = searchResults.channels;
+						- var channelTableIndexOffset = 0;
+						include includes/channel-table.pug
+
+
+		else
 			.alert.alert-warning.shadow-sm No results found for query: #{query}
+
+
