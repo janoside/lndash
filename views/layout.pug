@@ -61,6 +61,12 @@ html
 						span Search
 
 
+		script.
+			$('#global-search').on('shown.bs.modal', function() {
+				$('#query').focus();
+			});
+
+
 		.container.bg-main.px-0.min-vh-100
 			.d-flex.flex-row
 				.d-flex.flex-column.border-end.me-2.bg-menu.min-vh-100(style="width: 215px;")
