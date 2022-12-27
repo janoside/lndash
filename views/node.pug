@@ -28,11 +28,11 @@ block content
 						span(title="These are the public node details for your active LND node", data-bs-toggle="tooltip")
 							i.fas.fa-certificate.fa-sm.text-primary.ms-3
 
-					if (utils.isObjectStarred(`node:${node_pubkey}`))
+					if (utils.isObjectStarred(`node:${nodePubkey}`))
 						span(title="This is one of your favorite nodes" data-bs-toggle="tooltip")
 							i.fas.fa-star.text-warning.fa-sm.ms-3
 
-		if (qrcodeUrls && qrcodeUrls[node_pubkey])
+		if (qrcodeUrls && qrcodeUrls[nodePubkey])
 			.me-2.ms-2
 				img(src=qrcodeUrls[nodeInfo.node.pub_key], alt=Pubkey QR Code, style="border: solid 1px #ccc; width: 8rem; height: 8rem;")
 				.text-center.fs-75.text-muted Public Key
