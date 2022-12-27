@@ -17,8 +17,6 @@ const asyncHandler = require("express-async-handler");
 const Decimal = require('decimal.js');
 
 router.get("/", asyncHandler(async (req, res, next) => {
-	var promises = [];
-
 	try {
 		res.locals.getInfo = await rpcApi.getInfo();
 		res.locals.networkInfo = await rpcApi.getNetworkInfo();
@@ -39,16 +37,12 @@ router.get("/", asyncHandler(async (req, res, next) => {
 
 		res.locals.walletBalance = await rpcApi.getWalletBalance();
 
-		res.render("index");
-
-		next();
-
-
 	} catch (e) {
 		utils.logError("3208ywheew3", e);
 
 		res.locals.pageErrors.push(utils.logError("3208ywheew3", e));
 
+	} finally {
 		res.render("index");
 
 		next();
@@ -1631,7 +1625,7 @@ router.get("/local-channels", asyncHandler(async (req, res, next) => {
 	next();
 }));
 
-router.get("/search", function(req, res) {
+router.get("/search", asyncHandler(async (req, res, next) => {
 	if (!req.query.query) {
 		res.render("search");
 
@@ -1642,61 +1636,62 @@ router.get("/search", function(req, res) {
 
 	res.locals.query = query;
 
-	rpcApi.getFullNetworkDescription(true).then(function(fnd) {
-		res.locals.fullNetworkDescription = fnd;
+	let fnd = await rpcApi.getFullNetworkDescription(true);
+	res.locals.fullNetworkDescription = fnd;
 
-		if (fnd.nodeInfoByPubkey[query]) {
-			res.redirect("/node/" + query);
+	if (fnd.nodeInfoByPubkey[query]) {
+		res.redirect("/node/" + query);
 
-			return;
-		}
+		return;
+	}
 
-		if (fnd.channelsById[query]) {
-			res.redirect("/channel/" + query);
+	if (fnd.channelsById[query]) {
+		res.redirect("/channel/" + query);
 
-			return;
-		}
+		return;
+	}
 
-		res.locals.searchResults = {};
-		res.locals.searchResults.nodes = [];
-		res.locals.searchResults.channels = [];
+	res.locals.searchResults = {};
+	res.locals.searchResults.nodes = [];
+	res.locals.searchResults.channels = [];
 
 
-		fnd.nodes.sortedByLastUpdate.forEach(function(nodeInfo) {
-			try {
-				if (nodeInfo && nodeInfo.node) {
-					if (nodeInfo.node.alias.toLowerCase().indexOf(query) > -1) {
-						res.locals.searchResults.nodes.push(nodeInfo);
-					}
-
-					if (nodeInfo.node.pub_key.toLowerCase().indexOf(query) > -1) {
-						res.locals.searchResults.nodes.push(nodeInfo);
-					}
-
-					if (nodeInfo.node.color.indexOf(query) > -1) {
-						res.locals.searchResults.nodes.push(nodeInfo);
-					}
-
-					nodeInfo.node.addresses.forEach(function(address) {
-						if (address.addr.indexOf(query) > -1) {
-							res.locals.searchResults.nodes.push(nodeInfo);
-						}
-					});
+	fnd.nodes.sortedByLastUpdate.forEach(function(nodeInfo) {
+		try {
+			if (nodeInfo && nodeInfo.node) {
+				if (nodeInfo.node.alias.toLowerCase().indexOf(query) > -1) {
+					res.locals.searchResults.nodes.push(nodeInfo);
 				}
-			} catch(err) {
-				res.locals.pageErrors.push(utils.logError("3297rgsd7gs7s", err, {nodeInfo:nodeInfo}));
-			}
-		});
 
-		fnd.channels.sortedByLastUpdate.forEach(function(channelInfo) {
-			if (channelInfo.channel_id.toLowerCase().indexOf(query) > -1) {
-				res.locals.searchResults.channels.push(channelInfo);
-			}
-		});
+				if (nodeInfo.node.pub_key.toLowerCase().indexOf(query) > -1) {
+					res.locals.searchResults.nodes.push(nodeInfo);
+				}
 
-		res.render("search");
+				if (nodeInfo.node.color.indexOf(query) > -1) {
+					res.locals.searchResults.nodes.push(nodeInfo);
+				}
+
+				nodeInfo.node.addresses.forEach(function(address) {
+					if (address.addr.indexOf(query) > -1) {
+						res.locals.searchResults.nodes.push(nodeInfo);
+					}
+				});
+			}
+		} catch(err) {
+			res.locals.pageErrors.push(utils.logError("3297rgsd7gs7s", err, {nodeInfo:nodeInfo}));
+		}
 	});
-});
+
+	fnd.channels.sortedByLastUpdate.forEach(function(channelInfo) {
+		if (channelInfo.channel_id.toLowerCase().indexOf(query) > -1) {
+			res.locals.searchResults.channels.push(channelInfo);
+		}
+	});
+
+	res.render("search");
+
+	next();
+}));
 
 router.get("/about", function(req, res) {
 	res.render("about");

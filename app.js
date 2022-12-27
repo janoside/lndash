@@ -33,6 +33,7 @@ var utils = require("./app/utils.js");
 var moment = require("moment");
 var Decimal = require('decimal.js');
 var grpc = require("@grpc/grpc-js");
+const asyncHandler = require("express-async-handler");
 var pug = require("pug");
 var momentDurationFormat = require("moment-duration-format");
 var coins = require("./app/coins.js");
@@ -208,171 +209,118 @@ app.runOnStartup = async () => {
 
 
 
-app.use(function(req, res, next) {
-	if (global.setupNeeded) {
-		if (global.adminPassword != null) {
-			if (!req.path.startsWith("/manage-nodes")) {
-				res.redirect("/manage-nodes?setup=true");
+app.use(asyncHandler(async (req, res, next) => {
+	try {
+		if (global.setupNeeded) {
+			if (global.adminPassword != null) {
+				if (!req.path.startsWith("/manage-nodes")) {
+					res.redirect("/manage-nodes?setup=true");
+					
+					return;
+				}
+			} else if (!req.path.startsWith("/setup")) {
+				res.redirect("/setup");
 				
 				return;
 			}
-		} else if (!req.path.startsWith("/setup")) {
-			res.redirect("/setup");
-			
-			return;
-		}
-	} else if (!global.adminPassword) {
-		if (!req.path.startsWith("/login")) {
-			res.redirect("/login");
-			
-			return;
-		}
-	}
-
-	res.locals.setupNeeded = global.setupNeeded;
-
-	// make session available in templates
-	res.locals.session = req.session;
-
-	req.session.loginRedirect = req.headers.referer;
-
-	res.locals.admin = false;
-
-	req.session.userErrors = [];
-
-	res.locals.config = global.config;
-	res.locals.coinConfig = global.coinConfig;
-
-	res.locals.pageErrors = [];
-
-	res.locals.req = req;
-
-	var userAgent = req.headers['user-agent'];
-	for (var i = 0; i < crawlerBotUserAgentStrings.length; i++) {
-		if (userAgent.indexOf(crawlerBotUserAgentStrings[i]) != -1) {
-			res.locals.crawlerBot = true;
-		}
-	}
-	
-
-	var userSettings = [
-		{name:"currencyFormatType", default:"sat"},
-		{name:"uiTheme", default:""},
-		{name:"hideHomepageBanner", default:""},
-	];
-
-	userSettings.forEach(function(userSetting) {
-		if (!req.session[userSetting.name]) {
-			var cookieValue = req.cookies[`user-setting-${userSetting.name}`];
-
-			if (cookieValue) {
-				req.session[userSetting.name] = cookieValue;
-
-			} else {
-				req.session[userSetting.name] = userSetting.default;
+		} else if (!global.adminPassword) {
+			if (!req.path.startsWith("/login")) {
+				res.redirect("/login");
+				
+				return;
 			}
 		}
 
-		res.locals[userSetting.name] = req.session[userSetting.name];
-	});
+		res.locals.setupNeeded = global.setupNeeded;
 
-	
-	if (req.session.userMessage) {
-		res.locals.userMessage = req.session.userMessage;
+		// make session available in templates
+		res.locals.session = req.session;
+
+		req.session.loginRedirect = req.headers.referer;
+
+		res.locals.admin = false;
+
+		req.session.userErrors = [];
+
+		res.locals.config = global.config;
+		res.locals.coinConfig = global.coinConfig;
+
+		res.locals.pageErrors = [];
+
+		res.locals.req = req;
+
+		var userAgent = req.headers['user-agent'];
+		for (var i = 0; i < crawlerBotUserAgentStrings.length; i++) {
+			if (userAgent.indexOf(crawlerBotUserAgentStrings[i]) != -1) {
+				res.locals.crawlerBot = true;
+			}
+		}
 		
-		if (req.session.userMessageType) {
-			res.locals.userMessageType = req.session.userMessageType;
+
+		var userSettings = [
+			{name:"currencyFormatType", default:"sat"},
+			{name:"uiTheme", default:""},
+			{name:"hideHomepageBanner", default:""},
+		];
+
+		userSettings.forEach(function(userSetting) {
+			if (!req.session[userSetting.name]) {
+				var cookieValue = req.cookies[`user-setting-${userSetting.name}`];
+
+				if (cookieValue) {
+					req.session[userSetting.name] = cookieValue;
+
+				} else {
+					req.session[userSetting.name] = userSetting.default;
+				}
+			}
+
+			res.locals[userSetting.name] = req.session[userSetting.name];
+		});
+
+		
+		if (req.session.userMessage) {
+			res.locals.userMessage = req.session.userMessage;
 			
-		} else {
-			res.locals.userMessageType = "info";
+			if (req.session.userMessageType) {
+				res.locals.userMessageType = req.session.userMessageType;
+				
+			} else {
+				res.locals.userMessageType = "info";
+			}
+
+			req.session.userMessage = null;
+			req.session.userMessageType = null;
 		}
 
-		req.session.userMessage = null;
-		req.session.userMessageType = null;
-	}
+		if (req.session.userErrors && req.session.userErrors.length > 0) {
+			res.locals.userErrors = req.session.userErrors;
 
-	if (req.session.userErrors && req.session.userErrors.length > 0) {
-		res.locals.userErrors = req.session.userErrors;
+			req.session.userErrors = null;
+		}
 
-		req.session.userErrors = null;
-	}
+		if (req.session.query) {
+			res.locals.query = req.session.query;
 
-	if (req.session.query) {
-		res.locals.query = req.session.query;
+			req.session.query = null;
+		}
 
-		req.session.query = null;
-	}
+		// make some var available to all requests
+		// ex: req.cheeseStr = "cheese";
 
-	// make some var available to all requests
-	// ex: req.cheeseStr = "cheese";
+		if (global.lndRpc != null) {
+			res.locals.fullNetworkDescription = await rpcApi.getFullNetworkDescription(true);
+			res.locals.localChannels = await rpcApi.getLocalChannels(true);
+			res.locals.localClosedChannels = await rpcApi.getLocalClosedChannels(true);
+			res.locals.localPendingChannels = await rpcApi.getLocalPendingChannels(true);
+		}
+	} catch (err) {
+		utils.logError("89032grwehusd", err);
 
-	if (global.lndRpc != null) {
-		var promises = [];
-
-		promises.push(new Promise(function(resolve, reject) {
-			rpcApi.getFullNetworkDescription(true).then(function(fnd) {
-				res.locals.fullNetworkDescription = fnd;
-
-				resolve();
-
-			}).catch(function(err) {
-				utils.logError("3297rhgdgvsf1", err);
-
-				reject(err);
-			});
-		}));
-
-		promises.push(new Promise(function(resolve, reject) {
-			rpcApi.getLocalChannels(true).then(function(localChannels) {
-				res.locals.localChannels = localChannels;
-
-				resolve();
-
-			}).catch(function(err) {
-				utils.logError("37921hdasudfgd", err);
-
-				reject(err);
-			});
-		}));
-
-		promises.push(new Promise(function(resolve, reject) {
-			rpcApi.getLocalClosedChannels(true).then(function(localClosedChannels) {
-				res.locals.localClosedChannels = localClosedChannels;
-
-				resolve();
-
-			}).catch(function(err) {
-				utils.logError("37921hdasudfgd", err);
-
-				reject(err);
-			});
-		}));
-
-		promises.push(new Promise(function(resolve, reject) {
-			rpcApi.getLocalPendingChannels(true).then(function(localPendingChannels) {
-				res.locals.localPendingChannels = localPendingChannels;
-
-				resolve();
-
-			}).catch(function(err) {
-				utils.logError("37921hdasudfgd", err);
-
-				reject(err);
-			});
-		}));
-
-		Promise.all(promises).then(function() {
-			next();
-
-		}).catch(function(err) {
-			utils.logError("asdf97g32gss", err);
-
-			next();
-		});
-	} else {
+	} finally {
 		next();
 	}
-});
+}));
 
 app.use('/', baseRouter);
 app.use('/util', utilRouter);

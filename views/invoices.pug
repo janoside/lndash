@@ -20,14 +20,13 @@ block content
 
 	else
 
-		.d-flex.justify-content-between
-			+pageTitle(`${invoiceCount.toLocaleString()} Invoice${(invoiceCount == 1) ? "" : "s"}`)
+		+pageTitle(`${invoiceCount.toLocaleString()} Invoice${(invoiceCount == 1) ? "" : "s"}`)
+		
+		.text-start.mb-2
+			a.btn.btn-sm.btn-primary(href="/create-invoice")
+				i.fas.fa-asterisk.me-2
+				span Create Invoice
 			
-			.text-end.align-baseline
-				a.btn.btn-primary(href="/create-invoice")
-					i.fas.fa-asterisk.me-2
-					span Create Invoice
-				
 
 				
 
