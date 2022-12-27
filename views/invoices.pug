@@ -109,6 +109,8 @@ block content
 								th.text-end.fit Value
 
 								th Description
+
+								th Features
 								
 								th Date
 								
@@ -168,6 +170,18 @@ block content
 
 										else
 											span.text-muted (no description)
+
+									td
+										- let featureAbbrevMap = { "tlv-onion": "TLV_O", "payment-addr":"PA", "multi-path-payments":"MPP" };
+										if (invoice.features)
+											each feature in invoice.features
+												span.badge.text-bg-primary.me-1(title=`${JSON.stringify(feature)}`, data-bs-toggle="tooltip")
+													| #{featureAbbrevMap[feature.name]}
+													if (feature.is_required)
+														i.fas.fa-asterisk.mx-1
+
+													if (feature.is_known)
+														i.fas.fa-check.ms-1
 
 									td
 										+date(invoice.creation_date)
