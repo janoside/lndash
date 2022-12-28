@@ -1,6 +1,6 @@
 if (userMessage || userMessageMarkdown)
 	.position-fixed.top-0.start-50.translate-middle-x.p-3(style="z-index: 1200;")
-		.toast.align-items-center.text-white.border-0(id="userMessageToast", class=(userMessageType ? `bg-${userMessageType}` : "bg-primary") role="alert", aria-live="assertive", aria-atomic="true", data-bs-autohide="false")
+		.toast.align-items-center.text-white.border-0(id="userMessageToast", class=(userMessageType ? `bg-${userMessageType}` : "bg-primary") role="alert", aria-live="assertive", aria-atomic="true")
 			.d-flex
 				.toast-body
 					if (userMessage)
