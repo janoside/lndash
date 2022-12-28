@@ -1,23 +1,23 @@
 const util = require('util');
 
 
-var debug = require("debug");
-var debugLog = debug("lndash:rpc");
+const debug = require("debug");
+const debugLog = debug("lndash:rpc");
 
-var utils = require("./utils.js");
-var fs = require("fs");
-var grpc = require("@grpc/grpc-js");
-var protoLoader = require('@grpc/proto-loader');
-var path = require('path');
+const utils = require("./utils.js");
+const fs = require("fs");
+const grpc = require("@grpc/grpc-js");
+const protoLoader = require('@grpc/proto-loader');
+const path = require('path');
 
-var networkInfo = null;
-var fullNetworkDescription = null;
-var fullNetworkDescriptionDate = new Date(0);
-var pendingFNDRequest = false;
+let networkInfo = null;
+let fullNetworkDescription = null;
+let fullNetworkDescriptionDate = new Date(0);
+let pendingFNDRequest = false;
 
-var localChannels = null;
-var localClosedChannels = null;
-var localPendingChannels = null;
+let localChannels = null;
+let localClosedChannels = null;
+let localPendingChannels = null;
 
 function parseRpcConfig(rpcConfig) {
 	let host = null;
@@ -120,9 +120,9 @@ async function connect(rpcConfig, index) {
 
 	let lndConnection = buildProtocolConnector(rpcConfig);
 	
-	let getInfo = util.promisify(lndConnection.GetInfo.bind(lndConnection));
+	let GetInfo = util.promisify(lndConnection.GetInfo.bind(lndConnection));
 
-	let response = await getInfo({});
+	let response = await GetInfo({});
 
 	if (response == null) {
 		throw new Error("No response for node.getInfo()");
@@ -193,7 +193,7 @@ async function connectActiveNode() {
 
 
 async function refreshCachedValues(forceFullRefresh=false) {
-	var startTime = new Date();
+	let startTime = new Date();
 
 	await refreshFullNetworkDescription(forceFullRefresh);
 	await refreshLocalChannels();
@@ -223,17 +223,17 @@ async function refreshFullNetworkDescription(forceRefresh=false) {
 	try {
 		pendingFNDRequest = true;
 
-		var startTime = new Date();
+		let startTime = new Date();
 
-		let describeGraph = util.promisify(lndRpc.describeGraph.bind(lndRpc));
+		let DescribeGraph = util.promisify(lndRpc.DescribeGraph.bind(lndRpc));
 		
-		let describeGraphResponse = await describeGraph({include_unannounced:true});//, function(err, describeGraphResponse) {
+		let describeGraphResponse = await DescribeGraph({include_unannounced:true});//, function(err, describeGraphResponse) {
 		
 		if (describeGraphResponse == null) {
 			throw new Error("null describeGraph response");
 		}
 
-		var nodeInfoByPubkey = {};
+		let nodeInfoByPubkey = {};
 
 		if (!forceRefresh) {
 			if (fullNetworkDescription && fullNetworkDescription.nodeInfoByPubkey) {
@@ -241,9 +241,8 @@ async function refreshFullNetworkDescription(forceRefresh=false) {
 			}
 		}
 
-		var promises = [];
-		var refreshedNodeCount = 0;
-		var currentNodePubkeys = [];
+		let refreshedNodeCount = 0;
+		let currentNodePubkeys = [];
 		describeGraphResponse.nodes.forEach(async (node) => {
 			// build list of current node pubkeys to assist in clearing out cached-but-now-gone nodes
 			currentNodePubkeys.push(node.pub_key);
@@ -252,15 +251,15 @@ async function refreshFullNetworkDescription(forceRefresh=false) {
 				//debugLog("Refreshing node details: " + node.last_update + " - " + fullNetworkDescriptionDate.getTime());
 				refreshedNodeCount++;
 
-				let getNodeInfo = util.promisify(lndRpc.getNodeInfo.bind(lndRpc));
+				let GetNodeInfo = util.promisify(lndRpc.GetNodeInfo.bind(lndRpc));
 
-				let nodeInfoResponse = await getNodeInfo({pub_key:node.pub_key});
+				let nodeInfoResponse = await GetNodeInfo({pub_key:node.pub_key});
 
 				nodeInfoByPubkey[node.pub_key] = nodeInfoResponse;
 			}
 		});
 
-		for (var pubkey in nodeInfoByPubkey) {
+		for (let pubkey in nodeInfoByPubkey) {
 			if (nodeInfoByPubkey.hasOwnProperty(pubkey)) {
 				if (!currentNodePubkeys.includes(pubkey)) {
 					// the node for this pubkey is cached but was absent from latest DescribeGraph response...remove it
@@ -289,7 +288,7 @@ async function refreshFullNetworkDescription(forceRefresh=false) {
 }
 
 function compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey) {
-	var fnd = {};
+	let fnd = {};
 	fnd.lastUpdate = new Date();
 
 	fnd.nodes = {};
@@ -308,7 +307,7 @@ function compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey) 
 
 	fnd.nodes.sortedByChannelCount = fnd.nodes.sortedByLastUpdate.slice(0); // shallow copy
 	fnd.nodes.sortedByChannelCount.sort(function(a, b) {
-		var channelDiff = b.num_channels - a.num_channels;
+		let channelDiff = b.num_channels - a.num_channels;
 
 		if (channelDiff == 0) {
 			return b.last_update - a.last_update;
@@ -320,7 +319,7 @@ function compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey) 
 
 	fnd.nodes.sortedByTotalCapacity = fnd.nodes.sortedByLastUpdate.slice(0); // shallow copy
 	fnd.nodes.sortedByTotalCapacity.sort(function(a, b) {
-		var capacityDiff = b.total_capacity - a.total_capacity;
+		let capacityDiff = b.total_capacity - a.total_capacity;
 
 		if (capacityDiff == 0) {
 			return b.last_update - a.last_update;
@@ -352,7 +351,7 @@ function compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey) 
 	});
 
 	fnd.channels.sortedByCapacity.sort(function(a, b) {
-		var capacityDiff = b.capacity - a.capacity;
+		let capacityDiff = b.capacity - a.capacity;
 
 		if (capacityDiff == 0) {
 			return b.last_update - a.last_update;
@@ -363,9 +362,9 @@ function compileFullNetworkDescription(describeGraphResponse, nodeInfoByPubkey) 
 	});
 
 	fnd.channels.sortedByOpenBlockHeight.sort(function(a, b) {
-		var aBlockHeight = fnd.parsedChannelIds[a.channel_id].blockHeight;
-		var bBlockHeight = fnd.parsedChannelIds[b.channel_id].blockHeight;
-		var blockHeightDiff = bBlockHeight - aBlockHeight;
+		let aBlockHeight = fnd.parsedChannelIds[a.channel_id].blockHeight;
+		let bBlockHeight = fnd.parsedChannelIds[b.channel_id].blockHeight;
+		let blockHeightDiff = bBlockHeight - aBlockHeight;
 
 		if (blockHeightDiff == 0) {
 			return b.last_update - a.last_update;
@@ -409,11 +408,11 @@ async function getLocalPendingChannels(acceptCachedValues=false) {
 }
 
 async function refreshLocalChannels() {
-	let listChannels = util.promisify(lndRpc.ListChannels.bind(lndRpc));
-	let listChannelsResponse = await listChannels({});
+	let ListChannels = util.promisify(lndRpc.ListChannels.bind(lndRpc));
+	let listChannelsResponse = await ListChannels({});
 
-	var byId = {};
-	var byTxid = {};
+	let byId = {};
+	let byTxid = {};
 
 	listChannelsResponse.channels.forEach(function(channel) {
 		byId[channel.chan_id] = channel;
@@ -432,15 +431,15 @@ async function refreshLocalChannels() {
 }
 
 async function refreshLocalClosedChannels() {
-	let closedChannels = util.promisify(lndRpc.ClosedChannels.bind(lndRpc));
-	let closedChannelsResponse = await closedChannels({});
+	let ClosedChannels = util.promisify(lndRpc.ClosedChannels.bind(lndRpc));
+	let closedChannelsResponse = await ClosedChannels({});
 		
 	if (closedChannelsResponse == null) {
 		throw new Error("null ClosedChannels response");
 	}
 
-	var byId = {};
-	var byTxid = {};
+	let byId = {};
+	let byTxid = {};
 
 	closedChannelsResponse.channels.forEach(function(channel) {
 		byId[channel.chan_id] = channel;
@@ -468,13 +467,13 @@ async function refreshLocalPendingChannels() {
 		return new Error("null PendingChannels response");
 	}
 
-	var pendingOpenChannels = pendingChannelsResponse.pending_open_channels;
-	var pendingCloseChannels = pendingChannelsResponse.pending_closing_channels;
-	var pendingForceCloseChannels = pendingChannelsResponse.pending_force_closing_channels;
-	var waitingCloseChannels = pendingChannelsResponse.waiting_close_channels;
+	let pendingOpenChannels = pendingChannelsResponse.pending_open_channels;
+	let pendingCloseChannels = pendingChannelsResponse.pending_closing_channels;
+	let pendingForceCloseChannels = pendingChannelsResponse.pending_force_closing_channels;
+	let waitingCloseChannels = pendingChannelsResponse.waiting_close_channels;
 
 	// aggregate into single array for ease of use
-	var pendingChannels = {};
+	let pendingChannels = {};
 	pendingChannels.allChannels = [];
 	pendingChannels.pendingOpenChannels = pendingOpenChannels;
 	pendingChannels.pendingCloseChannels = pendingCloseChannels;
@@ -516,28 +515,28 @@ async function refreshLocalPendingChannels() {
 
 
 async function getInfo() {
-	let getInfo = util.promisify(lndRpc.GetInfo.bind(lndRpc));
-	return await getInfo({});
+	let GetInfo = util.promisify(lndRpc.GetInfo.bind(lndRpc));
+	return await GetInfo({});
 }
 
 async function createInvoice(memo, valueSats, expirySeconds) {
-	let addInvoice = util.promisify(lndRpc.AddInvoice.bind(lndRpc));
-	return await addInvoice({memo:memo, value:valueSats, expiry:expirySeconds});
+	let AddInvoice = util.promisify(lndRpc.AddInvoice.bind(lndRpc));
+	return await AddInvoice({memo:memo, value:valueSats, expiry:expirySeconds});
 }
 
 async function connectToPeer(pubKey, address) {
-	let connectPeer = util.promisify(lndRpc.ConnectPeer.bind(lndRpc));
-	return await connectPeer({addr:{pubkey:pubKey, host:address}});
+	let ConnectPeer = util.promisify(lndRpc.ConnectPeer.bind(lndRpc));
+	return await ConnectPeer({addr:{pubkey:pubKey, host:address}});
 }
 
 async function disconnectFromPeer(pubKey) {
-	let disconnectPeer = util.promisify(lndRpc.DisconnectPeer.bind(lndRpc));
-	return await cisconnectPeer({pub_key:pubKey});
+	let DisconnectPeer = util.promisify(lndRpc.DisconnectPeer.bind(lndRpc));
+	return await DisconnectPeer({pub_key:pubKey});
 }
 
 async function listPayments() {
-	let listPayments = util.promisify(lndRpc.ListPayments.bind(lndRpc));
-	return await listPayments({});
+	let ListPayments = util.promisify(lndRpc.ListPayments.bind(lndRpc));
+	return await ListPayments({});
 }
 
 async function getNetworkInfo(acceptCachedValues=false) {
@@ -545,331 +544,201 @@ async function getNetworkInfo(acceptCachedValues=false) {
 		return networkInfo;
 	}
 
-	let getNetworkInfo = util.promisify(lndRpc.GetNetworkInfo.bind(lndRpc));
-	networkInfo = await getNetworkInfo({});
-
-	return networkInfo;
+	let GetNetworkInfo = util.promisify(lndRpc.GetNetworkInfo.bind(lndRpc));
+	return await GetNetworkInfo({});
 }
 
 async function getChannelFeePolicies() {
 	debugLog("getChannelFeePolicies");
 
-	let feeReport = util.promisify(lndRpc.FeeReport.bind(lndRpc));
-	return await feeReport({});
+	let FeeReport = util.promisify(lndRpc.FeeReport.bind(lndRpc));
+	return await FeeReport({});
 }
 
 
 async function decodeInvoiceString(invoiceStr) {
-	let decodePayReq = util.promisify(lnd.DecodePayReq.bind(lndRpc));
-	return await decodePayReq({pay_req:invoiceStr});
+	let DecodePayReq = util.promisify(lnd.DecodePayReq.bind(lndRpc));
+	return await DecodePayReq({pay_req:invoiceStr});
 }
 
 async function payInvoice(invoiceStr) {
 	debugLog("Sending payment for invoice: " + invoiceStr);
 
-	let sendPaymentSync = util.promisify(lndRpc.SendPaymentSync.bind(lndRpc));
-	return await sendPaymentSync({payment_request:invoiceStr});
+	let SendPaymentSync = util.promisify(lndRpc.SendPaymentSync.bind(lndRpc));
+	return await SendPaymentSync({payment_request:invoiceStr});
 }
 
 async function sendPayment(destPubkey, amountSat) {
 	debugLog("Sending payment: dest=" + destPubkey + ", amt=" + amountSat);
 
-	let sendPaymentSync = util.promisify(lndRpc.SendPaymentSync.bind(lndRpc));
-	return await sendPaymentSync({dest_string:destPubkey, amt:amountSat});
+	let SendPaymentSync = util.promisify(lndRpc.SendPaymentSync.bind(lndRpc));
+	return await SendPaymentSync({dest_string:destPubkey, amt:amountSat});
 }
 
 
 
 async function getWalletBalance() {
-	let walletBalance = util.promisify(lndRpc.WalletBalance.bind(lndRpc));
-	return await walletBalance({});
+	let WalletBalance = util.promisify(lndRpc.WalletBalance.bind(lndRpc));
+	return await WalletBalance({});
 }
 
 async function getChannelBalance() {
-	let channelBalance = util.promisify(lndRpc.ChannelBalance.bind(lndRpc));
-	return await channelBalance({});
+	let ChannelBalance = util.promisify(lndRpc.ChannelBalance.bind(lndRpc));
+	return await ChannelBalance({});
 }
 
 async function getChannelInfo(channelId) {
-	let getChanInfo = util.promisify(lndRpc.GetChanInfo.bind(lndRpc));
-	return await getChanInfo({chan_id:channelId});
+	let GetChanInfo = util.promisify(lndRpc.GetChanInfo.bind(lndRpc));
+	return await GetChanInfo({chan_id:channelId});
 }
 
 async function getOnChainTransactions() {
-	let getTransactions = util.promisify(lndRpc.GetTransactions.bind(lndRpc));
-	return await getTransactions({});
+	let GetTransactions = util.promisify(lndRpc.GetTransactions.bind(lndRpc));
+	return await GetTransactions({});
 }
 
 async function getInvoices() {
-	let listInvoices = util.promisify(lndRpc.ListInvoices.bind(lndRpc));
-	return await listInvoices({num_max_invoices:1000000});
+	let ListInvoices = util.promisify(lndRpc.ListInvoices.bind(lndRpc));
+	return await ListInvoices({num_max_invoices:1000000});
 }
 
-function openChannel(remoteNodePubkey, localAmount, sendAmount, private=false) {
-	var params = {
+async function openChannel(remoteNodePubkey, localAmount, sendAmount, private=false) {
+	let params = {
 		node_pubkey_string:remoteNodePubkey,
 		local_funding_amount:localAmount,
 		push_sat:sendAmount,
 		private:private
 	};
 
-	return new Promise(function(resolve, reject) {
-		lndRpc.OpenChannelSync(params, function(err, response) {
-			if (err) {
-				utils.logError("04fh23yg432", err);
+	let OpenChannelSync = util.promisify(lndRpc.OpenChannelSync.bind(lndRpc));
+	let response = await OpenChannelSync(params);
 
-				reject(err);
+	debugLog("OpenChannel response (raw): " + JSON.stringify(response));
+	debugLog("OpenChannel response (formatted): %o", response);
 
-				return;
-			}
+	if (response.funding_txid_bytes && response.funding_txid_bytes.data) {
+		// not sure why this is necessary, but only get proper hex string when reversed
+		response.funding_txid_bytes.data.reverse();
 
-			debugLog("OpenChannel response (raw): " + JSON.stringify(response));
-			debugLog("OpenChannel response (formatted): %o", response);
+		// this gives us the txid
+		response.funding_txid_hex = Buffer.from(response.funding_txid_bytes).toString("hex");
 
-			if (response.funding_txid_bytes && response.funding_txid_bytes.data) {
-				// not sure why this is necessary, but only get proper hex string when reversed
-				response.funding_txid_bytes.data.reverse();
+		// back to how it was
+		response.funding_txid_bytes.data.reverse();
+	}
 
-				// this gives us the txid
-				response.funding_txid_hex = Buffer.from(response.funding_txid_bytes).toString("hex");
-
-				// back to how it was
-				response.funding_txid_bytes.data.reverse();
-			}
-
-			resolve(response);
-		});
-	});
+	return response;
 }
 
-function closeChannel(txid, txOutput, forceClose, speedType, speedValue) {
-	return new Promise(function(resolve, reject) {
-		var params = {
-			channel_point:{
-				funding_txid_str:txid,
-				output_index:txOutput
-			},
-			force:forceClose
-		};
+async function closeChannel(txid, txOutput, forceClose, speedType, speedValue) {
+	let params = {
+		channel_point:{
+			funding_txid_str:txid,
+			output_index:txOutput
+		},
+		force:forceClose
+	};
 
-		params[speedType] = parseInt(speedValue);
-		
-		lndRpc.CloseChannel(params, function(err, response) {
-			if (err) {
-				utils.logError("0s7dfy0asdgf7gasdf", err);
+	params[speedType] = parseInt(speedValue);
 
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+	let CloseChannel = util.promisify(lndRpc.CloseChannel.bind(lndRpc));
+	return await CloseChannel(params);
 }
 
-function signMessage(msg) {
-	return new Promise(function(resolve, reject) {
-		lndRpc.SignMessage({msg:msg}, function(err, response) {
-			if (err) {
-				utils.logError("2u9few09fgye", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+async function signMessage(msg) {
+	let SignMessage = util.promisify(lndRpc.SignMessage.bind(lndRpc));
+	return await SignMessage({msg:msg});
 }
 
-function verifyMessage(msg, signature) {
-	return new Promise(function(resolve, reject) {
-		lndRpc.VerifyMessage({msg:msg, signature:signature}, function(err, response) {
-			if (err) {
-				utils.logError("92ufhwyfegwds", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+async function verifyMessage(msg, signature) {
+	let VerifyMessage = util.promisify(lndRpc.VerifyMessage.bind(lndRpc));
+	return await VerifyMessage({msg:msg, signature:signature});
 }
 
-function queryRoute(targetPubkey, amountSat) {
-	return new Promise(function(resolve, reject) {
-		lndRpc.QueryRoutes({pub_key:targetPubkey, amt:amountSat, num_routes:1}, function(err, response) {
-			if (err) {
-				utils.logError("9273rgdcugdcug", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+async function queryRoute(targetPubkey, amountSat) {
+	let QueryRoutes = util.promisify(lndRpc.QueryRoutes.bind(lndRpc));
+	return await QueryRoutes({pub_key:targetPubkey, amt:amountSat, num_routes:1});
 }
 
-function getForwardingHistory(startTime, endTime, limit, offset) {
+async function getForwardingHistory(startTime, endTime, limit, offset) {
 	debugLog("getForwardingHistory(%d, %d, %d, %d)", startTime, endTime, limit, offset);
 
-	return new Promise(function(resolve, reject) {
-		lndRpc.ForwardingHistory({start_time:startTime, end_time:endTime, index_offset:offset, num_max_events:limit}, function(err, response) {
-			if (err) {
-				utils.logError("329hruewfdhhd", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+	let ForwardingHistory = util.promisify(lndRpc.ForwardingHistory.bind(lndRpc));
+	return await ForwardingHistory({start_time:startTime, end_time:endTime, index_offset:offset, num_max_events:limit});
 }
 
-function getWalletUtxos(minConfirmations=1, maxConfirmations=100000000) {
-	return new Promise(function(resolve, reject) {
-		lndRpc.ListUnspent({min_confs:minConfirmations, max_confs:maxConfirmations}, function(err, response) {
-			if (err) {
-				utils.logError("3420d8hfsdhs0", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+async function getWalletUtxos(minConfirmations=1, maxConfirmations=100000000) {
+	let ListUnspent = util.promisify(lndRpc.ListUnspent.bind(lndRpc));
+	return await ListUnspent({min_confs:minConfirmations, max_confs:maxConfirmations});
 }
 
-function getNewDepositAddress(addressType) {
-	var valuesByTypeString = {"p2wkh":0, "np2wkh":1};
+async function getNewDepositAddress(addressType) {
+	let valuesByTypeString = {"p2wkh":0, "np2wkh":1};
 
-	return new Promise(function(resolve, reject) {
-		lndRpc.NewAddress({type:valuesByTypeString[addressType]}, function(err, response) {
-			if (err) {
-				utils.logError("243w087hsd0uhs", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+	let NewAddress = util.promisify(lndRpc.NewAddress.bind(lndRpc));
+	return await NewAddress({type:valuesByTypeString[addressType]});
 }
 
-function updateChannelPolicies(txid, txOutputIndex, newPolicies) {
-	var params = JSON.parse(JSON.stringify(newPolicies));
+async function updateChannelPolicies(txid, txOutputIndex, newPolicies) {
+	let params = JSON.parse(JSON.stringify(newPolicies));
 	params.chan_point = {funding_txid_str:txid, output_index:txOutputIndex};
 
 	debugLog("updateChannelPolicies: " + JSON.stringify(params));
 
-	return new Promise(function(resolve, reject) {
-		lndRpc.UpdateChannelPolicy(params, function(err, response) {
-			if (err) {
-				utils.logError("0y78df078hgd0asdf", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+	let UpdateChannelPolicy = util.promisify(lndRpc.UpdateChannelPolicy.bind(lndRpc));
+	return await UpdateChannelPolicy(params);
 }
 
-function updateAllChannelPolicies(newPolicies) {
-	var params = JSON.parse(JSON.stringify(newPolicies));
+async function updateAllChannelPolicies(newPolicies) {
+	let params = JSON.parse(JSON.stringify(newPolicies));
 	params.global = true;
 
 	debugLog("updateAllChannelPolicies: " + JSON.stringify(params));
 
-	return new Promise(function(resolve, reject) {
-		lndRpc.UpdateChannelPolicy(params, function(err, response) {
-			if (err) {
-				utils.logError("3208y2w8shgydgher", err);
-
-				reject(err);
-
-				return;
-			}
-
-			resolve(response);
-		});
-	});
+	let UpdateChannelPolicy = util.promisify(lndRpc.UpdateChannelPolicy.bind(lndRpc));
+	return await UpdateChannelPolicy(params);
 }
 
 /**
  - addressValueStr: bc1address1a2b3c:[all|12345],...
  - speedType: [target_conf|sat_per_byte]
 */
-function sendCoins(addressValueStr, speedType, speedValue) {
-	return new Promise(function(resolve, reject) {
-		var rpcParams = {};
-		rpcParams[speedType] = parseInt(speedValue);
+async function sendCoins(addressValueStr, speedType, speedValue) {
+	let SendCoins = util.promisify(lndRpc.SendCoins.bind(lndRpc));
+	
+	let rpcParams = {};
+	rpcParams[speedType] = parseInt(speedValue);
 
-		var addressValues = addressValueStr.split(",");
+	let addressValues = addressValueStr.split(",");
 
-		if (addressValues.length == 1) {
-			var parts = addressValues[0].split(":");
-			var address = parts[0];
-			var amt = parts[1];
+	if (addressValues.length == 1) {
+		let parts = addressValues[0].split(":");
+		let address = parts[0];
+		let amt = parts[1];
 
-			rpcParams["addr"] = address;
+		rpcParams["addr"] = address;
 
-			if (amt == "all") {
-				rpcParams["send_all"] = true;
-
-			} else {
-				rpcParams["amount"] = parseInt(amt);
-			}
-
-			lndRpc.SendCoins(rpcParams, function(err, response) {
-				if (err) {
-					utils.logError("32r97sdys7gs", err);
-
-					reject(err);
-
-					return;
-				}
-				
-				resolve(response);
-			});
+		if (amt == "all") {
+			rpcParams["send_all"] = true;
 
 		} else {
-			var AddrToAmount = {};
-
-			addressValues.forEach(function(str) {
-				var parts = str.split(":");
-				AddrToAmount[parts[0]] = parseInt(parts[1]);
-			});
-
-			rpcParams["AddrToAmount"] = AddrToAmount;
-
-			lndRpc.SendCoins(rpcParams, function(err, response) {
-				if (err) {
-					utils.logError("23r07hsd07sgh", err);
-
-					reject(err);
-
-					return;
-				}
-
-				resolve(response);
-			});
+			rpcParams["amount"] = parseInt(amt);
 		}
-	});
+
+		return await SendCoins(rpcParams);
+
+	} else {
+		let AddrToAmount = {};
+
+		addressValues.forEach(function(str) {
+			let parts = str.split(":");
+			AddrToAmount[parts[0]] = parseInt(parts[1]);
+		});
+
+		rpcParams["AddrToAmount"] = AddrToAmount;
+
+		return await SendCoins(rpcParams);
+	}
 }
 
 module.exports = {
