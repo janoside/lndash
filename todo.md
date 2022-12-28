@@ -1,3 +1,3 @@
 - async-ify rpcApi
 - stronger hash for password
-- fix for duplicate headers errors
+- error on login page after startup

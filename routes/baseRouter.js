@@ -44,8 +44,6 @@ router.get("/", asyncHandler(async (req, res, next) => {
 
 	} finally {
 		res.render("index");
-
-		next();
 	}
 }));
 
@@ -675,9 +673,6 @@ router.post("/login", asyncHandler(async (req, res, next) => {
 
 			res.redirect("/");
 		}
-
-		next();
-
 	} else {
 		debugLog(`Password hash mismatch: ${pwdHash} vs ${global.adminCredentials.adminPasswordSha256}`);
 
@@ -694,8 +689,6 @@ router.post("/login", asyncHandler(async (req, res, next) => {
 		}
 
 		res.render("login");
-
-		next();
 	}
 }));
 
@@ -1621,8 +1614,6 @@ router.get("/local-channels", asyncHandler(async (req, res, next) => {
 
 
 	res.render("local-channels");
-
-	next();
 }));
 
 router.get("/search", asyncHandler(async (req, res, next) => {
@@ -1689,8 +1680,6 @@ router.get("/search", asyncHandler(async (req, res, next) => {
 	});
 
 	res.render("search");
-
-	next();
 }));
 
 router.get("/about", function(req, res) {
