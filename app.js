@@ -314,11 +314,13 @@ app.use(asyncHandler(async (req, res, next) => {
 			res.locals.localClosedChannels = await rpcApi.getLocalClosedChannels(true);
 			res.locals.localPendingChannels = await rpcApi.getLocalPendingChannels(true);
 		}
+
+		next();
+
 	} catch (err) {
 		utils.logError("89032grwehusd", err);
 
-	} finally {
-		next();
+		next(err);
 	}
 }));
 
@@ -328,7 +330,9 @@ app.use('/util', utilRouter);
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {
 	var err = new Error('Not Found');
+
 	err.status = 404;
+
 	next(err);
 });
 

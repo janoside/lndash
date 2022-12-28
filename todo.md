@@ -1,3 +1,2 @@
 - async-ify rpcApi
 - stronger hash for password
-- error on login page after startup
