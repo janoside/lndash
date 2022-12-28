@@ -78,7 +78,17 @@ block content
 							th Node
 							th Address
 
-							th.text-end Value Transfer
+							th.text-end
+								span.border-dotted(title="Total Inbound and Outbound Value Transfers", data-bs-toggle="tooltip") Transfer
+								span.text-muted.ms-1
+									| (
+									span.fw-bold
+										i.fas.fa-arrow-down.text-success
+										span.mx-1 /
+										i.fas.fa-arrow-up.text-danger
+
+									| )
+
 							th.text-end Data Transfer
 							
 							th.text-center Inbound?
@@ -96,21 +106,27 @@ block content
 									+netAddress(item.address)
 									
 
-								td.text-end
-									if (item.sat_recv == 0 && item.sat_sent == 0)
-										span -
+								td
+									- let valueReceived = new Decimal(item.sat_recv || 0);
+									- let valueSent = new Decimal(item.sat_sent || 0);
+
+									if (valueReceived != null && (valueReceived > 0 || valueSent > 0))
+										+progressBar([valueReceived, valueSent], ["text-bg-success", "text-bg-danger"], "10px", false)
+									
+										
+										.d-flex.justify-content-between
+											.text-start
+												span.fs-80
+													+btcValue(valueReceived)
+
+											.text-end
+												span.fs-80
+													+btcValue(valueSent)
+
 									else
-										if (item.sat_recv > 0)
-											span.badge.text-bg-success.fs-100
-												span +
-												+btcValue(item.sat_recv)
+										.text-end -
 
-											br
-
-										if (item.sat_sent > 0)
-											span.badge.text-bg-danger.fs-100
-												span -
-												+btcValue(item.sat_sent)
+									
 								
 								
 								- var bytesSentData = utils.formatLargeNumber(item.bytes_sent, 1);
