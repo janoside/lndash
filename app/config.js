@@ -1,7 +1,5 @@
-var coins = require("./coins.js");
-var credentials = require("./credentials.js");
 
-var currentCoin = process.env.LND_ADMIN_COIN || "BTC";
+var credentials = require("./credentials.js");
 
 var cookieSecret = process.env.LND_ADMIN_COOKIE_SECRET || "0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f";
 
@@ -19,8 +17,7 @@ var cookieSecret = process.env.LND_ADMIN_COOKIE_SECRET || "0x000000000019d6689c0
 
 module.exports = {
 	cookieSecret: cookieSecret,
-	coin: currentCoin,
-
+	
 	siteInfo: {
 		title: "LNDash",
 		sourceUrl: "https://github.com/janoside/lnd-admin",

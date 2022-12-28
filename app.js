@@ -36,7 +36,7 @@ var grpc = require("@grpc/grpc-js");
 const asyncHandler = require("express-async-handler");
 var pug = require("pug");
 var momentDurationFormat = require("moment-duration-format");
-var coins = require("./app/coins.js");
+var coinConfig = require("./app/btcCoinConfig.js");
 var qrcode = require("qrcode");
 var rpcApi = require("./app/rpcApi.js");
 var runes = require("runes");
@@ -128,8 +128,7 @@ app.runOnStartup = async () => {
 	});*/
 
 	global.config = config;
-	global.coinConfig = coins[config.coin];
-	global.coinConfigs = coins;
+	global.coinConfig = coinConfig;
 
 	if (config.donationAddresses) {
 		var getDonationAddressQrCode = function(coinId) {

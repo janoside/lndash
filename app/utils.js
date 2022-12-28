@@ -12,8 +12,7 @@ var path = require('path');
 var axios = require("axios");
 
 var config = require("./config.js");
-var coins = require("./coins.js");
-var coinConfig = coins[config.coin];
+var coinConfig = require("./btcCoinConfig.js");
 
 var ipCache = {};
 
@@ -82,8 +81,8 @@ var formatCurrencyCache = {};
 
 function getCurrencyFormatInfo(formatType) {
 	if (formatCurrencyCache[formatType] == null) {
-		for (var x = 0; x < coins[config.coin].currencyUnits.length; x++) {
-			var currencyUnit = coins[config.coin].currencyUnits[x];
+		for (var x = 0; x < coinConfig.currencyUnits.length; x++) {
+			var currencyUnit = coinConfig.currencyUnits[x];
 
 			for (var y = 0; y < currencyUnit.values.length; y++) {
 				var currencyUnitValue = currencyUnit.values[y];
@@ -138,7 +137,7 @@ function formatCurrencyAmount(amount, formatType) {
 }
 
 function formatCurrencyAmountInSmallestUnits(amount, forcedDecimalPlaces) {
-	return formatCurrencyAmountWithForcedDecimalPlaces(amount, coins[config.coin].baseCurrencyUnit.name, forcedDecimalPlaces);
+	return formatCurrencyAmountWithForcedDecimalPlaces(amount, coinConfig.baseCurrencyUnit.name, forcedDecimalPlaces);
 }
 
 // ref: https://stackoverflow.com/a/2901298/673828
@@ -272,11 +271,11 @@ function getBlockTotalFeesFromCoinbaseTxAndBlockHeight(coinbaseTx, blockHeight) 
 }
 
 async function refreshExchangeRates() {
-	if (coins[config.coin].exchangeRateData) {
+	if (coinConfig.exchangeRateData) {
 		try {
-			const response = await axios.get(coins[config.coin].exchangeRateData.jsonUrl);
+			const response = await axios.get(coinConfig.exchangeRateData.jsonUrl);
 			
-			var exchangeRates = coins[config.coin].exchangeRateData.responseBodySelectorFunction(response.data);
+			var exchangeRates = coinConfig.exchangeRateData.responseBodySelectorFunction(response.data);
 			if (exchangeRates != null) {
 				global.exchangeRates = exchangeRates;
 				global.exchangeRatesUpdateTime = new Date();
