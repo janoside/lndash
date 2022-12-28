@@ -26,7 +26,7 @@ router.get("/", asyncHandler(async (req, res, next) => {
 		let totalLocalBalance = new Decimal(0);
 		let totalRemoteBalance = new Decimal(0);
 		
-		localChannelsResponse.channels.forEach(function(chan) {
+		localChannelsResponse.channels.forEach((chan) => {
 			totalLocalBalance = totalLocalBalance.plus(parseInt(chan.local_balance));
 			totalRemoteBalance = totalRemoteBalance.plus(parseInt(chan.remote_balance));
 		});

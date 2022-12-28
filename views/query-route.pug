@@ -100,57 +100,57 @@ block content
 
 
 
-			+contentSection("Details")
-				.d-flex.flex-wrap.mb-n3
+			+sectionTitle("Details")
+			.d-flex.flex-wrap.mb-n3
+				.card.text-body.shadow-sm.me-3.mb-3
+					.card-header
+						h3.h6.mb-0
+							i.fas.fa-play-circle.me-2.fa-lg.text-primary
+							span Origin
+					.card-body
+						.fw-bold.mb-2 Node
+						
+						+nodeCard(lndRpc.internal_pubkey)
+
+
+				each hop, hopIndex in route.hops
+					
 					.card.text-body.shadow-sm.me-3.mb-3
 						.card-header
 							h3.h6.mb-0
-								i.fas.fa-play-circle.me-2.fa-lg.text-primary
-								span Origin
-						.card-body
-							.fw-bold.mb-2 Node
-							
-							+nodeCard(lndRpc.internal_pubkey)
+								if (hopIndex == (route.hops.length - 1))
+									i.fas.fa-check-circle.me-2.fa-lg.text-success
+								else
+									i.fas.fa-arrow-circle-right.me-2.fa-lg.text-info
 
+								if (hopIndex == (route.hops.length - 1))
+									span Destination
+									span.text-muted.fs-80.ms-1 (Hop ##{(hopIndex + 1).toLocaleString()})
 
-					each hop, hopIndex in route.hops
-						
-						.card.text-body.shadow-sm.me-3.mb-3
-							.card-header
-								h3.h6.mb-0
-									if (hopIndex == (route.hops.length - 1))
-										i.fas.fa-check-circle.me-2.fa-lg.text-success
-									else
-										i.fas.fa-arrow-circle-right.me-2.fa-lg.text-info
+								else
+									span Hop ##{(hopIndex + 1).toLocaleString()}
 
-									if (hopIndex == (route.hops.length - 1))
-										span Destination
-										span.text-muted.fs-80.ms-1 (Hop ##{(hopIndex + 1).toLocaleString()})
-
-									else
-										span Hop ##{(hopIndex + 1).toLocaleString()}
-
-									
 								
-							.card-body
-								.mb-3.border-bottom.pb-3
-									.fw-bold.mb-2 Node
+							
+						.card-body
+							.mb-3.border-bottom.pb-3
+								.fw-bold.mb-2 Node
 
-									+nodeCard(hop.pub_key)
+								+nodeCard(hop.pub_key)
 
 
-								.mb-2
-									.fw-bold Channel
+							.mb-2
+								.fw-bold Channel
 
-									+channelId(hop.chan_id, true)
+								+channelId(hop.chan_id, true)
 
-								div
-									.fw-bold Fees
-									
-									if (parseInt(hop.fee_msat) > 0)
-										span.text-danger +
-											+btcValue(hop.fee_msat, "msat", "msat")
+							div
+								.fw-bold Fees
+								
+								if (parseInt(hop.fee_msat) > 0)
+									span.text-danger +
+										+btcValue(hop.fee_msat, "msat", "msat")
 
-									else
-										span.text-success 0
+								else
+									span.text-success 0
 
