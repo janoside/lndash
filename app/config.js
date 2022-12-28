@@ -20,8 +20,8 @@ module.exports = {
 	
 	siteInfo: {
 		title: "LNDash",
-		sourceUrl: "https://github.com/janoside/lnd-admin",
-		demoSiteUrl: "https://lnd-admin.btc21.org"
+		sourceUrl: "https://github.com/janoside/lndash",
+		demoSiteUrl: "https://lndash.btc21.org"
 	},
 
 	credentials: credentials,

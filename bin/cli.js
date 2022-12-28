@@ -2,7 +2,7 @@
 
 const args = require('meow')(`
 	Usage
-		$ lnd-admin [options]
+		$ lndash [options]
 
 	Options
 		-p, --port <port>			port to bind http server [default: 3004]
@@ -13,7 +13,7 @@ const args = require('meow')(`
 		-v, --version				output version number
 
 	Examples
-		$ lnd-admin -p 8080
+		$ lndash -p 8080
 
 	All options may also be specified as environment variables
 		$ LND_ADMIN_PORT=8080

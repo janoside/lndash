@@ -69,7 +69,7 @@ hr
 		.mb-2
 			span.me-2 Commit
 			span
-				a(href=`https://github.com/janoside/lnd-admin/commit/${sourcecodeVersion}`) ##{sourcecodeVersion.substring(0, 8)}
+				a(href=`https://github.com/janoside/lndash/commit/${sourcecodeVersion}`) ##{sourcecodeVersion.substring(0, 8)}
 	
 	if (global.sourcecodeDate)
 		- var timeAgo = moment.duration(moment.utc(new Date()).diff(global.sourcecodeDate));

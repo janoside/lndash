@@ -23,7 +23,7 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/janoside/lnd-admin.git"
+		"url": "git+https://github.com/janoside/lndash.git"
 	},
 	"dependencies": {
 		"@grpc/proto-loader": "^0.7.4",

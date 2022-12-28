@@ -8,7 +8,7 @@ Admin web interface for [LND](https://github.com/lightningnetwork/lnd), via gRPC
 
 ![](docs/screenshots/dashboard.png)
 
-Live demo: https://lnd-admin.btc21.org
+Live demo: https://lndash.btc21.org
 
 # Features
 
@@ -32,20 +32,20 @@ Live demo: https://lnd-admin.btc21.org
 
 ### 2a. Install LNDash (via NPM)
 
-* `npm install -g lnd-admin`
-* `lnd-admin`
+* `npm install -g lndash`
+* `lndash`
 * Open [http://127.0.0.1:3004/](http://127.0.0.1:3004/)
 
 ### 2b. Install LNDash (from source)
 
-* `git clone git@github.com:janoside/lnd-admin.git`
-* `cd lnd-admin; npm install`
+* `git clone git@github.com:janoside/lndash.git`
+* `cd lndash; npm install`
 * `npm start`
 * Open [http://127.0.0.1:3004/](http://127.0.0.1:3004/)
 
 ### 3. Setup LNDash via UI
 
-Once started, LNDash's UI will guide you to set an admin password and then to connect to any LND nodes you're running. Your hashed password and your LND credentials (encrypted with your password), will be stored in the file `~/.lnd-admin/credentials.json`. If you restart the app after setup, you'll need to "unlock" with your same admin password (in order to decrypt LND credentials). Deleting this file at any time and restarting will prompt you to go through the setup process again.
+Once started, LNDash's UI will guide you to set an admin password and then to connect to any LND nodes you're running. Your hashed password and your LND credentials (encrypted with your password), will be stored in the file `~/.lndash/credentials.json`. If you restart the app after setup, you'll need to "unlock" with your same admin password (in order to decrypt LND credentials). Deleting this file at any time and restarting will prompt you to go through the setup process again.
 
 
 # Credits
@@ -58,7 +58,7 @@ Thanks to inspiration from [LND](https://github.com/lightningnetwork/lnd), [Joul
 
 
 
-[npm-ver-img]: https://img.shields.io/npm/v/lnd-admin.svg?style=flat
-[npm-ver-url]: https://www.npmjs.com/package/lnd-admin
-[npm-dl-img]: http://img.shields.io/npm/dm/lnd-admin.svg?style=flat
-[npm-dl-url]: https://npmcharts.com/compare/lnd-admin?minimal=true
+[npm-ver-img]: https://img.shields.io/npm/v/lndash.svg?style=flat
+[npm-ver-url]: https://www.npmjs.com/package/lndash
+[npm-dl-img]: http://img.shields.io/npm/dm/lndash.svg?style=flat
+[npm-dl-url]: https://npmcharts.com/compare/lndash?minimal=true

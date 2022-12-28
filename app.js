@@ -7,7 +7,7 @@ var path = require('path');
 var dotenv = require("dotenv");
 var fs = require('fs');
 
-var configPaths = [ path.join(os.homedir(), '.lnd-admin', '.env'), path.join(process.cwd(), '.env') ];
+var configPaths = [ path.join(os.homedir(), '.lndash', '.env'), path.join(process.cwd(), '.env') ];
 configPaths.filter(fs.existsSync).forEach(path => {
 	console.log('Loading env file:', path);
 	dotenv.config({ path });
@@ -92,7 +92,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 async function getSourcecodeProjectMetadata() {
 	var options = {
-		url: "https://api.github.com/repos/janoside/lnd-admin",
+		url: "https://api.github.com/repos/janoside/lndash",
 		headers: {
 			'User-Agent': 'axios'
 		}
@@ -113,7 +113,7 @@ async function getSourcecodeProjectMetadata() {
 
 app.runOnStartup = async () => {
 	global.packageRootDir = __dirname;
-	global.userDataDir = path.join(os.homedir(), ".lnd-admin");
+	global.userDataDir = path.join(os.homedir(), ".lndash");
 
 	if (!fs.existsSync(global.userDataDir)){
 		fs.mkdirSync(global.userDataDir);

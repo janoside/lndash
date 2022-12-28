@@ -16,27 +16,27 @@ block content
 			if (global.newAppVersion)
 				.alert.alert-primary.alert-dismissible.shadow-sm.mb-3
 					span You're running LNDash v#{global.appVersion}. A newer version is available: 
-					a(href="https://www.npmjs.com/package/lnd-admin") LNDash v#{global.newAppVersion}
+					a(href="https://www.npmjs.com/package/lndash") LNDash v#{global.newAppVersion}
 
 			.alert.alert-primary.alert-dismissible.shadow-sm.mb-3(role="alert")
 				p
 					span.fw-bold LNDash
 					span  is 
-					a(href="https://github.com/janoside/lnd-admin" target="_blank") open-source
+					a(href="https://github.com/janoside/lndash" target="_blank") open-source
 					span  and easy to set up. It communicates with your 
 					a(href="https://github.com/lightningnetwork/lnd" target="_blank") LND
 					span  node via gRPC. See the 
-					a(href="https://github.com/janoside/lnd-admin" target="_blank") project description
+					a(href="https://github.com/janoside/lndash" target="_blank") project description
 					span  for a list of features and instructions for running.
 
 				if (global.sourcecodeProjectMetadata)
 					.mt-2.mb-2
-						a.btn.btn-primary.me-3.mb-1(href="https://github.com/janoside/lnd-admin")
+						a.btn.btn-primary.me-3.mb-1(href="https://github.com/janoside/lndash")
 							i.fas.fa-star.me-2
 							span.me-2 Star 
 							span.badge.bg-white.text-dark #{global.sourcecodeProjectMetadata.stargazers_count}
 
-						a.btn.btn-primary.me-3.mb-1(href="https://github.com/janoside/lnd-admin/fork")
+						a.btn.btn-primary.me-3.mb-1(href="https://github.com/janoside/lndash/fork")
 							i.fas.fa-code-branch.me-2
 							span.me-2 Fork 
 							span.badge.bg-white.text-dark #{global.sourcecodeProjectMetadata.forks_count}
@@ -46,11 +46,11 @@ block content
 							span Donate
 
 				div
-					a.me-2(href="https://www.npmjs.com/package/lnd-admin" rel="nofollow" target="_blank")
-						img(src="https://camo.githubusercontent.com/dca2e8f947987c994c021fedf0da14f740220773/68747470733a2f2f696d672e736869656c64732e696f2f6e706d2f762f6c6e642d61646d696e2e7376673f7374796c653d666c6174" alt="npm version" data-canonical-src="https://img.shields.io/npm/v/lnd-admin.svg?style=flat" style="max-width:100%;")
+					a.me-2(href="https://www.npmjs.com/package/lndash" rel="nofollow" target="_blank")
+						img(src="https://camo.githubusercontent.com/dca2e8f947987c994c021fedf0da14f740220773/68747470733a2f2f696d672e736869656c64732e696f2f6e706d2f762f6c6e642d61646d696e2e7376673f7374796c653d666c6174" alt="npm version" data-canonical-src="https://img.shields.io/npm/v/lndash.svg?style=flat" style="max-width:100%;")
 
-					a(href="https://npmcharts.com/compare/lnd-admin?minimal=true" rel="nofollow" target="_blank")
-						img(src="https://camo.githubusercontent.com/015986f601eae0e28a983728259ccb96ce042511/687474703a2f2f696d672e736869656c64732e696f2f6e706d2f646d2f6c6e642d61646d696e2e7376673f7374796c653d666c6174" alt="NPM downloads" data-canonical-src="http://img.shields.io/npm/dm/lnd-admin.svg?style=flat" style="max-width:100%;")
+					a(href="https://npmcharts.com/compare/lndash?minimal=true" rel="nofollow" target="_blank")
+						img(src="https://camo.githubusercontent.com/015986f601eae0e28a983728259ccb96ce042511/687474703a2f2f696d672e736869656c64732e696f2f6e706d2f646d2f6c6e642d61646d696e2e7376673f7374796c653d666c6174" alt="NPM downloads" data-canonical-src="http://img.shields.io/npm/dm/lndash.svg?style=flat" style="max-width:100%;")
 
 
 				a.btn-close(href="/changeSetting?name=hideHomepageBanner&value=true" aria-label="Close" style="text-decoration: none;")
