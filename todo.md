@@ -1,2 +1,1 @@
-- async-ify rpcApi
 - stronger hash for password
