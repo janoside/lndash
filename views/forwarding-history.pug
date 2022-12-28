@@ -34,10 +34,13 @@ block content
 					a.nav-link(href=`/forwarding-history?sort=${sort}&tab=summary&daterange=${daterange}&limit=${limit}` class=(tab == "summary" ? "active" : false)) Summary
 				li.nav-item
 					a.nav-link(href=`/forwarding-history?sort=${sort}&tab=events&daterange=${daterange}&limit=${limit}` class=(tab == "events" ? "active" : false)) Events
-						span.badge.badge-secondary.ms-2 #{forwardingHistoryResponse.forwarding_events.length.toLocaleString()}
+						span.badge.text-bg-secondary.ms-2 #{forwardingHistoryResponse.forwarding_events.length.toLocaleString()}
 				li.nav-item
 					a.nav-link(href=`/forwarding-history?sort=${sort}&tab=channels&daterange=${daterange}&limit=${limit}` class=(tab == "channels" ? "active" : false)) Channels
-						span.badge.badge-secondary.ms-2 #{(inChannels.length + outChannels.length).toLocaleString()}
+						span.badge.text-bg-secondary.ms-2 #{(inChannels.length + outChannels.length).toLocaleString()}
+
+			.bg-gradient-body-to-main.pb-4.mb-2
+
 
 			.tab-content
 				.tab-pane(id="tab-summary" role="tabpanel" class=(tab == "summary" ? "active" : false))
@@ -132,7 +135,7 @@ block content
 
 							+pagination(allFilteredEventsCount, limit, offset, paginationBaseUrl)
 
-							
+
 
 						each forwardingEvent, forwardingEventIndex in pagedFilteredEvents
 							+modal(`forwardingEventModal-${forwardingEventIndex}`, `Forwarding Event #${(forwardingEventIndex + 1).toLocaleString()}`)
