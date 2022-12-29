@@ -1,2 +1,0 @@
-- const for requires
-- spinner modal popup after login

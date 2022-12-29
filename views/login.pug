@@ -23,7 +23,7 @@ block content
 
 		- var onclick = false;
 		if (!global.adminPassword)
-			- onclick = "$('#unlockModal').modal()";
+			- onclick = "$('#unlockModal').show()";
 			
 		button.btn.btn-primary(type="submit" onclick=onclick)
 			i.fas.fa-key.me-2
