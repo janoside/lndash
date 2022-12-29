@@ -4,7 +4,7 @@
 
 [![npm version][npm-ver-img]][npm-ver-url] [![NPM downloads][npm-dl-img]][npm-dl-url]
 
-Admin web interface for [LND](https://github.com/lightningnetwork/lnd), via gRPC. Built with Node.js, express, bootstrap-v4.
+Admin web interface for [LND](https://github.com/lightningnetwork/lnd), via gRPC. Built with Node.js, express, bootstrap-v5.
 
 ![](docs/screenshots/dashboard.png)
 
@@ -30,13 +30,8 @@ Live demo: https://lndash.btc21.org
 
 * [Install LND](https://github.com/lightningnetwork/lnd/blob/master/docs/INSTALL.md)
 
-### 2a. Install LNDash (via NPM)
 
-* `npm install -g lndash`
-* `lndash`
-* Open [http://127.0.0.1:3004/](http://127.0.0.1:3004/)
-
-### 2b. Install LNDash (from source)
+### 2. Install LNDash (from source)
 
 * `git clone git@github.com:janoside/lndash.git`
 * `cd lndash; npm install`
