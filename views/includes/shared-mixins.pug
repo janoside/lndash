@@ -202,28 +202,33 @@ mixin menuHeading(text, hoverText)
 	else
 		h6.text-uppercase.text-primary.fs-90 #{text}
 
-mixin pillBadge(text, colorClass)
-	span.badge.rounded-pill.me-2(class=colorClass) #{text}
+mixin pillBadge(text, colorClass, hoverText)
+	span.badge.rounded-pill.me-2(class=colorClass)
+		if (hoverText)
+			span.border-dotted(title=hoverText, data-bs-toggle="tooltip") #{text}
+		else
+			| #{text}
+
 		block
 
-mixin pillBadgeSuccess(text)
-	+pillBadge(text, "text-bg-success")
+mixin pillBadgeSuccess(text, hoverText)
+	+pillBadge(text, "text-bg-success", hoverText)
 		block
 
-mixin pillBadgeInfo(text)
-	+pillBadge(text, "text-bg-info")
+mixin pillBadgeInfo(text, hoverText)
+	+pillBadge(text, "text-bg-info", hoverText)
 		block
 
-mixin pillBadgeWarning(text)
-	+pillBadge(text, "text-bg-warning")
+mixin pillBadgeWarning(text, hoverText)
+	+pillBadge(text, "text-bg-warning", hoverText)
 		block
 
-mixin pillBadgeDanger(text)
-	+pillBadge(text, "text-bg-danger")
+mixin pillBadgeDanger(text, hoverText)
+	+pillBadge(text, "text-bg-danger", hoverText)
 		block
 
-mixin pillBadgeLight(text)
-	+pillBadge(text, "text-bg-light")
+mixin pillBadgeLight(text, hoverText)
+	+pillBadge(text, "text-bg-light", hoverText)
 		block
 
 

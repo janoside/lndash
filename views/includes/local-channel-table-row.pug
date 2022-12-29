@@ -8,8 +8,7 @@ tr.word-wrap
 				
 			else if (channel.chan_id)
 				if (channel.close_type)
-					span.border-dotted(title=`Close type: `, data-bs-toggle="tooltip")
-						+pillBadgeDanger(`Closed`)
+					+pillBadgeDanger(`Closed`, `Close type: ${channel.close_type}`)
 					
 
 				else
