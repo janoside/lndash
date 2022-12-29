@@ -15,6 +15,9 @@ var qrImage = require('qr-image');
 var untildify = require("untildify");
 const asyncHandler = require("express-async-handler");
 const Decimal = require('decimal.js');
+const passwordUtils = require("./../app/passwordUtils.js");
+const encryptionUtils = require("./../app/encryptionUtils.js");
+
 
 router.get("/", asyncHandler(async (req, res, next) => {
 	try {
@@ -223,9 +226,9 @@ router.get("/setup", function(req, res) {
 	res.render("setup");
 });
 
-router.post("/setup", function(req, res) {
-	var pwd = req.body.password;
-	var pwdConf = req.body.passwordConfirmation;
+router.post("/setup", asyncHandler(async (req, res, next) => {
+	let pwd = req.body.password;
+	let pwdConf = req.body.passwordConfirmation;
 
 	if (pwd != pwdConf) {
 		res.locals.userMessage = "Passwords do not match.";
@@ -238,10 +241,13 @@ router.post("/setup", function(req, res) {
 
 	global.adminPassword = pwd;
 
-	var pwdSha256 = hashjs.sha256().update(pwd).digest('hex');
+	let pwdHash = await passwordUtils.hash(pwd);
 
 	global.adminCredentials = {};
-	global.adminCredentials.adminPasswordSha256 = pwdSha256;
+	global.adminCredentials.adminPasswordHash = pwdHash;
+	global.adminCredentials.pbkdf2Salt = utils.getRandomString(32, "#");
+
+	global.encryptor = encryptionUtils.encryptor(global.adminPassword, global.adminCredentials.pbkdf2Salt);
 
 	utils.saveAdminCredentials(global.adminPassword);
 	utils.savePreferences(global.userPreferences, global.adminPassword);
@@ -252,7 +258,7 @@ router.post("/setup", function(req, res) {
 	req.session.userMessageType = "success";
 
 	res.redirect("/manage-nodes?setup=true");
-});
+}));
 
 router.get("/create-invoice", function(req, res) {
 	res.render("create-invoice");
@@ -634,15 +640,16 @@ router.post("/login", asyncHandler(async (req, res, next) => {
 		return;
 	}
 
-	var pwdHash = hashjs.sha256().update(req.body.password).digest('hex');
 	
-	if (pwdHash == global.adminCredentials.adminPasswordSha256) {
+	if (passwordUtils.verify(req.body.password, global.adminCredentials.adminPasswordHash)) {
 		var connectToLndNeeded = true;
 		if (global.adminPassword) {
 			connectToLndNeeded = false;
 		}
 
 		global.adminPassword = req.body.password;
+
+		global.encryptor = encryptionUtils.encryptor(global.adminPassword, global.adminCredentials.pbkdf2Salt);
 
 		global.adminCredentials = utils.loadAdminCredentials(global.adminPassword);
 		global.userPreferences = utils.loadPreferences(global.adminPassword);
@@ -674,7 +681,7 @@ router.post("/login", asyncHandler(async (req, res, next) => {
 			res.redirect("/");
 		}
 	} else {
-		debugLog(`Password hash mismatch: ${pwdHash} vs ${global.adminCredentials.adminPasswordSha256}`);
+		debugLog(`Password hash verification failure`);
 
 		req.session.userMessage = "Login failed.";
 		req.session.userMessageType = "danger";
@@ -1874,7 +1881,7 @@ router.post("/manage-nodes", function(req, res) {
 			rpcApi.connectAllNodes().then(function() {
 				global.setupNeeded = false;
 
-				req.session.userMessage = "<h3 class='h5'>Setup complete</h3><span>Welcome to LNDash!</span>";
+				req.session.userMessage = "Setup Complete - Welcome to LNDash!";
 				req.session.userMessageType = "success";
 
 				res.redirect("/");

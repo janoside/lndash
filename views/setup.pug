@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title Setup
@@ -9,9 +9,9 @@ block breadcrumb
 	
 block content
 
-	h1.h3 Setup &raquo; Set Admin Password
-	hr
-
+	+pageTitle("Setup » Set Admin Password")
+	
+	
 	- var setupStep = 1;
 	include includes/setup-directions-alert.pug
 

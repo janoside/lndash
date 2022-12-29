@@ -4,7 +4,6 @@ var os = require('os');
 var path = require('path');
 var url = require('url');
 
-var pwdHash = hashjs.sha256().update(process.env.LND_ADMIN_LOGIN_PASSWORD || "admin").digest('hex');
 
 var rpcConfigs = [];
 
@@ -28,7 +27,5 @@ if (process.env.LND_ADMIN_NODE_COUNT) {
 }
 
 module.exports = {
-	rpcConfigs:rpcConfigs,
-	
-	adminPasswordSha256:pwdHash
+	rpcConfigs:rpcConfigs
 };

@@ -499,25 +499,11 @@ function buildQrCodeUrl(str, results) {
 	});
 }
 
-function encryptString(str_utf8, encPassword) {
-	var ciphertext_base64 = CryptoJS.AES.encrypt(str_utf8, encPassword);
-	//var hex = CryptoJS.enc.Hex.stringify(CryptoJS.enc.Base64.parse(ciphertext.toString()));
-
-	return ciphertext_base64.toString();
-}
-
-function decryptString(str_base64, encPassword) {
-	//var b64_fromHex = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(str));
-	var bytes = CryptoJS.AES.decrypt(str_base64, encPassword);
-
-	return bytes.toString(CryptoJS.enc.Utf8);
-}
-
 function saveAdminCredentials(encPassword) {
 	var enc = JSON.parse(JSON.stringify(global.adminCredentials));
 
 	if (enc.lndNodes) {
-		enc.lndNodesData = encryptString(JSON.stringify(enc.lndNodes), encPassword);
+		enc.lndNodesData = formatBuffer(global.encryptor.encrypt(JSON.stringify(enc.lndNodes)), "base64");
 
 		delete enc.lndNodes;
 	}
@@ -531,7 +517,7 @@ function loadAdminCredentials(encPassword) {
 
 	if (encPassword) {
 		if (adminCredentials.lndNodesData != null) {
-			adminCredentials.lndNodes = JSON.parse(decryptString(adminCredentials.lndNodesData, encPassword));
+			adminCredentials.lndNodes = JSON.parse(global.encryptor.decrypt(Buffer.from(adminCredentials.lndNodesData, "base64")));
 			delete adminCredentials.lndNodesData;
 		}
 	}
@@ -710,6 +696,7 @@ const formatBuffer = (buffer, format="base64", fullDetail=false) => {
 };
 
 
+
 module.exports = {
 	reflectPromise: reflectPromise,
 	hex2ascii: hex2ascii,
@@ -736,8 +723,6 @@ module.exports = {
 	colorHexToHsl: colorHexToHsl,
 	logError: logError,
 	buildQrCodeUrls: buildQrCodeUrls,
-	encryptString: encryptString,
-	decryptString: decryptString,
 	saveAdminCredentials: saveAdminCredentials,
 	loadAdminCredentials: loadAdminCredentials,
 	parseLndconnectString: parseLndconnectString,

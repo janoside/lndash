@@ -1,1 +1,2 @@
-- stronger hash for password
+- const for requires
+- spinner modal popup after login
