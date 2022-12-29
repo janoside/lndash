@@ -29,7 +29,7 @@ block content
 
 		
 		if (forwardingHistoryResponse.forwarding_events && forwardingHistoryResponse.forwarding_events.length > 0)
-			ul.nav.nav-tabs.mb-3
+			ul.nav.nav-tabs
 				li.nav-item
 					a.nav-link(href=`/forwarding-history?sort=${sort}&tab=summary&daterange=${daterange}&limit=${limit}` class=(tab == "summary" ? "active" : false)) Summary
 				li.nav-item
@@ -46,45 +46,34 @@ block content
 				.tab-pane(id="tab-summary" role="tabpanel" class=(tab == "summary" ? "active" : false))
 					if (tab == "summary")
 						+contentSection("Summary")
-							+summaryRow(1)
+							+summaryRow(3)
 								+summaryItem("Forwarded Payments")
 									| #{allFilteredEventsCount.toLocaleString()}
 
-
-							hr.my-4
-
-							
-							+summaryRow(1)
-								.mb-2
-									+summaryItem("Fees Collected")
-
-							+summaryRow(3)
-								+summaryItem("Total", "Total of all fees collected for forwarding payments")
+								+summaryItem("Total Fees Collected")
 									+btcValue(totalFees)
 
-								+summaryItem("Max", "Highest fee for forwarding a single payment")
-									+btcValue(maxFee)
-
-								+summaryItem("Avg", "Average fee collected for all forwarded payments")
-									+btcValue(avgFee)
-								
-
-
-							
-							hr.my-4
-
-							+summaryRow(1)
-								.mb-2
-									+summaryItem("Value Transferred")
-
-							+summaryRow(3)
-								+summaryItem("Total", "Total value transferred across all forwarded payments")
+								+summaryItem("Total Value Transferred")
 									+btcValue(totalValueTransferred)
 
-								+summaryItem("Max", "Highest forwarded payment amount")
+
+							hr.my-4
+
+							
+							+summaryRow(2)
+								+summaryItem("Fee Stats", "Maximum and average fee collected", "max / avg")
+									+btcValue(maxFee)
+
+									span.mx-2.text-muted /
+
+									+btcValue(avgFee)
+
+
+								+summaryItem("Transfer Stats", "Maximum and average value transferred", "max / avg")
 									+btcValue(maxValueTransferred)
 
-								+summaryItem("Avg", "Average forwarded payment amount")
+									span.mx-2.text-muted /
+
 									+btcValue(avgValueTransferred)
 
 						
