@@ -1024,6 +1024,9 @@ router.get("/forwarding-history", function(req, res) {
 
 router.get("/logout", function(req, res) {
 	req.session.admin = false;
+	global.adminPassword = null;
+	global.fullNetworkDescription = null;
+	global.lndRpc = null;
 
 	res.redirect("/");
 });
