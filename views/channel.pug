@@ -93,90 +93,77 @@ block content
 					if (localChannels.byId && localChannels.byId[channel.channel_id])
 						- var localChannel = localChannels.byId[channel.channel_id];
 
-						- var currencyValue = new Decimal(localChannel.local_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-						- var localBalancePercent = new Decimal(localChannel.local_balance).dividedBy(parseInt(localChannel.local_balance) + parseInt(localChannel.remote_balance)).times(100);
+						- let localBalance = new Decimal(localChannel.local_balance);
+						- let remoteBalance = new Decimal(localChannel.remote_balance);
 
-						- var currencyValue = new Decimal(localChannel.remote_balance).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-						- var remoteBalancePercent = new Decimal(localChannel.remote_balance).dividedBy(parseInt(localChannel.local_balance) + parseInt(localChannel.remote_balance)).times(100);
+						- let valueReceived = new Decimal(localChannel.total_satoshis_received);
+						- let valueSent = new Decimal(localChannel.total_satoshis_sent);
+						- let netValue = valueReceived.minus(valueSent);
 
 
 						.mb-3
-							.text-center
-								h6.fw-light.mb-3 Balances
 							+summaryRow(2)
-								+summaryItem("Spendable")
-									span.badge.text-bg-primary.fs-6
-										+btcValue(localChannel.local_balance)
+								+summaryItem("Local / Remote Balances")
+									.d-flex.justify-content-between.fs-90.mb-3
+										.text-start
+											.mb-2
+												i.fas.fa-circle.text-primary.me-2
+												span.border-dotted(title="Local, spendable balance on the local side of this channel.", data-bs-toggle="tooltip") Spendable
+
+											span.badge.text-bg-primary.fs-80
+												+btcValue(localBalance)
+
+										.text-end
+											.mb-2
+												i.fas.fa-circle.text-info.me-2
+												span.border-dotted(title="Total receivable balance on the remote side of this channel.", data-bs-toggle="tooltip") Receivable
+
+											span.badge.text-bg-info.fs-80
+												+btcValue(remoteBalance)
+											
+
+
+									+progressBar([localBalance, remoteBalance], ["text-bg-primary", "text-bg-info"])
 									
-									.text-muted.fs-75 (#{localBalancePercent.toDP(1)}%)
 
 								
-								+summaryItem("Receivable")
-									span.badge.text-bg-info.fs-6
-										+btcValue(localChannel.remote_balance)
-									
-									.text-muted.fs-75 (#{remoteBalancePercent.toDP(1)}%)
+								+summaryItem("Received / Sent Value")
+									.d-flex.justify-content-between.fs-90.mb-3
+										.text-start
+											.mb-2
+												i.fas.fa-circle.text-success.me-2
+												span.border-dotted(title="Value received via this channel.", data-bs-toggle="tooltip") Received
+
+											span.badge.text-bg-success.fs-80
+												+btcValue(valueReceived)
 
 
-						.progress(style="height: 20px;")
-							.progress-bar.text-bg-primary(role="progressbar", style=`width: ${localBalancePercent.toDP(0)}%;`, aria-valuenow=`${localBalancePercent.toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{localBalancePercent.toDP(1)}%
+										if (netValue != 0)
+											.text-center
+												.mb-2
+													span.border-dotted(title="Net value (received minus sent) received via this channel.", data-bs-toggle="tooltip") Net
 
-							.progress-bar.text-bg-info(role="progressbar", style=`width: ${remoteBalancePercent.toDP(0)}%;`, aria-valuenow=`${remoteBalancePercent.toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{remoteBalancePercent.toDP(1)}%
-
-
-						
-
-						hr.my-4
-
-
-					if (localChannels.byId && localChannels.byId[channel.channel_id])
-						- var localChannel = localChannels.byId[channel.channel_id];
-
-
-
-						- var totalXfer = new Decimal(localChannel.total_satoshis_received).plus(localChannel.total_satoshis_sent);
-						- var totalNetXfer = new Decimal(localChannel.total_satoshis_received).minus(localChannel.total_satoshis_sent);
-						
-						- var localReceivePercent = new Decimal(localChannel.total_satoshis_received).dividedBy(totalXfer).times(100);
-						- var localSendPercent = new Decimal(localChannel.total_satoshis_sent).dividedBy(totalXfer).times(100);
+												if (netValue < 0)
+													span.badge.text-bg-danger
+														| -
+														+btcValue(netValue.times(-1))
+												else
+													span.badge.text-bg-success
+														| +
+														+btcValue(netValue)
 
 
-						.mb-3
-							.text-center
-								h6.fw-light.mb-3 Value Transferred
-							+summaryRow(3)
-								+summaryItem("Total Received")
-									span.badge.text-bg-success.fs-6
-										+btcValue(localChannel.total_satoshis_received)
+										.text-end
+											.mb-2
+												i.fas.fa-circle.text-danger.me-2
+												span.border-dotted(title="Value sent via this channel.", data-bs-toggle="tooltip") Sent
 
-								
-								+summaryItem("Total Sent")
-									span.badge.text-bg-danger.fs-6
-										if (localChannel.total_satoshis_sent > 0)
-											span -
-
-										+btcValue(localChannel.total_satoshis_sent)
-										
+											span.badge.text-bg-danger.fs-80
+												+btcValue(valueSent)
 
 
-								+summaryItem("Net")
-									- var currencyValue = new Decimal(totalNetXfer).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
 
-									if (totalNetXfer > 0)
-										span.text-warning #{totalNetXfer}
-
-										span.badge.text-bg-success
-											+btcValue(localChannel.total_satoshis_received)
-
-									else
-										span.badge.text-bg-danger
-											+btcValue(localChannel.total_satoshis_received)
-
-
-						.progress(style="height: 20px;")
-							.progress-bar.bg-success(role="progressbar", style=`width: ${localReceivePercent.toDP(0)}%;`, aria-valuenow=`${localReceivePercent.toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{localReceivePercent.toDP(1)}%
-
-							.progress-bar.bg-danger(role="progressbar", style=`width: ${localSendPercent.toDP(0)}%;`, aria-valuenow=`${localSendPercent.toDP(0)}`, aria-valuemin="0", aria-valuemax="100") #{localSendPercent.toDP(1)}%
+									+progressBar([valueReceived, valueSent], ["text-bg-success", "text-bg-danger"])
 
 
 						
@@ -193,13 +180,13 @@ block content
 							+btcValue(channel.capacity)
 
 
+						+summaryItem("Channel Point", "On-chain transaction:output-index that opened this channel.")
+							+channelPoint(channelPointTxid, channelPointIndex, blockHeight)
+
+
 						if (localChannel)
 							+summaryItem("Updates")
 								| #{parseInt(localChannel.num_updates).toLocaleString()}
-
-
-						+summaryItem("Channel Point", "On-chain transaction:output-index that opened this channel.")
-							+channelPoint(channelPointTxid, channelPointIndex, blockHeight)
 							
 
 					
