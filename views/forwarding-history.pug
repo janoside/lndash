@@ -215,100 +215,100 @@ block content
 
 									+filterBtnGroup("Sort", null, sortOptions, `/forwarding-history?tab=${tab}&daterange=${daterange}&limit=${limit}`, "sort", sort)
 
+						- let tabs = [];
 
+						if (inChannels.length > 0)
+							- tabs.push(`Incoming Channels (${inChannels.length.toLocaleString})`);
 
-						.row
-							.col-md-6
-								h3.h5 #{inChannels.length.toLocaleString()} Incoming Channel
-									if (inChannels.length != 1)
-										span s
+						if (outChannels.length > 0)
+							- tabs.push(`Outgoing Channels (${outChannels.length.toLocaleString})`);
 
-								hr
+						+pageTabs(tabs)
 
-								.table-responsive
-									table.table.table-striped
-										thead
-											tr
-												th.text-end.fw-light #
-												th Channel
-												th.text-end Payments
-												th.text-end Value Transferred
-												th.text-end Fees Collected
-												
-
-										tbody
-											each channelForwardingInfo, channelInfoIndex in inChannels
+						.tab-content
+							if (inChannels.length > 0)
+								+pageTab(tabs[0], true)
+									.table-responsive
+										table.table.table-striped
+											thead
 												tr
-													th.text-end.fw-light #{(channelInfoIndex + 1).toLocaleString()}
-
-													td
-														- var channel_id = channelForwardingInfo.channelId;
-														- var channelInfo = fullNetworkDescription.channelsById[channel_id];
-
-														+channelId(channelForwardingInfo.channelId, channelInfo != null)
-
-
-														if (channelInfo)
-															hr
-															
-															- var card_node_pubkey = channelInfo.node1_pub;
-															if (card_node_pubkey == lndRpc.internal_pubkey)
-																- card_node_pubkey = channelInfo.node2_pub;
-
-															+nodeCard(card_node_pubkey)
-
-													td.text-end #{channelForwardingInfo.eventCount.toLocaleString()}
+													th.text-end.fw-light #
+													th Channel
+													th.text-end Payments
+													th.text-end Value Transferred
+													th.text-end Fees Collected
 													
-													td.text-end
-														+btcValue(channelForwardingInfo.totalValueTransferred)
 
-													td.text-end
-														.text-success
-															span +
+											tbody
+												each channelForwardingInfo, channelInfoIndex in inChannels
+													tr
+														th.text-end.fw-light #{(channelInfoIndex + 1).toLocaleString()}
 
-															+btcValue(channelForwardingInfo.totalFees)
+														td
+															- var channel_id = channelForwardingInfo.channelId;
+															- var channelInfo = fullNetworkDescription.channelsById[channel_id];
 
-							.col-md-6
-								h3.h5 #{outChannels.length.toLocaleString()} Outgoing Channel
-									if (outChannels.length != 1)
-										span s
+															+channelId(channelForwardingInfo.channelId, channelInfo != null)
 
-								hr
 
-								.table-responsive
-									table.table.table-striped
-										thead
-											tr
-												th.text-end #
-												th Channel
-												th.text-end Payments
-												th.text-end Value Transferred
-												
+															if (channelInfo)
+																hr
+																
+																- var card_node_pubkey = channelInfo.node1_pub;
+																if (card_node_pubkey == lndRpc.internal_pubkey)
+																	- card_node_pubkey = channelInfo.node2_pub;
 
-										tbody
-											each channelForwardingInfo, channelInfoIndex in outChannels
+																+nodeCard(card_node_pubkey)
+
+														td.text-end #{channelForwardingInfo.eventCount.toLocaleString()}
+														
+														td.text-end
+															+btcValue(channelForwardingInfo.totalValueTransferred)
+
+														td.text-end
+															.text-success
+																span +
+
+																+btcValue(channelForwardingInfo.totalFees)
+
+							if (outChannels.length > 0)
+								+pageTab(inChannels.length > 0 ? tabs[1] : tabs[0], !(inChannels.length > 0)))
+									.table-responsive
+										table.table.table-striped
+											thead
 												tr
-													th.text-end #{(channelInfoIndex + 1).toLocaleString()}
-													td
-														- var channel_id = channelForwardingInfo.channelId;
-														- var channelInfo = fullNetworkDescription.channelsById[channel_id];
-
-														+channelId(channelForwardingInfo.channelId, channelInfo != null)
-
-
-														if (channelInfo)
-															hr
-															
-															- var card_node_pubkey = channelInfo.node1_pub;
-															if (card_node_pubkey == lndRpc.internal_pubkey)
-																- card_node_pubkey = channelInfo.node2_pub;
-
-															+nodeCard(card_node_pubkey)
-
-													td.text-end #{channelForwardingInfo.eventCount.toLocaleString()}
+													th.text-end #
+													th Channel
+													th.text-end Payments
+													th.text-end Value Transferred
 													
-													td.text-end
-														+btcValue(channelForwardingInfo.totalValueTransferred)
+
+											tbody
+												each channelForwardingInfo, channelInfoIndex in outChannels
+													tr
+														th.text-end #{(channelInfoIndex + 1).toLocaleString()}
+														td
+															- var channel_id = channelForwardingInfo.channelId;
+															- var channelInfo = fullNetworkDescription.channelsById[channel_id];
+
+															+channelId(channelForwardingInfo.channelId, channelInfo != null)
+
+
+															if (channelInfo)
+																hr
+																
+																- var card_node_pubkey = channelInfo.node1_pub;
+																if (card_node_pubkey == lndRpc.internal_pubkey)
+																	- card_node_pubkey = channelInfo.node2_pub;
+
+																+nodeCard(card_node_pubkey)
+
+														td.text-end #{channelForwardingInfo.eventCount.toLocaleString()}
+														
+														td.text-end
+															+btcValue(channelForwardingInfo.totalValueTransferred)
+
+								
 
 
 		else
