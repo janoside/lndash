@@ -292,14 +292,14 @@ mixin netAddress(address, network)
 	- let port = "";
 
 	if (addr.includes(":"))
-		- port = addr.substring(addr.indexOf(":") + 1);
-		- addr = addr.substring(0, addr.indexOf(":"));
+		- port = addr.substring(addr.lastIndexOf(":") + 1);
+		- addr = addr.substring(0, addr.lastIndexOf(":"));
 		
 	if (addr.includes(".onion"))
 		span.border-dotted(title=`${network != null ? (network + " ") : ""}${address}`, data-bs-toggle="tooltip") #{utils.ellipsizeMiddle(addr.substring(0, addr.indexOf(".onion")), 10)}#{addr.substring(addr.indexOf(".onion"))}
 
 	else if (address.length > config.site.addressMaxDisplayLength)
-		span.border-dotted(title=`${network != null ? (network + " ") : ""}${address}`, data-bs-toggle="tooltip") #{utils.ellipsizeMiddle(address, config.site.addressMaxDisplayLength)}
+		span.border-dotted(title=`${network != null ? (network + " ") : ""}${address}`, data-bs-toggle="tooltip") #{utils.ellipsizeMiddle(addr, config.site.addressMaxDisplayLength)}
 
 	else
 		if (network)
