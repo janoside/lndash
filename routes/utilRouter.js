@@ -1,22 +1,23 @@
-var debug = require("debug");
-var debugLog = debug("lndash:router");
+const debug = require("debug");
+const debugLog = debug("lndash:router");
 
 const hashjs = require('hash.js');
 
-var express = require('express');
-var router = express.Router();
-var util = require('util');
-var moment = require('moment');
-var utils = require('./../app/utils');
-var rpcApi = require("./../app/rpcApi.js");
-var qrcode = require('qrcode');
-var fs = require("fs");
-var qrImage = require('qr-image');
-var untildify = require("untildify");
+const express = require('express');
+const router = express.Router();
+const util = require('util');
+const moment = require('moment');
+const utils = require('./../app/utils');
+const rpcApi = require("./../app/rpcApi.js");
+const qrcode = require('qrcode');
+const fs = require("fs");
+const qrImage = require('qr-image');
+const untildify = require("untildify");
 
 
 router.get("/qrcode", function(req, res) {
-	var results = [];
+	let results = [];
+	
 	utils.buildQrCodeUrl(req.query.data, results).then(function(url) {
 		res.redirect(req.headers.referer);
 		

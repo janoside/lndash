@@ -1,18 +1,18 @@
 const hashjs = require('hash.js');
 
-var os = require('os');
-var path = require('path');
-var url = require('url');
+const os = require('os');
+const path = require('path');
+const url = require('url');
 
 
-var rpcConfigs = [];
+let rpcConfigs = [];
 
 if (process.env.LND_ADMIN_NODE_COUNT) {
-	for (var i = 1; i <= parseInt(process.env.LND_ADMIN_NODE_COUNT); i++) {
-		var host = process.env["LND_ADMIN_RPC_HOST_" + i] || "127.0.0.1";
-		var port = process.env["LND_ADMIN_RPC_PORT_" + i] || 10009;
-		var adminMacaroonFilepath = process.env["LND_ADMIN_MACAROON_FILEPATH_" + i] || path.join(os.homedir(), '.lnd', 'admin.macaroon');
-		var tlsCertFilepath = process.env["LND_ADMIN_TLS_CERT_FILEPATH_" + i] || path.join(os.homedir(), '.lnd', 'tls.cert');
+	for (let i = 1; i <= parseInt(process.env.LND_ADMIN_NODE_COUNT); i++) {
+		let host = process.env["LND_ADMIN_RPC_HOST_" + i] || "127.0.0.1";
+		let port = process.env["LND_ADMIN_RPC_PORT_" + i] || 10009;
+		let adminMacaroonFilepath = process.env["LND_ADMIN_MACAROON_FILEPATH_" + i] || path.join(os.homedir(), '.lnd', 'admin.macaroon');
+		let tlsCertFilepath = process.env["LND_ADMIN_TLS_CERT_FILEPATH_" + i] || path.join(os.homedir(), '.lnd', 'tls.cert');
 
 		rpcConfigs.push({host:host, port:port, adminMacaroonFilepath:adminMacaroonFilepath, tlsCertFilepath:tlsCertFilepath});
 	}

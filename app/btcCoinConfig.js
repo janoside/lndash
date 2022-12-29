@@ -1,7 +1,7 @@
-var Decimal = require("decimal.js");
+const Decimal = require("decimal.js");
 Decimal8 = Decimal.clone({ precision:8, rounding:8 });
 
-var currencyUnits = [
+const currencyUnits = [
 	{
 		type:"native",
 		name:"BTC",
@@ -234,12 +234,12 @@ module.exports = {
 		responseBodySelectorFunction:function(responseBody) {
 			//console.log("Exchange Rate Response: " + JSON.stringify(responseBody));
 
-			var exchangedCurrencies = ["USD", "GBP", "EUR"];
+			let exchangedCurrencies = ["USD", "GBP", "EUR"];
 
 			if (responseBody.bpi) {
-				var exchangeRates = {};
+				let exchangeRates = {};
 
-				for (var i = 0; i < exchangedCurrencies.length; i++) {
+				for (let i = 0; i < exchangedCurrencies.length; i++) {
 					if (responseBody.bpi[exchangedCurrencies[i]]) {
 						exchangeRates[exchangedCurrencies[i].toLowerCase()] = responseBody.bpi[exchangedCurrencies[i]].rate_float;
 					}
@@ -252,13 +252,13 @@ module.exports = {
 		}
 	},
 	blockRewardFunction:function(blockHeight) {
-		var eras = [ new Decimal8(50) ];
-		for (var i = 1; i < 34; i++) {
-			var previous = eras[i - 1];
+		let eras = [ new Decimal8(50) ];
+		for (let i = 1; i < 34; i++) {
+			let previous = eras[i - 1];
 			eras.push(new Decimal8(previous).dividedBy(2));
 		}
 
-		var index = Math.floor(blockHeight / 210000);
+		let index = Math.floor(blockHeight / 210000);
 
 		return eras[index];
 	}

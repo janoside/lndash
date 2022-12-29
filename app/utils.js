@@ -1,22 +1,22 @@
-var debug = require("debug");
-var debugLog = debug("lndash:utils");
-var debugLogError = debug("lndash:error");
+const debug = require("debug");
+const debugLog = debug("lndash:utils");
+const debugLogError = debug("lndash:error");
 
-var Decimal = require("decimal.js");
-var qrcode = require("qrcode");
-var CryptoJS = require("crypto-js");
-var fs = require("fs");
-var url = require("url");
-var base64url = require('base64url');
-var path = require('path');
-var axios = require("axios");
+const Decimal = require("decimal.js");
+const qrcode = require("qrcode");
+const CryptoJS = require("crypto-js");
+const fs = require("fs");
+const url = require("url");
+const base64url = require('base64url');
+const path = require('path');
+const axios = require("axios");
 
-var config = require("./config.js");
-var coinConfig = require("./btcCoinConfig.js");
+const config = require("./config.js");
+const coinConfig = require("./btcCoinConfig.js");
 
-var ipCache = {};
+let ipCache = {};
 
-var exponentScales = [
+const exponentScales = [
 	{val:1000000000000000000000000000000000, name:"?", abbreviation:"V", exponent:"33"},
 	{val:1000000000000000000000000000000, name:"?", abbreviation:"W", exponent:"30"},
 	{val:1000000000000000000000000000, name:"?", abbreviation:"X", exponent:"27"},
@@ -31,8 +31,8 @@ var exponentScales = [
 ];
 
 function hex2ascii(hex) {
-	var str = "";
-	for (var i = 0; i < hex.length; i += 2) {
+	let str = "";
+	for (let i = 0; i < hex.length; i += 2) {
 		str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
 	}
 	
@@ -40,10 +40,10 @@ function hex2ascii(hex) {
 }
 
 function splitArrayIntoChunks(array, chunkSize) {
-	var j = array.length;
-	var chunks = [];
+	let j = array.length;
+	let chunks = [];
 	
-	for (var i = 0; i < j; i += chunkSize) {
+	for (let i = 0; i < j; i += chunkSize) {
 		chunks.push(array.slice(i, i + chunkSize));
 	}
 
@@ -51,7 +51,7 @@ function splitArrayIntoChunks(array, chunkSize) {
 }
 
 function getRandomString(length, chars) {
-    var mask = '';
+    let mask = '';
 	
     if (chars.indexOf('a') > -1) {
 		mask += 'abcdefghijklmnopqrstuvwxyz';
@@ -69,23 +69,23 @@ function getRandomString(length, chars) {
 		mask += '~`!@#$%^&*()_+-={}[]:";\'<>?,./|\\';
 	}
 	
-    var result = '';
-    for (var i = length; i > 0; --i) {
+    let result = '';
+    for (let i = length; i > 0; --i) {
 		result += mask[Math.floor(Math.random() * mask.length)];
 	}
 	
 	return result;
 }
 
-var formatCurrencyCache = {};
+let formatCurrencyCache = {};
 
 function getCurrencyFormatInfo(formatType) {
 	if (formatCurrencyCache[formatType] == null) {
-		for (var x = 0; x < coinConfig.currencyUnits.length; x++) {
-			var currencyUnit = coinConfig.currencyUnits[x];
+		for (let x = 0; x < coinConfig.currencyUnits.length; x++) {
+			let currencyUnit = coinConfig.currencyUnits[x];
 
-			for (var y = 0; y < currencyUnit.values.length; y++) {
-				var currencyUnitValue = currencyUnit.values[y];
+			for (let y = 0; y < currencyUnit.values.length; y++) {
+				let currencyUnitValue = currencyUnit.values[y];
 
 				if (currencyUnitValue == formatType) {
 					formatCurrencyCache[formatType] = currencyUnit;
@@ -102,11 +102,12 @@ function getCurrencyFormatInfo(formatType) {
 }
 
 function formatCurrencyAmountWithForcedDecimalPlaces(amount, formatType, forcedDecimalPlaces) {
-	var formatInfo = getCurrencyFormatInfo(formatType);
-	if (formatInfo != null) {
-		var dec = new Decimal(amount);
+	let formatInfo = getCurrencyFormatInfo(formatType);
 
-		var decimalPlaces = formatInfo.decimalPlaces;
+	if (formatInfo != null) {
+		let dec = new Decimal(amount);
+
+		let decimalPlaces = formatInfo.decimalPlaces;
 		//if (decimalPlaces == 0 && dec < 1) {
 		//	decimalPlaces = 5;
 		//}
@@ -142,7 +143,7 @@ function formatCurrencyAmountInSmallestUnits(amount, forcedDecimalPlaces) {
 
 // ref: https://stackoverflow.com/a/2901298/673828
 function addThousandsSeparators(x) {
-	var parts = x.toString().split(".");
+	let parts = x.toString().split(".");
 	parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
 	return parts.join(".");
@@ -150,7 +151,7 @@ function addThousandsSeparators(x) {
 
 function formatExchangedCurrency(amount, exchangeType) {
 	if (global.exchangeRates != null && global.exchangeRates[exchangeType.toLowerCase()] != null) {
-		var dec = new Decimal(amount);
+		let dec = new Decimal(amount);
 		dec = dec.times(global.exchangeRates[exchangeType.toLowerCase()]);
 
 		return "$" + addThousandsSeparators(dec.toDecimalPlaces(2));
@@ -160,20 +161,20 @@ function formatExchangedCurrency(amount, exchangeType) {
 }
 
 function seededRandom(seed) {
-    var x = Math.sin(seed++) * 10000;
+    let x = Math.sin(seed++) * 10000;
     return x - Math.floor(x);
 }
 
 function seededRandomIntBetween(seed, min, max) {
-	var rand = seededRandom(seed);
+	let rand = seededRandom(seed);
 	return (min + (max - min) * rand);
 }
 
 function logMemoryUsage() {
-	var mbUsed = process.memoryUsage().heapUsed / 1024 / 1024;
+	let mbUsed = process.memoryUsage().heapUsed / 1024 / 1024;
 	mbUsed = Math.round(mbUsed * 100) / 100;
 
-	var mbTotal = process.memoryUsage().heapTotal / 1024 / 1024;
+	let mbTotal = process.memoryUsage().heapTotal / 1024 / 1024;
 	mbTotal = Math.round(mbTotal * 100) / 100;
 
 	//debugLog("memoryUsage: heapUsed=" + mbUsed + ", heapTotal=" + mbTotal + ", ratio=" + parseInt(mbUsed / mbTotal * 100));
@@ -185,14 +186,14 @@ function getMinerFromCoinbaseTx(tx) {
 	}
 	
 	if (global.miningPoolsConfigs) {
-		for (var i = 0; i < global.miningPoolsConfigs.length; i++) {
-			var miningPoolsConfig = global.miningPoolsConfigs[i];
+		for (let i = 0; i < global.miningPoolsConfigs.length; i++) {
+			let miningPoolsConfig = global.miningPoolsConfigs[i];
 
-			for (var payoutAddress in miningPoolsConfig.payout_addresses) {
+			for (let payoutAddress in miningPoolsConfig.payout_addresses) {
 				if (miningPoolsConfig.payout_addresses.hasOwnProperty(payoutAddress)) {
 					if (tx.vout && tx.vout.length > 0 && tx.vout[0].scriptPubKey && tx.vout[0].scriptPubKey.addresses && tx.vout[0].scriptPubKey.addresses.length > 0) {
 						if (tx.vout[0].scriptPubKey.addresses[0] == payoutAddress) {
-							var minerInfo = miningPoolsConfig.payout_addresses[payoutAddress];
+							let minerInfo = miningPoolsConfig.payout_addresses[payoutAddress];
 							minerInfo.identifiedBy = "payout address " + payoutAddress;
 
 							return minerInfo;
@@ -201,10 +202,10 @@ function getMinerFromCoinbaseTx(tx) {
 				}
 			}
 
-			for (var coinbaseTag in miningPoolsConfig.coinbase_tags) {
+			for (let coinbaseTag in miningPoolsConfig.coinbase_tags) {
 				if (miningPoolsConfig.coinbase_tags.hasOwnProperty(coinbaseTag)) {
 					if (hex2ascii(tx.vin[0].coinbase).indexOf(coinbaseTag) != -1) {
-						var minerInfo = miningPoolsConfig.coinbase_tags[coinbaseTag];
+						let minerInfo = miningPoolsConfig.coinbase_tags[coinbaseTag];
 						minerInfo.identifiedBy = "coinbase tag '" + coinbaseTag + "'";
 
 						return minerInfo;
@@ -218,20 +219,20 @@ function getMinerFromCoinbaseTx(tx) {
 }
 
 function getTxTotalInputOutputValues(tx, txInputs, blockHeight) {
-	var totalInputValue = new Decimal(0);
-	var totalOutputValue = new Decimal(0);
+	let totalInputValue = new Decimal(0);
+	let totalOutputValue = new Decimal(0);
 
 	try {
-		for (var i = 0; i < tx.vin.length; i++) {
+		for (let i = 0; i < tx.vin.length; i++) {
 			if (tx.vin[i].coinbase) {
 				totalInputValue = totalInputValue.plus(new Decimal(coinConfig.blockRewardFunction(blockHeight)));
 
 			} else {
-				var txInput = txInputs[i];
+				let txInput = txInputs[i];
 
 				if (txInput) {
 					try {
-						var vout = txInput.vout[tx.vin[i].vout];
+						let vout = txInput.vout[tx.vin[i].vout];
 						if (vout.value) {
 							totalInputValue = totalInputValue.plus(new Decimal(vout.value));
 						}
@@ -242,7 +243,7 @@ function getTxTotalInputOutputValues(tx, txInputs, blockHeight) {
 			}
 		}
 		
-		for (var i = 0; i < tx.vout.length; i++) {
+		for (let i = 0; i < tx.vout.length; i++) {
 			totalOutputValue = totalOutputValue.plus(new Decimal(tx.vout[i].value));
 		}
 	} catch (err) {
@@ -257,11 +258,11 @@ function getBlockTotalFeesFromCoinbaseTxAndBlockHeight(coinbaseTx, blockHeight) 
 		return 0;
 	}
 
-	var blockReward = coinConfig.blockRewardFunction(blockHeight);
+	let blockReward = coinConfig.blockRewardFunction(blockHeight);
 
-	var totalOutput = new Decimal(0);
-	for (var i = 0; i < coinbaseTx.vout.length; i++) {
-		var outputValue = coinbaseTx.vout[i].value;
+	let totalOutput = new Decimal(0);
+	for (let i = 0; i < coinbaseTx.vout.length; i++) {
+		let outputValue = coinbaseTx.vout[i].value;
 		if (outputValue > 0) {
 			totalOutput = totalOutput.plus(new Decimal(outputValue));
 		}
@@ -275,7 +276,7 @@ async function refreshExchangeRates() {
 		try {
 			const response = await axios.get(coinConfig.exchangeRateData.jsonUrl);
 			
-			var exchangeRates = coinConfig.exchangeRateData.responseBodySelectorFunction(response.data);
+			let exchangeRates = coinConfig.exchangeRateData.responseBodySelectorFunction(response.data);
 			if (exchangeRates != null) {
 				global.exchangeRates = exchangeRates;
 				global.exchangeRatesUpdateTime = new Date();
@@ -295,12 +296,12 @@ async function refreshExchangeRates() {
 // Uses IPStack.com API
 async function geoLocateIpAddresses(ipAddresses) {
 	return new Promise(function(resolve, reject) {
-		var chunks = splitArrayIntoChunks(ipAddresses, 1);
+		let chunks = splitArrayIntoChunks(ipAddresses, 1);
 
-		var promises = [];
-		for (var i = 0; i < chunks.length; i++) {
-			var ipStr = "";
-			for (var j = 0; j < chunks[i].length; j++) {
+		let promises = [];
+		for (let i = 0; i < chunks.length; i++) {
+			let ipStr = "";
+			for (let j = 0; j < chunks[i].length; j++) {
 				if (j > 0) {
 					ipStr = ipStr + ",";
 				}
@@ -314,7 +315,7 @@ async function geoLocateIpAddresses(ipAddresses) {
 				}));
 
 			} else if (config.credentials.ipStackComApiAccessKey && config.credentials.ipStackComApiAccessKey.trim().length > 0) {
-				var apiUrl = "http://api.ipstack.com/" + ipStr + "?access_key=" + config.credentials.ipStackComApiAccessKey;
+				let apiUrl = "http://api.ipstack.com/" + ipStr + "?access_key=" + config.credentials.ipStackComApiAccessKey;
 				
 				promises.push(new Promise(async function(resolve2, reject2) {
 					try {
@@ -336,13 +337,13 @@ async function geoLocateIpAddresses(ipAddresses) {
 		}
 
 		Promise.all(promises).then(function(results) {
-			var ipDetails = {ips:[], detailsByIp:{}};
+			let ipDetails = {ips:[], detailsByIp:{}};
 
-			for (var i = 0; i < results.length; i++) {
-				var res = results[i];
+			for (let i = 0; i < results.length; i++) {
+				let res = results[i];
 				if (res != null && res["statusCode"] == 200) {
-					var resBody = JSON.parse(res["body"]);
-					var ip = resBody["ip"];
+					let resBody = JSON.parse(res["body"]);
+					let ip = resBody["ip"];
 
 					ipDetails.ips.push(ip);
 					ipDetails.detailsByIp[ip] = resBody;
@@ -359,17 +360,17 @@ async function geoLocateIpAddresses(ipAddresses) {
 }
 
 function parseExponentStringDouble(val) {
-	var [lead,decimal,pow] = val.toString().split(/e|\./);
+	let [lead,decimal,pow] = val.toString().split(/e|\./);
 	return +pow <= 0 
 		? "0." + "0".repeat(Math.abs(pow)-1) + lead + decimal
 		: lead + ( +pow >= decimal.length ? (decimal + "0".repeat(+pow-decimal.length)) : (decimal.slice(0,+pow)+"."+decimal.slice(+pow)));
 }
 
 function formatLargeNumber(n, decimalPlaces) {
-	for (var i = 0; i < exponentScales.length; i++) {
-		var item = exponentScales[i];
+	for (let i = 0; i < exponentScales.length; i++) {
+		let item = exponentScales[i];
 
-		var fraction = new Decimal(n / item.val);
+		let fraction = new Decimal(n / item.val);
 		if (fraction >= 1) {
 			return [fraction.toDecimalPlaces(decimalPlaces), item];
 		}
@@ -380,13 +381,13 @@ function formatLargeNumber(n, decimalPlaces) {
 
 function rgbToHsl(r, g, b) {
     r /= 255, g /= 255, b /= 255;
-    var max = Math.max(r, g, b), min = Math.min(r, g, b);
-    var h, s, l = (max + min) / 2;
+    let max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
 
     if(max == min){
         h = s = 0; // achromatic
     }else{
-        var d = max - min;
+        let d = max - min;
         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
         switch(max){
             case r: h = (g - b) / d + (g < b ? 6 : 0); break;
@@ -401,12 +402,12 @@ function rgbToHsl(r, g, b) {
 
 function colorHexToRgb(hex) {
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
     hex = hex.replace(shorthandRegex, function(m, r, g, b) {
         return r + r + g + g + b + b;
     });
 
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
         r: parseInt(result[1], 16),
         g: parseInt(result[2], 16),
@@ -419,7 +420,7 @@ const reflectPromise = p => p.then(v => ({v, status: "resolved" }),
                             e => ({e, status: "rejected" }));
 
 function colorHexToHsl(hex) {
-	var rgb = colorHexToRgb(hex);
+	let rgb = colorHexToRgb(hex);
 	return rgbToHsl(rgb.r, rgb.g, rgb.b);
 }
 
@@ -448,7 +449,7 @@ function logError(errorId, err, optionalUserData = null) {
 		debugLogError("Stack: " + err.stack);
 	}
 
-	var returnVal = {errorId:errorId, error:err};
+	let returnVal = {errorId:errorId, error:err};
 	if (optionalUserData) {
 		returnVal.userData = optionalUserData;
 	}
@@ -458,10 +459,10 @@ function logError(errorId, err, optionalUserData = null) {
 
 function buildQrCodeUrls(strings) {
 	return new Promise(function(resolve, reject) {
-		var promises = [];
-		var qrcodeUrls = {};
+		let promises = [];
+		let qrcodeUrls = {};
 
-		for (var i = 0; i < strings.length; i++) {
+		for (let i = 0; i < strings.length; i++) {
 			promises.push(new Promise(function(resolve2, reject2) {
 				buildQrCodeUrl(strings[i], qrcodeUrls).then(function() {
 					resolve2();
@@ -500,7 +501,7 @@ function buildQrCodeUrl(str, results) {
 }
 
 function saveAdminCredentials(encPassword) {
-	var enc = JSON.parse(JSON.stringify(global.adminCredentials));
+	let enc = JSON.parse(JSON.stringify(global.adminCredentials));
 
 	if (enc.lndNodes) {
 		enc.lndNodesData = formatBuffer(global.encryptor.encrypt(JSON.stringify(enc.lndNodes)), "base64");
@@ -512,8 +513,8 @@ function saveAdminCredentials(encPassword) {
 }
 
 function loadAdminCredentials(encPassword) {
-	var credentialsData = fs.readFileSync(path.join(global.userDataDir, "credentials.json"), "utf8");
-	var adminCredentials = JSON.parse(credentialsData);
+	let credentialsData = fs.readFileSync(path.join(global.userDataDir, "credentials.json"), "utf8");
+	let adminCredentials = JSON.parse(credentialsData);
 
 	if (encPassword) {
 		if (adminCredentials.lndNodesData != null) {
@@ -531,7 +532,7 @@ function savePreferences(preferences, encPassword) {
 
 function loadPreferences(encPassword) {
 	if (fs.existsSync(path.join(global.userDataDir, "preferences.json"))) {
-		var preferencesData = fs.readFileSync(path.join(global.userDataDir, "preferences.json"), "utf8");
+		let preferencesData = fs.readFileSync(path.join(global.userDataDir, "preferences.json"), "utf8");
 
 		return JSON.parse(preferencesData);
 
@@ -552,16 +553,16 @@ function chunkString(str, maxChunkSize) {
 }
 
 function parseLndconnectString(lndconnectString) {
-	var parsedUrl = url.parse(lndconnectString, true);
+	let parsedUrl = url.parse(lndconnectString, true);
 
-	var tlsCertAscii = "-----BEGIN CERTIFICATE-----\r\n";
+	let tlsCertAscii = "-----BEGIN CERTIFICATE-----\r\n";
 	tlsCertAscii += chunkString(base64url.toBase64(parsedUrl.query.cert), 64).join("\r\n");
 	tlsCertAscii += "\r\n-----END CERTIFICATE-----";
 
-	var adminMacaroonHex = base64url.toBase64(parsedUrl.query.macaroon);
+	let adminMacaroonHex = base64url.toBase64(parsedUrl.query.macaroon);
 	adminMacaroonHex = Buffer.from(adminMacaroonHex, 'base64').toString('hex');
 
-	var parsedData = {
+	let parsedData = {
 		host:parsedUrl.hostname,
 		port:parsedUrl.port,
 		tlsCertAscii:tlsCertAscii,
@@ -572,7 +573,7 @@ function parseLndconnectString(lndconnectString) {
 }
 
 function formatLndconnectString(lndconnectData) {
-	var certLines = lndconnectData.tlsCertAscii.split(/\n/);
+	let certLines = lndconnectData.tlsCertAscii.split(/\n/);
 	
 	// remove line breaks
 	certLines = certLines.filter(line => line != "");
@@ -583,8 +584,8 @@ function formatLndconnectString(lndconnectData) {
 	// remove ---END--- line
 	certLines.shift();
 
-	var cert = base64url.fromBase64(certLines.join(''));
-	var macaroon = base64url(Buffer.from(lndconnectData.adminMacaroonHex, 'hex'));
+	let cert = base64url.fromBase64(certLines.join(''));
+	let macaroon = base64url(Buffer.from(lndconnectData.adminMacaroonHex, 'hex'));
 
 	return `lndconnect://${lndconnectData.host}:${lndconnectData.port}?cert=${cert}&macaroon=${macaroon}`;
 }
@@ -598,7 +599,7 @@ function binaryToDecimal(dec){
 }
 
 function parseChannelId(channelId) {
-	var channelIdBinary = decimalToBinary(channelId).padStart(64, "0");
+	let channelIdBinary = decimalToBinary(channelId).padStart(64, "0");
 
 	return {
 		blockHeight: parseInt(binaryToDecimal(channelIdBinary.substring(0, 24))),
@@ -643,8 +644,8 @@ function iterateProperties(obj, action) {
 }
 
 function stringifySimple(object) {
-	var simpleObject = {};
-	for (var prop in object) {
+	let simpleObject = {};
+	for (let prop in object) {
 			if (!object.hasOwnProperty(prop)) {
 					continue;
 			}
