@@ -46,10 +46,9 @@ block content
 					each lndNodeConfig, lndNodeIndex in global.adminCredentials.lndNodes
 						- var lndNodeDetails = lndNodeConfig;
 						
-						+modal(`lndNodeDetailsModal-${lndNodeIndex}`, `LND Node #${(lndNodeIndex + 1).toLocaleString()}`)
-							pre
-								code.json #{JSON.stringify(lndNodeDetails, null, 4)}
+						include includes/node-connection-details-modal.pug
 
+						
 					.table-responsive
 						table.table.table-striped
 							thead
