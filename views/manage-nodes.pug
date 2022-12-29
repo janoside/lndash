@@ -48,7 +48,7 @@ block content
 						
 						include includes/node-connection-details-modal.pug
 
-						
+
 					.table-responsive
 						table.table.table-striped
 							thead
@@ -146,14 +146,14 @@ block content
 								span.me-2 Admin Macaroon (hex)
 								i.fas.fa-asterisk.text-danger(title="Required if using Raw Text Input" data-bs-toggle="tooltip")
 
-							textarea.form-control(id="adminMacaroonHex" name="adminMacaroonHex") #{adminMacaroonHex}
+							textarea.form-control.fs-80.font-monospace(id="adminMacaroonHex" name="adminMacaroonHex", rows="4") #{adminMacaroonHex}
 
 						.mb-3
 							label.form-label(for="tlsCertAscii")
 								span.me-2 TLS Certificate (ascii)
 								i.fas.fa-asterisk.text-danger(title="Required if using Raw Text Input" data-bs-toggle="tooltip")
 
-							textarea.form-control(id="tlsCertAscii" name="tlsCertAscii") #{tlsCertAscii}
+							textarea.form-control.fs-80.font-monospace(id="tlsCertAscii" name="tlsCertAscii", rows="12") #{tlsCertAscii}
 
 						button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add Node
 

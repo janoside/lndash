@@ -4,7 +4,7 @@
 
 if (!lndRpc)
 	if (setupNeeded)
-		- menuSections.push({title:null, items: [{url:"/", text:"Setup", icon:"fa-cog"}]});
+		- menuSections.push({title:null, items: [{url:"/", text:"Setup", icon:"fa-cog", otherUrls:["/setup", "/manage-nodes"]}]});
 
 	else
 		- menuSections.push({title:null, items: [{url:"/login", text:"Login", icon:"fa-sign-in-alt"}]});
@@ -79,7 +79,7 @@ each menuSection in menuSections
 		each menuItem in menuSection.items
 			if (menuItem.url && menuItem.text)
 				li.nav-item.rounded
-					a.nav-link.p-2.ps-3.py-2(href=menuItem.url, class=(req.path == menuItem.url ? "active text-white" : "text-body"))
+					a.nav-link.p-2.ps-3.py-2(href=menuItem.url, class=((req.path == menuItem.url || (menuItem.otherUrls && menuItem.otherUrls.includes(req.path))) ? "active text-white" : "text-body"))
 						if (menuItem.icon)
 							i.me-2(class=menuItem.icon)
 
