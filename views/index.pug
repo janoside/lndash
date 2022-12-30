@@ -95,16 +95,16 @@ block content
 
 								.text-end
 									i.fas.fa-circle.text-warning.me-2
-									span.border-dotted(title="Total spendable balance of all of your channels.", data-bs-toggle="tooltip") Lightning
+									span.border-dotted(title="Total (spendable/local) balance of all of your channels.", data-bs-toggle="tooltip") Lightning
 
 
 							.d-flex.justify-content-between.mb-3
 								.text-start
-									span.badge.text-bg-success.fs-80(title=`On-chain balance: ${walletBalance.confirmed_balance}%`, data-bs-toggle="tooltip")
+									span.badge.text-bg-success.fs-80
 										+btcValue(walletBalance.confirmed_balance)
 								
 								.text-end
-									span.badge.text-bg-warning.fs-80(title=`Lightning balance: ${totalLocalBalance.toDP(1)}%`, data-bs-toggle="tooltip")
+									span.badge.text-bg-warning.fs-80
 										+btcValue(totalLocalBalance)
 
 
