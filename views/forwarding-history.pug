@@ -29,8 +29,8 @@ block content
 
 		
 		if (forwardingHistoryResponse.forwarding_events && forwardingHistoryResponse.forwarding_events.length > 0)
-			ul.nav.nav-tabs
-				li.nav-item
+			ul.nav.nav-tabs#page-tabs
+				li.nav-item.ms-3
 					a.nav-link(href=`/forwarding-history?sort=${sort}&tab=summary&daterange=${daterange}&limit=${limit}` class=(tab == "summary" ? "active" : false)) Summary
 				li.nav-item
 					a.nav-link(href=`/forwarding-history?sort=${sort}&tab=events&daterange=${daterange}&limit=${limit}` class=(tab == "events" ? "active" : false)) Events

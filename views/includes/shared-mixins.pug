@@ -398,7 +398,7 @@ mixin pageTabs(names, bottomGradient=true)
 		each name, nameIndex in names
 			- let normalizedName = name.replaceAll(" ", "-").replaceAll(/[^a-zA-Z\d\s]/g, "");
 
-			li.nav-item.page-tab(style=(nameIndex == 0 ? "margin-left: 10px;" : false))
+			li.nav-item.page-tab(class=(nameIndex == 0 ? "ms-3" : false))
 				a.nav-link(class=(nameIndex == 0 ? "active" : false), data-bs-toggle="tab", data-default-tab=(nameIndex == 0 ? "true" : false) href=`#${normalizedName}`, role="tab") #{name}
 
 	if (bottomGradient)
