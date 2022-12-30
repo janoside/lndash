@@ -71,7 +71,7 @@ block content
 						+summaryItem(nodeInfo.node.addresses.length == 1 ? "Address" : "Addresses")
 							if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
 								each addressItem in nodeInfo.node.addresses
-									+netAddress(addressItem.addr, addressItem.network)
+									+netAddress(addressItem.addr, addressItem.network, true)
 									
 									br
 							else

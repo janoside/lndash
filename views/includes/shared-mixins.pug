@@ -292,7 +292,7 @@ mixin channelPoint(txid, outputIndex, blockHeight)
 		| )
 
 
-mixin netAddress(address, network)
+mixin netAddress(address, network, copyButton=false)
 	- let addr = address;
 	- let port = "";
 
@@ -315,6 +315,9 @@ mixin netAddress(address, network)
 
 	if (port && port.length > 0)
 		span.text-tiny :#{port}
+
+	if (copyButton)
+		+copyTextButton(address)
 
 
 mixin date(timestamp, formatType="human", includeAgo=false)
