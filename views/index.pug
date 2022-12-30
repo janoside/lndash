@@ -88,24 +88,33 @@ block content
 
 
 						if (totalLocalBalance != null)
-							.d-flex.justify-content-between.fs-90.mb-2
+							.d-flex.justify-content-between.fs-90.mb-3
 								.text-start
-									i.fas.fa-circle.text-success.me-2
-									span.border-dotted(title="Confirmed, on-chain wallet balance.", data-bs-toggle="tooltip") On-Chain
+									.mb-2
+										i.fas.fa-circle.text-success.me-2
+										span.border-dotted(title="Confirmed, on-chain wallet balance.", data-bs-toggle="tooltip") On-Chain
 
-								.text-end
-									i.fas.fa-circle.text-warning.me-2
-									span.border-dotted(title="Total (spendable/local) balance of all of your channels.", data-bs-toggle="tooltip") Lightning
+										if (walletBalance.confirmed_balance > 0)
+											span.text-muted.fs-80.ms-1
+												| (
+												span.text-info.border-dotted(title="Unconfirmed wallet balance", data-bs-toggle="tooltip") unconfirmed
+												| )
 
-
-							.d-flex.justify-content-between.mb-3
-								.text-start
 									span.badge.text-bg-success.fs-80
 										+btcValue(walletBalance.confirmed_balance)
-								
+
+									if (walletBalance.confirmed_balance > 0)
+										span.badge.text-bg-info.fs-80.ms-2
+											+btcValue(walletBalance.confirmed_balance)
+
 								.text-end
+									.mb-2
+										i.fas.fa-circle.text-warning.me-2
+										span.border-dotted(title="Total (spendable/local) balance of all of your channels.", data-bs-toggle="tooltip") Lightning
+
 									span.badge.text-bg-warning.fs-80
 										+btcValue(totalLocalBalance)
+									
 
 
 							+progressBar([new Decimal(walletBalance.confirmed_balance), new Decimal(walletBalance.unconfirmed_balance), new Decimal(totalLocalBalance)], ["text-bg-success", "text-bg-info", "text-bg-warning"])
