@@ -12,8 +12,8 @@ block breadcrumb
 block content
 
 	if (!session.admin)
-		h1.h3 Invoices
-		hr
+		+pageTitle("Invoices")
+		
 
 		- var loginRequiredNote = "display details about this node's invoices.";
 		include includes/login-required-alert.pug

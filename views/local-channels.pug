@@ -11,8 +11,8 @@ block breadcrumb
 	
 block content
 	if (!session.admin)
-		h1.h3 My Channels
-		hr
+		+pageTitle("My Channels")
+		
 
 		- var loginRequiredNote = "display details about this node's channels.";
 		include includes/login-required-alert.pug
