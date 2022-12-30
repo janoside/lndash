@@ -94,7 +94,7 @@ block content
 										i.fas.fa-circle.text-success.me-2
 										span.border-dotted(title="Confirmed, on-chain wallet balance.", data-bs-toggle="tooltip") On-Chain
 
-										if (walletBalance.confirmed_balance > 0)
+										if (walletBalance.unconfirmed_balance > 0)
 											span.text-muted.fs-80.ms-1
 												| (
 												span.text-info.border-dotted(title="Unconfirmed wallet balance", data-bs-toggle="tooltip") unconfirmed
@@ -103,9 +103,9 @@ block content
 									span.badge.text-bg-success.fs-80
 										+btcValue(walletBalance.confirmed_balance)
 
-									if (walletBalance.confirmed_balance > 0)
+									if (walletBalance.unconfirmed_balance > 0)
 										span.badge.text-bg-info.fs-80.ms-2
-											+btcValue(walletBalance.confirmed_balance)
+											+btcValue(walletBalance.unconfirmed_balance)
 
 								.text-end
 									.mb-2
