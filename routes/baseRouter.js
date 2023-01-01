@@ -1041,27 +1041,29 @@ router.get("/changeSetting", function(req, res) {
 	res.redirect(req.headers.referer);
 });
 
-router.get("/connect-lnd", function(req, res) {
+router.get("/connect-lnd", asyncHandler(async (req, res) => {
 	if (req.query.index) {
 		var lndIndex = parseInt(req.query.index);
 
 		if (lndIndex != global.lndRpc.internal_index) {
 			global.lndRpc = global.lndConnections.byIndex[lndIndex];
 
-			rpcApi.refreshCachedValues(true).then(function() {
+			try {
+				await rpcApi.refreshCachedValues(true);
+
 				req.session.userMessage = `Switched to LND ${global.lndRpc.internal_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)} ('${global.lndRpc.internal_alias}')`;
 				req.session.userMessageType = "success";
 
 				res.redirect(req.headers.referer);
 
-			}).catch(function(err) {
+			} catch (err) {
 				res.locals.pageErrors.push(utils.logError("230uhfwequfghewfuew", err));
 
 				req.session.userMessage = `Error switching to LND ${JSON.stringify(global.lndRpc)}`;
 				req.session.userMessageType = "danger";
 
 				res.redirect(req.headers.referer);
-			});
+			}
 		} else {
 			req.session.userMessage = `Already connected to LND ${global.lndRpc.internal_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)} ('${global.lndRpc.internal_alias}')`;
 

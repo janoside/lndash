@@ -10,7 +10,7 @@ if (global.adminCredentials && global.adminCredentials.lndNodes)
 
 
 						if (fullNetworkDescription)
-							a.dropdown-item.rounded-0.px-2.py-2.fs-75(href=`/connect-lnd?index=${lndNodeIndex}`)
+							a.dropdown-item.rounded-0.px-2.py-2.fs-75(href=`/connect-lnd?index=${lndNodeIndex}`, onclick=`$('#switchNodeModal').show()`)
 								.d-flex.justify-content-between
 									.d-flex.justify-content-start
 										.me-1
@@ -32,7 +32,7 @@ if (global.adminCredentials && global.adminCredentials.lndNodes)
 
 if (global.adminCredentials && global.adminCredentials.lndNodes)
 	.d-flex.justify-content-start
-		+menuHeading("Current Node", `The node that LNDash is currently connected to. Click the node to select another node.`)
+		+menuHeading("Current Node", `The node that LNDash is currently connected to. Click it to select another node.`)
 		.ms-3
 			a(href="/manage-nodes", title="Manage connected nodes", data-bs-toggle="tooltip")
 				i.fas.fa-pen-to-square.text-body.align-top
