@@ -557,7 +557,7 @@ async function getChannelFeePolicies() {
 
 
 async function decodeInvoiceString(invoiceStr) {
-	let DecodePayReq = util.promisify(lnd.DecodePayReq.bind(lndRpc));
+	let DecodePayReq = util.promisify(lndRpc.DecodePayReq.bind(lndRpc));
 	return await DecodePayReq({pay_req:invoiceStr});
 }
 
