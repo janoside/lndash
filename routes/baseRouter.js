@@ -1075,7 +1075,7 @@ router.get("/connect-lnd", asyncHandler(async (req, res) => {
 
 		res.redirect(req.headers.referer);
 	}
-});
+}));
 
 router.get("/nodes", function(req, res) {
 	var limit = 20;
