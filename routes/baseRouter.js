@@ -1708,26 +1708,26 @@ router.get("/manage-nodes", function(req, res) {
 	res.render("manage-nodes");
 });
 
-router.post("/manage-nodes", function(req, res) {
-	var promises = [];
+router.post("/manage-nodes", asyncHandler(async (req, res, next) => {
+	try {
+		let inputType = req.body.inputType;
 
-	var inputType = req.body.inputType;
+		res.locals.inputType = inputType;
+		res.locals.setupActive = (!global.adminCredentials.lndNodes || global.adminCredentials.lndNodes.length == 0);
 
-	res.locals.inputType = inputType;
-	res.locals.setupActive = (!global.adminCredentials.lndNodes || global.adminCredentials.lndNodes.length == 0);
+		// copied to res.locals on error, so form can be re-filled
+		let userFormParams = {};
 
-	// copied to res.locals on error, so form can be re-filled
-	var userFormParams = {};
+		let newLndNode = null;
 
-	var newLndNode = null;
-	if (inputType == "fileInput") {
-		var host = "localhost";
-		var port = "10009";
-		var adminMacaroonFilepath = "~/.lnd/admin.macaroon";
-		var tlsCertFilepath = "~/.lnd/tls.cert";
+		if (inputType == "fileInput") {
+			let host = "127.0.0.1";
+			let port = "10009";
+			let adminMacaroonFilepath = "~/.lnd/admin.macaroon";
+			let tlsCertFilepath = "~/.lnd/tls.cert";
 
-		if (req.body.host) {
-			host = req.body.host;
+			if (req.body.host) {
+				host = req.body.host;
 
 			userFormParams.host = host;
 		}
@@ -1777,17 +1777,15 @@ router.post("/manage-nodes", function(req, res) {
 			host: host,
 			port: port,
 			adminMacaroonFilepath: adminMacaroonFilepath,
-			tlsCertFilepath: tlsCertFilepath
-		};
+				tlsCertFilepath: tlsCertFilepath
+			};
 
-		promises.push(rpcApi.connect(newLndNode, global.adminCredentials.lndNodes.length - 1));
+		} else if (inputType == "rawTextInput") {
+			let host = "127.0.0.1";
+			let port = "10009";
 
-	} else if (inputType == "rawTextInput") {
-		var host = "localhost";
-		var port = "10009";
-
-		if (req.body.host) {
-			host = req.body.host;
+			if (req.body.host) {
+				host = req.body.host;
 
 			userFormParams.host = host;
 		}
@@ -1840,13 +1838,11 @@ router.post("/manage-nodes", function(req, res) {
 			host: host,
 			port: port,
 			adminMacaroonHex: adminMacaroonHex,
-			tlsCertAscii: tlsCertAscii
-		};
+				tlsCertAscii: tlsCertAscii
+			};
 
-		promises.push(rpcApi.connect(newLndNode, global.adminCredentials.lndNodes.length - 1));
-
-	} else if (inputType == "lndconnectString") {
-		var lndconnectString = req.body.lndconnectString;
+		} else if (inputType == "lndconnectString") {
+			var lndconnectString = req.body.lndconnectString;
 
 		userFormParams.lndconnectString = lndconnectString;
 		
@@ -1867,14 +1863,13 @@ router.post("/manage-nodes", function(req, res) {
 		}
 
 		newLndNode = {
-			type: "lndconnectString",
-			lndconnectString: lndconnectString
-		};
+				type: "lndconnectString",
+				lndconnectString: lndconnectString
+			};
+		}
 
-		promises.push(rpcApi.connect(newLndNode, global.adminCredentials.lndNodes.length - 1));
-	}
+		let data = await rpcApi.connect(newLndNode, global.adminCredentials.lndNodes.length);
 
-	Promise.all(promises.map(utils.reflectPromise)).then(function() {
 		global.adminCredentials.lndNodes.push(newLndNode);
 
 		utils.saveAdminCredentials(global.adminPassword);
@@ -1903,10 +1898,12 @@ router.post("/manage-nodes", function(req, res) {
 		} else {
 			res.render("manage-nodes");
 		}
-	}).catch(function(err) {
+	} catch (err) {
 		res.locals.lndConnectError = err;
 
-		res.locals.pageErrors.push(utils.logError("32078rhesdghss", err));
+		utils.logError("29834y0ehfe", err);
+
+		res.locals.pageErrors.push(utils.logError("29834y0ehfe", err));
 
 		for (var prop in userFormParams) {
 			if (userFormParams.hasOwnProperty(prop)) {
@@ -1915,8 +1912,8 @@ router.post("/manage-nodes", function(req, res) {
 		}
 
 		res.render("manage-nodes");
-	});
-});
+	}
+}));
 
 router.get("/delete-lnd-node", function(req, res) {
 	if (!req.query.index) {
