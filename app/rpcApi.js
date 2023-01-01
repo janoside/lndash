@@ -171,26 +171,6 @@ async function connectAllNodes() {
 	}
 }
 
-async function connectActiveNode() {
-	global.lndConnections = {
-		byIndex: {},
-		byAlias: {},
-
-		aliases:[],
-		indexes:[]
-	};
-
-	let rpcConfig = global.adminCredentials.lndNodes[0];
-
-	let response = await connect(rpcConfig, 0);
-
-	debugLog(`RPC Connected: ${response.index}`);
-
-	if (response.index == 0) {
-		await refreshCachedValues(true);
-	}
-}
-
 
 async function refreshCachedValues(forceFullRefresh=false) {
 	let startTime = new Date();
@@ -743,7 +723,6 @@ async function sendCoins(addressValueStr, speedType, speedValue) {
 
 module.exports = {
 	connect: connect,
-	connectActiveNode: connectActiveNode,
 	connectAllNodes: connectAllNodes,
 	refreshCachedValues: refreshCachedValues,
 

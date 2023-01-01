@@ -657,7 +657,7 @@ router.post("/login", asyncHandler(async (req, res, next) => {
 		req.session.admin = true;
 
 		if (connectToLndNeeded && global.adminCredentials.lndNodes && global.adminCredentials.lndNodes.length > 0) {
-			await rpcApi.connectActiveNode();
+			await rpcApi.connectAllNodes();
 
 			if (req.session.loginRedirect) {
 				res.redirect(req.session.loginRedirect);

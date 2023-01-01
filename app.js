@@ -198,7 +198,7 @@ app.runOnStartup = async () => {
 				global.setupNeeded = true;
 
 			} else {
-				rpcApi.connectActiveNode();
+				rpcApi.connectAllNodes();
 			}
 		}
 	} else {
