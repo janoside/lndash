@@ -150,23 +150,23 @@ block content
 			.tab-content
 				+pageTab("Summary", true)
 					+contentSection("Invoice Details")
-						h6.fw-light.mb-4 Destination
+						+summaryRow(2)
+							+summaryItem("Destination")
+								.d-flex.justify-content-center
+									.text-start
+										+card
+											+nodeCard(decodedInvoice.destination)
 
-						.d-flex.mb-n3
-							+card
-								+nodeCard(decodedInvoice.destination)
-								
-
-						hr.my-4
-
-						+summaryRow(4)
 							+summaryItem("Description")
 								if (decodedInvoice.description)
 									span #{decodedInvoice.description}
 								else
 									span -
+								
 
-							
+						hr.my-4
+
+						+summaryRow(3 + (decodedInvoice.payment_addr ? 1 : 0))
 							+summaryItem("Amount")
 								+btcValue(decodedInvoice.num_satoshis)
 
@@ -175,10 +175,17 @@ block content
 								+date(decodedInvoice.timestamp, "detail", true)
 								
 								
-
-							+summaryItem("Hash")
+							+summaryItem("Payment Hash")
 								| #{utils.ellipsizeMiddle(decodedInvoice.payment_hash, 14)}
 								+copyTextButton(decodedInvoice.payment_hash)
+
+
+							if (decodedInvoice.payment_addr)
+								+summaryItem("Payment Address", null, "hex")
+									- let payment_addr_hex = utils.formatBuffer(decodedInvoice.payment_addr, "hex");
+
+									| #{utils.ellipsizeMiddle(payment_addr_hex, 14)}
+									+copyTextButton(payment_addr_hex)
 
 
 						hr.my-4
@@ -194,8 +201,15 @@ block content
 
 						
 				+pageTab("JSON")
-					pre
-						code.json #{JSON.stringify(decodedInvoice, null, 4)}
+					- let obj = decodedInvoice;
+					if (obj.payment_addr)
+						- obj.payment_addr_hex = utils.formatBuffer(obj.payment_addr, "hex");
+						- obj.payment_addr_base64 = utils.formatBuffer(obj.payment_addr, "base64");
+						- delete obj.payment_addr;
+
+					+contentSection("decodedInvoice")
+						pre
+							code.json #{JSON.stringify(decodedInvoice, null, 4)}
 
 					
 					
