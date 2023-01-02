@@ -49,13 +49,35 @@ block content
 			.alert.alert-primary.shadow-sm(id="hiddenAlert" style="display: none;") The sensitive data on this page has been hidden. Simply refresh the page to see it again.
 
 			#secureContent
-				.alert.alert-primary.shadow-sm The sensitive data below will be hidden after 60 seconds: 
+				.alert.alert-primary.shadow-sm The sensitive data below will be hidden in 
 					span(id="hideTimer")
 
 				.mb-3
 					label.form-label QR Code
-					div
-						img(src=`/qrcode?data=${encodeURIComponent(lndconnectString)}` style="width: 300px; height: 300px;")
+					.d-flex
+						.bg-white
+							img.text-bg-white(src=`/qrcode?data=${encodeURIComponent(lndconnectString)}` style="width: 300px; height: 300px;")
+
+				if (localHost)
+					.mb-3
+						.alert.alert-warning
+							p
+								span.fw-bold.me-1 Warning
+								| The host/IP for this node is local, which means that, as configured, you'll be unable to connect to this node externally. If you want to connect externally, you'll need to use a publicly accessible host/IP.
+
+							| Since the configured host is a local one, you can modify the host below (if you have a publicly accessible one), to build another LNDConnect string. Note that your TLS certificate may not include the given host/IP unless you explicitly configured it (e.g. by setting 'tlsextraip' for LND), in which case the connection will fail for security reasons.
+
+						form(method="get")
+							input(type="hidden", name="securityNoteAccepted", value="true")
+							.mb-3
+								label.form-label(for="host") Host / IP
+								input.form-control(id="host", name="host", value=host)
+
+							.mb-3
+								label.form-label(for="port") Port
+								input.form-control(id="port", name="port", value=port)
+
+							button(type="submit") Update
 
 				.mb-3
 					label.form-label(for="lndconnectString") LND Connect String

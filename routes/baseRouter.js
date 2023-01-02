@@ -1729,54 +1729,54 @@ router.post("/manage-nodes", asyncHandler(async (req, res, next) => {
 			if (req.body.host) {
 				host = req.body.host;
 
-			userFormParams.host = host;
-		}
+				userFormParams.host = host;
+			}
 
-		if (req.body.port) {
-			port = req.body.port;
+			if (req.body.port) {
+				port = req.body.port;
 
-			userFormParams.port = port;
-		}
+				userFormParams.port = port;
+			}
 
-		if (req.body.adminMacaroonFilepath) {
-			adminMacaroonFilepath = untildify(req.body.adminMacaroonFilepath);
+			if (req.body.adminMacaroonFilepath) {
+				adminMacaroonFilepath = untildify(req.body.adminMacaroonFilepath);
 
-			userFormParams.adminMacaroonFilepath = adminMacaroonFilepath;
-		}
+				userFormParams.adminMacaroonFilepath = adminMacaroonFilepath;
+			}
 
-		if (req.body.tlsCertFilepath) {
-			tlsCertFilepath = untildify(req.body.tlsCertFilepath);
+			if (req.body.tlsCertFilepath) {
+				tlsCertFilepath = untildify(req.body.tlsCertFilepath);
 
-			userFormParams.tlsCertFilepath = tlsCertFilepath;
-		}
+				userFormParams.tlsCertFilepath = tlsCertFilepath;
+			}
 
-		if (!fs.existsSync(adminMacaroonFilepath)) {
-			res.locals.userMessage = `Unable to open admin macaroon file: '${adminMacaroonFilepath}'`;
-			res.locals.userMessageType = "danger";
+			if (!fs.existsSync(adminMacaroonFilepath)) {
+				res.locals.userMessage = `Unable to open admin macaroon file: '${adminMacaroonFilepath}'`;
+				res.locals.userMessageType = "danger";
 
-			res.render("manage-nodes");
+				res.render("manage-nodes");
 
-			return;
-		}
+				return;
+			}
 
-		if (!fs.existsSync(tlsCertFilepath)) {
-			res.locals.userMessage = `Unable to open tls certificate file: '${tlsCertFilepath}'`;
-			res.locals.userMessageType = "danger";
+			if (!fs.existsSync(tlsCertFilepath)) {
+				res.locals.userMessage = `Unable to open tls certificate file: '${tlsCertFilepath}'`;
+				res.locals.userMessageType = "danger";
 
-			res.render("manage-nodes");
+				res.render("manage-nodes");
 
-			return;
-		}
+				return;
+			}
 
-		if (global.adminCredentials.lndNodes == null) {
-			global.adminCredentials.lndNodes = [];
-		}
+			if (global.adminCredentials.lndNodes == null) {
+				global.adminCredentials.lndNodes = [];
+			}
 
-		newLndNode = {
-			type: "fileInput",
-			host: host,
-			port: port,
-			adminMacaroonFilepath: adminMacaroonFilepath,
+			newLndNode = {
+				type: "fileInput",
+				host: host,
+				port: port,
+				adminMacaroonFilepath: adminMacaroonFilepath,
 				tlsCertFilepath: tlsCertFilepath
 			};
 
@@ -1787,82 +1787,82 @@ router.post("/manage-nodes", asyncHandler(async (req, res, next) => {
 			if (req.body.host) {
 				host = req.body.host;
 
-			userFormParams.host = host;
-		}
-
-		if (req.body.port) {
-			port = req.body.port;
-
-			userFormParams.port = port;
-		}
-
-		var adminMacaroonHex = req.body.adminMacaroonHex;
-		var tlsCertAscii = req.body.tlsCertAscii.replace(/\r\n/g, "\n");
-
-		userFormParams.adminMacaroonHex = adminMacaroonHex;
-		userFormParams.tlsCertAscii = tlsCertAscii;
-
-		var missingParams = false;
-		if (!adminMacaroonHex) {
-			res.locals.userMessage = "Missing required value: Admin Macaroon (hex)";
-			res.locals.userMessageType = "danger";
-
-			missingParams = true;
-		}
-
-		if (!tlsCertAscii) {
-			res.locals.userMessage = "Missing required value: TLS Certificate (ascii)";
-			res.locals.userMessageType = "danger";
-
-			missingParams = true;
-		}
-
-		if (missingParams) {
-			for (var prop in userFormParams) {
-				if (userFormParams.hasOwnProperty(prop)) {
-					res.locals[prop] = userFormParams[prop];
-				}
+				userFormParams.host = host;
 			}
 
-			res.render("manage-nodes");
+			if (req.body.port) {
+				port = req.body.port;
 
-			return;
-		}
+				userFormParams.port = port;
+			}
 
-		if (global.adminCredentials.lndNodes == null) {
-			global.adminCredentials.lndNodes = [];
-		}
+			var adminMacaroonHex = req.body.adminMacaroonHex;
+			var tlsCertAscii = req.body.tlsCertAscii.replace(/\r\n/g, "\n");
 
-		newLndNode = {
-			type: "rawTextInput",
-			host: host,
-			port: port,
-			adminMacaroonHex: adminMacaroonHex,
+			userFormParams.adminMacaroonHex = adminMacaroonHex;
+			userFormParams.tlsCertAscii = tlsCertAscii;
+
+			var missingParams = false;
+			if (!adminMacaroonHex) {
+				res.locals.userMessage = "Missing required value: Admin Macaroon (hex)";
+				res.locals.userMessageType = "danger";
+
+				missingParams = true;
+			}
+
+			if (!tlsCertAscii) {
+				res.locals.userMessage = "Missing required value: TLS Certificate (ascii)";
+				res.locals.userMessageType = "danger";
+
+				missingParams = true;
+			}
+
+			if (missingParams) {
+				for (var prop in userFormParams) {
+					if (userFormParams.hasOwnProperty(prop)) {
+						res.locals[prop] = userFormParams[prop];
+					}
+				}
+
+				res.render("manage-nodes");
+
+				return;
+			}
+
+			if (global.adminCredentials.lndNodes == null) {
+				global.adminCredentials.lndNodes = [];
+			}
+
+			newLndNode = {
+				type: "rawTextInput",
+				host: host,
+				port: port,
+				adminMacaroonHex: adminMacaroonHex,
 				tlsCertAscii: tlsCertAscii
 			};
 
 		} else if (inputType == "lndconnectString") {
 			var lndconnectString = req.body.lndconnectString;
 
-		userFormParams.lndconnectString = lndconnectString;
-		
-		if (!lndconnectString) {
-			for (var prop in userFormParams) {
-				if (userFormParams.hasOwnProperty(prop)) {
-					res.locals[prop] = userFormParams[prop];
+			userFormParams.lndconnectString = lndconnectString;
+			
+			if (!lndconnectString) {
+				for (var prop in userFormParams) {
+					if (userFormParams.hasOwnProperty(prop)) {
+						res.locals[prop] = userFormParams[prop];
+					}
 				}
+
+				res.render("manage-nodes");
+
+				return;
 			}
 
-			res.render("manage-nodes");
+			if (global.adminCredentials.lndNodes == null) {
+				global.adminCredentials.lndNodes = [];
+			}
 
-			return;
-		}
-
-		if (global.adminCredentials.lndNodes == null) {
-			global.adminCredentials.lndNodes = [];
-		}
-
-		newLndNode = {
+			newLndNode = {
 				type: "lndconnectString",
 				lndconnectString: lndconnectString
 			};
@@ -2847,8 +2847,8 @@ router.post("/withdraw-funds", function(req, res) {
 	}
 });
 
-router.get("/lndconnect", function(req, res) {
-	var securityNoteAccepted = false;
+router.get("/lndconnect", asyncHandler(async (req, res) => {
+	let securityNoteAccepted = false;
 	if (req.query.securityNoteAccepted) {
 		securityNoteAccepted = (req.query.securityNoteAccepted == "true");
 	}
@@ -2856,26 +2856,44 @@ router.get("/lndconnect", function(req, res) {
 	res.locals.securityNoteAccepted = securityNoteAccepted;
 
 	if (securityNoteAccepted) {
-		var lndNodeIndex = lndRpc.internal_index;
-		var lndConfig = global.adminCredentials.lndNodes[lndNodeIndex];
+		let lndNodeIndex = lndRpc.internal_index;
+		let pubkey = lndRpc.internal_pubkey;
 
-		var lndconnectString = null;
+		let lndConfig = global.adminCredentials.lndNodes[lndNodeIndex];
+		let host = lndConfig.host;
+		let port = lndConfig.port;
+
+		if (req.query.host) {
+			host = req.query.host;
+		}
+
+		if (req.query.port) {
+			port = req.query.port;
+		}
+
+		let localHosts = /(localhost|127\.0\.0\.1|192\.*)/g;
+		if (host.match(localHosts)) {
+			res.locals.localHost = true;
+		}
+
+
+		let lndconnectString = null;
 
 		if (lndConfig.type == "fileInput") {
-			var tlsCertAscii = fs.readFileSync(lndConfig.tlsCertFilepath);
-			var macaroon = fs.readFileSync(lndConfig.adminMacaroonFilepath);
+			let tlsCertAscii = fs.readFileSync(lndConfig.tlsCertFilepath);
+			let macaroon = fs.readFileSync(lndConfig.adminMacaroonFilepath);
 
 			lndconnectString = utils.formatLndconnectString({
-				host:lndConfig.host,
-				port:lndConfig.port,
-				adminMacaroonHex:macaroon.toString("hex"),
-				tlsCertAscii:tlsCertAscii.toString("utf-8")
+				host: host,
+				port: port,
+				adminMacaroonHex: macaroon.toString("hex"),
+				tlsCertAscii: tlsCertAscii.toString("utf-8")
 			});
 
 		} else if (lndConfig.type == "rawTextInput") {
 			lndconnectString = utils.formatLndconnectString({
-				host:lndConfig.host,
-				port:lndConfig.port,
+				host: host,
+				port: port,
 				adminMacaroonHex:lndConfig.adminMacaroonHex,
 				tlsCertAscii:lndConfig.tlsCertAscii
 			});
@@ -2885,10 +2903,12 @@ router.get("/lndconnect", function(req, res) {
 		}
 
 		res.locals.lndconnectString = lndconnectString;
+		res.locals.host = host;
+		res.locals.port = port;
 	}
 
 	res.render("lndconnect");
-});
+}));
 
 router.get("/tag", function(req, res) {
 	if (!req.query.tagType) {
