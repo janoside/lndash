@@ -128,42 +128,46 @@ block content
 
 								
 								+summaryItem("Received / Sent Value")
-									.d-flex.justify-content-between.fs-90.mb-3
-										.text-start
-											.mb-2
-												i.fas.fa-circle.text-success.me-2
-												span.border-dotted(title="Value received via this channel.", data-bs-toggle="tooltip") Received
-
-											span.badge.text-bg-success.fs-80
-												+btcValue(valueReceived)
-
-
-										if (netValue != 0)
-											.text-center
+									if (valueReceived != null && (valueReceived > 0 || valueSent > 0))
+										.d-flex.justify-content-between.fs-90.mb-3
+											.text-start
 												.mb-2
-													span.border-dotted(title="Net value (received minus sent) received via this channel.", data-bs-toggle="tooltip") Net
+													i.fas.fa-circle.text-success.me-2
+													span.border-dotted(title="Value received via this channel.", data-bs-toggle="tooltip") Received
 
-												if (netValue < 0)
-													span.badge.text-bg-danger
-														| -
-														+btcValue(netValue.times(-1))
-												else
-													span.badge.text-bg-success
-														| +
-														+btcValue(netValue)
+												span.badge.text-bg-success.fs-80
+													+btcValue(valueReceived)
 
 
-										.text-end
-											.mb-2
-												i.fas.fa-circle.text-danger.me-2
-												span.border-dotted(title="Value sent via this channel.", data-bs-toggle="tooltip") Sent
+											if (netValue != 0)
+												.text-center
+													.mb-2
+														span.border-dotted(title="Net value (received minus sent) received via this channel.", data-bs-toggle="tooltip") Net
 
-											span.badge.text-bg-danger.fs-80
-												+btcValue(valueSent)
+													if (netValue < 0)
+														span.badge.text-bg-danger
+															| -
+															+btcValue(netValue.times(-1))
+													else
+														span.badge.text-bg-success
+															| +
+															+btcValue(netValue)
+
+
+											.text-end
+												.mb-2
+													i.fas.fa-circle.text-danger.me-2
+													span.border-dotted(title="Value sent via this channel.", data-bs-toggle="tooltip") Sent
+
+												span.badge.text-bg-danger.fs-80
+													+btcValue(valueSent)
 
 
 
-									+progressBar([valueReceived, valueSent], ["text-bg-success", "text-bg-danger"])
+										+progressBar([valueReceived, valueSent], ["text-bg-success", "text-bg-danger"])
+
+									else
+										span.text-muted (none)
 
 
 						
@@ -262,7 +266,7 @@ block content
 										td.text-end #{parseInt(channel.node1_policy.min_htlc).toLocaleString()}
 										td.text-end
 											+btcValue(channel.node1_policy.fee_base_msat, "msat", "msat")
-											
+
 										td.text-end #{parseInt(channel.node1_policy.fee_rate_milli_msat).toLocaleString()}
 									else
 										td.text-end ?
