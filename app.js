@@ -2,10 +2,10 @@
 
 'use strict';
 
-var os = require('os');
-var path = require('path');
-var dotenv = require("dotenv");
-var fs = require('fs');
+const os = require('os');
+const path = require('path');
+const dotenv = require("dotenv");
+const fs = require('fs');
 
 var configPaths = [ path.join(os.homedir(), '.lndash', '.env'), path.join(process.cwd(), '.env') ];
 configPaths.filter(fs.existsSync).forEach(path => {
@@ -15,38 +15,38 @@ configPaths.filter(fs.existsSync).forEach(path => {
 
 // debug module is already loaded by the time we do dotenv.config
 // so refresh the status of DEBUG env var
-var debug = require("debug");
+const debug = require("debug");
 debug.enable(process.env.DEBUG);
 
-var debugLog = debug("lndash:app");
+const debugLog = debug("lndash:app");
 
-var axios = require("axios");
-var express = require('express');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var session = require("express-session");
-var config = require("./app/config.js");
-var simpleGit = require('simple-git');
-var utils = require("./app/utils.js");
-var moment = require("moment");
-var Decimal = require('decimal.js');
-var grpc = require("@grpc/grpc-js");
+const axios = require("axios");
+const express = require('express');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const session = require("express-session");
+const config = require("./app/config.js");
+const simpleGit = require('simple-git');
+const utils = require("./app/utils.js");
+const moment = require("moment");
+const Decimal = require('decimal.js');
+const grpc = require("@grpc/grpc-js");
 const asyncHandler = require("express-async-handler");
-var pug = require("pug");
-var momentDurationFormat = require("moment-duration-format");
-var coinConfig = require("./app/btcCoinConfig.js");
-var qrcode = require("qrcode");
-var rpcApi = require("./app/rpcApi.js");
-var runes = require("runes");
-var semver = require("semver");
+const pug = require("pug");
+const momentDurationFormat = require("moment-duration-format");
+const coinConfig = require("./app/btcCoinConfig.js");
+const qrcode = require("qrcode");
+const rpcApi = require("./app/rpcApi.js");
+const runes = require("runes");
+const semver = require("semver");
 
 require("./app/currencies.js");
 
 //import latestVersion from 'latest-version';
 
-var package_json = require('./package.json');
+const package_json = require('./package.json');
 global.appVersion = package_json.version;
 
 debugLog(`Starting LNDash, v${global.appVersion}`);
@@ -56,13 +56,13 @@ process.on("unhandledRejection", (reason, p) => {
 });
 
 
-var crawlerBotUserAgentStrings = [ "Googlebot", "Bingbot", "Slurp", "DuckDuckBot", "Baiduspider", "YandexBot", "Sogou", "Exabot", "facebot", "ia_archiver" ];
+const crawlerBotUserAgentStrings = [ "Googlebot", "Bingbot", "Slurp", "DuckDuckBot", "Baiduspider", "YandexBot", "Sogou", "Exabot", "facebot", "ia_archiver" ];
 
 
-var baseRouter = require("./routes/baseRouter.js");
-var utilRouter = require("./routes/utilRouter.js");
+const baseRouter = require("./routes/baseRouter.js");
+const utilRouter = require("./routes/utilRouter.js");
 
-var app = express();
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
