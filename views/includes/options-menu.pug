@@ -29,22 +29,30 @@ hr
 
 
 .mb-3.d-flex
-	div.me-3
-		label.form-label Currency Unit
+	.me-3
+		label.form-label Display Currency
 		br
 		.btn-group.me-2(role="group")
-			each currencyId in ["sat", "BTC"]
-				- var currencyUnit = coinConfig.currencyUnitsByName[currencyId];
-				if (currencyUnit.type == "native" || config.queryExchangeRates)
-					- var currencySelected = false;
-					each valueName in currencyUnit.values
-						if (currencyFormatType == valueName)
-							- currencySelected = true;
+			each currencyId in ["BTC", "sat", "local"]
+				if (displayCurrency.toLowerCase() == currencyId.toLowerCase())
+					span.btn.btn-sm.btn-primary #{currencyId}
 
-					if (currencySelected)
-						span.btn.btn-primary #{currencyUnit.name}
-					else
-						a.btn.btn-light.border(href=`/changeSetting?name=currencyFormatType&value=${currencyUnit.values[0]}`) #{currencyUnit.name}
+				else
+					a.btn.btn-sm.btn-light.border(href=`/changeSetting?name=displayCurrency&value=${currencyId}`) #{currencyId}
+
+
+	.me-3
+		label.form-label Local Currency
+		br
+		.btn-group.me-2(role="group")
+			each currencyId in ["USD", "EUR", "GBP"]
+				if (localCurrency.toLowerCase() == currencyId.toLowerCase())
+					span.btn.btn-sm.btn-primary #{currencyId}
+
+				else
+					a.btn.btn-sm.btn-light.border(href=`/changeSetting?name=localCurrency&value=${currencyId}`) #{currencyId}
+
+
 
 	div
 		label.form-label  Theme
@@ -54,9 +62,9 @@ hr
 				- var itemSelected = item.vals.includes(session.uiTheme);
 
 				if (itemSelected)
-					span.btn.btn-primary #{item.name}
+					span.btn.btn-sm.btn-primary #{item.name}
 				else
-					a.btn.btn-light.border(href=`/changeSetting?name=uiTheme&value=${item.vals[0]}`) #{item.name}
+					a.btn.btn-sm.btn-light.border(href=`/changeSetting?name=uiTheme&value=${item.vals[0]}`) #{item.name}
 
 
 hr

@@ -33,6 +33,8 @@ module.exports = {
 		networkAddressMaxDisplayLength: 20,
 		txidMaxDisplayLength: 20,
 
+		valueDisplayMaxLargeDigits: 4,
+
 		pageSizes:{
 			invoices: 20,
 			peers: 20

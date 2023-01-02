@@ -23,11 +23,11 @@ const exponentScales = [
 	{val:1000000000000000000000000, name:"yotta", abbreviation:"Y", exponent:"24"},
 	{val:1000000000000000000000, name:"zetta", abbreviation:"Z", exponent:"21"},
 	{val:1000000000000000000, name:"exa", abbreviation:"E", exponent:"18"},
-	{val:1000000000000000, name:"peta", abbreviation:"P", exponent:"15"},
-	{val:1000000000000, name:"tera", abbreviation:"T", exponent:"12"},
-	{val:1000000000, name:"giga", abbreviation:"G", exponent:"9"},
-	{val:1000000, name:"mega", abbreviation:"M", exponent:"6"},
-	{val:1000, name:"kilo", abbreviation:"K", exponent:"3"}
+	{val:1000000000000000, name:"peta", abbreviation:"P", exponent:"15", textDesc:"Q"},
+	{val:1000000000000, name:"tera", abbreviation:"T", exponent:"12", textDesc:"T"},
+	{val:1000000000, name:"giga", abbreviation:"G", exponent:"9", textDesc:"B"},
+	{val:1000000, name:"mega", abbreviation:"M", exponent:"6", textDesc:"M"},
+	{val:1000, name:"kilo", abbreviation:"K", exponent:"3", textDesc:"thou"}
 ];
 
 function hex2ascii(hex) {
@@ -102,35 +102,78 @@ function getCurrencyFormatInfo(formatType) {
 }
 
 function formatCurrencyAmountWithForcedDecimalPlaces(amount, formatType, forcedDecimalPlaces) {
-	let formatInfo = getCurrencyFormatInfo(formatType);
+	formatType = formatType.toLowerCase();
 
-	if (formatInfo != null) {
-		let dec = new Decimal(amount);
+	var currencyType = global.currencyTypes[formatType];
 
-		let decimalPlaces = formatInfo.decimalPlaces;
-		//if (decimalPlaces == 0 && dec < 1) {
-		//	decimalPlaces = 5;
-		//}
+	if (currencyType == null) {
+		throw `Unknown currency type: ${formatType}`;
+	}
+
+	var dec = new Decimal(amount);
+
+	var decimalPlaces = currencyType.decimalPlaces;
+	//if (decimalPlaces == 0 && dec < 1) {
+	//	decimalPlaces = 5;
+	//}
+
+	if (forcedDecimalPlaces >= 0) {
+		decimalPlaces = forcedDecimalPlaces;
+	}
+
+	if (currencyType.type == "native") {
+		dec = dec.times(currencyType.multiplier);
 
 		if (forcedDecimalPlaces >= 0) {
-			decimalPlaces = forcedDecimalPlaces;
-		}
+			// toFixed will keep trailing zeroes
+			var baseStr = addThousandsSeparators(dec.toFixed(decimalPlaces));
 
-		if (formatInfo.type == "native") {
-			dec = dec.times(formatInfo.multiplier);
-			
-			return addThousandsSeparators(dec.toDecimalPlaces(decimalPlaces)) + " " + formatInfo.name;
+			return {val:baseStr, currencyUnit:currencyType.name, simpleVal:baseStr, intVal:parseInt(dec)};
 
-		} else if (formatInfo.type == "exchanged") {
-			if (global.exchangeRates != null && global.exchangeRates[formatInfo.multiplier] != null) {
-				dec = dec.times(global.exchangeRates[formatInfo.multiplier]);
+		} else {
+			// toDP excludes trailing zeroes but doesn't "fix" numbers like 1e-8
+			// instead, we use toFixed and manually strip trailing zeroes
+			// old method is kept for reference since this is sensitive, high-volume code
+			var baseStr = addThousandsSeparators(dec.toFixed(decimalPlaces).replace(/0+$/, "").replace(/\.$/, ""));
+			//var baseStr = addThousandsSeparators(dec.toDP(decimalPlaces)); // old version, failed to properly format "1e-8" (left unchanged)
 
-				return formatInfo.symbol + addThousandsSeparators(dec.toDecimalPlaces(decimalPlaces));
+			var returnVal = {currencyUnit:currencyType.name, simpleVal:baseStr, intVal:parseInt(dec)};
+
+			// max digits in "val"
+			var maxValDigits = config.site.valueDisplayMaxLargeDigits;
+
+			// todo: make this section locale-aware (don't hardcode ".")
+
+			if (baseStr.indexOf(".") == -1) {
+				returnVal.val = baseStr;
+				
+			} else {
+				if (baseStr.length - baseStr.indexOf(".") - 1 > maxValDigits) {
+					returnVal.val = baseStr.substring(0, baseStr.indexOf(".") + maxValDigits + 1);
+					returnVal.lessSignificantDigits = baseStr.substring(baseStr.indexOf(".") + maxValDigits + 1);
+
+				} else {
+					returnVal.val = baseStr;
+				}
 			}
+
+			return returnVal;
 		}
+	} else if (currencyType.type == "exchanged") {
+		//console.log(JSON.stringify(global.exchangeRates) + " - " + currencyType.name);
+		if (global.exchangeRates != null && global.exchangeRates[currencyType.id] != null) {
+			dec = dec.times(global.exchangeRates[currencyType.id]);
+
+			var baseStr = addThousandsSeparators(dec.toDecimalPlaces(decimalPlaces));
+
+			return {val:baseStr, currencyUnit:currencyType.name, simpleVal:baseStr, intVal:parseInt(dec)};
+
+		} else {
+			return formatCurrencyAmountWithForcedDecimalPlaces(amount, coinConfig.defaultCurrencyUnit.name, forcedDecimalPlaces);
+		}
+	} else {
+		throw `Unknown currency type: ${currencyType.type}`;
 	}
-	
-	return amount;
 }
 
 function formatCurrencyAmount(amount, formatType) {
@@ -367,16 +410,43 @@ function parseExponentStringDouble(val) {
 }
 
 function formatLargeNumber(n, decimalPlaces) {
-	for (let i = 0; i < exponentScales.length; i++) {
-		let item = exponentScales[i];
+	try {
+		for (var i = 0; i < exponentScales.length; i++) {
+			var item = exponentScales[i];
 
-		let fraction = new Decimal(n / item.val);
-		if (fraction >= 1) {
-			return [fraction.toDecimalPlaces(decimalPlaces), item];
+			var fraction = new Decimal(n / item.val);
+			if (fraction >= 1) {
+				return [fraction.toDP(decimalPlaces), item];
+			}
 		}
-	}
 
-	return [new Decimal(n).toDecimalPlaces(decimalPlaces), {}];
+		return [new Decimal(n).toDP(decimalPlaces), {}];
+
+	} catch (err) {
+		logError("ru92huefhew", err, { n:n, decimalPlaces:decimalPlaces });
+
+		throw err;
+	}
+}
+
+function formatLargeNumberSignificant(n, significantDigits) {
+	try {
+		for (var i = 0; i < exponentScales.length; i++) {
+			var item = exponentScales[i];
+
+			var fraction = new Decimal(n / item.val);
+			if (fraction >= 1) {
+				return [fraction.toDP(Math.max(0, significantDigits - `${Math.floor(fraction)}`.length)), item];
+			}
+		}
+
+		return [new Decimal(n).toDP(significantDigits), {}];
+
+	} catch (err) {
+		logError("38fhcdugdeogwe", err, { n:n, significantDigits:significantDigits });
+
+		throw err;
+	}
 }
 
 function rgbToHsl(r, g, b) {
@@ -696,6 +766,35 @@ const formatBuffer = (buffer, format="base64", fullDetail=false) => {
 	return buffer.toString(format);
 };
 
+function getExchangedCurrencyFormatData(amount, exchangeType, includeUnit=true) {
+	if (global.exchangeRates != null && global.exchangeRates[exchangeType.toLowerCase()] != null) {
+		var dec = new Decimal(amount);
+		dec = dec.times(global.exchangeRates[exchangeType.toLowerCase()]);
+		var exchangedAmt = parseFloat(Math.round(dec * 100) / 100).toFixed(2);
+
+		return {
+			symbol: global.currencySymbols[exchangeType],
+			value: addThousandsSeparators(exchangedAmt),
+			unit: exchangeType
+		}
+		
+	} else if (exchangeType == "au") {
+		if (global.exchangeRates != null && global.goldExchangeRates != null) {
+			var dec = new Decimal(amount);
+			dec = dec.times(global.exchangeRates.usd).dividedBy(global.goldExchangeRates.usd);
+			var exchangedAmt = parseFloat(Math.round(dec * 100) / 100).toFixed(2);
+
+			return {
+				symbol: "AU",
+				value: addThousandsSeparators(exchangedAmt),
+				unit: "oz"
+			}
+		}
+	}
+
+	return "";
+}
+
 
 
 module.exports = {
@@ -717,6 +816,7 @@ module.exports = {
 	refreshExchangeRates: refreshExchangeRates,
 	parseExponentStringDouble: parseExponentStringDouble,
 	formatLargeNumber: formatLargeNumber,
+	formatLargeNumberSignificant: formatLargeNumberSignificant,
 	geoLocateIpAddresses: geoLocateIpAddresses,
 	getTxTotalInputOutputValues: getTxTotalInputOutputValues,
 	rgbToHsl: rgbToHsl,
@@ -739,5 +839,6 @@ module.exports = {
 	stringifySimple: stringifySimple,
 	ellipsizeMiddle: ellipsizeMiddle,
 	formatHex: formatHex,
-	formatBuffer: formatBuffer
+	formatBuffer: formatBuffer,
+	getExchangedCurrencyFormatData: getExchangedCurrencyFormatData
 };

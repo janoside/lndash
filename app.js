@@ -42,6 +42,8 @@ var rpcApi = require("./app/rpcApi.js");
 var runes = require("runes");
 var semver = require("semver");
 
+require("./app/currencies.js");
+
 //import latestVersion from 'latest-version';
 
 var package_json = require('./package.json');
@@ -257,7 +259,8 @@ app.use(asyncHandler(async (req, res, next) => {
 		
 
 		var userSettings = [
-			{name:"currencyFormatType", default:"sat"},
+			{name:"displayCurrency", default:"BTC"},
+			{name:"localCurrency", default:"USD"},
 			{name:"uiTheme", default:""},
 			{name:"hideHomepageBanner", default:""},
 		];
