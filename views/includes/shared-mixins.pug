@@ -422,14 +422,27 @@ mixin pageTab(name, defaultActive=false)
 
 
 
-mixin nodePubkey(node_pubkey)
-	span.d-inline.d-md-none #{utils.ellipsizeMiddle(node_pubkey, 10)}
-	span.d-none.d-lg-inline.d-xxl-none #{utils.ellipsizeMiddle(node_pubkey, 12)}
-	span.d-none.d-xxl-inline #{utils.ellipsizeMiddle(node_pubkey, config.site.pubkeyMaxDisplayLength)}
+mixin nodePubkey(node_pubkey, style="normal")
+	- let cutoffs = (style == "compact") ? [8, 10, 16] : [10, 12, config.site.pubkeyMaxDisplayLength];
+
+	span.d-inline.d-md-none #{utils.ellipsizeMiddle(node_pubkey, cutoffs[0])}
+	span.d-none.d-lg-inline.d-xxl-none #{utils.ellipsizeMiddle(node_pubkey, cutoffs[1])}
+	span.d-none.d-xxl-inline #{utils.ellipsizeMiddle(node_pubkey, cutoffs[2])}
 
 
 
 mixin nodeIcon(node_pubkey, node_icon_size)
+	- let icon_size = "2.75rem";
+
+	if (node_icon_size == "normal")
+		- icon_size = "2.75rem";
+	
+	else if (node_icon_size == "compact")
+		- icon_size = "2rem";
+
+	else
+		- icon_size = node_icon_size;
+
 	//- var hsl = utils.colorHexToHsl(fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.color);
 
 	- var node_icon_color = "#000000";
@@ -437,7 +450,7 @@ mixin nodeIcon(node_pubkey, node_icon_size)
 		- var node_icon_color = fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.color;
 
 	.node-color-circle-wrapper
-		.node-color-circle-outer(style=("background-color: " +  node_icon_color + "; width: " + node_icon_size + "; height: " + node_icon_size + ";"))
+		.node-color-circle-outer(style=("background-color: " +  node_icon_color + "; width: " + icon_size + "; height: " + icon_size + ";"))
 			.node-color-circle-inner(style="background-color: white;")
 				svg.node-icon(data-jdenticon-value=node_pubkey)
 
@@ -454,8 +467,8 @@ mixin nodeColorSwatch(node_color)
 
 
 
-mixin nodeAlias(node_alias)
-	- var cutoffs = [12, 16];
+mixin nodeAlias(node_alias, style="normal")
+	- var cutoffs = (style == "normal") ? [12, 16] : [10, 14];
 	- var aliasChars = runes(node_alias);
 
 	span.fst-italic
@@ -484,51 +497,38 @@ mixin nodeAlias(node_alias)
 	
 
 
-mixin nodeCard(card_node_pubkey, node_card_include_wrapper=false, includeStars=true)
+mixin nodeCard(card_node_pubkey, options={})
+	- let showIcons = options.icons || true;
+	- let style = options.style || "normal";
+
 	if (fullNetworkDescription && fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey])
 		- var card_node = {pubkey:card_node_pubkey, alias:fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey].node.alias, color:fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey].node.color};
 
-	if (node_card_include_wrapper)
-		.card.shadow-sm(style="min-width: 275px;")
-			.card-body.p-2
-				.d-flex.flex-row
-					.me-2
-						if (card_node)
-							+nodeIcon(card_node.pubkey, "2.75rem")
-							
-					div
-						if (card_node)
-							a(href=`/node/${card_node.pubkey}`, title=card_node.pubkey, data-bs-toggle="tooltip")
-								+nodePubkey(card_node.pubkey)
-							
-							br
-							+nodeAlias(card_node.alias)
 
-	else
-		.d-flex.flex-row
-			.me-2
-				+nodeIcon(card_node_pubkey, "2.75rem")
+	.d-flex.flex-row
+		.me-2
+			+nodeIcon(card_node_pubkey, style)
 
-			div
-				if (card_node)
-					a(href=`/node/${card_node.pubkey}`)
-						+nodePubkey(card_node.pubkey)
+		div
+			if (card_node)
+				a(href=`/node/${card_node.pubkey}`)
+					+nodePubkey(card_node.pubkey, style)
 
-					if (includeStars && utils.isObjectStarred(`node:${card_node.pubkey}`))
-						i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite nodes" data-bs-toggle="tooltip")
-					
-					br
+				if (showIcons && utils.isObjectStarred(`node:${card_node.pubkey}`))
+					i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite nodes" data-bs-toggle="tooltip")
+				
+				br
 
-					+nodeAlias(card_node.alias)
+				+nodeAlias(card_node.alias, style)
 
-					if (card_node.pubkey == lndRpc.internal_pubkey)
-						i.fa.fa-certificate.ms-2.text-primary(title="This is your LND Node" data-bs-toggle="tooltip")
+				if (showIcons && card_node.pubkey == lndRpc.internal_pubkey)
+					i.fa.fa-certificate.ms-2.text-primary(title="This is your LND Node" data-bs-toggle="tooltip")
 
-				else
-					a(href=`/node/${card_node_pubkey}`, title=card_node_pubkey, data-bs-toggle="tooltip")
-						+nodePubkey(card_node_pubkey)
+			else
+				a(href=`/node/${card_node_pubkey}`, title=card_node_pubkey, data-bs-toggle="tooltip")
+					+nodePubkey(card_node_pubkey, style)
 
-					br
+				br
 
 					span.text-danger.border-dotted(title="Details for this node's public key seem to be unavailable." data-bs-toggle="tooltip") Unknown Node
 
