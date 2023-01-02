@@ -669,6 +669,10 @@ mixin nodeCard(card_node_pubkey, options={})
 
 				+nodeAlias(card_node.alias, style)
 
+				if (global.localChannelPeerPubkeys.includes(card_node_pubkey))
+					span(title="You have at least one channel with this node", data-bs-toggle="tooltip")
+						i.fas.fa-exchange-alt.text-success.ms-2
+
 				if (showIcons && card_node.pubkey == lndRpc.internal_pubkey)
 					i.fa.fa-certificate.ms-2.text-primary(title="This is your LND Node" data-bs-toggle="tooltip")
 

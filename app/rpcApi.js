@@ -387,6 +387,7 @@ async function getLocalPendingChannels(acceptCachedValues=false) {
 	}
 }
 
+global.localChannelPeerPubkeys = [];
 async function refreshLocalChannels() {
 	let ListChannels = util.promisify(lndRpc.ListChannels.bind(lndRpc));
 	let listChannelsResponse = await ListChannels({});
@@ -394,11 +395,15 @@ async function refreshLocalChannels() {
 	let byId = {};
 	let byTxid = {};
 
-	listChannelsResponse.channels.forEach(function(channel) {
+	listChannelsResponse.channels.forEach((channel) => {
 		byId[channel.chan_id] = channel;
 
 		if (channel.channel_point != null) {
 			byTxid[channel.channel_point.substring(0, channel.channel_point.indexOf(":"))] = channel;
+		}
+
+		if (!global.localChannelPeerPubkeys.includes(channel.remote_pubkey)) {
+			global.localChannelPeerPubkeys.push(channel.remote_pubkey);
 		}
 	});
 
