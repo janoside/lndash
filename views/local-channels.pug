@@ -12,7 +12,7 @@ block breadcrumb
 block content
 	if (!session.admin)
 		+pageTitle("My Channels")
-		
+
 
 		- var loginRequiredNote = "display details about this node's channels.";
 		include includes/login-required-alert.pug
@@ -143,9 +143,9 @@ block content
 										
 									| )
 
-							th.text-end Last Update
+							th.text-end Updated
 
-							th.text-end Raw Data
+							th.text-end JSON
 					
 					tbody
 						each channel, channel_index in pagedFilteredChannels

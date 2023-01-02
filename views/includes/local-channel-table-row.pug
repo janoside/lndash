@@ -66,7 +66,7 @@ tr.word-wrap
 		else if (channel.channel.remote_node_pub)
 			- var card_node_pubkey = channel.channel.remote_node_pub;
 
-		+nodeCard(card_node_pubkey)
+		+nodeCard(card_node_pubkey, false, false, "compact")
 
 	if (false)
 		td.text-end
@@ -95,7 +95,7 @@ tr.word-wrap
 
 
 		if (localBalance != null)
-			+progressBar([localBalance, remoteBalance], ["text-bg-primary", "text-bg-info"], "10px", false)
+			+progressBar([localBalance, remoteBalance], ["text-bg-primary", "text-bg-info"], "6px", false)
 
 			.d-flex.justify-content-between
 				.text-start
@@ -124,7 +124,7 @@ tr.word-wrap
 
 
 		if (valueReceived != null && (valueReceived > 0 || valueSent > 0))
-			+progressBar([valueReceived, valueSent], ["text-bg-success", "text-bg-danger"], "10px", false)
+			+progressBar([valueReceived, valueSent], ["text-bg-success", "text-bg-danger"], "6px", false)
 		
 			
 			.d-flex.justify-content-between
