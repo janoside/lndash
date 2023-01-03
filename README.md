@@ -33,7 +33,7 @@ Live demo: https://lndash.btc21.org
 
 ### 2. Install LNDash (from source)
 
-* `git clone git@github.com:janoside/lndash.git`
+* `git clone https://github.com/janoside/lndash.git`
 * `cd lndash; npm install`
 * `npm start`
 * Open [http://127.0.0.1:3004/](http://127.0.0.1:3004/)
