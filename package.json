@@ -1,5 +1,5 @@
 {
-	"name": "lndash",
+	"name": "ln-dash",
 	"version": "0.11.0-beta.0",
 	"private": false,
 	"bin": "bin/cli.js",
@@ -15,7 +15,8 @@
 	},
 	"keywords": [
 		"bitcoin",
-		"lightning",
+		"lightning network",
+		"dashboard",
 		"lnd",
 		"lightning network daemon"
 	],
