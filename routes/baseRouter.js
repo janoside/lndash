@@ -754,11 +754,11 @@ router.post("/query-route", function(req, res) {
 });
 
 router.get("/forwarding-history", function(req, res) {
-	var limit = 20;
-	var offset = 0;
-	var sort = "date-desc";
-	var daterange = "30d";
-	var tab = "summary";
+	let limit = 20;
+	let offset = 0;
+	let sort = "date-desc";
+	let daterange = "30d";
+	let tab = "summary";
 
 	if (req.query.limit) {
 		limit = parseInt(req.query.limit);
@@ -772,7 +772,7 @@ router.get("/forwarding-history", function(req, res) {
 		sort = req.query.sort;
 	}
 
-	if (req.query.daterange) {
+	if (req.query.daterange && typeof daterange === "string") {
 		daterange = req.query.daterange;
 	}
 
@@ -787,8 +787,8 @@ router.get("/forwarding-history", function(req, res) {
 	res.locals.tab = tab;
 	res.locals.paginationBaseUrl = `/forwarding-history?sort=${sort}&daterange=${daterange}&tab=${tab}`;
 
-	var startTime = new Date().getTime() / 1000 - 30 * 24 * 60 * 60;
-	var endTime = new Date().getTime() / 1000;
+	let startTime = new Date().getTime() / 1000 - 30 * 24 * 60 * 60;
+	let endTime = new Date().getTime() / 1000;
 
 	if (daterange == "all") {
 		startTime = 1491766829; // magic #, before LN existed
@@ -796,9 +796,10 @@ router.get("/forwarding-history", function(req, res) {
 
 	} else {
 		var times = [{abbr:"m", dur:60}, {abbr:"h", dur:60*60}, {abbr:"d", dur:24*60*60}, {abbr:"M", dur:30*24*60*60}, {abbr:"y", dur:365*24*60*60}];
-		for (var i = 0; i < times.length; i++) {
+		
+		for (let i = 0; i < times.length; i++) {
 			if (daterange.endsWith(times[i].abbr)) {
-				var t = parseInt(daterange.substring(0, daterange.length - 1));
+				let t = parseInt(daterange.substring(0, daterange.length - 1));
 				t *= times[i].dur;
 
 				startTime = new Date().getTime() / 1000 - t;
