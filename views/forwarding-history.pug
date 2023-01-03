@@ -142,7 +142,7 @@ block content
 										th.text-end Incoming Amount
 										th.text-end Outgoing Amount
 										th.text-end Fee
-										th.text-end Raw Data
+										th.text-end Raw
 
 								tbody
 									each forwardingEvent, forwardingEventIndex in pagedFilteredEvents
@@ -167,7 +167,7 @@ block content
 													if (card_node_pubkey == lndRpc.internal_pubkey)
 														- card_node_pubkey = channelInfo.node2_pub;
 
-													+nodeCard(card_node_pubkey)
+													+nodeCard(card_node_pubkey, {style:"compact"})
 
 											td
 												- var channel_id = forwardingEvent.chan_id_out;
@@ -183,7 +183,7 @@ block content
 													if (card_node_pubkey == lndRpc.internal_pubkey)
 														- card_node_pubkey = channelInfo.node2_pub;
 
-													+nodeCard(card_node_pubkey)
+													+nodeCard(card_node_pubkey, {style:"compact"})
 
 											td.text-end
 												+btcValue(forwardingEvent.amt_in)

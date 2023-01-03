@@ -13,7 +13,7 @@ block content
 
 	if (!session.admin)
 		+pageTitle("Invoices")
-		
+
 
 		- var loginRequiredNote = "display details about this node's invoices.";
 		include includes/login-required-alert.pug
@@ -108,7 +108,7 @@ block content
 									th
 										span.border-dotted(title="Whether a payment has been recieved for the invoice" data-bs-toggle="tooltip") Settled
 
-								th.text-end Raw Data
+								th.text-end Raw
 						
 						tbody
 							each invoice, invoice_index in pagedFilteredInvoices

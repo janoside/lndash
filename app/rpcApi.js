@@ -395,6 +395,8 @@ async function refreshLocalChannels() {
 	let byId = {};
 	let byTxid = {};
 
+	global.localChannelPeerPubkeys = [];
+
 	listChannelsResponse.channels.forEach((channel) => {
 		byId[channel.chan_id] = channel;
 
