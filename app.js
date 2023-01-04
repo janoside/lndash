@@ -48,6 +48,8 @@ require("./app/currencies.js");
 
 const package_json = require('./package.json');
 global.appVersion = package_json.version;
+global.cacheId = global.appVersion;
+debugLog(`Default cacheId '${global.cacheId}'`);
 
 debugLog(`Starting LNDash, v${global.appVersion}`);
 
@@ -148,10 +150,27 @@ app.runOnStartup = async () => {
 
 	// git metadata
 	if (global.sourcecodeVersion == null && fs.existsSync('.git')) {
-		simpleGit(".").log(["-n 1"], function(err, log) {
-			global.sourcecodeVersion = log.all[0].hash;
-			global.sourcecodeDate = moment.utc(log.all[0].date, "YYYY-MM-DD HH:mm:ss Z");
-		});
+		try {
+			let log = await simpleGit(".").log(["-n 1"]);
+
+			global.sourcecodeVersion = log.all[0].hash.substring(0, 10);
+			global.sourcecodeDate = log.all[0].date.substring(0, "0000-00-00".length);
+
+			global.cacheId = `${global.sourcecodeDate}-${global.sourcecodeVersion}`;
+
+			debugLog(`Using sourcecode metadata as cacheId: '${global.cacheId}'`);
+
+			debugLog(`Starting ${config.siteInfo.title}, v${global.appVersion} (commit: '${global.sourcecodeVersion}', date: ${global.sourcecodeDate})`);
+
+
+		} catch (err) {
+			utils.logError("3fehge9ee", err, {desc:"Error accessing git repo"});
+
+			global.cacheId = global.appVersion;
+			debugLog(`Error getting sourcecode version, continuing to use default cacheId '${global.cacheId}'`);
+
+			debugLog(`Starting ${config.siteInfo.title}, v${global.appVersion} (code: unknown commit)`);
+		}
 	}
 	
 
@@ -383,7 +402,7 @@ app.locals.assetUrl = (path) => {
 };
 
 // debug setting to skip js/css integrity checks
-const skipIntegrityChecks = true;
+const skipIntegrityChecks = false;
 const resourceIntegrityHashes = require("./app/resourceIntegrityHashes.js");
 
 app.locals.assetIntegrity = (filename) => {
