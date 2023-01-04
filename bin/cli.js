@@ -1,8 +1,9 @@
 #!/usr/bin/env node
+import meow from 'meow';
 
-const args = require('meow')(`
+const args = meow(`
 	Usage
-		$ lndash [options]
+		$ ln-dash [options]
 
 	Options
 		-p, --port <port>			port to bind http server [default: 3004]
@@ -13,7 +14,7 @@ const args = require('meow')(`
 		-v, --version				output version number
 
 	Examples
-		$ lndash -p 8080
+		$ ln-dash -p 8080
 
 	All options may also be specified as environment variables
 		$ LNDASH_PORT=8080
