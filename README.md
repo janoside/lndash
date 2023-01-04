@@ -31,12 +31,18 @@ Live demo: https://lndash.btc21.org
 * [Install LND](https://github.com/lightningnetwork/lnd/blob/master/docs/INSTALL.md)
 
 
-### 2. Install LNDash (from source)
+### 2. A. Install LNDash (from source)
 
 * `git clone https://github.com/janoside/lndash.git`
 * `cd lndash; npm install`
 * `npm start`
 * Open [http://127.0.0.1:3004/](http://127.0.0.1:3004/)
+
+### 2. B. Install LNDash as global NPM package
+
+* `npm install -g ln-dash`
+* `LNDASH_PORT=3005 ln-dash`
+* Open [http://127.0.0.1:3005/](http://127.0.0.1:3005/)
 
 ### 3. Setup LNDash via UI
 
