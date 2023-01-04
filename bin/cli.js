@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import meow from 'meow';
+const meow = require("meow");
 
 const args = meow(`
 	Usage
