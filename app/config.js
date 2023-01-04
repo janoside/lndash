@@ -1,7 +1,7 @@
 
 const credentials = require("./credentials.js");
 
-const cookieSecret = process.env.LND_ADMIN_COOKIE_SECRET || "0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f";
+const cookieSecret = process.env.LNDASH_COOKIE_SECRET || "0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f";
 
 [].forEach(function(item) {
 	if (process.env[item] === undefined) {
@@ -47,7 +47,7 @@ module.exports = {
 		}
 	},
 
-	blockExplorerUrl: process.env.LND_ADMIN_BLOCK_EXPLORER_URL || "https://explorer.btc21.org",
+	blockExplorerUrl: process.env.LNDASH_BLOCK_EXPLORER_URL || "https://explorer.btc21.org",
 
 	headerDropdownLinks: {
 		title:"Related Sites",

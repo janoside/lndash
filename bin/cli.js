@@ -16,7 +16,7 @@ const args = require('meow')(`
 		$ lndash -p 8080
 
 	All options may also be specified as environment variables
-		$ LND_ADMIN_PORT=8080
+		$ LNDASH_PORT=8080
 
 
 `, { flags: { port: {alias:'p'}, host: {alias:'i'}, demo: {type:'boolean'}
@@ -28,9 +28,9 @@ const envify = k => k.replace(/([A-Z])/g, '_$1').toUpperCase();
 
 Object.keys(args).filter(k => k.length > 1).forEach(k => {
 	if (args[k] === false) {
-		process.env[`LND_ADMIN_NO_${envify(k)}`] = true;
+		process.env[`LNDASH_NO_${envify(k)}`] = true;
 	} else {
-		process.env[`LND_ADMIN_${envify(k)}`] = args[k];
+		process.env[`LNDASH_${envify(k)}`] = args[k];
 	}
 });
 
