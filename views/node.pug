@@ -25,8 +25,8 @@ block content
 			+pageTitle(["Node", nodeAlias], nodePubkey, true, 24)
 				span.h3
 					if (nodePubkey == lndRpc.internal_pubkey)
-						span(title="These are the public node details for your active LND node", data-bs-toggle="tooltip")
-							i.fas.fa-certificate.fa-sm.text-primary.ms-3
+						span(title="These are the public node details for your active node", data-bs-toggle="tooltip")
+							i.fas.fa-home.fa-sm.text-primary.ms-3
 
 					if (utils.isObjectStarred(`node:${nodePubkey}`))
 						span(title="This is one of your favorite nodes" data-bs-toggle="tooltip")
@@ -190,12 +190,12 @@ block content
 
 
 			if (sharedLocalChannels.length > 0)
-				+sectionTitle(`${sharedLocalChannels.length.toLocaleString()} Local Channel${(sharedLocalChannels.length == 1) ? "" : "s"}`, false, null, null, true, "These are the channels shared between your current LND node and this node")
+				+sectionTitle(`${sharedLocalChannels.length.toLocaleString()} Shared Channel${(sharedLocalChannels.length == 1) ? "" : "s"}`, false, null, null, true, "These are the channels shared between your current node and this node")
 				
 				+contentSection
 					- var channels = sharedLocalChannels;
 					- var channelTableIndexOffset = 0;
-					include includes/channel-table.pug
+					include includes/shared-channel-table.pug
 						
 
 			if (nodeChannels && nodeChannels.length > sharedLocalChannels.length)

@@ -85,22 +85,24 @@ block content
 		- var channelPointTxid = channelPointParts[0];
 		- var channelPointIndex = channelPointParts[1];
 
+
+		if (localChannels.byId && localChannels.byId[channel.channel_id])
+			- var localChannel = localChannels.byId[channel.channel_id];
+
+			- var localBalance = new Decimal(localChannel.local_balance);
+			- var remoteBalance = new Decimal(localChannel.remote_balance);
+
+			- var valueReceived = new Decimal(localChannel.total_satoshis_received);
+			- var valueSent = new Decimal(localChannel.total_satoshis_sent);
+			- var netValue = valueReceived.minus(valueSent);
+
+
 		+pageTabs(["Details", "JSON"])
 
 		.tab-content
 			+pageTab("Details", true)
 				+contentSection("Summary")
-					if (localChannels.byId && localChannels.byId[channel.channel_id])
-						- var localChannel = localChannels.byId[channel.channel_id];
-
-						- let localBalance = new Decimal(localChannel.local_balance);
-						- let remoteBalance = new Decimal(localChannel.remote_balance);
-
-						- let valueReceived = new Decimal(localChannel.total_satoshis_received);
-						- let valueSent = new Decimal(localChannel.total_satoshis_sent);
-						- let netValue = valueReceived.minus(valueSent);
-
-
+					if (localChannel)
 						.mb-3
 							+summaryRow(2)
 								+summaryItem("Local / Remote Balances")
@@ -189,8 +191,27 @@ block content
 
 
 						if (localChannel)
+							+summaryItem("Uptime")
+								| #{new Decimal(localChannel.uptime).dividedBy(localChannel.lifetime).times(100).toDP(1)}%
+							
+
+
+					if (localChannel)
+
+						hr.my-4
+
+						+summaryRow(2)
+							+summaryItem("Creator")
+								if (localChannel.initiator)
+									| You
+								else
+									| Them
+
 							+summaryItem("Updates")
 								| #{parseInt(localChannel.num_updates).toLocaleString()}
+
+
+
 							
 
 					
@@ -300,6 +321,10 @@ block content
 						
 
 			+pageTab("JSON")
+				+contentSection("parsedChannelId")
+					pre
+						code.json #{JSON.stringify(parsedChannelId, null, 4)}
+
 				+contentSection("channelInfo")
 					pre
 						code.json #{JSON.stringify(channel, null, 4)}
@@ -307,7 +332,7 @@ block content
 				if (localChannels.byId[channel.channel_id])
 					+contentSection("localChannelInfo")
 						pre
-							code.json #{JSON.stringify(localChannels.byId[channel.channel_id], null, 4)}
+							code.json #{JSON.stringify(localChannel, null, 4)}
 
 				+contentSection("node1Info")
 					pre

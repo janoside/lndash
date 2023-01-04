@@ -1,0 +1,41 @@
+.table-responsive
+	table.table.table-striped
+		thead
+			tr
+				th.text-end.fw-light #
+				th ID
+				th Flags
+
+				th.text-end
+					span.border-dotted(title="Local and Remote Balances", data-bs-toggle="tooltip") Balances
+					span.text-muted.ms-1
+						| (
+						span.fw-bold
+							span.text-primary L
+							span.mx-1 /
+							span.text-info R
+						| )
+
+				th.text-end Transfer
+
+				th.text-end Capacity
+
+				th.text-end
+					span.border-dotted(title="The height of the block that confirmed each channel's opening transaction" data-bs-toggle="tooltip") Opened
+					span.ms-1 / Updated
+
+				th.text-end Raw
+				
+		
+		tbody
+			each channel, index in channels
+
+				- var channelTableIndex = (channelTableIndexOffset + index + 1);
+
+				+modal(`sharedChannelModal-${channelTableIndex}`, `Channel - ${channel.channel_id}`)
+					pre
+						code.json #{JSON.stringify(channel, null, 4)}
+
+				
+				
+				include ./shared-channel-table-row.pug

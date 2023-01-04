@@ -285,12 +285,18 @@ mixin channelPoint(txid, outputIndex, blockHeight)
 	+btcTxid(channelPointTxid, 8)
 	span.ms-1 [#{channelPointIndex}]
 	
+	
 	span.fs-80.text-muted.ms-2(title="Block height of this transaction", data-bs-toggle="tooltip") (
-		if (config.blockExplorerUrl)
-			a(href=`${config.blockExplorerUrl}/block-height/${blockHeight}` target="_blank") #{blockHeight.toLocaleString()}
-		else
-			span #{blockHeight.toLocaleString()}
+		+blockHeight(blockHeight)
 		| )
+
+
+
+mixin blockHeight(blockHeight)
+	if (config.blockExplorerUrl)
+		a(href=`${config.blockExplorerUrl}/block-height/${blockHeight}` target="_blank") #{blockHeight.toLocaleString()}
+	else
+		span #{blockHeight.toLocaleString()}
 
 
 mixin netAddress(address, network, copyButton=false)

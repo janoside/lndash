@@ -50,94 +50,85 @@ router.get("/", asyncHandler(async (req, res, next) => {
 	}
 }));
 
-router.get("/node/:nodePubkey", function(req, res) {
-	var nodePubkey = req.params.nodePubkey;
+router.get("/node/:nodePubkey", asyncHandler(async (req, res) => {
+	try {
+		let nodePubkey = req.params.nodePubkey;
 
-	res.locals.nodePubkey = nodePubkey;
+		res.locals.nodePubkey = nodePubkey;
 
-	var promises = [];
 
-	promises.push(new Promise(function(resolve, reject) {
-		lndRpc.listPeers({}, function(err, response) {
-			if (err) {
-				res.locals.pageErrors.push(utils.logError("u3rhgqfdygews", err));
+		let ListPeers = util.promisify(lndRpc.ListPeers.bind(lndRpc));
+		let listPeersResponse = await ListPeers({});
+		res.locals.listPeers = listPeersResponse;
 
-				reject(err);
+		res.locals.peerPubkeys = [];
+		if (listPeersResponse.peers) {
+			listPeersResponse.peers.forEach((peerInfo) => {
+				res.locals.peerPubkeys.push(peerInfo.pub_key);
+			});
+		}
 
-				return;
-			}
 
-			res.locals.listPeers = response;
 
-			res.locals.peerPubkeys = [];
-			if (response.peers) {
-				response.peers.forEach(function(peerInfo) {
-					res.locals.peerPubkeys.push(peerInfo.pub_key);
-				});
-			}
+		res.locals.localChannels = await rpcApi.getLocalChannels();
 
-			resolve();
-		});
-	}));
+		
 
-	promises.push(new Promise(function(resolve, reject) {
-		rpcApi.getFullNetworkDescription(true).then(function(fnd) {
-			res.locals.fullNetworkDescription = fnd;
-			res.locals.nodeInfo = fnd.nodeInfoByPubkey[nodePubkey];
+		let localPendingChannels = await rpcApi.getLocalPendingChannels();
 
-			if (res.locals.nodeInfo) {
-				res.locals.nodeChannels = [];
-				fnd.channels.sortedByOpenBlockHeight.forEach(function(channel) {
-					if (channel.node1_pub == nodePubkey || channel.node2_pub == nodePubkey) {
-						res.locals.nodeChannels.push(channel);
-					}
-				});
+		res.locals.localPendingChannels = localPendingChannels;
 
-				var qrcodeStrings = [];
-				qrcodeStrings.push(nodePubkey);
+		res.locals.pendingOpenChannels = localPendingChannels.pendingOpenChannels;
+		res.locals.pendingCloseChannels = localPendingChannels.pendingCloseChannels;
+		res.locals.pendingForceCloseChannels = localPendingChannels.pendingForceCloseChannels;
+		res.locals.waitingCloseChannels = localPendingChannels.waitingCloseChannels;
 
-				if (res.locals.nodeInfo.node.addresses) {
-					for (var i = 0; i < res.locals.nodeInfo.node.addresses.length; i++) {
-						if (res.locals.nodeInfo.node.addresses[i].network == "tcp") {
-							res.locals.nodeUri = nodePubkey + "@" + res.locals.nodeInfo.node.addresses[i].addr;
+		// aggregate into single array for ease of use
+		res.locals.pendingChannels = localPendingChannels.allChannels;
 
-							qrcodeStrings.push(res.locals.nodeUri);
 
-							break;
-						}
+
+		let fnd = await rpcApi.getFullNetworkDescription(true);
+
+		res.locals.fullNetworkDescription = fnd;
+		res.locals.nodeInfo = fnd.nodeInfoByPubkey[nodePubkey];
+
+		if (res.locals.nodeInfo) {
+			res.locals.nodeChannels = [];
+
+			fnd.channels.sortedByOpenBlockHeight.forEach((channel) => {
+				if (channel.node1_pub == nodePubkey || channel.node2_pub == nodePubkey) {
+					res.locals.nodeChannels.push(channel);
+				}
+			});
+
+			var qrcodeStrings = [];
+			qrcodeStrings.push(nodePubkey);
+
+			if (res.locals.nodeInfo.node.addresses) {
+				for (var i = 0; i < res.locals.nodeInfo.node.addresses.length; i++) {
+					if (res.locals.nodeInfo.node.addresses[i].network == "tcp") {
+						res.locals.nodeUri = nodePubkey + "@" + res.locals.nodeInfo.node.addresses[i].addr;
+
+						qrcodeStrings.push(res.locals.nodeUri);
+
+						break;
 					}
 				}
-
-				utils.buildQrCodeUrls(qrcodeStrings).then(function(qrcodeUrls) {
-					res.locals.qrcodeUrls = qrcodeUrls;
-
-					resolve();
-
-				}).catch(function(err) {
-					res.locals.pageErrors.push(utils.logError("3e0ufhdhfsdss", err));
-					
-					resolve();
-				});
-			} else {
-				// node-not-found page
-				resolve();
 			}
-		}).catch(function(err) {
-			res.locals.pageErrors.push(utils.logError("349e7ghwef96werg", err));
 
-			reject(err);
-		});
-	}));
+			res.locals.qrcodeUrls = await utils.buildQrCodeUrls(qrcodeStrings);
 
-	Promise.all(promises.map(utils.reflectPromise)).then(function() {
-		res.render("node");
-
-	}).catch(function(err) {
+		} else {
+			// node-not-found page
+		}
+	} catch (err) {
 		res.locals.pageErrors.push(utils.logError("230rhsd0gds", err));
-		
+
+	} finally {
 		res.render("node");
-	});
-});
+	}
+}));
 
 router.get("/channel/:channelId", function(req, res) {
 	var channelId = req.params.channelId;
@@ -145,6 +136,7 @@ router.get("/channel/:channelId", function(req, res) {
 	res.locals.channelId = channelId;
 
 	var parsedChannelId = utils.parseChannelId(channelId);
+	res.locals.parsedChannelId = parsedChannelId;
 
 	res.locals.blockHeight = parsedChannelId.blockHeight;
 	res.locals.blockTxIndex = parsedChannelId.blockTxIndex;

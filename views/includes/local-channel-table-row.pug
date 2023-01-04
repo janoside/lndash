@@ -1,72 +1,98 @@
+if (channel.chan_id)
+	- var parsedChannelId = utils.parseChannelId(channel.chan_id);
+
 tr.word-wrap
 	th.text-end.fw-light #{(channel_index + offset + 1).toLocaleString()}
 
 	td
-		.mb-2
-			if (channel.active)
-				+pillBadgeSuccess("Active")
-				
-			else if (channel.chan_id)
-				if (channel.close_type)
-					+pillBadgeDanger(`Closed`, `Close type: ${channel.close_type}`)
+		if (channel.chan_id)
+			span.me-2
+				if (channel.active)
+					span(title="Active", data-bs-toggle="tooltip")
+						i.fas.fa-circle.fa-sm.text-success
 					
+				else if (channel.chan_id)
+					if (channel.close_type)
+						span(title=`Closed (${channel.close_type})`, data-bs-toggle="tooltip")
+							i.fas.fa-circle.fa-sm.text-danger
+						
+
+					else
+						span(title="Inactive", data-bs-toggle="tooltip")
+							i.fas.fa-circle.fa-sm.text-warning
 
 				else
-					+pillBadgeWarning("Inactive")
+					if (pendingOpenChannels.includes(channel))
+						span(title="Opening", data-bs-toggle="tooltip")
+							i.fas.fa-circle.fa-sm.text-orange
 
-			else
-				if (pendingOpenChannels.includes(channel))
-					+pillBadgeWarning("Opening")
+					if (pendingCloseChannels.includes(channel))
+						span(title="Opening", data-bs-toggle="tooltip")
+							i.fas.fa-circle.fa-sm.text-danger
 
-				if (pendingCloseChannels.includes(channel))
-					+pillBadgeDanger("Closing")
+					if (pendingForceCloseChannels.includes(channel))
+						span(title="Force Closing", data-bs-toggle="tooltip")
+							i.fas.fa-circle.fa-sm.text-danger
 
-				if (pendingForceCloseChannels.includes(channel))
-					+pillBadgeDanger("Force Closing")
-
-				if (waitingCloseChannels.includes(channel))
-					+pillBadgeWarning("Waiting to Close")
-
-
-			if (channel.private)
-				+pillBadgeSuccess
-					span.me-1 Private
-					i.fas.fa-lock
-
-			else
-				+pillBadgeWarning
-					span.me-1 Public
-					i.fas.fa-eye
+					if (waitingCloseChannels.includes(channel))
+						span(title="Waiting to Close", data-bs-toggle="tooltip")
+							i.fas.fa-circle.fa-sm.text-orange
 
 
-		if (channel.chan_id)
-			.mb-2
-				+channelId(channel.chan_id, channel.active || (channel.chan_id && !channel.close_type))
-
-
+			+channelId(channel.chan_id, channel.active || (channel.chan_id && !channel.close_type))
 
 		if (pendingOpenChannels && pendingOpenChannels.includes(channel))
-			.mb-1
-				+pillBadgeInfo("Opening Tx")
+			span.me-2(title="Opening", data-bs-toggle="tooltip")
+				i.fas.fa-circle.fa-sm.text-info
 			
 			- var btc_txid = channel.channel.channel_point.substring(0, channel.channel.channel_point.indexOf(":"));
 			- var outpoint_output_index = channel.channel.channel_point.substring(channel.channel.channel_point.indexOf(":") + 1);
 
+			+pillBadgeInfo("TX", "Opening Bitcoin transaction (with output index)")
 			+btcTxid(btc_txid, 12)
 			span.ms-1 [#{outpoint_output_index}]
 
 
 
+	td
+		if (channel.private)
+			+pillBadgeSuccess
+				span.me-1 Private
+				i.fas.fa-lock
+
+		else
+			+pillBadgeWarning
+				span.me-1 Public
+				i.fas.fa-eye
+
+
+		
+		if (channel.initiator)
+			+pillBadgeInfo
+				span(title="You created this channel", data-bs-toggle="tooltip")
+					i.fas.fa-arrow-up.me-1
+					| Outbound
+		else
+			+pillBadgeSuccess
+				span(title="Your channel partner created this channel", data-bs-toggle="tooltip")
+					i.fas.fa-arrow-down.me-1
+					| Inbound
+
 		
 
 	td
-		if (channel.remote_pubkey)
-			- var card_node_pubkey = channel.remote_pubkey;
-			
-		else if (channel.channel.remote_node_pub)
-			- var card_node_pubkey = channel.channel.remote_node_pub;
+		- let card_node_pubkey = null;
 
-		+nodeCard(card_node_pubkey, {style: "compact"})
+		if (channel.remote_pubkey)
+			- card_node_pubkey = channel.remote_pubkey;
+			
+		else if (channel.channel && channel.channel.remote_node_pub)
+			- card_node_pubkey = channel.channel.remote_node_pub;
+
+		if (card_node_pubkey)
+			+nodeCard(card_node_pubkey, {style: "compact"})
+		else
+			span.text-danger Unknown node
 
 	if (false)
 		td.text-end
@@ -124,17 +150,19 @@ tr.word-wrap
 
 
 		if (valueReceived != null && (valueReceived > 0 || valueSent > 0))
-			+progressBar([valueReceived, valueSent], ["text-bg-success", "text-bg-danger"], "6px", false)
-		
-			
-			.d-flex.justify-content-between
-				.text-start
-					span.fs-90
+			.text-end.fs-90
+				if (valueReceived && valueReceived > 0)
+					.text-success
+						| +
 						+btcValue(valueReceived)
-
-				.text-end
-					span.fs-90
+				
+				if (valueSent && valueSent > 0)
+					.text-danger
+						| -
 						+btcValue(valueSent)
+
+
+			
 
 		else
 			.text-end -
@@ -142,9 +170,12 @@ tr.word-wrap
 
 
 
-
-
 	td.text-end
+		if (channel.chan_id)
+			+blockHeight(parsedChannelId.blockHeight)
+
+			br
+		
 		if (channel.active && fullNetworkDescription.channelsById[channel.chan_id])
 			- var lastUpdateTimestamp = fullNetworkDescription.channelsById[channel.chan_id].last_update;
 
@@ -152,6 +183,7 @@ tr.word-wrap
 
 		else
 			span -
+		
 
 	td.text-end
 		a.btn.btn-sm.btn-primary(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#localChannelModal-" + localChannel_index))

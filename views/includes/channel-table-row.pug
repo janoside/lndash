@@ -18,9 +18,6 @@ tr.word-wrap
 		+btcValue(channel.capacity)
 	
 
-	td.text-end
-		+date(channel.last_update)
-
 
 	td.text-end
 		if (config.blockExplorerUrl)
@@ -28,5 +25,9 @@ tr.word-wrap
 
 		else
 			span #{fullNetworkDescription.parsedChannelIds[channel.channel_id].blockHeight.toLocaleString()}
+
+		br
+
+		+date(channel.last_update)
 
 	

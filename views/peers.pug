@@ -85,14 +85,6 @@ block content
 
 							th.text-end
 								span.border-dotted(title="Total Inbound and Outbound Value Transfers", data-bs-toggle="tooltip") Transfer
-								span.text-muted.ms-1
-									| (
-									span.fw-bold
-										i.fas.fa-arrow-down.text-success
-										span.mx-1 /
-										i.fas.fa-arrow-up.text-danger
-
-									| )
 
 							th.text-end Data Transfer
 							
@@ -117,16 +109,15 @@ block content
 									- let valueSent = new Decimal(item.sat_sent || 0);
 
 									if (valueReceived != null && (valueReceived > 0 || valueSent > 0))
-										+progressBar([valueReceived, valueSent], ["text-bg-success", "text-bg-danger"], "6px", false)
-									
-										
-										.d-flex.justify-content-between
-											.text-start
-												span.fs-80
+										.text-end.fs-90
+											if (valueReceived && valueReceived > 0)
+												.text-success
+													| +
 													+btcValue(valueReceived)
-
-											.text-end
-												span.fs-80
+											
+											if (valueSent && valueSent > 0)
+												.text-danger
+													| -
 													+btcValue(valueSent)
 
 									else

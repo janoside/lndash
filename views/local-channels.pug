@@ -107,9 +107,10 @@ block content
 						tr
 							th.text-end.fw-light #
 							th Channel
+							th Flags
 							//th.text-center
 							//	span.border-dotted(title="Whether channel was created by the local node", data-bs-toggle="tooltip") Initiator
-							th Remote Node
+							th Partner Node
 
 							if (false)
 								th.text-end
@@ -134,16 +135,11 @@ block content
 
 							th.text-end
 								span.border-dotted(title="Total Inbound and Outbound Value Transfers", data-bs-toggle="tooltip") Transfer
-								span.text-muted.ms-1
-									| (
-									span.fw-bold
-										i.fas.fa-arrow-down.text-success
-										span.mx-1 /
-										i.fas.fa-arrow-up.text-danger
-										
-									| )
 
-							th.text-end Updated
+							th.text-end
+								span.border-dotted(title="The block height at which this channel was opened", data-bs-toggle="tooltip")
+									| Opened
+								span.ms-1 / Updated
 
 							th.text-end Raw
 					
@@ -152,7 +148,7 @@ block content
 							- var localChannel_index = channel_index;
 							- var localChannel = channel;
 
-							+modal(`localChannelModal-${localChannel_index}`, `Channel ${localChannel.chan_id}`)
+							+modal(`localChannelModal-${localChannel_index}`, `Channel ${localChannel.chan_id ? localChannel.chan_id : '- Pending Open'}`)
 								pre
 									code.json #{JSON.stringify(localChannel, null, 4)}
 
