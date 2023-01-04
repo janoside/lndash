@@ -59,7 +59,7 @@ Thanks to inspiration from [LND](https://github.com/lightningnetwork/lnd), [Joul
 
 
 
-[npm-ver-img]: https://img.shields.io/npm/v/lndash.svg?style=flat
-[npm-ver-url]: https://www.npmjs.com/package/lndash
-[npm-dl-img]: http://img.shields.io/npm/dm/lndash.svg?style=flat
-[npm-dl-url]: https://npmcharts.com/compare/lndash?minimal=true
+[npm-ver-img]: https://img.shields.io/npm/v/ln-dash.svg?style=flat
+[npm-ver-url]: https://www.npmjs.com/package/ln-dash
+[npm-dl-img]: http://img.shields.io/npm/dm/ln-dash.svg?style=flat
+[npm-dl-url]: https://npmcharts.com/compare/ln-dash?minimal=true
