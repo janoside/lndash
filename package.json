@@ -1,6 +1,6 @@
 {
 	"name": "ln-dash",
-	"version": "0.11.0-beta.1",
+	"version": "0.11.0-beta.2",
 	"private": false,
 	"bin": "bin/cli.js",
 	"scripts": {
@@ -43,7 +43,7 @@
 		"express-session": "^1.17.2",
 		"hash.js": "1.1.7",
 		"latest-version": "^7.0.0",
-		"meow": "^11.0.0",
+		"meow": "^10.1.5",
 		"moment": "^2.29.1",
 		"moment-duration-format": "^2.3.2",
 		"morgan": "^1.10.0",
