@@ -85,6 +85,11 @@ $dropdown-min-width: 11rem;
 	width: fit-content;
 }
 
+// fix some containers ending up too small, like the main div itself
+.container {
+	max-width: 100%;
+}
+
 .table > :not(:first-child) {
 	border-top: 0px;
 }
