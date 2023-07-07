@@ -79,6 +79,11 @@ $dropdown-min-width: 11rem;
 
 @import "../../node_modules/bootstrap/scss/bootstrap";
 
+// fix broken Bootstrap css
+// this one fixes the options modal being too small for its content
+.modal-content {
+	width: fit-content;
+}
 
 .table > :not(:first-child) {
 	border-top: 0px;
