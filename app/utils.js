@@ -159,7 +159,7 @@ function formatCurrencyAmountWithForcedDecimalPlaces(amount, formatType, forcedD
 
 			return returnVal;
 		}
-	} else if (currencyType.type == "exchanged") {
+	} else if (currencyType.type == "fiat") {
 		//console.log(JSON.stringify(global.exchangeRates) + " - " + currencyType.name);
 		if (global.exchangeRates != null && global.exchangeRates[currencyType.id] != null) {
 			dec = dec.times(global.exchangeRates[currencyType.id]);
@@ -767,9 +767,10 @@ const formatBuffer = (buffer, format="base64", fullDetail=false) => {
 };
 
 function getExchangedCurrencyFormatData(amount, exchangeType, includeUnit=true) {
-	if (global.exchangeRates != null && global.exchangeRates[exchangeType.toLowerCase()] != null) {
+	exchangeType = exchangeType.toLowerCase()
+	if (global.exchangeRates != null && global.exchangeRates[exchangeType] != null) {
 		var dec = new Decimal(amount);
-		dec = dec.times(global.exchangeRates[exchangeType.toLowerCase()]);
+		dec = dec.times(global.exchangeRates[exchangeType]);
 		var exchangedAmt = parseFloat(Math.round(dec * 100) / 100).toFixed(2);
 
 		return {

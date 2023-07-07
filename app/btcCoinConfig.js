@@ -52,7 +52,7 @@ const currencyUnits = [
 		decimalPlaces:0
 	},
 	{
-		type:"exchanged",
+		type:"fiat",
 		name:"USD",
 		multiplier:"usd",
 		values:["usd"],
@@ -60,7 +60,7 @@ const currencyUnits = [
 		symbol:"$"
 	},
 	{
-		type:"exchanged",
+		type:"fiat",
 		name:"EUR",
 		multiplier:"eur",
 		values:["eur"],
