@@ -1,49 +1,64 @@
 global.currencyTypes = {
 	"btc": {
 		id: "btc",
-		type:"native",
-		name:"BTC",
-		multiplier:1,
-		default:true,
-		decimalPlaces:8
+		type: "native",
+		name: "BTC",
+		multiplier: 1,
+		default: true,
+		decimalPlaces: 8
+	},
+	"mbtc": {
+		id: "mbtc",
+		type: "native",
+		name: "mBTC",
+		multiplier: 1000,
+		decimalPlaces: 5
+	},
+	"bits": {
+		id: "bits",
+		type: "native",
+		name: "bits",
+		active: false,
+		multiplier: 1000000,
+		decimalPlaces: 2
 	},
 	"sat": {
 		id: "sat",
-		type:"native",
-		name:"sat",
-		multiplier:100000000,
-		decimalPlaces:0
+		type: "native",
+		name: "sat",
+		multiplier: 100000000,
+		decimalPlaces: 0
 	},
 	"msat": {
 		id: "msat",
-		type:"native",
-		name:"msat",
-		multiplier:100000000000,
-		decimalPlaces:0
+		type: "native",
+		name: "msat",
+		multiplier: 100000000000,
+		decimalPlaces: 0
 	},
 	"usd": {
 		id: "usd",
-		type:"exchanged",
-		name:"USD",
-		multiplier:"usd",
-		decimalPlaces:2,
-		symbol:"$"
+		type: "fiat",
+		name: "USD",
+		multiplier: "usd",
+		decimalPlaces: 2,
+		symbol: "$"
 	},
 	"eur": {
 		id: "eur",
-		type:"exchanged",
-		name:"EUR",
-		multiplier:"eur",
-		decimalPlaces:2,
-		symbol:"€"
+		type: "fiat",
+		name: "EUR",
+		multiplier: "eur",
+		decimalPlaces: 2,
+		symbol: "€"
 	},
 	"gbp": {
 		id: "gbp",
-		type:"exchanged",
-		name:"GBP",
-		multiplier:"gbp",
-		decimalPlaces:2,
-		symbol:"£"
+		type: "fiat",
+		name: "GBP",
+		multiplier: "gbp",
+		decimalPlaces: 2,
+		symbol: "£"
 	},
 };
 

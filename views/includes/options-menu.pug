@@ -33,24 +33,24 @@ hr
 		label.form-label Display Currency
 		br
 		.btn-group.me-2(role="group")
-			each currencyId in ["BTC", "sat", "local"]
+			each currency, currencyId in global.currencyTypes
 				if (displayCurrency.toLowerCase() == currencyId.toLowerCase())
-					span.btn.btn-sm.btn-primary #{currencyId}
+					span.btn.btn-sm.btn-primary #{currency.name}
 
-				else
-					a.btn.btn-sm.btn-light.border(href=`/changeSetting?name=displayCurrency&value=${currencyId}`) #{currencyId}
+				else if (currency.type === "native")
+					a.btn.btn-sm.btn-light.border(href=`/changeSetting?name=displayCurrency&value=${currencyId}`) #{currency.name}
 
 
 	.me-3
 		label.form-label Local Currency
 		br
 		.btn-group.me-2(role="group")
-			each currencyId in ["USD", "EUR", "GBP"]
+			each currency, currencyId in global.currencyTypes
 				if (localCurrency.toLowerCase() == currencyId.toLowerCase())
-					span.btn.btn-sm.btn-primary #{currencyId}
+					span.btn.btn-sm.btn-primary #{currency.name}
 
-				else
-					a.btn.btn-sm.btn-light.border(href=`/changeSetting?name=localCurrency&value=${currencyId}`) #{currencyId}
+				else if (currency.type === "fiat")
+					a.btn.btn-sm.btn-light.border(href=`/changeSetting?name=localCurrency&value=${currencyId}`) #{currency.name}
 
 
 
