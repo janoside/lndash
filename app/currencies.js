@@ -36,6 +36,11 @@ global.currencyTypes = {
 		multiplier: 100000000000,
 		decimalPlaces: 0
 	},
+	"local": {
+		id: "local",
+		type: "native",
+		name: "Local"
+	},
 	"usd": {
 		id: "usd",
 		type: "fiat",
@@ -59,7 +64,7 @@ global.currencyTypes = {
 		multiplier: "gbp",
 		decimalPlaces: 2,
 		symbol: "£"
-	},
+	}
 };
 
 global.currencySymbols = {
