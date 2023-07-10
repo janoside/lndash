@@ -81,8 +81,8 @@ $dropdown-min-width: 11rem;
 
 // fix broken Bootstrap css
 // this one fixes the options modal being too small for its content
-.modal-content {
-	width: 100%;
+.modal {
+	--bs-modal-width: fit-content;
 }
 
 // fix some containers ending up too small, like the main div itself
