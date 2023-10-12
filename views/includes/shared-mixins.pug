@@ -607,12 +607,14 @@ mixin nodeIcon(node_pubkey, node_icon_size)
 
 mixin nodeColorSwatch(node_color)
 	- var hsl = utils.colorHexToHsl(node_color);
+	- const style = `display: inline-block; width: min-content; height: min-content; margin-right: 5px !important; padding: 0; padding-inline: 0.1em; margin: 0; border-radius: 0.2em; background: ${node_color};`
 
-	if (hsl.s < 0.1)
-		div(style=("display: inline-block; width: 2em; height: 1.25em; margin-bottom: -4px !important; margin-right: 5px !important; padding: 0; margin: 0; border-radius: 0.2em; border: solid 1px #aaa; background: " + node_color), title=node_color, data-bs-toggle="tooltip")
-
+	if (hsl.l <= 0.1)
+		div(style=(style + "border: solid 1px #aaa;"), title=node_color, data-bs-toggle="tooltip") #{node_color}
+	else if (hsl.l >= 0.5)
+		div(style=(style + "color: #000;")) #{node_color}
 	else
-		div(style=("display: inline-block; width: 2em; height: 1.25em; margin-bottom: -4px !important; margin-right: 5px !important; padding: 0; margin: 0; border-radius: 0.2em; background: " + node_color), title=node_color, data-bs-toggle="tooltip")
+		div(style=(style), title=node_color, data-bs-toggle="tooltip") #{node_color}
 
 
 
