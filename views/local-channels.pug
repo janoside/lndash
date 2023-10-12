@@ -147,10 +147,11 @@ block content
 						each channel, channel_index in pagedFilteredChannels
 							- var localChannel_index = channel_index;
 							- var localChannel = channel;
+							- var channelTableIndex = (channel_index + 1);
 
 							+modal(`localChannelModal-${localChannel_index}`, `Channel ${localChannel.chan_id ? localChannel.chan_id : '- Pending Open'}`)
 								pre
 									code.json #{JSON.stringify(localChannel, null, 4)}
 
-							include ./includes/local-channel-table-row.pug
+							include ./includes/channel-table-row.pug
 

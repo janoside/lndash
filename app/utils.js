@@ -112,7 +112,10 @@ function formatCurrencyAmountWithForcedDecimalPlaces(amount, formatType, forcedD
 
 	var dec = new Decimal(amount);
 
-	var decimalPlaces = currencyType.decimalPlaces;
+	// the regex used to strip trailing zeros only works
+	// if theres a non-zero in the string
+	// force currencies with no decimals to have one so 0 values dont get deleted
+	var decimalPlaces = currencyType.decimalPlaces || 1;
 	//if (decimalPlaces == 0 && dec < 1) {
 	//	decimalPlaces = 5;
 	//}
