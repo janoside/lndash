@@ -436,7 +436,7 @@ mixin _valueDisplaySat(val, options={})
 		span.ms-1 #{largeNumberData[1].textDesc}
 		
 	else
-		span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{parts.intVal.toLocaleString()}
+		span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{parts.val.toLocaleString()}
 
 
 	if (exchangeRates)
@@ -469,7 +469,7 @@ mixin _valueDisplayLocal(val, options={})
 			span.ms-1 #{largeNumberData[1].textDesc}
 
 	else
-		span.border-dotted(title=`${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC`, data-bs-toggle="tooltip") #{parts.val}
+		span.border-dotted(title=`${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC`, data-bs-toggle="tooltip") #{parts.val.toLocaleString()}
 	
 
 mixin valueDisplaySpecial(val, maxDecimals=-1, summarizeAlways=false, summarizeMin=Infinity, summarizeDecimals=-1)

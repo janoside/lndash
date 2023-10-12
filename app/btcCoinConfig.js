@@ -33,7 +33,7 @@ const currencyUnits = [
 		active:true,
 		multiplier:100000000,
 		values:["sat", "satoshi"],
-		decimalPlaces:0
+		decimalPlaces:3
 	},
 	{
 		type:"native",

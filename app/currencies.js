@@ -27,7 +27,7 @@ global.currencyTypes = {
 		type: "native",
 		name: "sat",
 		multiplier: 100000000,
-		decimalPlaces: 0
+		decimalPlaces: 3
 	},
 	"msat": {
 		id: "msat",

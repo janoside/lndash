@@ -194,8 +194,10 @@ block content
 											td.text-end
 												.text-success
 													span +
-
-													+btcValue(forwardingEvent.fee)
+													if (forwardingEvent.fee == "0")
+														span #{forwardingEvent.fee_msat} msat
+													else
+														+btcValue(forwardingEvent.fee)
 
 											td.text-end
 												a.btn.btn-sm.btn-primary(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#forwardingEventModal-" + forwardingEventIndex))
