@@ -81,7 +81,7 @@ block content
 							input.form-control.form-control-lg(id="local_balance" name="local_balance" value=local_balance)
 							
 							.input-group-text sat
-
+					if (!process.env.LNDASH_PRIVACY_MODE)
 						span.form-text.text-muted ~ 
 							span(id="local_balance_note") #{new Decimal(local_balance || 0).dividedBy(coinConfig.baseCurrencyUnit.multiplier).times(global.exchangeRates.usd).toDP(2)} 
 							small  USD
@@ -94,7 +94,7 @@ block content
 							input.form-control.form-control-lg(id="remote_balance" name="remote_balance" value=remote_balance placeholder="0")
 
 							.input-group-text sat
-
+					if (!process.env.LNDASH_PRIVACY_MODE)
 						.form-text.text-muted ~ 
 							span(id="remote_balance_note") #{new Decimal(remote_balance || 0).dividedBy(coinConfig.baseCurrencyUnit.multiplier).times(global.exchangeRates.usd).toDP(2)} 
 							small  USD
@@ -118,36 +118,37 @@ block content
 
 
 block endOfBody
-	script.
-		var satPerUsd = #{coinConfig.baseCurrencyUnit.multiplier} / #{global.exchangeRates.usd};
+	if (!process.env.LNDASH_PRIVACY_MODE)
+		script.
+			var satPerUsd = #{coinConfig.baseCurrencyUnit.multiplier} / #{global.exchangeRates.usd};
 
-		function refreshExchangeRate(inputId, noteId) {
-			var val = $('#' + inputId).val();
-			if (val == "") {
-				val = "0";
+			function refreshExchangeRate(inputId, noteId) {
+				var val = $('#' + inputId).val();
+				if (val == "") {
+					val = "0";
+				}
+
+				var usd = parseInt(val) / satPerUsd;
+				usd = parseFloat(Math.round(usd * 100) / 100).toFixed(2);
+
+				$("#" + noteId).text(usd);
 			}
 
-			var usd = parseInt(val) / satPerUsd;
-			usd = parseFloat(Math.round(usd * 100) / 100).toFixed(2);
+			function formSubmitted() {
+				$("#openchannelButton").prop("disabled", true).toggleClass("btn-primary").toggleClass("btn-secondary");
+				$("#channelOpenStatus").show();
+			}
 
-			$("#" + noteId).text(usd);
-		}
+			$(document).ready(function() {
+				$('#local_balance').on('input', function(e) {
+					refreshExchangeRate("local_balance", "local_balance_note");
+				});
 
-		function formSubmitted() {
-			$("#openchannelButton").prop("disabled", true).toggleClass("btn-primary").toggleClass("btn-secondary");
-			$("#channelOpenStatus").show();
-		}
+				$('#remote_balance').on('input', function(e) {
+					refreshExchangeRate("remote_balance", "remote_balance_note");
+				});
 
-		$(document).ready(function() {
-			$('#local_balance').on('input', function(e) {
+				// refresh in case the UI has existing value that server didn't send
 				refreshExchangeRate("local_balance", "local_balance_note");
-			});
-
-			$('#remote_balance').on('input', function(e) {
 				refreshExchangeRate("remote_balance", "remote_balance_note");
 			});
-
-			// refresh in case the UI has existing value that server didn't send
-			refreshExchangeRate("local_balance", "local_balance_note");
-			refreshExchangeRate("remote_balance", "remote_balance_note");
-		});

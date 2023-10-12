@@ -38,19 +38,23 @@ hr
 					span.btn.btn-sm.btn-primary #{currency.name}
 
 				else if (currency.type === "native")
-					a.btn.btn-sm.btn-light.border(href=`/changeSetting?name=displayCurrency&value=${currencyId}`) #{currency.name}
+					if (process.env.LNDASH_PRIVACY_MODE && currency.name.toLowerCase() == "local")
+					
+					else
+						a.btn.btn-sm.btn-light.border(href=`/changeSetting?name=displayCurrency&value=${currencyId}`) #{currency.name}
 
 
-	.me-3
-		label.form-label Local Currency
-		br
-		.btn-group.me-2(role="group")
-			each currency, currencyId in global.currencyTypes
-				if (localCurrency.toLowerCase() == currencyId.toLowerCase())
-					span.btn.btn-sm.btn-primary #{currency.name}
+	if (!process.env.LNDASH_PRIVACY_MODE)
+		.me-3
+			label.form-label Local Currency
+			br
+			.btn-group.me-2(role="group")
+				each currency, currencyId in global.currencyTypes
+					if (localCurrency.toLowerCase() == currencyId.toLowerCase())
+						span.btn.btn-sm.btn-primary #{currency.name}
 
-				else if (currency.type === "fiat")
-					a.btn.btn-sm.btn-light.border(href=`/changeSetting?name=localCurrency&value=${currencyId}`) #{currency.name}
+					else if (currency.type === "fiat")
+						a.btn.btn-sm.btn-light.border(href=`/changeSetting?name=localCurrency&value=${currencyId}`) #{currency.name}
 
 
 
