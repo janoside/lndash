@@ -73,7 +73,7 @@ block content
 							+nodeCard(pubkey)
 
 			.row
-				.col-sm-6.col-md-4.col-lg-3.col-xl-2
+				.col-sm-6.col-md-4.col-lg-3.col-xl-4
 					.mb-3
 						label.form-label(for="local_balance") Local Balance
 							i.fas.fa-asterisk.text-danger.ms-1.fa-sm(title="Required" data-bs-toggle="tooltip")
@@ -86,7 +86,7 @@ block content
 							span(id="local_balance_note") #{new Decimal(local_balance || 0).dividedBy(coinConfig.baseCurrencyUnit.multiplier).times(global.exchangeRates.usd).toDP(2)} 
 							small  USD
 
-				.col-sm-6.col-md-4.col-lg-3.col-xl-2
+				.col-sm-6.col-md-4.col-lg-3.col-xl-4
 					.mb-3
 						label.form-label(for="remote_balance")
 							span.border-dotted(title="This value should only be used if you intend to make a payment to the remote node as part of the channel-opening process." data-bs-toggle="tooltip") Remote Balance
