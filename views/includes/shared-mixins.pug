@@ -681,7 +681,7 @@ mixin nodeCard(card_node_pubkey, options={})
 						i.fa.fa-certificate.ms-2.text-primary
 
 			else
-				a(href=`/node/${card_node_pubkey}`, title=card_node_pubkey, data-bs-toggle="tooltip")
+				span(title=card_node_pubkey, data-bs-toggle="tooltip")
 					+nodePubkey(card_node_pubkey, style)
 
 				br
