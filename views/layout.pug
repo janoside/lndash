@@ -73,12 +73,6 @@ html
 
 
 		.container.bg-main.px-0.min-vh-100.position-relative
-			if (global.adminPassword)
-				.position-absolute.top-0.end-0.rounded-circle.mt-2(style="margin-right: -40px !important;")
-					a.btn.btn-primary.btn-sm(href="javascript:void(0)", data-bs-toggle="modal", data-bs-target="#global-search")
-						span(title="Global search", data-bs-toggle="tooltip")
-							i.fas.fa-search
-
 			.d-flex.flex-row
 				.d-flex.flex-column.border-end.me-2.bg-menu.min-vh-100(style="width: 215px;")
 					.p-3.d-flex.justify-content-between.border-bottom
@@ -117,14 +111,19 @@ html
 							
 							.p-3
 								block content
+		
+				if (global.adminPassword)
+						.rounded-circle.mt-2(style="margin-right: .45rem !important;")
+							a.btn.btn-primary.btn-sm(href="javascript:void(0)", data-bs-toggle="modal", data-bs-target="#global-search")
+								span(title="Global search", data-bs-toggle="tooltip")
+									i.fas.fa-search
 			
 		
 		
-		
-		
-		script(type="text/javascript", src="https://cdn.jsdelivr.net/npm/jdenticon@3.2.0")
 
-		script(src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js")
+		script(type="text/javascript", src="/js/jdenticon.min.js")
+
+		script(type="text/javascript", src="/js/highlight.min.js")
 		
 		script.
 			$(document).ready(function() {
@@ -134,9 +133,8 @@ html
 				for (var i = 0; i < documentReadyFunctions.length; i++) {
 					documentReadyFunctions[i]();
 				}
+				hljs.highlightAll();
 			});
-
-			hljs.initHighlightingOnLoad();
 
 		if (userMessage || userMessageMarkdown)
 			script.

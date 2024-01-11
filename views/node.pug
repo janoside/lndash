@@ -22,7 +22,7 @@ block content
 			if (nodeInfo && nodeInfo.node)
 				- nodeAlias = nodeInfo.node.alias;
 
-			+pageTitle(["Node", nodeAlias], nodePubkey, true, 24)
+			+pageTitle(nodeAlias, nodePubkey, true, 24)
 				span.h3
 					if (nodePubkey == lndRpc.internal_pubkey)
 						span(title="These are the public node details for your active node", data-bs-toggle="tooltip")
@@ -65,7 +65,6 @@ block content
 
 						+summaryItem("Color")
 							+nodeColorSwatch(nodeInfo.node.color)
-							span #{nodeInfo.node.color}
 
 
 						+summaryItem(nodeInfo.node.addresses.length == 1 ? "Address" : "Addresses")
@@ -182,12 +181,15 @@ block content
 			- var unsharedChannels = [];
 
 			if (nodeChannels)
-				each channel in nodeChannels
-					if (channel.node1_pub == lndRpc.internal_pubkey || channel.node2_pub == lndRpc.internal_pubkey)
-						- sharedLocalChannels.push(channel);
-					else
-						- unsharedChannels.push(channel);
-
+				if (nodePubkey == lndRpc.internal_pubkey)
+					// if we wanted to see our channel details, we'd go to /local-channels
+					- unsharedChannels = nodeChannels;
+				else
+					each channel in nodeChannels
+						if (channel.node1_pub == lndRpc.internal_pubkey || channel.node2_pub == lndRpc.internal_pubkey)
+							- sharedLocalChannels.push(channel);
+						else
+							- unsharedChannels.push(channel);
 
 			if (sharedLocalChannels.length > 0)
 				+sectionTitle(`${sharedLocalChannels.length.toLocaleString()} Shared Channel${(sharedLocalChannels.length == 1) ? "" : "s"}`, false, null, null, true, "These are the channels shared between your current node and this node")

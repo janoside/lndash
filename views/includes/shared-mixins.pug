@@ -263,14 +263,12 @@ mixin channelId(channel_id, isOpen=false)
 	if (isOpen)
 		a(href=`/channel/${channel_id}`)
 			+channelIdInternal(channel_id)
+		+copyTextButton(channel_id)
 
 	else
 		span.border-dotted(title=channel_id, data-bs-toggle="tooltip")
 			+channelIdInternal(channel_id)
 		+copyTextButton(channel_id)
-
-		span(title="Closed", data-bs-toggle="tooltip")
-			i.fas.fa-xmark.text-danger.ms-2
 
 
 	if (utils.isObjectStarred(`channel:${channel_id}`))
@@ -282,8 +280,8 @@ mixin channelIdInternal(channel_id)
 
 
 mixin channelPoint(txid, outputIndex, blockHeight)
-	+btcTxid(channelPointTxid, 8)
-	span.ms-1 [#{channelPointIndex}]
+	+btcTxid(txid, 8)
+	span.ms-1 [#{outputIndex}]
 	
 	
 	span.fs-80.text-muted.ms-2(title="Block height of this transaction", data-bs-toggle="tooltip") (
@@ -364,41 +362,37 @@ mixin btcValue(value, currencyUnit="sat", formatType=null)
 mixin valueDisplay(val, options={})
 	- let displayCurrency = (options.displayCurrency || "btc").toLowerCase();
 
-	if (val > 0)
-		if (displayCurrency == "btc")
-			+_valueDisplayBtc(val, options)
 
-		else if (displayCurrency == "sat")
-			- let o2 = options;
-			- o2.summarizeMin = 1000000;
+	if (displayCurrency == "btc")
+		+_valueDisplayBtc(val, options)
 
-			+_valueDisplaySat(val, o2)
+	else if (displayCurrency == "sat")
+		- let o2 = options;
+		- o2.summarizeMin = 1000000;
 
-		else if (displayCurrency == "local")
-			- let o2 = options;
-			- o2.summarizeMin = 1000000;
+		+_valueDisplaySat(val, o2)
 
-			+_valueDisplayLocal(val, o2)
+	else if (displayCurrency == "local")
+		- let o2 = options;
+		- o2.summarizeMin = 1000000;
 
-		else
-			if (val > 0)
-				- let parts = utils.formatCurrencyAmount(val, displayCurrency);
-				
-				span #{parts.val}
-					if (parts.lessSignificantDigits && !options.hideLessSignificantDigits)
-						span.text-small.text-darken.ms-1 #{parts.lessSignificantDigits}
+		+_valueDisplayLocal(val, o2)
 
-				if (exchangeRates)
-					- let localCurFormatData = utils.getExchangedCurrencyFormatData(val, localCurrency);
-
-					span.xs-hidden.d-none.d-sm-inline.text-tiny.text-tight-spacing.border-dotted.fw-light.ms-1(data-bs-toggle="tooltip", title=`<span class="me-tiny">${localCurFormatData.symbol}</span><span>${localCurFormatData.value}</span>`, data-bs-html="true") #{parts.currencyUnit}
-						
-				else
-					span.xs-hidden.d-none.d-sm-inline.fs-80.text-tight-spacing.fw-light.ms-1 #{parts.currencyUnit}
-								
-					
 	else
-		span 0
+		- let parts = utils.formatCurrencyAmount(val, displayCurrency);
+		
+		span #{parts.val}
+			if (parts.lessSignificantDigits && !options.hideLessSignificantDigits)
+				span.text-small.text-darken.ms-1 #{parts.lessSignificantDigits}
+
+		if (exchangeRates)
+			- let localCurFormatData = utils.getExchangedCurrencyFormatData(val, localCurrency);
+
+			span.xs-hidden.d-none.d-sm-inline.text-tiny.text-tight-spacing.border-dotted.fw-light.ms-1(data-bs-toggle="tooltip", title=`<span class="me-tiny">${localCurFormatData.symbol}</span><span>${localCurFormatData.value}</span>`, data-bs-html="true") #{parts.currencyUnit}
+				
+		else
+			span.xs-hidden.d-none.d-sm-inline.fs-80.text-tight-spacing.fw-light.ms-1 #{parts.currencyUnit}
+
 
 
 mixin _valueDisplayBtc(val, options={})
@@ -442,7 +436,7 @@ mixin _valueDisplaySat(val, options={})
 		span.ms-1 #{largeNumberData[1].textDesc}
 		
 	else
-		span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{parts.intVal.toLocaleString()}
+		span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{parts.val.toLocaleString()}
 
 
 	if (exchangeRates)
@@ -475,7 +469,7 @@ mixin _valueDisplayLocal(val, options={})
 			span.ms-1 #{largeNumberData[1].textDesc}
 
 	else
-		span.border-dotted(title=`${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC`, data-bs-toggle="tooltip") #{parts.val}
+		span.border-dotted(title=`${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC`, data-bs-toggle="tooltip") #{parts.val.toLocaleString()}
 	
 
 mixin valueDisplaySpecial(val, maxDecimals=-1, summarizeAlways=false, summarizeMin=Infinity, summarizeDecimals=-1)
@@ -538,7 +532,10 @@ mixin progressBar(rawValues, colorClasses, height="15px", textInBar=true)
 		- total = total.plus(rawValue);
 
 	each rawValue in rawValues
-		- ratioValues.push(rawValue.dividedBy(total));
+		if (rawValue == 0)
+			- ratioValues.push(rawValue)
+		else
+			- ratioValues.push(rawValue.dividedBy(total));
 
 	.progress.mb-2(style=`height: ${height};`)
 		each ratioValue, valueIndex in ratioValues
@@ -613,12 +610,14 @@ mixin nodeIcon(node_pubkey, node_icon_size)
 
 mixin nodeColorSwatch(node_color)
 	- var hsl = utils.colorHexToHsl(node_color);
+	- const style = `display: inline-block; width: min-content; height: min-content; margin-right: 5px !important; padding: 0; padding-inline: 0.1em; margin: 0; border-radius: 0.2em; background: ${node_color};`
 
-	if (hsl.s < 0.1)
-		div(style=("display: inline-block; width: 2em; height: 1.25em; margin-bottom: -4px !important; margin-right: 5px !important; padding: 0; margin: 0; border-radius: 0.2em; border: solid 1px #aaa; background: " + node_color), title=node_color, data-bs-toggle="tooltip")
-
+	if (hsl.l <= 0.1)
+		div(style=(style + "border: solid 1px #aaa;"), title=node_color, data-bs-toggle="tooltip") #{node_color}
+	else if (hsl.l >= 0.5)
+		div(style=(style + "color: #000;")) #{node_color}
 	else
-		div(style=("display: inline-block; width: 2em; height: 1.25em; margin-bottom: -4px !important; margin-right: 5px !important; padding: 0; margin: 0; border-radius: 0.2em; background: " + node_color), title=node_color, data-bs-toggle="tooltip")
+		div(style=(style), title=node_color, data-bs-toggle="tooltip") #{node_color}
 
 
 
@@ -685,7 +684,7 @@ mixin nodeCard(card_node_pubkey, options={})
 						i.fa.fa-certificate.ms-2.text-primary
 
 			else
-				a(href=`/node/${card_node_pubkey}`, title=card_node_pubkey, data-bs-toggle="tooltip")
+				span(title=card_node_pubkey, data-bs-toggle="tooltip")
 					+nodePubkey(card_node_pubkey, style)
 
 				br

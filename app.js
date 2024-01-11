@@ -179,8 +179,10 @@ app.runOnStartup = async () => {
 
 
 	// exchange rates
-	utils.refreshExchangeRates();
-	setInterval(utils.refreshExchangeRates, 30 * 60000);
+	if (!process.env.LNDASH_PRIVACY_MODE) {
+		utils.refreshExchangeRates();
+		setInterval(utils.refreshExchangeRates, 30 * 60000);
+	}
 
 
 	// refresh periodically

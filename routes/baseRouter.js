@@ -30,8 +30,14 @@ router.get("/", asyncHandler(async (req, res, next) => {
 		let totalRemoteBalance = new Decimal(0);
 		
 		localChannelsResponse.channels.forEach((chan) => {
-			totalLocalBalance = totalLocalBalance.plus(parseInt(chan.local_balance));
-			totalRemoteBalance = totalRemoteBalance.plus(parseInt(chan.remote_balance));
+			const localBalance = parseInt(chan.local_balance)
+			const remoteBalance = parseInt(chan.remote_balance)
+			if (!isNaN(localBalance)) {
+				totalLocalBalance = totalLocalBalance.plus(localBalance);
+			}
+			if (!isNaN(remoteBalance)) {
+				totalRemoteBalance = totalRemoteBalance.plus(remoteBalance);
+			}
 		});
 
 		res.locals.totalLocalBalance = totalLocalBalance;
@@ -233,7 +239,7 @@ router.post("/setup", asyncHandler(async (req, res, next) => {
 
 	global.adminPassword = pwd;
 
-	let pwdHash = await passwordUtils.hash(pwd);
+	let pwdHash = passwordUtils.hash(pwd);
 
 	global.adminCredentials = {};
 	global.adminCredentials.adminPasswordHash = pwdHash;
@@ -1702,14 +1708,14 @@ router.get("/manage-nodes", function(req, res) {
 });
 
 router.post("/manage-nodes", asyncHandler(async (req, res, next) => {
+	// copied to res.locals on error, so form can be re-filled
+	let userFormParams = {};
 	try {
 		let inputType = req.body.inputType;
 
 		res.locals.inputType = inputType;
 		res.locals.setupActive = (!global.adminCredentials.lndNodes || global.adminCredentials.lndNodes.length == 0);
 
-		// copied to res.locals on error, so form can be re-filled
-		let userFormParams = {};
 
 		let newLndNode = null;
 
@@ -1898,7 +1904,7 @@ router.post("/manage-nodes", asyncHandler(async (req, res, next) => {
 
 		res.locals.pageErrors.push(utils.logError("29834y0ehfe", err));
 
-		for (var prop in userFormParams) {
+		for (const prop in userFormParams) {
 			if (userFormParams.hasOwnProperty(prop)) {
 				res.locals[prop] = userFormParams[prop];
 			}

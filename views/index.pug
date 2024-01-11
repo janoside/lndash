@@ -280,7 +280,9 @@ block content
 					span #{fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()}
 
 				+summaryItem("Avg Channel Capacity")
-					- var currencyValue = new Decimal(totalCapacity).dividedBy(fullNetworkDescription.channels.sortedByLastUpdate.length);
+					- let currencyValue = 0;
+					if (fullNetworkDescription.channels.sortedByLastUpdate.length)
+						- currencyValue = new Decimal(totalCapacity).dividedBy(fullNetworkDescription.channels.sortedByLastUpdate.length);
 					+btcValue(currencyValue)
 			
 			hr.my-4

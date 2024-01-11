@@ -1,4 +1,4 @@
-extends layout4
+extends layout
 
 block headContent
 	title Node Status
@@ -61,7 +61,6 @@ block content
 									.summary-split-table-content
 										- var node_color = fullNetworkDescription.nodeInfoByPubkey[getInfo.identity_pubkey].node.color;
 										+nodeColorSwatch(node_color)
-										span #{node_color}
 
 								div(class="row")
 									.summary-split-table-label Chains

@@ -56,7 +56,7 @@ $badge-font-weight: 400;
 
 
 $tooltip-max-width: 350px;
-$tooltip-padding-y: 0.4rem !default;
+$tooltip-padding-y: 0.9rem !default;
 $tooltip-padding-x: 0.8rem !default;
 
 
@@ -79,6 +79,21 @@ $dropdown-min-width: 11rem;
 
 @import "../../node_modules/bootstrap/scss/bootstrap";
 
+// fix broken Bootstrap css
+// this one fixes the options modal being too small for its content
+.modal {
+	--bs-modal-width: fit-content;
+}
+
+// fix some containers ending up too small, like the main div itself
+.container {
+	max-width: 100%;
+}
+
+// remove the inline padding on the main divs content, give it space to breathe
+main > .p-3 {
+	padding-right: 0.5rem !important;
+}
 
 .table > :not(:first-child) {
 	border-top: 0px;
@@ -87,7 +102,6 @@ $dropdown-min-width: 11rem;
 .table td.fit, 
 .table th.fit {
     white-space: nowrap;
-    width: 1%;
 }
 
 
@@ -261,7 +275,20 @@ pre {
 
 .word-wrap {
 	word-wrap: break-word;
-	word-break: break-all;
+	// word-break: break-all;
+}
+
+// the flags jump all over the place 
+// depending on the size of the other tds
+// lets force it into a column so it has less chance to spill out
+.chan-flags > div {
+	display: flex;
+	flex-direction: column;
+	gap: .1em;
+}
+// bad pills, no expanding!
+.chan-flags > div > span {
+	width: fit-content;
 }
 
 .table th {

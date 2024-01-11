@@ -112,7 +112,10 @@ function formatCurrencyAmountWithForcedDecimalPlaces(amount, formatType, forcedD
 
 	var dec = new Decimal(amount);
 
-	var decimalPlaces = currencyType.decimalPlaces;
+	// the regex used to strip trailing zeros only works
+	// if theres a non-zero in the string
+	// force currencies with no decimals to have one so 0 values dont get deleted
+	var decimalPlaces = currencyType.decimalPlaces || 1;
 	//if (decimalPlaces == 0 && dec < 1) {
 	//	decimalPlaces = 5;
 	//}
@@ -159,7 +162,7 @@ function formatCurrencyAmountWithForcedDecimalPlaces(amount, formatType, forcedD
 
 			return returnVal;
 		}
-	} else if (currencyType.type == "exchanged") {
+	} else if (currencyType.type == "fiat") {
 		//console.log(JSON.stringify(global.exchangeRates) + " - " + currencyType.name);
 		if (global.exchangeRates != null && global.exchangeRates[currencyType.id] != null) {
 			dec = dec.times(global.exchangeRates[currencyType.id]);
@@ -767,9 +770,10 @@ const formatBuffer = (buffer, format="base64", fullDetail=false) => {
 };
 
 function getExchangedCurrencyFormatData(amount, exchangeType, includeUnit=true) {
-	if (global.exchangeRates != null && global.exchangeRates[exchangeType.toLowerCase()] != null) {
+	exchangeType = exchangeType.toLowerCase()
+	if (global.exchangeRates != null && global.exchangeRates[exchangeType] != null) {
 		var dec = new Decimal(amount);
-		dec = dec.times(global.exchangeRates[exchangeType.toLowerCase()]);
+		dec = dec.times(global.exchangeRates[exchangeType]);
 		var exchangedAmt = parseFloat(Math.round(dec * 100) / 100).toFixed(2);
 
 		return {
