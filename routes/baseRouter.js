@@ -239,7 +239,7 @@ router.post("/setup", asyncHandler(async (req, res, next) => {
 
 	global.adminPassword = pwd;
 
-	let pwdHash = await passwordUtils.hash(pwd);
+	let pwdHash = passwordUtils.hash(pwd);
 
 	global.adminCredentials = {};
 	global.adminCredentials.adminPasswordHash = pwdHash;
