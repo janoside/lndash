@@ -29,6 +29,7 @@
 	"dependencies": {
 		"@grpc/grpc-js": "^1.8.17",
 		"@grpc/proto-loader": "^0.7.7",
+		"@highlightjs/cdn-assets": "^11.9.0",
 		"axios": "^1.4.0",
 		"base64url": "3.0.1",
 		"body-parser": "^1.20.2",
@@ -42,6 +43,7 @@
 		"express-async-handler": "^1.2.0",
 		"express-session": "^1.17.3",
 		"hash.js": "1.1.7",
+		"jdenticon": "^3.2.0",
 		"latest-version": "^7.0.0",
 		"meow": "^9.0.0",
 		"moment": "^2.29.4",

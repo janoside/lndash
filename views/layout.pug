@@ -121,9 +121,9 @@ html
 		
 		
 
-		script(type="text/javascript", src="https://cdn.jsdelivr.net/npm/jdenticon@3.2.0")
+		script(type="text/javascript", src="/js/jdenticon.min.js")
 
-		script(src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js")
+		script(type="text/javascript", src="/js/highlight.min.js")
 		
 		script.
 			$(document).ready(function() {
@@ -133,9 +133,8 @@ html
 				for (var i = 0; i < documentReadyFunctions.length; i++) {
 					documentReadyFunctions[i]();
 				}
+				hljs.highlightAll();
 			});
-
-			hljs.initHighlightingOnLoad();
 
 		if (userMessage || userMessageMarkdown)
 			script.
