@@ -30,8 +30,14 @@ router.get("/", asyncHandler(async (req, res, next) => {
 		let totalRemoteBalance = new Decimal(0);
 		
 		localChannelsResponse.channels.forEach((chan) => {
-			totalLocalBalance = totalLocalBalance.plus(parseInt(chan.local_balance));
-			totalRemoteBalance = totalRemoteBalance.plus(parseInt(chan.remote_balance));
+			const localBalance = parseInt(chan.local_balance)
+			const remoteBalance = parseInt(chan.remote_balance)
+			if (!isNaN(localBalance)) {
+				totalLocalBalance = totalLocalBalance.plus(localBalance);
+			}
+			if (!isNaN(remoteBalance)) {
+				totalRemoteBalance = totalRemoteBalance.plus(remoteBalance);
+			}
 		});
 
 		res.locals.totalLocalBalance = totalLocalBalance;

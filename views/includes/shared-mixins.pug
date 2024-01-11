@@ -532,7 +532,10 @@ mixin progressBar(rawValues, colorClasses, height="15px", textInBar=true)
 		- total = total.plus(rawValue);
 
 	each rawValue in rawValues
-		- ratioValues.push(rawValue.dividedBy(total));
+		if (rawValue == 0)
+			- ratioValues.push(rawValue)
+		else
+			- ratioValues.push(rawValue.dividedBy(total));
 
 	.progress.mb-2(style=`height: ${height};`)
 		each ratioValue, valueIndex in ratioValues
