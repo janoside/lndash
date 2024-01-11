@@ -1702,14 +1702,14 @@ router.get("/manage-nodes", function(req, res) {
 });
 
 router.post("/manage-nodes", asyncHandler(async (req, res, next) => {
+	// copied to res.locals on error, so form can be re-filled
+	let userFormParams = {};
 	try {
 		let inputType = req.body.inputType;
 
 		res.locals.inputType = inputType;
 		res.locals.setupActive = (!global.adminCredentials.lndNodes || global.adminCredentials.lndNodes.length == 0);
 
-		// copied to res.locals on error, so form can be re-filled
-		let userFormParams = {};
 
 		let newLndNode = null;
 
@@ -1898,7 +1898,7 @@ router.post("/manage-nodes", asyncHandler(async (req, res, next) => {
 
 		res.locals.pageErrors.push(utils.logError("29834y0ehfe", err));
 
-		for (var prop in userFormParams) {
+		for (const prop in userFormParams) {
 			if (userFormParams.hasOwnProperty(prop)) {
 				res.locals[prop] = userFormParams[prop];
 			}
