@@ -1,105 +1,113 @@
 extends layout
 
 block headContent
-	title LND Connect
+  title LND Connect
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item Tools
-	li.breadcrumb-item LND Connect
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item Tools
+  li.breadcrumb-item LND Connect
 
 block content
-	+pageTitle("LND Connect")
+  +pageTitle("LND Connect")
 
+  if (!session.admin)
+    - var loginRequiredNote = "help you connect to a mobile Zap wallet.";
+    include includes/login-required-alert.pug
 
-	if (!session.admin)
-		- var loginRequiredNote = "help you connect to a mobile Zap wallet.";
-		include includes/login-required-alert.pug
+  else
+    if (!securityNoteAccepted)
+      .alert.alert-danger.alert-dismissible.shadow-sm(role="alert")
+        h3.h5 Important
+        .mb-2
+          span.
+            #[a(href="https://github.com/LN-Zap/lndconnect", target="_blank") LND Connect]
+            is a protocol for connecting to LND Nodes, often from mobile wallets.
 
-	else
+        .mb-2
+          span.
+            It is convenient, but
+            #[span.fw-bold dangerous!]
+            This page will display a QR code that embeds the
+            #[span.fw-bold admin credentials]
+            of your LND Node.
 
-		if (!securityNoteAccepted)
-			.alert.alert-danger.alert-dismissible.shadow-sm(role="alert")
-				h3.h5 Important
-				.mb-2
-					a(href="https://github.com/LN-Zap/lndconnect" target="_blank") LND Connect
-					span  is a protocol for connecting to LND Nodes, often from mobile wallets.
+        hr
 
-				.mb-2
-					span It is convenient, but 
-					span.fw-bold dangerous
-					span ! This page will display a QR code that embeds the 
-					span.fw-bold admin credentials
-					span  of your LND Node.
+        .mb-3
+          h4.h6.fw-bold Anyone who sees or captures this QR code can control your LND Node, including stealing funds from its internal wallet.
 
-				hr
+        div
+          a.btn.btn-danger(href="/lndconnect?securityNoteAccepted=true")
+            i.fas.fa-exclamation-triangle.me-2
+            | I Understand - Continue
 
-				.mb-3
-					h4.h6.fw-bold Anyone who sees or captures this QR code can control your LND Node, including stealing funds from its internal wallet.
+    else
+      #hiddenAlert.alert.alert-primary.shadow-sm(style="display: none") The sensitive data on this page has been hidden. Simply refresh the page to see it again.
 
-				div
-					a.btn.btn-danger(href="/lndconnect?securityNoteAccepted=true")
-						i.fas.fa-exclamation-triangle.me-2
-						| I Understand - Continue
+      #secureContent
+        .alert.alert-primary.shadow-sm.
+          The sensitive data below will be hidden in
+          #[span#hideTimer]
 
-		
-		else
+        .mb-3
+          label.form-label QR Code
+          .d-flex
+            .bg-white
+              img.text-bg-white(
+                src=`/qrcode?data=${encodeURIComponent(lndconnectString)}`,
+                style="width: 300px; height: 300px"
+              )
 
-			.alert.alert-primary.shadow-sm(id="hiddenAlert" style="display: none;") The sensitive data on this page has been hidden. Simply refresh the page to see it again.
+        if (localHost)
+          .mb-3
+            .alert.alert-warning
+              p.
+                #[span.fw-bold.me-1 Warning:]
+                The host/IP for this node is local, which means that,
+                as configured, you'll be unable to connect to this node externally.
+                If you want to connect externally, you'll need to use a publicly accessible host/IP.
+              p.
+                Since the configured host is a local one, you can modify the host below
+                (if you have a publicly accessible one), to build another LND Connect string.
+                Note that your TLS certificate may not include the given host/IP unless you explicitly
+                configured it (e.g. by setting 'tlsextraip' for LND),
+                in which case the connection will fail for security reasons.
 
-			#secureContent
-				.alert.alert-primary.shadow-sm The sensitive data below will be hidden in 
-					span(id="hideTimer")
+            form(method="get")
+              input(type="hidden", name="securityNoteAccepted", value="true")
+              .mb-3
+                label.form-label(for="host") Host / IP
+                input#host.form-control(name="host", value=host)
 
-				.mb-3
-					label.form-label QR Code
-					.d-flex
-						.bg-white
-							img.text-bg-white(src=`/qrcode?data=${encodeURIComponent(lndconnectString)}` style="width: 300px; height: 300px;")
+              .mb-3
+                label.form-label(for="port") Port
+                input#port.form-control(name="port", value=port)
 
-				if (localHost)
-					.mb-3
-						.alert.alert-warning
-							p
-								span.fw-bold.me-1 Warning
-								| The host/IP for this node is local, which means that, as configured, you'll be unable to connect to this node externally. If you want to connect externally, you'll need to use a publicly accessible host/IP.
+              button(type="submit") Update
 
-							| Since the configured host is a local one, you can modify the host below (if you have a publicly accessible one), to build another LNDConnect string. Note that your TLS certificate may not include the given host/IP unless you explicitly configured it (e.g. by setting 'tlsextraip' for LND), in which case the connection will fail for security reasons.
-
-						form(method="get")
-							input(type="hidden", name="securityNoteAccepted", value="true")
-							.mb-3
-								label.form-label(for="host") Host / IP
-								input.form-control(id="host", name="host", value=host)
-
-							.mb-3
-								label.form-label(for="port") Port
-								input.form-control(id="port", name="port", value=port)
-
-							button(type="submit") Update
-
-				.mb-3
-					label.form-label(for="lndconnectString") LND Connect String
-					textarea.form-control.fs-90.font-monospace(id="lndconnectString" name="lndconnectString" rows="8") #{lndconnectString}
+        .mb-3
+          label.form-label(for="lndconnectString") LND Connect String
+          textarea#lndconnectString.form-control.fs-90.font-monospace(
+            name="lndconnectString",
+            rows="8"
+          ) #{ lndconnectString }
 
 block endOfBody
-	if (securityNoteAccepted)
-		script.
-			function securePage() {
+  if (securityNoteAccepted)
+    script.
+      function securePage() {}
+      $(document).ready(function () {
+        var hideSeconds = 60;
+        var endTime = new Date(new Date().getTime() + hideSeconds * 1000);
 
-			}
-			$(document).ready(function() {
-				var hideSeconds = 60;
-				var endTime = new Date(new Date().getTime() + hideSeconds * 1000);
+        setTimeout(function () {
+          $("#hiddenAlert").show();
+          $("#secureContent").hide();
+        }, hideSeconds * 1000);
 
-				setTimeout(function() {
-					$("#hiddenAlert").show();
-					$("#secureContent").hide();
-
-				}, hideSeconds * 1000);
-
-				setInterval(function() {
-					$("#hideTimer").text(parseInt((endTime.getTime() - new Date().getTime()) / 1000) + " sec");
-				}, 200);
-			});
+        setInterval(function () {
+          $("#hideTimer").text(parseInt((endTime.getTime() - new Date().getTime()) / 1000) + " sec");
+        }, 200);
+      });

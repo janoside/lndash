@@ -1,45 +1,44 @@
 tr
-	if (showTableNumbers)
-		th.text-end.fw-light #{(index + 1).toLocaleString()}
+  if (showTableNumbers)
+    th.text-end.fw-light #{ (index + 1).toLocaleString() }
 
-	td
-		if (nodePubkeys)
-			+nodeCard(nodePubkeys[index])
-			
+  td
+    if (nodePubkeys)
+      +nodeCard(nodePubkeys[index])
 
-		else
-			span -
+    else
+      span -
 
-	td
-		if (node && node.node && node.node.addresses && node.node.addresses.length > 0)
-			+netAddress(node.node.addresses[0].addr)
+  td
+    if (node && node.node && node.node.addresses && node.node.addresses.length > 0)
+      +netAddress(node.node.addresses[0].addr)
 
-		else
-			span -
+    else
+      span -
 
-	td
-		if (node && node.node)
-			if (node.node.last_update == 0)
-				span -
+  td
+    if (node && node.node)
+      if (node.node.last_update == 0)
+        span -
 
-			else
-				+date(node.node.last_update)
+      else
+        +date(node.node.last_update)
 
-		else
-			span -
+    else
+      span -
 
-	td.text-end
-		if (node)
-			span #{parseInt(node.num_channels).toLocaleString()}
+  td.text-end
+    if (node)
+      span #{ parseInt(node.num_channels).toLocaleString() }
 
-		else
-			span -
+    else
+      span -
 
-	td.text-end
-		if (node && node.total_capacity)
-			+btcValue(node.total_capacity)
+  td.text-end
+    if (node && node.total_capacity)
+      +btcValue(node.total_capacity)
 
-			//span #{parseInt(node.total_capacity).toLocaleString()}
+      //span #{parseInt(node.total_capacity).toLocaleString()}
 
-		else
-			span -
+    else
+      span -

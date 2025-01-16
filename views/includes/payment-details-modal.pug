@@ -1,16 +1,16 @@
 +modal(`paymentModal-${paymentIndex}`, `Payment #${(paymentIndex + 1).toLocaleString()}`)
-	if (payment.htlcs)
-		each htlc in payment.htlcs
-			- htlc.preimage_base64 = utils.formatBuffer(htlc.preimage);
-			- htlc.preimage_hex = utils.formatBuffer(htlc.preimage, "hex");
-			- delete htlc.preimage;
+  if (payment.htlcs)
+    each htlc in payment.htlcs
+      - htlc.preimage_base64 = utils.formatBuffer(htlc.preimage);
+      - htlc.preimage_hex = utils.formatBuffer(htlc.preimage, "hex");
+      - delete htlc.preimage;
 
-			if (htlc.route && htlc.route.hops)
-				each hop in htlc.route.hops
-					if (hop.mpp_record && hop.mpp_record.payment_addr)
-						- hop.mpp_record.payment_addr_base64 = utils.formatBuffer(hop.mpp_record.payment_addr);
-						- hop.mpp_record.payment_addr_hex = utils.formatBuffer(hop.mpp_record.payment_addr, "hex");
-						- delete hop.mpp_record.payment_addr;
+      if (htlc.route && htlc.route.hops)
+        each hop in htlc.route.hops
+          if (hop.mpp_record && hop.mpp_record.payment_addr)
+            - hop.mpp_record.payment_addr_base64 = utils.formatBuffer(hop.mpp_record.payment_addr);
+            - hop.mpp_record.payment_addr_hex = utils.formatBuffer(hop.mpp_record.payment_addr, "hex");
+            - delete hop.mpp_record.payment_addr;
 
-	pre
-		code.json #{JSON.stringify(payment, null, 4)}
+  pre
+    code.json #{ JSON.stringify(payment, null, 4) }

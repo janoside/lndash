@@ -1,51 +1,44 @@
 +modal(`lndNodeDetailsModal-${lndNodeIndex}`, `LND Node #${(lndNodeIndex + 1).toLocaleString()}`)
-	+pageTabs(["Details", "JSON"], false)
+  +pageTabs(["Details", "JSON"], false)
 
+  mixin connItem(label, content, copyButton=false)
+    .mb-4
+      label.form-label.text-muted #{ label }
+      div
+        if (content.length > 40)
+          span.lead #{ utils.ellipsizeMiddle(content, 40) }
 
-	mixin connItem(label, content, copyButton=false)
-		.mb-4
-			label.form-label.text-muted #{label}
-			div
-				if (content.length > 40)
-					span.lead #{utils.ellipsizeMiddle(content, 40)}
+        else
+          span.lead #{ content }
 
-				else
-					span.lead #{content}
+        if (copyButton)
+          +copyTextButton(content)
 
-				if (copyButton)
-					+copyTextButton(content)
+  .tab-content
+    +pageTab("Details", true)
+      if (lndNodeDetails.type)
+        +connItem("Connection Type", lndNodeDetails.type)
 
+      if (lndNodeDetails.host)
+        +connItem("Host", lndNodeDetails.host)
 
-	.tab-content
-		+pageTab("Details", true)
-			if (lndNodeDetails.type)
-				+connItem("Connection Type", lndNodeDetails.type)
+      if (lndNodeDetails.port)
+        +connItem("Port", lndNodeDetails.port)
 
-			if (lndNodeDetails.host)
-				+connItem("Host", lndNodeDetails.host)
+      if (lndNodeDetails.adminMacaroonHex)
+        +connItem("Admin Macaroon (hex)", lndNodeDetails.adminMacaroonHex, true)
 
-			if (lndNodeDetails.port)
-				+connItem("Port", lndNodeDetails.port)
+      if (lndNodeDetails.adminMacaroonFilepath)
+        +connItem("Admin Macaroon Filepath", lndNodeDetails.adminMacaroonFilepath, true)
 
+      if (lndNodeDetails.tlsCertAscii)
+        label.form-label.text-muted TLS Certificate (ascii)
 
-			if (lndNodeDetails.adminMacaroonHex)
-				+connItem("Admin Macaroon (hex)", lndNodeDetails.adminMacaroonHex, true)
+        textarea.form-control.font-monospace.fs-80(rows="18") #{ lndNodeDetails.tlsCertAscii }
 
+      if (lndNodeDetails.tlsCertFilepath)
+        +connItem("TLS Certificate Filepath", lndNodeDetails.tlsCertFilepath, true)
 
-			if (lndNodeDetails.adminMacaroonFilepath)
-				+connItem("Admin Macaroon Filepath", lndNodeDetails.adminMacaroonFilepath, true)
-
-
-			if (lndNodeDetails.tlsCertAscii)
-				label.form-label.text-muted TLS Certificate (ascii)
-				
-				textarea.form-control.font-monospace.fs-80(rows="18") #{lndNodeDetails.tlsCertAscii}
-
-
-			if (lndNodeDetails.tlsCertFilepath)
-				+connItem("TLS Certificate Filepath", lndNodeDetails.tlsCertFilepath, true)
-
-
-		+pageTab("JSON")
-			pre
-				code.json #{JSON.stringify(lndNodeDetails, null, 4)}
+    +pageTab("JSON")
+      pre
+        code.json #{ JSON.stringify(lndNodeDetails, null, 4) }

@@ -1,316 +1,330 @@
 extends layout
 
 block headContent
-	title Forwarding History
+  title Forwarding History
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item Lightning Payments
-	li.breadcrumb-item Forwarding History
-	
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item Lightning Payments
+  li.breadcrumb-item Forwarding History
+
 block content
-	+pageTitle("Forwarding History")
-	
-
-	if (!session.admin)
-		- var loginRequiredNote = "show this node's payment forwarding history.";
-		include includes/login-required-alert.pug
-
-	else
-
-		+card
-			.d-flex.flex-wrap
-				.me-3
-					- var createdFilterOptions = [["1h", "60m"], ["24h", "24h"], ["7d", "7d"], ["30d", "30d"], ["All", "all"]];
-
-					+filterBtnGroup("Time", null, createdFilterOptions, `/forwarding-history?sort=${sort}&tab=${tab}&limit=${limit}`, "daterange", daterange)
-
-
-		
-		if (forwardingHistoryResponse.forwarding_events && forwardingHistoryResponse.forwarding_events.length > 0)
-			ul.nav.nav-tabs#page-tabs
-				li.nav-item.ms-3
-					a.nav-link(href=`/forwarding-history?sort=${sort}&tab=summary&daterange=${daterange}&limit=${limit}` class=(tab == "summary" ? "active" : false)) Summary
-				li.nav-item
-					a.nav-link(href=`/forwarding-history?sort=${sort}&tab=events&daterange=${daterange}&limit=${limit}` class=(tab == "events" ? "active" : false)) Events
-						span.badge.text-bg-secondary.ms-2 #{forwardingHistoryResponse.forwarding_events.length.toLocaleString()}
-				li.nav-item
-					a.nav-link(href=`/forwarding-history?sort=${sort}&tab=channels&daterange=${daterange}&limit=${limit}` class=(tab == "channels" ? "active" : false)) Channels
-						span.badge.text-bg-secondary.ms-2 #{(inChannels.length + outChannels.length).toLocaleString()}
-
-			.bg-gradient-body-to-main.pb-4.mb-2
-
-
-			.tab-content
-				.tab-pane(id="tab-summary" role="tabpanel" class=(tab == "summary" ? "active" : false))
-					if (tab == "summary")
-						+contentSection("Summary")
-							+summaryRow(3)
-								+summaryItem("Forwarded Payments")
-									| #{allFilteredEventsCount.toLocaleString()}
-
-								+summaryItem("Total Fees Collected")
-									+btcValue(totalFees)
-
-								+summaryItem("Total Value Transferred")
-									+btcValue(totalValueTransferred)
-
-
-							hr.my-4
-
-							
-							+summaryRow(2)
-								+summaryItem("Fee Stats", "Maximum and average fee collected", "max / avg")
-									+btcValue(maxFee)
-
-									span.mx-2.text-muted /
-
-									+btcValue(avgFee)
-
-
-								+summaryItem("Transfer Stats", "Maximum and average value transferred", "max / avg")
-									+btcValue(maxValueTransferred)
-
-									span.mx-2.text-muted /
-
-									+btcValue(avgValueTransferred)
-
-						
-
-				
-				.tab-pane(id="tab-events" role="tabpanel" class=(tab == "events" ? "active" : false))
-
-					if (tab == "events")
-						+card
-							+filterList
-								+filterItem
-									- var sortOptions = [["Date", "date-desc"], ["Value", "value-desc"]];
-
-									+filterBtnGroup("Sort", null, sortOptions, `/forwarding-history?tab=${tab}&daterange=${daterange}&limit=${limit}`, "sort", sort)
-
-								+filterItem(true)
-									- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
-
-									+filterBtnGroup("Page Size", null, pageSizeOptions, `/forwarding-history?sort=${sort}&tab=${tab}&daterange=${daterange}`, "limit", limit)
-
-							
-							hr.my-3
-
-							div
-								if (allFilteredEventsCount > limit)
-									span Showing 
-									span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredEventsCount).toLocaleString()} 
-									span of 
-									span.fw-bold #{allFilteredEventsCount.toLocaleString()} 
-									if (allEvents.length > allFilteredEventsCount)
-										span filtered 
-									span event
-									if (allFilteredEventsCount != 1)
-										span s
-
-								else if (allFilteredEventsCount > 0)
-									span Showing 
-									span.fw-bold #{allFilteredEventsCount.toLocaleString()} 
-									if (allEvents.length > allFilteredEventsCount)
-										span filtered 
-
-									span event
-									if (allFilteredEventsCount > 1)
-										span s
-								else
-									.alert.alert-warning.shadow-sm.mb-0 No matching events
-
-
-							+pagination(allFilteredEventsCount, limit, offset, paginationBaseUrl)
-
-
-
-						each forwardingEvent, forwardingEventIndex in pagedFilteredEvents
-							+modal(`forwardingEventModal-${forwardingEventIndex}`, `Forwarding Event #${(forwardingEventIndex + 1).toLocaleString()}`)
-								pre
-									code.json #{JSON.stringify(forwardingEvent, null, 4)}
-
-						.table-responsive
-							table.table.table-striped
-								thead
-									tr
-										th.text-end.fw-light #
-										th Date
-										th Incoming Channel
-										th Outgoing Channel
-										th.text-end Incoming Amount
-										th.text-end Outgoing Amount
-										th.text-end Fee
-										th.text-end Raw
-
-								tbody
-									each forwardingEvent, forwardingEventIndex in pagedFilteredEvents
-										tr
-											th.text-end.fw-light #{(forwardingEventIndex + offset + 1).toLocaleString()}
-											
-											td
-												+date(forwardingEvent.timestamp)
-
-
-											td
-												- var channel_id = forwardingEvent.chan_id_in;
-												- var channelInfo = fullNetworkDescription.channelsById[channel_id];
-
-												+channelId(forwardingEvent.chan_id_in, channelInfo != null)
-												
-
-												if (channelInfo)
-													hr
-
-													- var card_node_pubkey = channelInfo.node1_pub;
-													if (card_node_pubkey == lndRpc.internal_pubkey)
-														- card_node_pubkey = channelInfo.node2_pub;
-
-													+nodeCard(card_node_pubkey, {style:"compact"})
-
-											td
-												- var channel_id = forwardingEvent.chan_id_out;
-												- var channelInfo = fullNetworkDescription.channelsById[channel_id];
-
-												+channelId(forwardingEvent.chan_id_out, channelInfo != null)
-
-												
-												if (channelInfo)
-													hr
-
-													- var card_node_pubkey = channelInfo.node1_pub;
-													if (card_node_pubkey == lndRpc.internal_pubkey)
-														- card_node_pubkey = channelInfo.node2_pub;
-
-													+nodeCard(card_node_pubkey, {style:"compact"})
-
-											td.text-end
-												+btcValue(forwardingEvent.amt_in)
-											
-											td.text-end
-												+btcValue(forwardingEvent.amt_out)
-
-											td.text-end
-												.text-success
-													span +
-
-													+btcValue(forwardingEvent.fee)
-
-											td.text-end
-												a.btn.btn-sm.btn-primary(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#forwardingEventModal-" + forwardingEventIndex))
-													i.fas.fa-file-lines
-
-					
-				.tab-pane(id="tab-channels" role="tabpanel" class=(tab == "channels" ? "active" : false))
-					if (false)					
-						pre
-							code.json #{JSON.stringify(inChannels, null, 4)}
-
-					if (tab == "channels")
-						+card
-							+filterList
-								+filterItem
-									- var sortOptions = [["Σ Transferred", "valuetransfer-desc"], ["Fees", "fees-desc"], ["Payment Count", "eventcount-desc"], ["Channel ID", "channelId-asc"]];
-
-									+filterBtnGroup("Sort", null, sortOptions, `/forwarding-history?tab=${tab}&daterange=${daterange}&limit=${limit}`, "sort", sort)
-
-						- let tabs = [];
-
-						if (inChannels.length > 0)
-							- tabs.push(`Incoming Channels (${inChannels.length.toLocaleString()})`);
-
-						if (outChannels.length > 0)
-							- tabs.push(`Outgoing Channels (${outChannels.length.toLocaleString()})`);
-
-						+pageTabs(tabs)
-
-						.tab-content
-							if (inChannels.length > 0)
-								+pageTab(tabs[0], true)
-									.table-responsive
-										table.table.table-striped
-											thead
-												tr
-													th.text-end.fw-light #
-													th Channel
-													th.text-end Payments
-													th.text-end Value Transferred
-													th.text-end Fees Collected
-													
-
-											tbody
-												each channelForwardingInfo, channelInfoIndex in inChannels
-													tr
-														th.text-end.fw-light #{(channelInfoIndex + 1).toLocaleString()}
-
-														td
-															- var channel_id = channelForwardingInfo.channelId;
-															- var channelInfo = fullNetworkDescription.channelsById[channel_id];
-
-															+channelId(channelForwardingInfo.channelId, channelInfo != null)
-
-
-															if (channelInfo)
-																hr
-																
-																- var card_node_pubkey = channelInfo.node1_pub;
-																if (card_node_pubkey == lndRpc.internal_pubkey)
-																	- card_node_pubkey = channelInfo.node2_pub;
-
-																+nodeCard(card_node_pubkey)
-
-														td.text-end #{channelForwardingInfo.eventCount.toLocaleString()}
-														
-														td.text-end
-															+btcValue(channelForwardingInfo.totalValueTransferred)
-
-														td.text-end
-															.text-success
-																span +
-
-																+btcValue(channelForwardingInfo.totalFees)
-
-							if (outChannels.length > 0)
-								+pageTab(inChannels.length > 0 ? tabs[1] : tabs[0], !(inChannels.length > 0))
-									.table-responsive
-										table.table.table-striped
-											thead
-												tr
-													th.text-end #
-													th Channel
-													th.text-end Payments
-													th.text-end Value Transferred
-													
-
-											tbody
-												each channelForwardingInfo, channelInfoIndex in outChannels
-													tr
-														th.text-end #{(channelInfoIndex + 1).toLocaleString()}
-														td
-															- var channel_id = channelForwardingInfo.channelId;
-															- var channelInfo = fullNetworkDescription.channelsById[channel_id];
-
-															+channelId(channelForwardingInfo.channelId, channelInfo != null)
-
-
-															if (channelInfo)
-																hr
-																
-																- var card_node_pubkey = channelInfo.node1_pub;
-																if (card_node_pubkey == lndRpc.internal_pubkey)
-																	- card_node_pubkey = channelInfo.node2_pub;
-
-																+nodeCard(card_node_pubkey)
-
-														td.text-end #{channelForwardingInfo.eventCount.toLocaleString()}
-														
-														td.text-end
-															+btcValue(channelForwardingInfo.totalValueTransferred)
-
-								
-
-
-		else
-			.alert.alert-warning.shadow-sm Your LND Node has not forwarded any payments during this window
-						
+  +pageTitle("Forwarding History")
+
+  if (!session.admin)
+    - var loginRequiredNote = "show this node's payment forwarding history.";
+    include includes/login-required-alert.pug
+
+  else
+    +card
+      .d-flex.flex-wrap
+        .me-3
+          - var createdFilterOptions = [["1h", "60m"], ["24h", "24h"], ["7d", "7d"], ["30d", "30d"], ["All", "all"]];
+
+          +filterBtnGroup("Time", null, createdFilterOptions, `/forwarding-history?sort=${sort}&tab=${tab}&limit=${limit}`, "daterange", daterange)
+
+    if (forwardingHistoryResponse.forwarding_events && forwardingHistoryResponse.forwarding_events.length > 0)
+      ul#page-tabs.nav.nav-tabs
+        li.nav-item.ms-3
+          a.nav-link(
+            href=`/forwarding-history?sort=${sort}&tab=summary&daterange=${daterange}&limit=${limit}`,
+            class=tab == "summary" ? "active" : false
+          ) Summary
+        li.nav-item
+          a.nav-link(
+            href=`/forwarding-history?sort=${sort}&tab=events&daterange=${daterange}&limit=${limit}`,
+            class=tab == "events" ? "active" : false
+          ) Events
+            span.badge.text-bg-secondary.ms-2 #{ forwardingHistoryResponse.forwarding_events.length.toLocaleString() }
+        li.nav-item
+          a.nav-link(
+            href=`/forwarding-history?sort=${sort}&tab=channels&daterange=${daterange}&limit=${limit}`,
+            class=tab == "channels" ? "active" : false
+          ) Channels
+            span.badge.text-bg-secondary.ms-2 #{ (inChannels.length + outChannels.length).toLocaleString() }
+
+      .bg-gradient-body-to-main.pb-4.mb-2
+
+      .tab-content
+        #tab-summary.tab-pane(
+          role="tabpanel",
+          class=tab == "summary" ? "active" : false
+        )
+          if (tab == "summary")
+            +contentSection("Summary")
+              +summaryRow(3)
+                +summaryItem("Forwarded Payments")
+                  | #{ allFilteredEventsCount.toLocaleString() }
+
+                +summaryItem("Total Fees Collected")
+                  +btcValue(totalFees)
+
+                +summaryItem("Total Value Transferred")
+                  +btcValue(totalValueTransferred)
+
+              hr.my-4
+
+              +summaryRow(3)
+                +summaryItem("PPM Stats", "Maximum and average fee PPM", "max / avg")
+                  span #{ maxPPM }
+                  
+                  span.mx-2.text-muted /
+                  
+                  span #{ avgPPM }
+
+                +summaryItem("Fee Stats", "Maximum and average fee collected", "max / avg")
+                  +btcValue(maxFee)
+
+                  span.mx-2.text-muted /
+
+                  +btcValue(avgFee)
+
+                +summaryItem("Transfer Stats", "Maximum and average value transferred", "max / avg")
+                  +btcValue(maxValueTransferred)
+
+                  span.mx-2.text-muted /
+
+                  +btcValue(avgValueTransferred)
+
+        #tab-events.tab-pane(
+          role="tabpanel",
+          class=tab == "events" ? "active" : false
+        )
+          if (tab == "events")
+            +card
+              +filterList
+                +filterItem
+                  - var sortOptions = [["Date", "date-desc"], ["Value", "value-desc"]];
+
+                  +filterBtnGroup("Sort", null, sortOptions, `/forwarding-history?tab=${tab}&daterange=${daterange}&limit=${limit}`, "sort", sort)
+
+                +filterItem(true)
+                  - var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
+
+                  +filterBtnGroup("Page Size", null, pageSizeOptions, `/forwarding-history?sort=${sort}&tab=${tab}&daterange=${daterange}`, "limit", limit)
+
+              hr.my-3
+
+              div
+                if (allFilteredEventsCount > limit)
+                  span.
+                    Showing
+                    #[span.fw-bold ##{ (offset + 1).toLocaleString() } - #{ Math.min(offset + limit, allFilteredEventsCount).toLocaleString() }]
+                    of
+                    #[span.fw-bold #{ allFilteredEventsCount.toLocaleString() }]
+
+                  if (allEvents.length > allFilteredEventsCount)
+                    | filtered
+
+                  |
+                  | event
+                  if (allFilteredEventsCount != 1)
+                    | s
+
+                else if (allFilteredEventsCount > 0)
+                  span.
+                    Showing
+                    #[span.fw-bold #{ allFilteredEventsCount.toLocaleString() }]
+
+                  if (allEvents.length > allFilteredEventsCount)
+                    | filtered
+
+                  |
+                  | event
+                  if (allFilteredEventsCount > 1)
+                    | s
+                else
+                  .alert.alert-warning.shadow-sm.mb-0 No matching events
+
+              +pagination(allFilteredEventsCount, limit, offset, paginationBaseUrl)
+
+            each forwardingEvent, forwardingEventIndex in pagedFilteredEvents
+              +modal(`forwardingEventModal-${forwardingEventIndex}`, `Forwarding Event #${(forwardingEventIndex + 1).toLocaleString()}`)
+                pre
+                  code.json #{ JSON.stringify(forwardingEvent, null, 4) }
+
+            .table-responsive
+              table.table.table-striped
+                thead
+                  tr
+                    th.text-end.fw-light #
+                    th Date
+                    th Incoming Channel
+                    th Outgoing Channel
+                    th.text-end Incoming Amount
+                    th.text-end Outgoing Amount
+                    th.text-end Fee
+                    th.text-end Effective PPM
+                    th.text-end Raw
+
+                tbody
+                  each forwardingEvent, forwardingEventIndex in pagedFilteredEvents
+                    tr
+                      th.text-end.fw-light #{ (forwardingEventIndex + offset + 1).toLocaleString() }
+
+                      td
+                        +date(forwardingEvent.timestamp)
+
+                      td
+                        - var channel_id = forwardingEvent.chan_id_in;
+                        - var channelInfo = fullNetworkDescription.channelsById[channel_id];
+
+                        +channelId(forwardingEvent.chan_id_in, channelInfo != null)
+
+                        if (channelInfo)
+                          hr
+
+                          - var card_node_pubkey = channelInfo.node1_pub;
+                          if (card_node_pubkey == lndRpc.internal_pubkey)
+                            - card_node_pubkey = channelInfo.node2_pub;
+
+                          +nodeCard(card_node_pubkey, {style:"compact"})
+
+                      td
+                        - var channel_id = forwardingEvent.chan_id_out;
+                        - var channelInfo = fullNetworkDescription.channelsById[channel_id];
+
+                        +channelId(forwardingEvent.chan_id_out, channelInfo != null)
+
+                        if (channelInfo)
+                          hr
+
+                          - var card_node_pubkey = channelInfo.node1_pub;
+                          if (card_node_pubkey == lndRpc.internal_pubkey)
+                            - card_node_pubkey = channelInfo.node2_pub;
+
+                          +nodeCard(card_node_pubkey, {style:"compact"})
+
+                      td.text-end
+                        +btcValue(forwardingEvent.amt_in)
+
+                      td.text-end
+                        +btcValue(forwardingEvent.amt_out)
+
+                      td.text-end
+                        .text-success
+                          span +
+                          if (forwardingEvent.fee == "0")
+                            span #{ forwardingEvent.fee_msat } msat
+                          else
+                            +btcValue(forwardingEvent.fee)
+
+                      td.text-end
+                        .text-success
+                          span #{ forwardingEvent.effectiveFeerate } ppm				
+
+                      td.text-end
+                        a.btn.btn-sm.btn-primary(
+                          href="javascript:void(0)",
+                          data-bs-toggle="modal",
+                          data-bs-target="#forwardingEventModal-" + forwardingEventIndex
+                        )
+                          i.fas.fa-file-lines
+
+        #tab-channels.tab-pane(
+          role="tabpanel",
+          class=tab == "channels" ? "active" : false
+        )
+          if (false)
+            pre
+              code.json #{ JSON.stringify(inChannels, null, 4) }
+
+          if (tab == "channels")
+            +card
+              +filterList
+                +filterItem
+                  - var sortOptions = [["Σ Transferred", "valuetransfer-desc"], ["Fees", "fees-desc"], ["Payment Count", "eventcount-desc"], ["Channel ID", "channelId-asc"]];
+
+                  +filterBtnGroup("Sort", null, sortOptions, `/forwarding-history?tab=${tab}&daterange=${daterange}&limit=${limit}`, "sort", sort)
+
+            - let tabs = [];
+
+            if (inChannels.length > 0)
+              - tabs.push(`Incoming Channels (${inChannels.length.toLocaleString()})`);
+
+            if (outChannels.length > 0)
+              - tabs.push(`Outgoing Channels (${outChannels.length.toLocaleString()})`);
+
+            +pageTabs(tabs)
+
+            .tab-content
+              if (inChannels.length > 0)
+                +pageTab(tabs[0], true)
+                  .table-responsive
+                    table.table.table-striped
+                      thead
+                        tr
+                          th.text-end #
+                          th Channel
+                          th.text-end Payments
+                          th.text-end Value Transferred
+
+                      tbody
+                        each channelForwardingInfo, channelInfoIndex in inChannels
+                          tr
+                            th.text-end #{ (channelInfoIndex + 1).toLocaleString() }
+
+                            td
+                              - var channel_id = channelForwardingInfo.channelId;
+                              - var channelInfo = fullNetworkDescription.channelsById[channel_id];
+
+                              +channelId(channelForwardingInfo.channelId, channelInfo != null)
+
+                              if (channelInfo)
+                                hr
+
+                                - var card_node_pubkey = channelInfo.node1_pub;
+                                if (card_node_pubkey == lndRpc.internal_pubkey)
+                                  - card_node_pubkey = channelInfo.node2_pub;
+
+                                +nodeCard(card_node_pubkey)
+
+                            td.text-end #{ channelForwardingInfo.eventCount.toLocaleString() }
+
+                            td.text-end
+                              +btcValue(channelForwardingInfo.totalValueTransferred)
+
+              if (outChannels.length > 0)
+                +pageTab(inChannels.length > 0 ? tabs[1] : tabs[0], !(inChannels.length > 0))
+                  .table-responsive
+                    table.table.table-striped
+                      thead
+                        tr
+                          th.text-end #
+                          th Channel
+                          th.text-end Payments
+                          th.text-end Value Transferred
+                          th.text-end Fees Collected
+
+                      tbody
+                        each channelForwardingInfo, channelInfoIndex in outChannels
+                          tr
+                            th.text-end #{ (channelInfoIndex + 1).toLocaleString() }
+                            td
+                              - var channel_id = channelForwardingInfo.channelId;
+                              - var channelInfo = fullNetworkDescription.channelsById[channel_id];
+
+                              +channelId(channelForwardingInfo.channelId, channelInfo != null)
+
+                              if (channelInfo)
+                                hr
+
+                                - var card_node_pubkey = channelInfo.node1_pub;
+                                if (card_node_pubkey == lndRpc.internal_pubkey)
+                                  - card_node_pubkey = channelInfo.node2_pub;
+
+                                +nodeCard(card_node_pubkey)
+
+                            td.text-end #{ channelForwardingInfo.eventCount.toLocaleString() }
+
+                            td.text-end
+                              +btcValue(channelForwardingInfo.totalValueTransferred)
+
+                            td.text-end
+                              .text-success
+                                span +
+                                +btcValue(channelForwardingInfo.totalFees)
+
+    else
+      .alert.alert-warning.shadow-sm Your LND Node has not forwarded any payments during this window

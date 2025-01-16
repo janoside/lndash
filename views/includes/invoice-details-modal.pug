@@ -1,39 +1,45 @@
 +modal(`invoiceModal-${invoice_index}`, `Invoice - ${Buffer.from(invoice.r_hash).toString("hex")}`)
-	- var jsonX = invoice;
-	- jsonX.r_preimage_base64 = utils.formatBuffer(jsonX.r_preimage, "base64");
-	- jsonX.r_preimage_hex = utils.formatBuffer(jsonX.r_preimage, "hex");
-	- jsonX.r_hash_base64 = utils.formatBuffer(jsonX.r_hash, "base64");
-	- jsonX.r_hash_hex = utils.formatBuffer(jsonX.r_hash, "hex");
+  - var jsonX = invoice;
+  - jsonX.r_preimage_base64 = utils.formatBuffer(jsonX.r_preimage, "base64");
+  - jsonX.r_preimage_hex = utils.formatBuffer(jsonX.r_preimage, "hex");
+  - jsonX.r_hash_base64 = utils.formatBuffer(jsonX.r_hash, "base64");
+  - jsonX.r_hash_hex = utils.formatBuffer(jsonX.r_hash, "hex");
 
-	- delete jsonX.r_preimage;
-	- delete jsonX.r_hash;
+  - delete jsonX.r_preimage;
+  - delete jsonX.r_hash;
 
-	pre
-		code.json #{JSON.stringify(jsonX, null, 4)}
+  pre
+    code.json #{ JSON.stringify(jsonX, null, 4) }
 
+  if (false)
+    ul.nav.nav-tabs.mb-3
+      li.nav-item
+        a.nav-link.active(
+          data-bs-toggle="tab",
+          href=`#tab-summary-${invoice_index}`,
+          role="tab"
+        ) Summary
+      li.nav-item
+        a.nav-link(
+          data-bs-toggle="tab",
+          href=`#tab-json-${invoice_index}`,
+          role="tab"
+        ) JSON
 
-	if (false)
-		ul.nav.nav-tabs.mb-3
-			li.nav-item
-				a.nav-link.active(data-bs-toggle="tab" href=`#tab-summary-${invoice_index}` role="tab") Summary
-			li.nav-item
-				a.nav-link(data-bs-toggle="tab"  href=`#tab-json-${invoice_index}` role="tab") JSON
+    .tab-content
+      .tab-pane.active(id=`tab-summary-${invoice_index}`, role="tabpanel")
+        h1 snv
 
-		.tab-content
-			.tab-pane.active(id=`tab-summary-${invoice_index}` role="tabpanel")
-				h1 snv
+    .tab-content
+      .tab-pane(id=`tab-json-${invoice_index}`, role="tabpanel")
+        - var jsonX = invoice;
+        - jsonX.r_preimage_base64 = Buffer.from(jsonX.r_preimage).toString("base64");
+        - jsonX.r_preimage_hex = Buffer.from(jsonX.r_preimage).toString("hex");
+        - jsonX.r_hash_base64 = Buffer.from(jsonX.r_hash).toString("base64");
+        - jsonX.r_hash_hex = Buffer.from(jsonX.r_hash).toString("hex");
 
-		.tab-content
-			.tab-pane(id=`tab-json-${invoice_index}` role="tabpanel")
+        - delete jsonX.r_preimage;
+        - delete jsonX.r_hash;
 
-				- var jsonX = invoice;
-				- jsonX.r_preimage_base64 = Buffer.from(jsonX.r_preimage).toString("base64");
-				- jsonX.r_preimage_hex = Buffer.from(jsonX.r_preimage).toString("hex");
-				- jsonX.r_hash_base64 = Buffer.from(jsonX.r_hash).toString("base64");
-				- jsonX.r_hash_hex = Buffer.from(jsonX.r_hash).toString("hex");
-
-				- delete jsonX.r_preimage;
-				- delete jsonX.r_hash;
-
-				pre
-					code.json #{JSON.stringify(jsonX, null, 4)}
+        pre
+          code.json #{ JSON.stringify(jsonX, null, 4) }

@@ -1,78 +1,81 @@
 extends layout
 
 block headContent
-	title Sign or Verify
+  title Sign or Verify
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item Tools
-	li.breadcrumb-item Sign or Verify
-	
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item Tools
+  li.breadcrumb-item Sign or Verify
+
 block content
-	+pageTitle("Sign or Verify")
+  +pageTitle("Sign or Verify")
 
+  if (!session.admin)
+    - var loginRequiredNote = "allow you to sign and verify messages.";
+    include includes/login-required-alert.pug
 
-	if (!session.admin)
-		- var loginRequiredNote = "allow you to sign and verify messages.";
-		include includes/login-required-alert.pug
+  else
+    if (signMessageResponse)
+      if (signMessageResponse.signature)
+        .alert.alert-success
+          h3.h6 Success
 
-	else
+          span Message signed successfully
 
-		if (signMessageResponse)
-			if (signMessageResponse.signature)
-				.alert.alert-success
-					h3.h6 Success
+      else
+        .alert.alert-danger
+          h3.h6 Message Signing Failed
 
-					span Message signed successfully
+          if (false)
+            pre
+              code.json #{ JSON.stringify(signMessageResponse, null, 4) }
 
-			else
-				.alert.alert-danger
-					h3.h6 Message Signing Failed
-					
-					if (false)
-						pre
-							code.json #{JSON.stringify(signMessageResponse, null, 4)}
+    if (verifyMessageResponse)
+      if (verifyMessageResponse.valid)
+        .alert.alert-success
+          h3.h6 Signature Verified
 
-		if (verifyMessageResponse)
-			if (verifyMessageResponse.valid)
-				.alert.alert-success
-					h3.h6 Signature Verified
+          span Message signature verified, using public key
+          span.fw-bold #{ verifyMessageResponse.pubkey }
+          span .
 
-					span Message signature verified, using public key 
-					span.fw-bold #{verifyMessageResponse.pubkey}
-					span .
+      else
+        .alert.alert-danger
+          h3.h6 Signature Verification Failed
 
-			else
-				.alert.alert-danger
-					h3.h6 Signature Verification Failed
+          span Invalid signature
 
-					span  Invalid signature
+          if (false)
+            pre
+              code.json #{ JSON.stringify(verifyMessageResponse, null, 4) }
 
-					if (false)
-						pre
-							code.json #{JSON.stringify(verifyMessageResponse, null, 4)}
+    form(method="post", autocomplete="off")
+      .mb-3
+        label.form-label(for="msg") Message
+        input#msg.form-control.form-control-lg(
+          name="msg",
+          type="text",
+          value=msg
+        )
 
-		form(method="post")
-			.mb-3
-				label.form-label(for="msg") Message
-				input.form-control.form-control-lg(id="msg" name="msg" type="text" value=msg)
+      .mb-3
+        label.form-label(for="signature") Signature
 
-			.mb-3
-				label.form-label(for="signature") Signature
+        .d-flex
+          input#signature.form-control.form-control-lg(
+            name="signature",
+            type="text",
+            value=signature
+          )
 
-				.d-flex
-					input.form-control.form-control-lg(id="signature" name="signature" type="text" value=signature)
-					
-					if (signature)
-						.fs-4.ms-3
-							+copyTextButton(signature)
+          if (signature)
+            .fs-4.ms-3
+              +copyTextButton(signature)
 
-				small.text-muted Signature to verify, or leave blank to generate a new signature
+        small.text-muted Signature to verify, or leave blank to generate a new signature
 
-				
-
-			button.btn.btn-primary(type="submit")
-				i.fas.fa-pen-nib.me-2
-				span Sign / Verify
-			
+      button.btn.btn-primary(type="submit")
+        i.fas.fa-pen-nib.me-2
+        span Sign / Verify

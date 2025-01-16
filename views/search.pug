@@ -1,117 +1,110 @@
 extends layout
 
 block headContent
-	title Search - #{query}
+  title Search - #{ query }
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
+  li.breadcrumb-item
+    a(href="/") Home
 
-	if (query)
-		li.breadcrumb-item
-			a(href='/search') Search
-		li.breadcrumb-item #{query}
-	else
-		li.breadcrumb-item Search
-	
+  if (query)
+    li.breadcrumb-item
+      a(href="/search") Search
+    li.breadcrumb-item #{ query }
+  else
+    li.breadcrumb-item Search
+
 block content
+  +pageTitle("Search")
 
-	+pageTitle("Search")
+  if (session.hideSearchNote)
+    // show nothing
+  else
+    .alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
+      .mb-2
+        .mb-2 Searching here will find all public nodes and/or channels visible to your node. It will match on public keys, aliases, addresses, colors, and channel ids.
+          p.
+            #[span.fw-bold Important:]
+            Please be aware that the
+            #[span.fw-bold alias]
+            property can be set to any value by node owners - even to impersonate a person or company you might be familiar with. Use caution when evaluating nodes.
 
+      div
+        a(href="/changeSetting?name=hideSearchNote&value=true") Don't show this note again
 
-	if (session.hideSearchNote)
-		// show nothing
-	else
-		.alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
-			.mb-2
-				.mb-2 Searching here will find all public nodes and/or channels visible to your node. It will match on public keys, aliases, addresses, colors, and channel ids.
-				span.fw-bold Important: 
-				span Please be aware that the 
-				span.fw-bold alias 
-				span property can be set to any value by node owners - even to impersonate a person or company you might be familiar with. Use caution when evaluating nodes.
+      a.btn-close(
+        href="/changeSetting?name=hideSearchNote&value=true",
+        aria-label="Close",
+        style="text-decoration: none"
+      )
 
-			div
-				a(href="/changeSetting?name=hideSearchNote&value=true") Don't show this note again
-				
+  +contentSection("Query")
+    form(method="get")
+      .input-group
+        label.input-group-text(for="query")
+          i.fas.fa-search
 
-			a.btn-close(href="/changeSetting?name=hideSearchNote&value=true", aria-label="Close", style="text-decoration: none;")
+        input#query.form-control.form-control-lg(
+          type="text",
+          name="query",
+          value=query,
+          placeholder="public key, channel id, alias, color, or address"
+        )
 
+        button.btn.btn-primary.btn-lg(type="submit")
+          span Search
 
-	+contentSection("Query")
-		form(method="get")
-			.input-group
-				label.input-group-text(for="query")
-					i.fas.fa-search
+    if (query)
+      hr.my-3
 
-				input.form-control.form-control-lg(id="query" type="text" name="query" value=query placeholder="public key, channel id, alias, color, or address")
-				
-				button.btn.btn-primary.btn-lg(type="submit")
-					span Search
+      div
+        span.
+          Found
+          #[span.fw-bold #{ searchResults.nodes.length.toLocaleString() }]
+          node
+        if (searchResults.nodes.length != 1)
+          | s
 
-		if (query)
-			hr.my-3
-					
-			div
-				span Found 
-				
-				span.fw-bold #{searchResults.nodes.length.toLocaleString()}
-				span.ms-1 node
-				if (searchResults.nodes.length != 1)
-					| s
+        span.ms-1.
+          and
+          #[span.fw-bold #{ searchResults.channels.length.toLocaleString() }]
+          channel
+        if (searchResults.channels.length != 1)
+          | s
 
-				span.ms-1 and 
+  if (query)
+    - var hasNodes = false;
+    - var hasChannels = false;
 
-				span.fw-bold #{searchResults.channels.length.toLocaleString()}
-				span.ms-1 channel
-				if (searchResults.channels.length != 1)
-					| s
+    if (searchResults && searchResults.nodes && searchResults.nodes.length > 0)
+      - hasNodes = true;
 
+    if (searchResults && searchResults.channels && searchResults.channels.length > 0)
+      - hasChannels = true;
 
+    - let tabs = [];
 
-	if (query)
-		- var hasNodes = false;
-		- var hasChannels = false;
+    if (hasNodes)
+      - tabs.push(`Nodes (${searchResults.nodes.length.toLocaleString()})`);
 
-		if (searchResults && searchResults.nodes && searchResults.nodes.length > 0)
-			- hasNodes = true;
+    if (hasChannels)
+      - tabs.push(`Channels (${searchResults.channels.length.toLocaleString()})`);
 
-		if (searchResults && searchResults.channels && searchResults.channels.length > 0)
-			- hasChannels = true;
+    if (tabs.length > 0)
+      +pageTabs(tabs)
 
+      .tab-content
+        if (hasNodes)
+          +pageTab(tabs[0], true)
+            - var nodeInfos = searchResults.nodes;
+            - var nodeTableIndexOffset = 0;
+            include includes/node-table.pug
 
+        if (hasChannels)
+          +pageTab(hasNodes ? tabs[1] : tabs[0], !hasNodes)
+            - var channels = searchResults.channels;
+            - var channelTableIndexOffset = 0;
+            include includes/channel-table.pug
 
-		- let tabs = [];
-
-		if (hasNodes)
-			- tabs.push(`Nodes (${searchResults.nodes.length.toLocaleString()})`)
-
-		if (hasChannels)
-			- tabs.push(`Channels (${searchResults.channels.length.toLocaleString()})`)
-
-
-		if (tabs.length > 0)
-
-			+pageTabs(tabs)
-
-
-			.tab-content
-				if (hasNodes)
-					+pageTab(tabs[0], true)
-						
-						- var nodeInfos = searchResults.nodes;
-						- var nodeTableIndexOffset = 0;
-						include includes/node-table.pug
-					
-
-				if (hasChannels)
-					+pageTab(hasNodes ? tabs[1] : tabs[0], !hasNodes)
-
-						- var channels = searchResults.channels;
-						- var channelTableIndexOffset = 0;
-						include includes/channel-table.pug
-
-
-		else
-			.alert.alert-warning.shadow-sm No results found for query: #{query}
-
-
+    else
+      .alert.alert-warning.shadow-sm No results found for query: #{ query }

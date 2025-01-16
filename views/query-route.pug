@@ -1,156 +1,148 @@
 extends layout
 
 block headContent
-	title Query Route
+  title Query Route
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item Tools
-	li.breadcrumb-item Query Route
-	
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item Tools
+  li.breadcrumb-item Query Route
+
 block content
-	+pageTitle("Query Route")
+  +pageTitle("Query Route")
 
+  if (!session.admin)
+    - var loginRequiredNote = "allow you to query lightning payment routes through the network.";
+    include includes/login-required-alert.pug
 
-	if (!session.admin)
-		- var loginRequiredNote = "allow you to query lightning payment routes through the network.";
-		include includes/login-required-alert.pug
+  else
+    form(method="post")
+      .mb-3
+        label.form-label(for="pubkey") Target Node Public Key
+        input#pubkey.form-control.form-control-lg(
+          name="pubkey",
+          type="text",
+          value=pubkey
+        )
 
-	else
+      if (pubkey)
+        .d-flex
+          div
+            label.form-label(for="pubkey") Remote Node
+            +card
+              +nodeCard(pubkey)
 
-		form(method="post")
-			.mb-3
-				label.form-label(for="pubkey") Target Node Public Key
-				input.form-control.form-control-lg(id="pubkey" name="pubkey" type="text" value=pubkey)
+      .d-flex
+        .mb-3
+          label.form-label(for="amount") Amount
+          .input-group
+            input#amount.form-control.form-control-lg(
+              type="number",
+              name="amountSat",
+              value=amountSat
+            )
 
-			if (pubkey)
-				.d-flex
-					div
-						label.form-label(for="pubkey") Remote Node
-						+card
-							+nodeCard(pubkey)
+            .input-group-text sat
 
-			.d-flex
-				.mb-3
-					label.form-label(for="amount") Amount
-					.input-group
-						input.form-control.form-control-lg(type="number" id="amount" name="amountSat" value=amountSat)
-						
-						.input-group-text sat
+      button.btn.btn-primary(type="submit")
+        i.fas.fa-route.me-2
+        span Query Route
 
-			button.btn.btn-primary(type="submit")
-				i.fas.fa-route.me-2
-				span Query Route
+    if (queryRouteError)
+      hr.my-3
 
-		
-			
-		if (queryRouteError)
-			hr.my-3
+      .alert.alert-warning.shadow-sm
+        h3.h6 No Route Found
 
-			.alert.alert-warning.shadow-sm
-				h3.h6 No Route Found
+        if (queryRouteError != null && queryRouteError.details)
+          span.text-capitalize #{ queryRouteError.details }
 
-				if (queryRouteError != null && queryRouteError.details)
-					span.text-capitalize #{queryRouteError.details}
+      if (false)
+        pre
+          code.json #{ JSON.stringify(queryRouteError, null, 4) }
 
-			if (false)
-				pre
-					code.json #{JSON.stringify(queryRouteError, null, 4)}
+    else if (queryRouteResponse)
+      hr.my-3
 
-		else if (queryRouteResponse)
-			hr.my-3
+      if (false)
+        pre
+          code.json #{ JSON.stringify(queryRouteResponse, null, 4) }
 
-			if (false)
-				pre
-					code.json #{JSON.stringify(queryRouteResponse, null, 4)}
+      .alert.alert-success.shadow-sm Route Found
 
-			.alert.alert-success.shadow-sm Route Found
+      - var route = queryRouteResponse.routes[0];
 
-			- var route = queryRouteResponse.routes[0];
+      +contentSection("Summary")
+        +summaryRow(4)
+          +summaryItem("Total Cost", "The total amount to be transferred in milli-satoshis (the native unit on the lightning network), followed by the amount in your chosen unit")
+            +btcValue(route.total_amt_msat, "msat", "msat")
 
-			+contentSection("Summary")
-				+summaryRow(4)
-					+summaryItem("Total Cost", "The total amount to be transferred in milli-satoshis (the native unit on the lightning network), followed by the amount in your chosen unit")
-						+btcValue(route.total_amt_msat, "msat", "msat")
+            br
+            span.text-muted.fs-75
+              | (
+              +btcValue(new Decimal(route.total_amt_msat).dividedBy(1000))
+              | )
 
-						br
-						span.text-muted.fs-75
-							| (
-							+btcValue(new Decimal(route.total_amt_msat).dividedBy(1000))
-							| )
+          +summaryItem("Total Fees")
+            if (parseInt(route.total_fees_msat) > 0)
+              span.text-danger
+                +btcValue(route.total_fees_msat, "msat", "msat")
 
+            else
+              span.text-success 0
 
-					+summaryItem("Total Fees")
-						if (parseInt(route.total_fees_msat) > 0)
-							span.text-danger
-								+btcValue(route.total_fees_msat, "msat", "msat")
-								
-						else
-							span.text-success 0
+          +summaryItem("Total Timelock")
+            | #{ route.total_time_lock.toLocaleString() }
 
+          +summaryItem("Hops")
+            | #{ route.hops.length.toLocaleString() }
 
-					+summaryItem("Total Timelock")
-						| #{route.total_time_lock.toLocaleString()}
+      +sectionTitle("Details")
+      .d-flex.flex-wrap.mb-n3
+        .card.text-body.shadow-sm.me-3.mb-3
+          .card-header
+            h3.h6.mb-0
+              i.fas.fa-play-circle.me-2.fa-lg.text-primary
+              span Origin
+          .card-body
+            .fw-bold.mb-2 Node
 
+            +nodeCard(lndRpc.internal_pubkey)
 
-					+summaryItem("Hops")
-						| #{route.hops.length.toLocaleString()}
+        each hop, hopIndex in route.hops
+          .card.text-body.shadow-sm.me-3.mb-3
+            .card-header
+              h3.h6.mb-0
+                if (hopIndex == (route.hops.length - 1))
+                  i.fas.fa-check-circle.me-2.fa-lg.text-success
+                else
+                  i.fas.fa-arrow-circle-right.me-2.fa-lg.text-info
 
+                if (hopIndex == (route.hops.length - 1))
+                  span Destination
+                  span.text-muted.fs-80.ms-1 (Hop ##{ (hopIndex + 1).toLocaleString() })
 
+                else
+                  span Hop ##{ (hopIndex + 1).toLocaleString() }
 
+            .card-body
+              .mb-3.border-bottom.pb-3
+                .fw-bold.mb-2 Node
 
-			+sectionTitle("Details")
-			.d-flex.flex-wrap.mb-n3
-				.card.text-body.shadow-sm.me-3.mb-3
-					.card-header
-						h3.h6.mb-0
-							i.fas.fa-play-circle.me-2.fa-lg.text-primary
-							span Origin
-					.card-body
-						.fw-bold.mb-2 Node
-						
-						+nodeCard(lndRpc.internal_pubkey)
+                +nodeCard(hop.pub_key)
 
+              .mb-2
+                .fw-bold Channel
 
-				each hop, hopIndex in route.hops
-					
-					.card.text-body.shadow-sm.me-3.mb-3
-						.card-header
-							h3.h6.mb-0
-								if (hopIndex == (route.hops.length - 1))
-									i.fas.fa-check-circle.me-2.fa-lg.text-success
-								else
-									i.fas.fa-arrow-circle-right.me-2.fa-lg.text-info
+                +channelId(hop.chan_id, true)
 
-								if (hopIndex == (route.hops.length - 1))
-									span Destination
-									span.text-muted.fs-80.ms-1 (Hop ##{(hopIndex + 1).toLocaleString()})
+              div
+                .fw-bold Fees
 
-								else
-									span Hop ##{(hopIndex + 1).toLocaleString()}
+                if (parseInt(hop.fee_msat) > 0)
+                  span.text-danger +
+                    +btcValue(hop.fee_msat, "msat", "msat")
 
-								
-							
-						.card-body
-							.mb-3.border-bottom.pb-3
-								.fw-bold.mb-2 Node
-
-								+nodeCard(hop.pub_key)
-
-
-							.mb-2
-								.fw-bold Channel
-
-								+channelId(hop.chan_id, true)
-
-							div
-								.fw-bold Fees
-								
-								if (parseInt(hop.fee_msat) > 0)
-									span.text-danger +
-										+btcValue(hop.fee_msat, "msat", "msat")
-
-								else
-									span.text-success 0
-
+                else
+                  span.text-success 0

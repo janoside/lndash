@@ -1,133 +1,137 @@
 extends layout
 
 block headContent
-	title Payment History
+  title Payment History
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item Lightning Payments
-	li.breadcrumb-item Payments Sent
-	
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item Lightning Payments
+  li.breadcrumb-item Payments Sent
+
 block content
-	if (!session.admin)
-		+pageTitle("Payments Sent")
+  if (!session.admin)
+    +pageTitle("Payments Sent")
 
-		- var loginRequiredNote = "display details about this node's outgoing payments.";
-		include includes/login-required-alert.pug
+    - var loginRequiredNote = "display details about this node's outgoing payments.";
+    include includes/login-required-alert.pug
 
-	else
+  else
+    +pageTitle(`${allPayments.length.toLocaleString()} Payment${(allPayments.length == 1) ? "" : "s"}`)
+      if (allFilteredPayments.length < allPayments.length)
+        small.text-muted (showing #{ allFilteredPayments.length.toLocaleString() })
 
-		+pageTitle(`${allPayments.length.toLocaleString()} Payment${(allPayments.length == 1) ? "" : "s"}`)
-			if (allFilteredPayments.length < allPayments.length)
-				small.text-muted  (showing #{allFilteredPayments.length.toLocaleString()})
+    +card
+      +filterList
+        +filterItem
+          - var sortOptions = [["Date", "date-desc"], ["Value", "value-desc"], ["Destination", "dest-desc"]];
 
+          +filterBtnGroup("Sort", null, sortOptions, `/payment-history?date=${date}&limit=${limit}`, "sort", sort)
 
-		+card
-			+filterList
-				+filterItem
-					- var sortOptions = [["Date", "date-desc"], ["Value", "value-desc"], ["Destination", "dest-desc"]];
+        +filterItem
+          - var createdFilterOptions = [["1h", "60-min"], ["24h", "24-hr"], ["7d", "7-day"], ["30d", "30-day"], ["All", "all"]];
 
-					+filterBtnGroup("Sort", null, sortOptions, `/payment-history?date=${date}&limit=${limit}`, "sort", sort)
+          +filterBtnGroup("Time", null, createdFilterOptions, `/payment-history?sort=${sort}&limit=${limit}`, "date", date)
 
+        +filterItem(true)
+          - var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
 
-				+filterItem
-					- var createdFilterOptions = [["1h", "60-min"], ["24h", "24-hr"], ["7d", "7-day"], ["30d", "30-day"], ["All", "all"]];
+          +filterBtnGroup("Page Size", null, pageSizeOptions, `/payment-history?sort=${sort}&date=${date}`, "limit", limit)
 
-					+filterBtnGroup("Time", null, createdFilterOptions, `/payment-history?sort=${sort}&limit=${limit}`, "date", date)
+      hr.my-3
 
+      div
+        if (allFilteredPayments.length > limit)
+          span.
+            Showing
+            #[span.fw-bold ##{ (offset + 1).toLocaleString() } - #{ Math.min(offset + limit, allFilteredPayments.length).toLocaleString() }]
+            of
+            #[span.fw-bold #{ allFilteredPayments.length.toLocaleString() }]
 
-				+filterItem(true)
-					- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
+          if (allPayments.length > allFilteredPayments.length)
+            | filtered
 
-					+filterBtnGroup("Page Size", null, pageSizeOptions, `/payment-history?sort=${sort}&date=${date}`, "limit", limit)
+          |
+          | payment
+          if (allFilteredPayments.length != 1)
+            | s
 
+        else if (allFilteredPayments.length > 0)
+          span.
+            Showing
+            #[span.fw-bold #{ allFilteredPayments.length.toLocaleString() }]
 
-			hr.my-3
+          if (allPayments.length > allFilteredPayments.length)
+            | filtered
 
-			div
-				if (allFilteredPayments.length > limit)
-					span Showing 
-					span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredPayments.length).toLocaleString()} 
-					span of 
-					span.fw-bold #{allFilteredPayments.length.toLocaleString()} 
-					if (allPayments.length > allFilteredPayments.length)
-						span filtered 
-					span payment
-					if (allFilteredPayments.length != 1)
-						span s
+          |
+          | payment
+          if (allFilteredPayments.length != 1)
+            | s
 
-				else if (allFilteredPayments.length > 0)
-					span Showing 
-					span.fw-bold #{allFilteredPayments.length.toLocaleString()} 
-					if (allPayments.length > allFilteredPayments.length)
-						span filtered 
-					span payment
-					if (allFilteredPayments.length != 1)
-						span s
+        else
+          .alert.alert-warning.shadow-sm.mb-0 No matching payments
 
-				else
-					.alert.alert-warning.shadow-sm.mb-0 No matching payments
+      +pagination(allFilteredPayments.length, limit, offset, paginationBaseUrl)
 
+    if (true)
+      if (allFilteredPayments.length > 0)
+        each payment, paymentIndex in pagedFilteredPayments
+          include includes/payment-details-modal.pug
 
-			+pagination(allFilteredPayments.length, limit, offset, paginationBaseUrl)
+        .table-responsive
+          table.table.table-striped
+            thead
+              tr
+                th.text-end.fw-light #
+                th.text-end Value
+                th.text-end Fee
+                th Destination
 
+                th Date
+                th Hash
 
+                th.text-end Raw
 
-		if (true)
-			if (allFilteredPayments.length > 0)
-				each payment, paymentIndex in pagedFilteredPayments
-					include includes/payment-details-modal.pug
+            tbody
+              each payment, paymentIndex in pagedFilteredPayments
+                tr.word-wrap
+                  th.text-end.fw-light #{ (paymentIndex + offset + 1).toLocaleString() }
 
-				.table-responsive
-					table.table.table-striped
-						thead
-							tr
-								th.text-end.fw-light #
-								th.text-end Value
-								th.text-end Fee
-								th Destination
-								
-								th Date
-								th Hash
+                  if (false)
+                    td
+                      span(
+                        title=payment.payment_preimage,
+                        data-bs-toggle="tooltip"
+                      ) #{ payment.payment_preimage.substring(0, 15) }
 
-								th.text-end Raw
-						
-						tbody
-							each payment, paymentIndex in pagedFilteredPayments
-								tr.word-wrap
-									th.text-end.fw-light #{(paymentIndex + offset + 1).toLocaleString()}
-									
-									if (false)
-										td
-											span(title=payment.payment_preimage, data-bs-toggle="tooltip") #{payment.payment_preimage.substring(0, 15)}
+                  td.text-end
+                    +btcValue(new Decimal(payment.value_msat).dividedBy(1000))
 
-									td.text-end
-										+btcValue(new Decimal(payment.value_msat).dividedBy(1000))
+                  td.text-end
+                    +btcValue(payment.fee)
 
-									td.text-end
-										+btcValue(payment.fee)
+                  td
+                    //pre
+                    //	code.json #{JSON.stringify(payment.htlcs[0], null, 4)}
+                    - var destinationNodePubkey = payment.htlcs[0].route.hops[payment.htlcs[0].route.hops.length - 1].pub_key;
 
-									td
-										//pre
-										//	code.json #{JSON.stringify(payment.htlcs[0], null, 4)}
-										- var destinationNodePubkey = payment.htlcs[0].route.hops[payment.htlcs[0].route.hops.length - 1].pub_key;
-										
-										+nodeCard(destinationNodePubkey)
+                    +nodeCard(destinationNodePubkey)
 
-									
+                  td
+                    +date(payment.creation_date)
 
-									td
-										+date(payment.creation_date)
+                  td
+                    span.border-dotted(
+                      title=payment.payment_hash,
+                      data-bs-toggle="tooltip"
+                    ) #{ utils.ellipsizeMiddle(payment.payment_hash, 10) }
+                    +copyTextButton(payment.payment_hash)
 
-									
-									td
-										span.border-dotted(title=payment.payment_hash, data-bs-toggle="tooltip") #{utils.ellipsizeMiddle(payment.payment_hash, 10)}
-										+copyTextButton(payment.payment_hash)
-
-									
-									
-
-									td.text-end
-										a.btn.btn-sm.btn-primary(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#paymentModal-" + paymentIndex))
-											i.fas.fa-file-lines
+                  td.text-end
+                    a.btn.btn-sm.btn-primary(
+                      href="javascript:void(0)",
+                      data-bs-toggle="modal",
+                      data-bs-target="#paymentModal-" + paymentIndex
+                    )
+                      i.fas.fa-file-lines

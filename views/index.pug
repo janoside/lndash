@@ -1,361 +1,373 @@
 extends layout
 
 block headContent
-	title Home - LNDash
+  title Home - LNDash
 
 block breadcrumb
-	li.breadcrumb-item Home
+  li.breadcrumb-item Home
 
 block content
-	if (fullNetworkDescription)
-
-		+pageTitle("Home")
-
-
-		if (session.hideHomepageBanner != "true")
-			if (global.newAppVersion)
-				.alert.alert-primary.alert-dismissible.shadow-sm.mb-3
-					span You're running LNDash v#{global.appVersion}. A newer version is available: 
-					a(href="https://www.npmjs.com/package/lndash") LNDash v#{global.newAppVersion}
-
-			.alert.alert-primary.alert-dismissible.shadow-sm.mb-3(role="alert")
-				p
-					span.fw-bold LNDash
-					span  is 
-					a(href="https://github.com/janoside/lndash" target="_blank") open-source
-					span  and easy to set up. It communicates with your 
-					a(href="https://github.com/lightningnetwork/lnd" target="_blank") LND
-					span  node via gRPC. See the 
-					a(href="https://github.com/janoside/lndash" target="_blank") project description
-					span  for a list of features and instructions for running.
-
-				if (global.sourcecodeProjectMetadata)
-					.mt-2.mb-2
-						a.btn.btn-primary.me-3.mb-1(href="https://github.com/janoside/lndash")
-							i.fas.fa-star.me-2
-							span.me-2 Star 
-							span.badge.bg-white.text-dark #{global.sourcecodeProjectMetadata.stargazers_count}
-
-						a.btn.btn-primary.me-3.mb-1(href="https://github.com/janoside/lndash/fork")
-							i.fas.fa-code-branch.me-2
-							span.me-2 Fork 
-							span.badge.bg-white.text-dark #{global.sourcecodeProjectMetadata.forks_count}
-
-						a.btn.btn-primary.btn.btn-primary.mb-1(href=config.donations.btcpayserver.host target="_blank")
-							i(class="fas fa-heart me-2")
-							span Donate
-
-				div
-					a.me-2(href="https://www.npmjs.com/package/lndash" rel="nofollow" target="_blank")
-						img(src="https://camo.githubusercontent.com/dca2e8f947987c994c021fedf0da14f740220773/68747470733a2f2f696d672e736869656c64732e696f2f6e706d2f762f6c6e642d61646d696e2e7376673f7374796c653d666c6174" alt="npm version" data-canonical-src="https://img.shields.io/npm/v/lndash.svg?style=flat" style="max-width:100%;")
-
-					a(href="https://npmcharts.com/compare/lndash?minimal=true" rel="nofollow" target="_blank")
-						img(src="https://camo.githubusercontent.com/015986f601eae0e28a983728259ccb96ce042511/687474703a2f2f696d672e736869656c64732e696f2f6e706d2f646d2f6c6e642d61646d696e2e7376673f7374796c653d666c6174" alt="NPM downloads" data-canonical-src="http://img.shields.io/npm/dm/lndash.svg?style=flat" style="max-width:100%;")
-
-
-				a.btn-close(href="/changeSetting?name=hideHomepageBanner&value=true" aria-label="Close" style="text-decoration: none;")
-				
-		
-		- var totalCapacity = 0;
-		each item in fullNetworkDescription.channels.sortedByLastUpdate
-			- totalCapacity = totalCapacity + parseInt(item.capacity);
-
-		- var networkSummaryItemCount = 3;
-		- var networkSummaryColumnClass = "col-md-4";
-		if (networkSummaryItemCount > 6)
-			- networkSummaryColumnClass = "col-md-3";
-
-
-		+sectionTitle("My Node", false, null, null, null, "This card shows the basic details of your node, and the format is used throughout this app. The image is derived from the node's public key and the color for the outer ring is the node's 'color' property. The the public key and the alias are also displayed.")
-
-		.d-flex.mt-3.lead.mb-2
-			+card
-				+nodeCard(lndRpc.internal_pubkey)
-
-		+contentSection("Node Summary")
-			if (false)
-				div(class="row")
-					.summary-split-table-label Public Key
-					.summary-split-table-content
-						a(href=`/node/${lndRpc.internal_pubkey}`) #{lndRpc.internal_pubkey}
-
-			
-
-
-			+summaryRow(2)
-				+summaryItem("On-Chain vs Lightning")
-					if (walletBalance)
-
-
-						if (totalLocalBalance != null)
-							.d-flex.justify-content-between.fs-90.mb-3
-								.text-start
-									.mb-2
-										i.fas.fa-circle.text-success.me-2
-										span.border-dotted(title="Confirmed, on-chain wallet balance.", data-bs-toggle="tooltip") On-Chain
-
-										if (walletBalance.unconfirmed_balance > 0)
-											span.text-muted.fs-80.ms-1
-												| (
-												span.text-info.border-dotted(title="Unconfirmed wallet balance", data-bs-toggle="tooltip") unconfirmed
-												| )
-
-									span.badge.text-bg-success.fs-80
-										+btcValue(walletBalance.confirmed_balance)
-
-									if (walletBalance.unconfirmed_balance > 0)
-										span.badge.text-bg-info.fs-80.ms-2
-											+btcValue(walletBalance.unconfirmed_balance)
-
-								.text-end
-									.mb-2
-										i.fas.fa-circle.text-warning.me-2
-										span.border-dotted(title="Total (spendable/local) balance of all of your channels.", data-bs-toggle="tooltip") Lightning
-
-									span.badge.text-bg-warning.fs-80
-										+btcValue(totalLocalBalance)
-									
-
-
-							+progressBar([new Decimal(walletBalance.confirmed_balance), new Decimal(walletBalance.unconfirmed_balance), new Decimal(totalLocalBalance)], ["text-bg-success", "text-bg-info", "text-bg-warning"])
-
-						else
-							span -
-
-
-						if (false)
-							span.badge.text-bg-success(title="Confirmed balance", data-bs-toggle="tooltip")
-								i.fas.fa-check.me-2
-								+btcValue(walletBalance.confirmed_balance)
-									span.text-muted (none)
-
-
-							if (walletBalance.unconfirmed_balance > 0)
-								div
-									span.badge.text-bg-warning(title="Unconfirmed balance", data-bs-toggle="tooltip")
-										i.fas.fa-clock.me-2
-										+btcValue(walletBalance.unconfirmed_balance)
-
-					else
-						span.text-warning.border-dotted(title="Error loading wallet balance. See Error Log for details." data-bs-toggle="tooltip") Unknown
-
-				
-				+summaryItem("Lightning: Spendable vs Receivable")
-					if (totalLocalBalance != null)
-						.d-flex.justify-content-between.fs-90.mb-2
-							.text-start
-								i.fas.fa-circle.text-primary.me-2
-								span.border-dotted(title="Local, spendable balance across all of your channels.", data-bs-toggle="tooltip") Spendable
-
-							.text-end
-								i.fas.fa-circle.text-info.me-2
-								span.border-dotted(title="Total receivable balance on the remote side of all of your channels.", data-bs-toggle="tooltip") Receivable
-
-						
-						.d-flex.justify-content-between.mb-3
-							.text-start
-								span.badge.text-bg-primary.fs-80
-									+btcValue(totalLocalBalance)
-
-							.text-end
-								span.badge.text-bg-info.fs-80
-									+btcValue(totalRemoteBalance)
-
-
-						+progressBar([totalLocalBalance, totalRemoteBalance], ["text-bg-primary", "text-bg-info"])
-					
-
-					else
-						span -
-
-
-					
-			hr.mt-4.mb-3
-
-			+summaryRow("Channel Details")
-
-				+summaryItem("Channels")
-					if (getInfo)
-						.d-flex.justify-content-center
-							.d-flex
-								.me-4
-									+pillBadgeSuccess("Active")
-									span.ms-1 #{parseInt(getInfo.num_active_channels).toLocaleString()}
-
-								if (parseInt(getInfo.num_pending_channels) > 0)
-									div(class=(parseInt(getInfo.num_inactive_channels) > 0 ? "me-4" : false))
-										+pillBadgeWarning("Pending")
-										span.ms-1 #{parseInt(getInfo.num_pending_channels).toLocaleString()}
-
-								if (parseInt(getInfo.num_inactive_channels) > 0)
-									div
-										+pillBadgeWarning("Inactive")
-										span.ms-1 #{parseInt(getInfo.num_inactive_channels).toLocaleString()}
-
-
-
-
-					else
-						span.text-warning.border-dotted(title="Error loading channel info. See Error Log for details." data-bs-toggle="tooltip") Unknown
-
-
-
-			hr.my-4
-
-
-
-			+summaryRow(3)
-				+summaryItem("LND Version")
-					if (getInfo)
-						- var versionParts = getInfo.version.split(" ");
-						if (versionParts.length == 2 && versionParts[1].endsWith(versionParts[0]))
-							| #{versionParts[0]}
-
-						else
-							each versionPart in versionParts
-								span #{versionPart}
-								br
-					else
-						| Unknown
-
-				+summaryItem(`Chain${getInfo.chains.length > 1 ? "s" : ""}`)
-					each chain in getInfo.chains
-						span #{chain.chain} (#{chain.network})
-						br
-
-
-				+summaryItem("Current Block", "This is the latest Bitcoin block that your node is aware of.")
-					if (config.blockExplorerUrl)
-						a(href=(config.blockExplorerUrl + "/block/" + getInfo.block_hash), target="_blank") ##{getInfo.block_height.toLocaleString()}
-						
-						span.ms-2
-							if (getInfo.synced_to_chain)
-								span(title="Synchronized", data-bs-toggle="tooltip")
-									i.fas.fa-circle-check.text-success
-
-							else
-								span(title="Not synchronized", data-bs-toggle="tooltip")
-									i.fas.fa-clock.text-warning
-
-					else
-						span #{getInfo.block_hash}
-						br
-						span(class="text-muted") (#{getInfo.block_height.toLocaleString()})
-
-
-			
-
-			if (false)
-				div(class="col-md-6")
-				div(class="row")
-					.summary-split-table-label URIs
-					.summary-split-table-content
-						each uri, index in getInfo.uris
-							if (getInfo.uris.length > 1)
-								span #{index + 1}: #{uri}
-							else
-								span #{uri}
-
-		
-
-			
-			
-
-								
-
-
-
-		
-
-		// "This summary is for the public network from the point of view of your current node."
-		+contentSection("Public Network Summary")
-			+summaryRow(4)
-				+summaryItem("Total Capacity")
-					+btcValue(totalCapacity)
-
-				+summaryItem("Nodes")
-					span #{fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()}
-
-				+summaryItem("Channels")
-					span #{fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()}
-
-				+summaryItem("Avg Channel Capacity")
-					- var currencyValue = new Decimal(totalCapacity).dividedBy(fullNetworkDescription.channels.sortedByLastUpdate.length);
-					+btcValue(currencyValue)
-			
-			hr.my-4
-
-
-			+summaryRow(2)
-				+summaryItem("Out Degree Stats")
-					span #{new Decimal(networkInfo.avg_out_degree).toDP(2)}
-					span.text-muted.fs-75.ms-1 (avg)
-					span.text-muted.mx-2 /
-					span #{new Decimal(networkInfo.max_out_degree).toDP(2)}
-					span.text-muted.fs-75.ms-1 (max)
-
-				+summaryItem("Channel Sizes", "Min / max allowed channel size.", "sat")
-					+btcValue(networkInfo.min_channel_size)
-
-					span.text-muted.fs-75.ms-1 (min)
-					span.text-muted.mx-2 /
-
-					+btcValue(networkInfo.max_channel_size)
-					
-					span.text-muted.fs-75.ms-1 (max)
-					
-					
-
-			
-			if (false)
-				hr
-
-				pre
-					code.json #{JSON.stringify(networkInfo, null, 4)}
-
-
-		if (false)
-			div(class="card mb-4 shadow-sm")
-				.card-header
-					div(class="row")
-						div(class="col")
-							h2.h6.mb-0 #{fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()} 
-								if (fullNetworkDescription.nodes.sortedByLastUpdate.length == 1)
-									span Node
-								else
-									span Nodes
-
-						div(class="col")
-							span(style="float: right;")
-								a(href="/nodes")
-									span  Browse Nodes &raquo;
-
-				.card-body
-					.row
-						.col-md-4
-							h3.h4 Recently Updated
-							- var nodeInfos = fullNetworkDescription.nodes.sortedByLastUpdate.slice(0, 5);
-							each nodeInfo in nodeInfos
-								.mb-3
-									+nodeCard(nodeInfo.node.pub_key)
-
-						.col-md-4
-							h3.h4 Top Channel Count
-							- var nodeInfos = fullNetworkDescription.nodes.sortedByChannelCount.slice(0, 5);
-							each nodeInfo in nodeInfos
-								.mb-3
-									+nodeCard(nodeInfo.node.pub_key)
-
-						.col-md-4
-							h3.h4 Top Capacity
-							- var nodeInfos = fullNetworkDescription.nodes.sortedByTotalCapacity.slice(0, 5);
-							each nodeInfo in nodeInfos
-								.mb-3
-									+nodeCard(nodeInfo.node.pub_key)
-				
-
-
-	else
-		.alert.alert-primary No active LND connection. If your app was just started, it may still be connecting. Otherwise, check your RPC connection and your logs for errors.
-			.mt-2
-				a(href="/manage-nodes") Manage LND Nodes...
+  if (fullNetworkDescription)
+    +pageTitle("Home")
+
+    if (session.hideHomepageBanner != "true")
+      if (global.newAppVersion)
+        .alert.alert-primary.alert-dismissible.shadow-sm.mb-3
+          span.
+            You're running LNDash v#{ global.appVersion }. A newer version is available:
+            #[a(href="https://www.npmjs.com/package/ln-dash") LNDash v#{ global.newAppVersion }]
+
+      .alert.alert-primary.alert-dismissible.shadow-sm.mb-3(role="alert")
+        p.
+          #[span.fw-bold LNDash]
+          is
+          #[a(href="https://github.com/janoside/lndash", target="_blank") open-source]
+          and easy to set up. It communicates with your
+          #[a(href="https://github.com/lightningnetwork/lnd", target="_blank") LND]
+           node via gRPC. See the
+          #[a(href="https://github.com/janoside/lndash", target="_blank") project description]
+          for a list of features and instructions for running.
+
+        if (global.sourcecodeProjectMetadata)
+          .mt-2.mb-2
+            a.btn.btn-primary.me-3.mb-1(
+              href="https://github.com/janoside/lndash"
+            )
+              i.fas.fa-star.me-2
+              span.me-2 Star
+              span.badge.bg-white.text-dark #{ global.sourcecodeProjectMetadata.stargazers_count }
+
+            a.btn.btn-primary.me-3.mb-1(
+              href="https://github.com/janoside/lndash/fork"
+            )
+              i.fas.fa-code-branch.me-2
+              span.me-2 Fork
+              span.badge.bg-white.text-dark #{ global.sourcecodeProjectMetadata.forks_count }
+
+            a.btn.btn-primary.btn.btn-primary.mb-1(
+              href=config.donations.btcpayserver.host,
+              target="_blank"
+            )
+              i.fas.fa-heart.me-2
+              span Donate
+
+        div
+          a.me-2(
+            href="https://www.npmjs.com/package/ln-dash",
+            rel="nofollow",
+            target="_blank"
+          )
+            img(
+              src="https://img.shields.io/npm/v/ln-dash.svg?style=flat",
+              alt="npm version",
+              data-canonical-src="https://img.shields.io/npm/v/ln-dash.svg?style=flat",
+              style="max-width: 100%"
+            )
+
+          a(
+            href="https://npmcharts.com/compare/ln-dash?minimal=true",
+            rel="nofollow",
+            target="_blank"
+          )
+            img(
+              src="https://img.shields.io/npm/dm/ln-dash.svg?style=flat",
+              alt="NPM downloads",
+              data-canonical-src="https://img.shields.io/npm/dm/ln-dash.svg?style=flat",
+              style="max-width: 100%"
+            )
+
+        a.btn-close(
+          href="/changeSetting?name=hideHomepageBanner&value=true",
+          aria-label="Close",
+          style="text-decoration: none"
+        )
+
+    - var totalCapacity = 0;
+    each item in fullNetworkDescription.channels.sortedByLastUpdate
+      - totalCapacity = totalCapacity + parseInt(item.capacity);
+
+    - var networkSummaryItemCount = 3;
+    - var networkSummaryColumnClass = "col-md-4";
+    if (networkSummaryItemCount > 6)
+      - networkSummaryColumnClass = "col-md-3";
+
+    +sectionTitle("My Node", false, null, null, null, "This card shows the basic details of your node, and the format is used throughout this app. The image is derived from the node's public key and the color for the outer ring is the node's 'color' property. the public key and the alias are also displayed.")
+
+    .d-flex.mt-3.lead.mb-2
+      +card
+        +nodeCard(lndRpc.internal_pubkey)
+
+    +contentSection("Node Summary")
+      if (false)
+        .row
+          .summary-split-table-label Public Key
+          .summary-split-table-content
+            a(href=`/node/${lndRpc.internal_pubkey}`) #{ lndRpc.internal_pubkey }
+
+      +summaryRow(2)
+        +summaryItem("On-Chain vs Lightning")
+          if (walletBalance)
+            if (totalLocalBalance != null)
+              .d-flex.justify-content-between.fs-90.mb-3
+                .text-start
+                  .mb-2
+                    i.fas.fa-circle.text-success.me-2
+                    span.border-dotted(
+                      title="Confirmed, on-chain wallet balance.",
+                      data-bs-toggle="tooltip"
+                    ) On-Chain
+
+                    if (walletBalance.unconfirmed_balance > 0)
+                      span.text-muted.fs-80.ms-1
+                        | (
+                        span.text-info.border-dotted(
+                          title="Unconfirmed wallet balance",
+                          data-bs-toggle="tooltip"
+                        ) unconfirmed
+                        | )
+
+                  span.badge.text-bg-success.fs-80
+                    +btcValue(walletBalance.confirmed_balance)
+
+                  if (walletBalance.unconfirmed_balance > 0)
+                    span.badge.text-bg-info.fs-80.ms-2
+                      +btcValue(walletBalance.unconfirmed_balance)
+
+                .text-end
+                  .mb-2
+                    i.fas.fa-circle.text-warning.me-2
+                    span.border-dotted(
+                      title="Total (spendable/local) balance of all of your channels.",
+                      data-bs-toggle="tooltip"
+                    ) Lightning
+
+                  span.badge.text-bg-warning.fs-80
+                    +btcValue(totalLocalBalance)
+
+              +progressBar([new Decimal(walletBalance.confirmed_balance), new Decimal(walletBalance.unconfirmed_balance), new Decimal(totalLocalBalance)], ["text-bg-success", "text-bg-info", "text-bg-warning"])
+
+            else
+              span -
+
+            if (false)
+              span.badge.text-bg-success(
+                title="Confirmed balance",
+                data-bs-toggle="tooltip"
+              )
+                i.fas.fa-check.me-2
+                +btcValue(walletBalance.confirmed_balance)
+                  span.text-muted (none)
+
+              if (walletBalance.unconfirmed_balance > 0)
+                div
+                  span.badge.text-bg-warning(
+                    title="Unconfirmed balance",
+                    data-bs-toggle="tooltip"
+                  )
+                    i.fas.fa-clock.me-2
+                    +btcValue(walletBalance.unconfirmed_balance)
+
+          else
+            span.text-warning.border-dotted(
+              title="Error loading wallet balance. See Error Log for details.",
+              data-bs-toggle="tooltip"
+            ) Unknown
+
+        +summaryItem("Lightning: Spendable vs Receivable")
+          if (totalLocalBalance != null)
+            .d-flex.justify-content-between.fs-90.mb-2
+              .text-start
+                i.fas.fa-circle.text-primary.me-2
+                span.border-dotted(
+                  title="Local, spendable balance across all of your channels.",
+                  data-bs-toggle="tooltip"
+                ) Spendable
+
+              .text-end
+                i.fas.fa-circle.text-info.me-2
+                span.border-dotted(
+                  title="Total receivable balance on the remote side of all of your channels.",
+                  data-bs-toggle="tooltip"
+                ) Receivable
+
+            .d-flex.justify-content-between.mb-3
+              .text-start
+                span.badge.text-bg-primary.fs-80
+                  +btcValue(totalLocalBalance)
+
+              .text-end
+                span.badge.text-bg-info.fs-80
+                  +btcValue(totalRemoteBalance)
+
+            +progressBar([totalLocalBalance, totalRemoteBalance], ["text-bg-primary", "text-bg-info"])
+
+          else
+            span -
+
+      hr.mt-4.mb-3
+
+      +summaryRow("Channel Details")
+        +summaryItem("Channels")
+          if (getInfo)
+            .d-flex.justify-content-center
+              .d-flex
+                .me-4
+                  +pillBadgeSuccess("Active")
+                  span.ms-1 #{ parseInt(getInfo.num_active_channels).toLocaleString() }
+
+                if (parseInt(getInfo.num_pending_channels) > 0)
+                  div(class=parseInt(getInfo.num_inactive_channels) > 0 ? "me-4" : false)
+                    +pillBadgeWarning("Pending")
+                    span.ms-1 #{ parseInt(getInfo.num_pending_channels).toLocaleString() }
+
+                if (parseInt(getInfo.num_inactive_channels) > 0)
+                  div
+                    +pillBadgeWarning("Inactive")
+                    span.ms-1 #{ parseInt(getInfo.num_inactive_channels).toLocaleString() }
+
+          else
+            span.text-warning.border-dotted(
+              title="Error loading channel info. See Error Log for details.",
+              data-bs-toggle="tooltip"
+            ) Unknown
+
+      hr.my-4
+
+      +summaryRow(3)
+        +summaryItem("LND Version")
+          if (getInfo)
+            - var versionParts = getInfo.version.split(" ");
+            if (versionParts.length == 2 && versionParts[1].endsWith(versionParts[0]))
+              | #{ versionParts[0] }
+
+            else
+              each versionPart in versionParts
+                span #{ versionPart }
+                br
+          else
+            | Unknown
+
+        +summaryItem(`Chain${getInfo.chains.length > 1 ? "s" : ""}`)
+          each chain in getInfo.chains
+            span #{ chain.chain } (#{ chain.network })
+            br
+
+        +summaryItem("Current Block", "This is the latest Bitcoin block that your node is aware of.")
+          if (config.blockExplorerUrl)
+            a(
+              href=config.blockExplorerUrl + "/block/" + getInfo.block_hash,
+              target="_blank"
+            ) ##{ getInfo.block_height.toLocaleString() }
+
+            span.ms-2
+              if (getInfo.synced_to_chain)
+                span(title="Synchronized", data-bs-toggle="tooltip")
+                  i.fas.fa-circle-check.text-success
+
+              else
+                span(title="Not synchronized", data-bs-toggle="tooltip")
+                  i.fas.fa-clock.text-warning
+
+          else
+            span #{ getInfo.block_hash }
+            br
+            span.text-muted (#{ getInfo.block_height.toLocaleString() })
+
+      if (false)
+        .col-md-6
+        .row
+          .summary-split-table-label URIs
+          .summary-split-table-content
+            each uri, index in getInfo.uris
+              if (getInfo.uris.length > 1)
+                span #{ index + 1 }: #{ uri }
+              else
+                span #{ uri }
+
+    // "This summary is for the public network from the point of view of your current node."
+    +contentSection("Public Network Summary")
+      +summaryRow(4)
+        +summaryItem("Total Capacity")
+          +btcValue(totalCapacity)
+
+        +summaryItem("Nodes")
+          span #{ fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString() }
+
+        +summaryItem("Channels")
+          span #{ fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString() }
+
+        +summaryItem("Avg Channel Capacity")
+          - let currencyValue = 0;
+          if (fullNetworkDescription.channels.sortedByLastUpdate.length)
+            - currencyValue = new Decimal(totalCapacity).dividedBy(fullNetworkDescription.channels.sortedByLastUpdate.length);
+          +btcValue(currencyValue)
+
+      hr.my-4
+
+      +summaryRow(2)
+        +summaryItem("Out Degree Stats")
+          span #{ new Decimal(networkInfo.avg_out_degree).toDP(2) }
+          span.text-muted.fs-75.ms-1 (avg)
+          span.text-muted.mx-2 /
+          span #{ new Decimal(networkInfo.max_out_degree).toDP(2) }
+          span.text-muted.fs-75.ms-1 (max)
+
+        +summaryItem("Channel Sizes", "Min / max allowed channel size.", "sat")
+          +btcValue(networkInfo.min_channel_size)
+
+          span.text-muted.fs-75.ms-1 (min)
+          span.text-muted.mx-2 /
+
+          +btcValue(networkInfo.max_channel_size)
+
+          span.text-muted.fs-75.ms-1 (max)
+
+      if (false)
+        hr
+
+        pre
+          code.json #{ JSON.stringify(networkInfo, null, 4) }
+
+    if (false)
+      .card.mb-4.shadow-sm
+        .card-header
+          .row
+            .col
+              h2.h6.mb-0 #{ fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString() } 
+                if (fullNetworkDescription.nodes.sortedByLastUpdate.length == 1)
+                  span Node
+                else
+                  span Nodes
+
+            .col
+              span(style="float: right")
+                a(href="/nodes")
+                  span Browse Nodes &raquo;
+
+        .card-body
+          .row
+            .col-md-4
+              h3.h4 Recently Updated
+              - var nodeInfos = fullNetworkDescription.nodes.sortedByLastUpdate.slice(0, 5);
+              each nodeInfo in nodeInfos
+                .mb-3
+                  +nodeCard(nodeInfo.node.pub_key)
+
+            .col-md-4
+              h3.h4 Top Channel Count
+              - var nodeInfos = fullNetworkDescription.nodes.sortedByChannelCount.slice(0, 5);
+              each nodeInfo in nodeInfos
+                .mb-3
+                  +nodeCard(nodeInfo.node.pub_key)
+
+            .col-md-4
+              h3.h4 Top Capacity
+              - var nodeInfos = fullNetworkDescription.nodes.sortedByTotalCapacity.slice(0, 5);
+              each nodeInfo in nodeInfos
+                .mb-3
+                  +nodeCard(nodeInfo.node.pub_key)
+
+  else
+    .alert.alert-primary No active LND connection. If your app was just started, it may still be connecting. Otherwise, check your RPC connection and your logs for errors.
+      .mt-2
+        a(href="/manage-nodes") Manage LND Nodes...

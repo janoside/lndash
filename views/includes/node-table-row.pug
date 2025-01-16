@@ -1,30 +1,25 @@
 tr.word-wrap
-	th.text-end.fw-light #{nodeTableIndex.toLocaleString()}
+  th.text-end.fw-light #{ nodeTableIndex.toLocaleString() }
 
+  td
+    +nodeCard(nodeInfo.node.pub_key)
 
-	td
-		+nodeCard(nodeInfo.node.pub_key)
-		
+  td
+    if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
+      +netAddress(nodeInfo.node.addresses[0].addr)
 
-	td
-		if (nodeInfo.node.addresses && nodeInfo.node.addresses.length > 0)
-			+netAddress(nodeInfo.node.addresses[0].addr)
+    else
+      span -
 
-		else
-			span -
+  td.text-end
+    span #{ parseInt(nodeInfo.num_channels).toLocaleString() }
 
-	
-	td.text-end
-		span #{parseInt(nodeInfo.num_channels).toLocaleString()}
+  td.text-end
+    +btcValue(nodeInfo.total_capacity)
 
+  td.text-end
+    if (nodeInfo.node.last_update == 0)
+      span -
 
-	td.text-end
-		+btcValue(nodeInfo.total_capacity)
-
-
-	td.text-end
-		if (nodeInfo.node.last_update == 0)
-			span -
-
-		else
-			+date(nodeInfo.node.last_update, "human")
+    else
+      +date(nodeInfo.node.last_update, "human")

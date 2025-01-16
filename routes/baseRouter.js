@@ -30,8 +30,14 @@ router.get("/", asyncHandler(async (req, res, next) => {
 		let totalRemoteBalance = new Decimal(0);
 		
 		localChannelsResponse.channels.forEach((chan) => {
-			totalLocalBalance = totalLocalBalance.plus(parseInt(chan.local_balance));
-			totalRemoteBalance = totalRemoteBalance.plus(parseInt(chan.remote_balance));
+			const localBalance = parseInt(chan.local_balance)
+			const remoteBalance = parseInt(chan.remote_balance)
+			if (!isNaN(localBalance)) {
+				totalLocalBalance = totalLocalBalance.plus(localBalance);
+			}
+			if (!isNaN(remoteBalance)) {
+				totalRemoteBalance = totalRemoteBalance.plus(remoteBalance);
+			}
 		});
 
 		res.locals.totalLocalBalance = totalLocalBalance;
@@ -233,7 +239,7 @@ router.post("/setup", asyncHandler(async (req, res, next) => {
 
 	global.adminPassword = pwd;
 
-	let pwdHash = await passwordUtils.hash(pwd);
+	let pwdHash = passwordUtils.hash(pwd);
 
 	global.adminCredentials = {};
 	global.adminCredentials.adminPasswordHash = pwdHash;
@@ -897,23 +903,36 @@ router.get("/forwarding-history", function(req, res) {
 		
 		var maxFee = 0;
 		var maxValueTransferred = 0;
+		
+    var maxPPM = 0;
+    var accumulatedPPM = 0; /// for the average
 
 		var inChannelsById = {};
 		var outChannelsById = {};
 		allFilteredEvents.forEach(function(event) {
 			var valueTransferredIn = parseInt(event.amt_in);
 			var valueTransferredOut = parseInt(event.amt_out);
-			var fee = parseInt(event.fee);
+			var feeMsat = parseInt(event.fee_msat);
+			var fee = parseInt(feeMsat) / 1000;
+			/// sometimes the effective ppm is almost but not quite the actual value
+			/// just round it, or display 2 decimal places
+			var effectiveFeerate = Math.round((feeMsat / event.amt_in_msat)*1e6)
+			event.effectiveFeerate = effectiveFeerate
+			
+			if (effectiveFeerate > maxPPM) {
+				maxPPM = effectiveFeerate
+			}
+			accumulatedPPM += effectiveFeerate
 
-			totalValueTransferred += valueTransferredIn;
+			totalValueTransferred += valueTransferredOut;
 			totalFees += fee;
 
 			if (fee > maxFee) {
 				maxFee = fee;
 			}
 
-			if (valueTransferredIn > maxValueTransferred) {
-				maxValueTransferred = valueTransferredIn;
+			if (valueTransferredOut > maxValueTransferred) {
+				maxValueTransferred = valueTransferredOut;
 			}
 
 
@@ -949,7 +968,7 @@ router.get("/forwarding-history", function(req, res) {
 			}
 		}
 
-		inChannels.sort(function(a, b) {
+		const chanSort = function(a, b) {
 			var aVal = a.totalValueTransferred;
 			var bVal = b.totalValueTransferred;
 			var valDiff = bVal - aVal;
@@ -992,7 +1011,9 @@ router.get("/forwarding-history", function(req, res) {
 			} else {
 				return sortFunc(valDiff, feeDiff, chanIdDiff);
 			}
-		});
+		}
+		inChannels.sort(chanSort);
+    outChannels.sort(chanSort);
 
 		res.locals.totalFees = totalFees;
 		res.locals.totalValueTransferred = totalValueTransferred;
@@ -1000,6 +1021,8 @@ router.get("/forwarding-history", function(req, res) {
 		res.locals.avgValueTransferred = totalValueTransferred / allEvents.length;
 		res.locals.maxFee = maxFee;
 		res.locals.maxValueTransferred = maxValueTransferred;
+		res.locals.maxPPM = maxPPM;
+		res.locals.avgPPM = (accumulatedPPM / allEvents.length).toFixed(2);
 
 		res.locals.inChannels = inChannels;
 		res.locals.outChannels = outChannels;
@@ -1028,7 +1051,9 @@ router.get("/changeSetting", function(req, res) {
 	if (req.query.name) {
 		req.session[req.query.name] = req.query.value;
 
-		res.cookie('user-setting-' + req.query.name, req.query.value);
+		res.cookie('user-setting-' + req.query.name, req.query.value, {
+			sameSite: 'Strict'
+		});
 	}
 
 	res.redirect(req.headers.referer);
@@ -1309,6 +1334,8 @@ router.get("/channels", function(req, res) {
 	}));
 
 	Promise.all(promises.map(utils.reflectPromise)).then(function() {
+		// like literally how is this even defined?
+		delete res.locals.localChannels;
 		res.render("channels");
 
 	}).catch(function(err) {
@@ -1702,14 +1729,14 @@ router.get("/manage-nodes", function(req, res) {
 });
 
 router.post("/manage-nodes", asyncHandler(async (req, res, next) => {
+	// copied to res.locals on error, so form can be re-filled
+	let userFormParams = {};
 	try {
 		let inputType = req.body.inputType;
 
 		res.locals.inputType = inputType;
 		res.locals.setupActive = (!global.adminCredentials.lndNodes || global.adminCredentials.lndNodes.length == 0);
 
-		// copied to res.locals on error, so form can be re-filled
-		let userFormParams = {};
 
 		let newLndNode = null;
 
@@ -1898,7 +1925,7 @@ router.post("/manage-nodes", asyncHandler(async (req, res, next) => {
 
 		res.locals.pageErrors.push(utils.logError("29834y0ehfe", err));
 
-		for (var prop in userFormParams) {
+		for (const prop in userFormParams) {
 			if (userFormParams.hasOwnProperty(prop)) {
 				res.locals[prop] = userFormParams[prop];
 			}

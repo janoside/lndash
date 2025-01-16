@@ -1,153 +1,189 @@
 extends layout
 
 block headContent
-	title Open Channel
+  title Open Channel
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item Tools
-	li.breadcrumb-item Open Channel
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item Tools
+  li.breadcrumb-item Open Channel
 
 block content
-	+pageTitle("Open Channel")
+  +pageTitle("Open Channel")
 
+  if (!session.admin)
+    - var loginRequiredNote = "allow you to open a payment channel.";
+    include includes/login-required-alert.pug
 
-	if (!session.admin)
-		- var loginRequiredNote = "allow you to open a payment channel.";
-		include includes/login-required-alert.pug
+  else
+    if (openChannelError)
+      .alert.alert-danger.shadow-sm
+        h4.h5 Error
 
-	else
+        if (openChannelError.details)
+          .mb-2 #{ openChannelError.details.substring(0, 1).toUpperCase() }#{ openChannelError.details.substring(1) }
 
-		if (openChannelError)
-			.alert.alert-danger.shadow-sm
-				h4.h5 Error
+          if (openChannelError.code)
+            div Error code: #{ openChannelError.code }
 
-				if (openChannelError.details)
-					.mb-2 #{openChannelError.details.substring(0, 1).toUpperCase()}#{openChannelError.details.substring(1)}
-					
-					if (openChannelError.code)
-						div Error code: #{openChannelError.code}
+        else
+          pre
+            code.json #{ JSON.stringify(openChannelError) }
 
-				else
-					pre
-						code.json #{JSON.stringify(openChannelError)}
+    if (openChannelResponse)
+      .alert.alert-success.shadow-sm
+        h4.h6 Success
 
-		if (openChannelResponse)
-			.alert.alert-success.shadow-sm
-				h4.h6 Success
+        if (openChannelResponse.funding_txid_hex)
+          span New channel opening via transaction output:
+            |
+            span
+              +btcTxid(openChannelResponse.funding_txid_hex)
 
-				if (openChannelResponse.funding_txid_hex)
-					span New channel opening via transaction output: 
-						span
-							+btcTxid(openChannelResponse.funding_txid_hex)
+              if (openChannelResponse.hasOwnProperty("output_index"))
+                span.ms-1 [#{ openChannelResponse.output_index.toLocaleString() }]
 
-							if (openChannelResponse.hasOwnProperty("output_index"))
-								span.ms-1 [#{openChannelResponse.output_index.toLocaleString()}]
+          .mt-2
+            span.
+              See your
+              #[a(href="/local-channels?status=Pending") pending channels]
+              span for details.
 
-					.mt-2
-						span See your 
-						a(href="/local-channels?sort=capacity-desc&status=Pending&localbalance=all&remotebalance=all&limit=20") pending channels
-						span  for details.
+        else
+          span.
+            New channel opening. See your
+            #[a(href="/local-channels?status=Pending") pending channels]
+            span for details.
 
-				else
-					span New channel opening. See your 
-					a(href="/local-channels?sort=capacity-desc&status=Pending&localbalance=all&remotebalance=all&limit=20") pending channels
-					span  for details.
+        if (false)
+          pre
+            code.json #{ JSON.stringify(openChannelResponse) }
 
-				if (false)
-					pre
-						code.json #{JSON.stringify(openChannelResponse)}
+    form(method="post", action="/openchannel", onsubmit="formSubmitted()")
+      .mb-3
+        label.form-label(for="pubkey") Remote Node Public Key
+          i.fas.fa-asterisk.text-danger.ms-1.fa-sm(
+            title="Required",
+            data-bs-toggle="tooltip"
+          )
+        input#pubkey.form-control.form-control-lg(
+          type="text",
+          name="pubkey",
+          value=pubkey
+        )
 
-		form(method="post" action="/openchannel" onsubmit="formSubmitted()")
-			.mb-3
-				label.form-label(for="pubkey") Remote Node Public Key
-					i.fas.fa-asterisk.text-danger.ms-1.fa-sm(title="Required" data-bs-toggle="tooltip")
-				input.form-control.form-control-lg(type="text" id="pubkey" name="pubkey" value=pubkey)
+      if (pubkey)
+        .d-flex
+          div
+            label.form-label(for="pubkey") Remote Node
+            +card
+              +nodeCard(pubkey)
 
-			if (pubkey)
-				.d-flex
-					div
-						label.form-label(for="pubkey") Remote Node
-						+card
-							+nodeCard(pubkey)
+      .row
+        .col-sm-6.col-md-4.col-lg-3.col-xl-4
+          .mb-3
+            label.form-label(for="local_balance") Local Balance
+              i.fas.fa-asterisk.text-danger.ms-1.fa-sm(
+                title="Required",
+                data-bs-toggle="tooltip"
+              )
+            .input-group
+              input#local_balance.form-control.form-control-lg(
+                name="local_balance",
+                value=local_balance
+              )
 
-			.row
-				.col-sm-6.col-md-4.col-lg-3.col-xl-2
-					.mb-3
-						label.form-label(for="local_balance") Local Balance
-							i.fas.fa-asterisk.text-danger.ms-1.fa-sm(title="Required" data-bs-toggle="tooltip")
-						.input-group
-							input.form-control.form-control-lg(id="local_balance" name="local_balance" value=local_balance)
-							
-							.input-group-text sat
+              .input-group-text sat
+          if (!process.env.LNDASH_PRIVACY_MODE)
+            span.form-text.text-muted ~
+              |
+              span#local_balance_note #{ new Decimal(local_balance || 0).dividedBy(coinConfig.baseCurrencyUnit.multiplier).times(global.exchangeRates.usd).toDP(2) } 
+              small USD
 
-						span.form-text.text-muted ~ 
-							span(id="local_balance_note") #{new Decimal(local_balance || 0).dividedBy(coinConfig.baseCurrencyUnit.multiplier).times(global.exchangeRates.usd).toDP(2)} 
-							small  USD
+        .col-sm-6.col-md-4.col-lg-3.col-xl-4
+          .mb-3
+            label.form-label(for="remote_balance")
+              span.border-dotted(
+                title="This value should only be used if you intend to make a payment to the remote node as part of the channel-opening process.",
+                data-bs-toggle="tooltip"
+              ) Remote Balance
+            .input-group
+              input#remote_balance.form-control.form-control-lg(
+                name="remote_balance",
+                value=remote_balance,
+                placeholder="0"
+              )
 
-				.col-sm-6.col-md-4.col-lg-3.col-xl-2
-					.mb-3
-						label.form-label(for="remote_balance")
-							span.border-dotted(title="This value should only be used if you intend to make a payment to the remote node as part of the channel-opening process." data-bs-toggle="tooltip") Remote Balance
-						.input-group
-							input.form-control.form-control-lg(id="remote_balance" name="remote_balance" value=remote_balance placeholder="0")
+              .input-group-text sat
+          if (!process.env.LNDASH_PRIVACY_MODE)
+            .form-text.text-muted ~
+              |
+              span#remote_balance_note #{ new Decimal(remote_balance || 0).dividedBy(coinConfig.baseCurrencyUnit.multiplier).times(global.exchangeRates.usd).toDP(2) } 
+              small USD
 
-							.input-group-text sat
+      .mt-2.mb-4
+        label.form-label(for="visibility") Visibility
+        .form-check
+          input#visibilityPublic.form-check-input(
+            type="radio",
+            name="visibility",
+            value="public",
+            checked=visibility == "public" ? "checked" : false
+          )
+          label.form-check-label(for="visibilityPublic") Public
+        .form-check
+          input#visibilityPrivate.form-check-input(
+            type="radio",
+            name="visibility",
+            value="private",
+            checked=visibility == "private" ? "checked" : false
+          )
+          label.form-check-label(for="visibilityPrivate") Private
 
-						.form-text.text-muted ~ 
-							span(id="remote_balance_note") #{new Decimal(remote_balance || 0).dividedBy(coinConfig.baseCurrencyUnit.multiplier).times(global.exchangeRates.usd).toDP(2)} 
-							small  USD
+      button#openchannelButton.btn.btn-primary(type="submit")
+        i.fas.fa-plus-square.me-2
+        span Open Channel
 
-			.mt-2.mb-4
-				label.form-label(for="visibility") Visibility
-				.form-check
-					input#visibilityPublic.form-check-input(type='radio' name='visibility' value="public" checked=(visibility == "public" ? "checked" : false))
-					label.form-check-label(for='visibilityPublic') Public
-				.form-check
-					input#visibilityPrivate.form-check-input(type='radio' name='visibility' value="private" checked=(visibility == "private" ? "checked" : false))
-					label.form-check-label(for='visibilityPrivate') Private
-
-			button.btn.btn-primary(id="openchannelButton" type="submit")
-				i.fas.fa-plus-square.me-2
-				span Open Channel
-
-			#channelOpenStatus.mt-3(style="display: none;")
-				span.spinner-border.spinner-border-sm.me-2.text-primary(role="status" aria-hidden="true")
-				span Channel open request submitted...
-
+      #channelOpenStatus.mt-3(style="display: none")
+        span.spinner-border.spinner-border-sm.me-2.text-primary(
+          role="status",
+          aria-hidden="true"
+        )
+        span Channel open request submitted...
 
 block endOfBody
-	script.
-		var satPerUsd = #{coinConfig.baseCurrencyUnit.multiplier} / #{global.exchangeRates.usd};
+  if (!process.env.LNDASH_PRIVACY_MODE)
+    script.
+      var satPerUsd = #{coinConfig.baseCurrencyUnit.multiplier} / #{global.exchangeRates.usd};
 
-		function refreshExchangeRate(inputId, noteId) {
-			var val = $('#' + inputId).val();
-			if (val == "") {
-				val = "0";
-			}
+      function refreshExchangeRate(inputId, noteId) {
+      	var val = $('#' + inputId).val();
+      	if (val == "") {
+      		val = "0";
+      	}
 
-			var usd = parseInt(val) / satPerUsd;
-			usd = parseFloat(Math.round(usd * 100) / 100).toFixed(2);
+      	var usd = parseInt(val) / satPerUsd;
+      	usd = parseFloat(Math.round(usd * 100) / 100).toFixed(2);
 
-			$("#" + noteId).text(usd);
-		}
+      	$("#" + noteId).text(usd);
+      }
 
-		function formSubmitted() {
-			$("#openchannelButton").prop("disabled", true).toggleClass("btn-primary").toggleClass("btn-secondary");
-			$("#channelOpenStatus").show();
-		}
+      function formSubmitted() {
+      	$("#openchannelButton").prop("disabled", true).toggleClass("btn-primary").toggleClass("btn-secondary");
+      	$("#channelOpenStatus").show();
+      }
 
-		$(document).ready(function() {
-			$('#local_balance').on('input', function(e) {
-				refreshExchangeRate("local_balance", "local_balance_note");
-			});
+      $(document).ready(function() {
+      	$('#local_balance').on('input', function(e) {
+      		refreshExchangeRate("local_balance", "local_balance_note");
+      	});
 
-			$('#remote_balance').on('input', function(e) {
-				refreshExchangeRate("remote_balance", "remote_balance_note");
-			});
+      	$('#remote_balance').on('input', function(e) {
+      		refreshExchangeRate("remote_balance", "remote_balance_note");
+      	});
 
-			// refresh in case the UI has existing value that server didn't send
-			refreshExchangeRate("local_balance", "local_balance_note");
-			refreshExchangeRate("remote_balance", "remote_balance_note");
-		});
+      	// refresh in case the UI has existing value that server didn't send
+      	refreshExchangeRate("local_balance", "local_balance_note");
+      	refreshExchangeRate("remote_balance", "remote_balance_note");
+      });

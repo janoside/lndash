@@ -1,154 +1,152 @@
 extends layout
 
 block headContent
-	title My Peers
+  title My Peers
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item My Node
-	li.breadcrumb-item My Peers
-	
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item My Node
+  li.breadcrumb-item My Peers
+
 block content
-	if (!session.admin)
-		+pageTitle("My Peers")
+  if (!session.admin)
+    +pageTitle("My Peers")
 
+    - var loginRequiredNote = "display details about this node's peers.";
+    include includes/login-required-alert.pug
 
-		- var loginRequiredNote = "display details about this node's peers.";
-		include includes/login-required-alert.pug
+  else
+    +pageTitle(`${listPeers.peers.length.toLocaleString()} Peer${(listPeers.peers.length == 1) ? "" : "s"}`)
 
-	else
+    +card
+      +filterList
+        +filterItem
+          - var sortOptions = [["Public Key", "pubkey-asc"], ["Alias", "alias-asc"], ["IP Addr", "ip-asc"], ["Value Transferred", "valuetransfer-desc"], ["Data Transferred", "datatransfer-desc"]];
 
-		+pageTitle(`${listPeers.peers.length.toLocaleString()} Peer${(listPeers.peers.length == 1) ? "" : "s"}`)
+          +filterBtnGroup("Sort", null, sortOptions, `/peers?limit=${limit}`, "sort", sort)
 
-		
-		+card
-			+filterList
-				+filterItem
-					- var sortOptions = [["Public Key", "pubkey-asc"], ["Alias", "alias-asc"], ["IP Addr", "ip-asc"], ["Value Transferred", "valuetransfer-desc"], ["Data Transferred", "datatransfer-desc"]];
+        +filterItem(true)
+          - var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
 
-					+filterBtnGroup("Sort", null, sortOptions, `/peers?limit=${limit}`, "sort", sort)
+          +filterBtnGroup("Page Size", null, pageSizeOptions, `/peers?sort=${sort}`, "limit", limit)
 
+      hr.my-3
 
-				+filterItem(true)
-					- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
+      div
+        if (allFilteredPeers.length > limit)
+          span.
+            Showing
+            #[span.fw-bold ##{ (offset + 1).toLocaleString() } - #{ Math.min(offset + limit, allFilteredPeers.length).toLocaleString() }]
+            of
+            #[span.fw-bold #{ allFilteredPeers.length.toLocaleString() }]
 
-					+filterBtnGroup("Page Size", null, pageSizeOptions, `/peers?sort=${sort}`, "limit", limit)
+          if (allPeers.length > allFilteredPeers.length)
+            | filtered
 
-		
+          |
+          | peer
+          if (allFilteredPeers.length != 1)
+            | s
 
-			hr.my-3
+        else if (allFilteredPeers.length > 0)
+          span.
+            Showing
+            #[span.fw-bold #{ allFilteredPeers.length.toLocaleString() }]
 
-			div
-				if (allFilteredPeers.length > limit)
-					span Showing 
-					span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredPeers.length).toLocaleString()} 
-					span of 
-					span.fw-bold #{allFilteredPeers.length.toLocaleString()} 
-					if (allPeers.length > allFilteredPeers.length)
-						span filtered 
-					span peer
-					if (allFilteredPeers.length != 1)
-						span s
+          if (allPeers.length > allFilteredPeers.length)
+            | filtered
 
-				else if (allFilteredPeers.length > 0)
-					span Showing 
-					span.fw-bold #{allFilteredPeers.length.toLocaleString()} 
-					if (allPeers.length > allFilteredPeers.length)
-						span filtered 
+          |
+          | peer
+          if (allFilteredPeers.length > 1)
+            | s
 
-					span peer
-					if (allFilteredPeers.length > 1)
-						span s
-				else
-					.alert.alert-warning.shadow-sm.mb-0 No matching peers
+        else
+          .alert.alert-warning.shadow-sm.mb-0 No matching peers
 
+      +pagination(allFilteredPeers.length, limit, offset, paginationBaseUrl)
 
-			+pagination(allFilteredPeers.length, limit, offset, paginationBaseUrl)
+    if (listPeers.peers.length > 0)
+      each item, item_index in pagedFilteredPeers
+        +modal(`peerModal-${item_index}`, `Peer ${item.pub_key}`)
+          pre
+            code.json #{ JSON.stringify(item, null, 4) }
 
+      .table-responsive
+        table.table.table-striped
+          thead.table-head-with-nav
+            tr
+              th.text-end.fw-light #
+              th Node
+              th Address
 
+              th.text-end
+                span.border-dotted(
+                  title="Total Inbound and Outbound Value Transfers",
+                  data-bs-toggle="tooltip"
+                ) Transfer
 
+              th.text-end Data Transfer
 
-		if (listPeers.peers.length > 0)
-			each item, item_index in pagedFilteredPeers
-				+modal(`peerModal-${item_index}`, `Peer ${item.pub_key}`)
-					pre
-						code.json #{JSON.stringify(item, null, 4)}
+              th.text-center Inbound?
+              th.text-end Ping
+              th.text-end Raw
 
-			.table-responsive
-				table.table.table-striped
-					thead.table-head-with-nav
-						tr
-							th.text-end.fw-light #
-							th Node
-							th Address
+          tbody
+            each item, item_index in pagedFilteredPeers
+              tr
+                th.text-end.fw-light #{ (item_index + offset + 1).toLocaleString() }
 
-							th.text-end
-								span.border-dotted(title="Total Inbound and Outbound Value Transfers", data-bs-toggle="tooltip") Transfer
+                td
+                  +nodeCard(item.pub_key)
 
-							th.text-end Data Transfer
-							
-							th.text-center Inbound?
-							th.text-end Ping
-							th.text-end Raw
+                td
+                  +netAddress(item.address)
 
-					tbody
-						each item, item_index in pagedFilteredPeers
-							tr
-								th.text-end.fw-light #{(item_index + offset + 1).toLocaleString()}
+                td
+                  - let valueReceived = new Decimal(item.sat_recv || 0);
+                  - let valueSent = new Decimal(item.sat_sent || 0);
 
-								td
-									+nodeCard(item.pub_key)
+                  if (valueReceived != null && (valueReceived > 0 || valueSent > 0))
+                    .text-end.fs-90
+                      if (valueReceived && valueReceived > 0)
+                        .text-success
+                          | +
+                          +btcValue(valueReceived)
 
-								td
-									+netAddress(item.address)
-									
+                      if (valueSent && valueSent > 0)
+                        .text-danger
+                          | -
+                          +btcValue(valueSent)
 
-								td
-									- let valueReceived = new Decimal(item.sat_recv || 0);
-									- let valueSent = new Decimal(item.sat_sent || 0);
+                  else
+                    .text-end -
 
-									if (valueReceived != null && (valueReceived > 0 || valueSent > 0))
-										.text-end.fs-90
-											if (valueReceived && valueReceived > 0)
-												.text-success
-													| +
-													+btcValue(valueReceived)
-											
-											if (valueSent && valueSent > 0)
-												.text-danger
-													| -
-													+btcValue(valueSent)
+                - var bytesSentData = utils.formatLargeNumber(item.bytes_sent, 1);
+                - var bytesRecvData = utils.formatLargeNumber(item.bytes_recv, 1);
 
-									else
-										.text-end -
+                td.text-end
+                  span #{ bytesSentData[0] } #{ bytesSentData[1].abbreviation }B
+                  i.fas.fa-arrow-up.ms-2
 
-									
-								
-								
-								- var bytesSentData = utils.formatLargeNumber(item.bytes_sent, 1);
-								- var bytesRecvData = utils.formatLargeNumber(item.bytes_recv, 1);
-								
-								td.text-end
-									span #{bytesSentData[0]} #{bytesSentData[1].abbreviation}B
-									i.fas.fa-arrow-up.ms-2
-									
-									br
+                  br
 
-									span #{bytesRecvData[0]} #{bytesRecvData[1].abbreviation}B
-									i.fas.fa-arrow-down.ms-2
-									
+                  span #{ bytesRecvData[0] } #{ bytesRecvData[1].abbreviation }B
+                  i.fas.fa-arrow-down.ms-2
 
-								
+                td.text-center.align-middle
+                  if (item.inbound)
+                    i.fas.fa-circle-check.text-success
+                  else
+                    i.fas.fa-circle-xmark.text-danger
 
-								td.text-center.align-middle
-									if (item.inbound)
-										i.fas.fa-circle-check.text-success
-									else
-										i.fas.fa-circle-xmark.text-danger
+                td.text-end #{ parseInt(item.ping_time).toLocaleString() }
 
-								td.text-end #{parseInt(item.ping_time).toLocaleString()}
-
-								td.text-end
-									a.btn.btn-sm.btn-primary(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#peerModal-" + item_index))
-										i.fas.fa-file-lines
+                td.text-end
+                  a.btn.btn-sm.btn-primary(
+                    href="javascript:void(0)",
+                    data-bs-toggle="modal",
+                    data-bs-target="#peerModal-" + item_index
+                  )
+                    i.fas.fa-file-lines

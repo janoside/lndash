@@ -1,40 +1,46 @@
 extends layout
 
 block headContent
-	title Login
+  title Login
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item Login
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item Login
 
 block content
-	+pageTitle("Login")
+  +pageTitle("Login")
 
+  if (!global.adminPassword)
+    .alert.alert-primary.shadow-sm.mb-3
+      span Enter your admin password to unlock LNDash
 
-	if (!global.adminPassword)
-		.alert.alert-primary.shadow-sm.mb-3
-			span Enter your admin password to unlock LNDash
+  form(method="post", action="/login")
+    .mb-3
+      label.form-label(for="password") Password
+      input#password.form-control(
+        type="password",
+        name="password",
+        autocomplete="off"
+      )
 
-	form(method="post", action="/login")
-		.mb-3
-			label.form-label(for="password") Password
-			input.form-control(type="password" id="password" name="password")
+    - var onclick = false;
+    if (!global.adminPassword)
+      - onclick = "$('#unlockModal').show()";
 
-		- var onclick = false;
-		if (!global.adminPassword)
-			- onclick = "$('#unlockModal').show()";
-			
-		button.btn.btn-primary(type="submit" onclick=onclick)
-			i.fas.fa-key.me-2
-			span Login
+    button.btn.btn-primary(type="submit", onclick=onclick)
+      i.fas.fa-key.me-2
+      span Login
 
-	if (!global.adminPassword)
-		.modal(id="unlockModal" tabindex="-1" role="dialog" aria-hidden="true")
-			.modal-dialog.modal-dialog-centered.modal-sm
-				.modal-content
-					.modal-body
-						h5 Unlocking LNDash...
-						span Refreshing the full public network often takes ~5-15 seconds...
-						.text-center.mb-4.mt-5
-							.spinner-border.text-primary(role="status" style="width: 3rem; height: 3rem;")
+  if (!global.adminPassword)
+    #unlockModal.modal(tabindex="-1", role="dialog", aria-hidden="true")
+      .modal-dialog.modal-dialog-centered.modal-sm
+        .modal-content
+          .modal-body
+            h5 Unlocking LNDash...
+            span Refreshing the full public network often takes ~5-15 seconds...
+            .text-center.mb-4.mt-5
+              .spinner-border.text-primary(
+                role="status",
+                style="width: 3rem; height: 3rem"
+              )

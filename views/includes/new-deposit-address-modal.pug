@@ -1,48 +1,74 @@
 +modal("newDepositAddressModal", "New Deposit Address")
-	script.
-		function newAddress(addressType) {
-			$.ajax({url: `/new-deposit-address?addressType=${addressType}`, success: function(result) {
-				
-				if (result.address) {
-					//alert(JSON.stringify(result));
+  script.
+    function newAddress(addressType) {
+      $.ajax({
+        url: `/new-deposit-address?addressType=${addressType}`,
+        success: function (result) {
+          if (result.address) {
+            //alert(JSON.stringify(result));
 
-					$("#newAddressResult_text").text(result.address);
-					$("#newAddressResult_image").attr("src", `/qrcode?data=${result.address}`);
+            $("#newAddressResult_text").text(result.address);
+            $("#newAddressResult_image").attr("src", `/qrcode?data=${result.address}`);
 
-					$("#newAddressResult").show();
-					$("#newAddressInstructions").hide();
-				}
-			}});
-		}
+            $("#newAddressResult").show();
+            $("#newAddressInstructions").hide();
+          }
+        },
+      });
+    }
 
-	.d-flex.mb-3
-		.me-3
-			.mb-2
-				span.border-dotted(title="Pay to witness key hash, i.e. Native SegWit address. Preferred, if your wallet supports it. Begins with 'bc1...'" data-bs-toggle="tooltip") Pay to Witness Key Hash
+  .d-flex.mb-3
+    .me-3
+      .mb-2
+        span.border-dotted(
+          title="Pay to witness key hash, i.e. Native SegWit address. Preferred, if your wallet supports it. Begins with 'bc1...'",
+          data-bs-toggle="tooltip"
+        ) Pay to Witness Key Hash
 
-			a.btn.btn-primary(href="javascript:void(0)" onclick="javascript:newAddress('p2wkh')")
-				i.fas.fa-qrcode.me-2
-				span New Deposit Address (p2wkh)
+      a.btn.btn-primary(
+        href="javascript:void(0)",
+        onclick="javascript:newAddress('p2wkh')"
+      )
+        i.fas.fa-qrcode.me-2
+        span New Deposit Address (p2wkh)
 
-		div
-			.mb-2
-				span.border-dotted(title="Nested pay to witness key hash. Begins with '3...'" data-bs-toggle="tooltip") Nested Pay to Witness Key Hash
-			
-			a.btn.btn-primary(href="javascript:void(0)" onclick="javascript:newAddress('np2wkh')")
-				i.fas.fa-qrcode.me-2
-				span New Deposit Address (np2wkh)
+    div
+      .me-3
+        .mb-2
+          span.border-dotted(
+            title="Pay to Taproot. Begins with 'bc1q...'",
+            data-bs-toggle="tooltip"
+          ) Pay to Taproot
 
-	.alert.alert-warning(id="newAddressInstructions")
-		| Select an address type above to generate a new deposit address.
+        a.btn.btn-primary(
+          href="javascript:void(0)",
+          onclick="javascript:newAddress('p2tr')"
+        )
+          i.fas.fa-qrcode.me-2
+          span New Deposit Address (p2tr)
+    div
+      .mb-2
+        span.border-dotted(
+          title="Nested pay to witness key hash. Begins with '3...'",
+          data-bs-toggle="tooltip"
+        ) Nested Pay to Witness Key Hash
 
-	
-	div(id="newAddressResult" style="display: none;")
-		hr
+      a.btn.btn-primary(
+        href="javascript:void(0)",
+        onclick="javascript:newAddress('np2wkh')"
+      )
+        i.fas.fa-qrcode.me-2
+        span New Deposit Address (np2wkh)
 
-		h4.h6 Deposit Address
-		.mb-3
-			span(id="newAddressResult_text")
+  #newAddressInstructions.alert.alert-warning
+    | Select an address type above to generate a new deposit address.
 
-		div
-			img(id="newAddressResult_image" style="width: 250px; height: 250px;")
+  #newAddressResult(style="display: none")
+    hr
 
+    h4.h6 Deposit Address
+    .mb-3
+      span#newAddressResult_text
+
+    div
+      img#newAddressResult_image(style="width: 250px; height: 250px")

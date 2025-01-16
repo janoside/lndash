@@ -2,151 +2,159 @@ include ./includes/shared-mixins.pug
 
 doctype html
 html
-	head
-		meta(charset="utf-8")
-		meta(name="viewport", content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no")
-		
-		if (session.uiTheme && session.uiTheme == "dark")
-			link(rel="stylesheet", href="/style/dark.css")
+  head
+    meta(charset="utf-8")
+    meta(
+      name="viewport",
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no"
+    )
 
-		else
-			link(rel="stylesheet", href="/style/light.css", integrity="")
-		
+    if (session.uiTheme && session.uiTheme == "dark")
+      link(rel="stylesheet", href="/style/dark.css")
 
-		link(rel="icon", type="image/png", href="/img/logo/lightning.png")
+    else
+      link(rel="stylesheet", href="/style/light.css", integrity="")
 
-		block headContent
-			title #{config.siteInfo.title}
+    link(rel="icon", type="image/png", href="/img/logo/lightning.png")
 
-		+sharedScriptTags
-		
-	body.bg-background
-		script.
-			var documentReadyFunctions = [];
+    block headContent
+      title #{ config.siteInfo.title }
 
+    +sharedScriptTags
 
+  body.bg-background
+    script.
+      var documentReadyFunctions = [];
 
-		+modal("global-search", "Search")
-			if (session.hideSearchNote)
-				// show nothing
-			else
-				.alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
-					.mb-2
-						.mb-2 Searching here will find all public nodes and/or channels visible to your node. It will match on public keys, aliases, addresses, colors, and channel ids.
-						span.fw-bold Important: 
-						span Please be aware that the 
-						span.fw-bold alias 
-						span property can be set to any value by node owners - even to impersonate a person or company you might be familiar with. Use caution when evaluating nodes.
+    +modal("global-search", "Search")
+      if (session.hideSearchNote)
+        // show nothing
+      else
+        .alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
+          .mb-2
+            .mb-2 Searching here will find all public nodes and/or channels visible to your node. It will match on public keys, aliases, addresses, colors, and channel ids.
+              p.
+                #[span.fw-bold Important:]
+                Please be aware that the
+                #[span.fw-bold alias]
+                property can be set to any value by node owners - even to impersonate a person or company you might be familiar with. Use caution when evaluating nodes.
 
-					div
-						a(href="/changeSetting?name=hideSearchNote&value=true") Don't show this note again
-						
+          div
+            a(href="/changeSetting?name=hideSearchNote&value=true") Don't show this note again
 
-					a.btn-close(href="/changeSetting?name=hideSearchNote&value=true", aria-label="Close", style="text-decoration: none;")
+          a.btn-close(
+            href="/changeSetting?name=hideSearchNote&value=true",
+            aria-label="Close",
+            style="text-decoration: none"
+          )
 
-			form.mb-4(method="get", action="/search")
-				.input-group
-					label.input-group-text(for="query")
-						i.fas.fa-search
+      form.mb-4(method="get", action="/search")
+        .input-group
+          label.input-group-text(for="query")
+            i.fas.fa-search
 
-					input.form-control.form-control-lg(id="query" type="text" name="query" value=query placeholder="public key, channel id, alias, color, or address")
-					
-					button.btn.btn-primary.btn-lg(type="submit")
-						span Search
+          input#query.form-control.form-control-lg(
+            type="text",
+            name="query",
+            value=query,
+            placeholder="public key, channel id, alias, color, or address"
+          )
 
+          button.btn.btn-primary.btn-lg(type="submit")
+            span Search
 
+    #switchNodeModal.modal(tabindex="-1", role="dialog", aria-hidden="true")
+      .modal-dialog.modal-dialog-centered.modal-sm
+        .modal-content
+          .modal-body
+            h5 Connecting to Node...
+            span Refreshing the full public network often takes ~5-15 seconds...
+            .text-center.mb-4.mt-5
+              .spinner-border.text-primary(
+                role="status",
+                style="width: 3rem; height: 3rem"
+              )
 
-		.modal(id="switchNodeModal" tabindex="-1" role="dialog" aria-hidden="true")
-			.modal-dialog.modal-dialog-centered.modal-sm
-				.modal-content
-					.modal-body
-						h5 Connecting to Node...
-						span Refreshing the full public network often takes ~5-15 seconds...
-						.text-center.mb-4.mt-5
-							.spinner-border.text-primary(role="status" style="width: 3rem; height: 3rem;")
+    script.
+      $("#global-search").on("shown.bs.modal", function () {
+        $("#query").focus();
+      });
 
+    .container.bg-main.px-0.min-vh-100.position-relative
+      .d-flex.flex-row
+        .d-flex.flex-column.border-end.me-2.bg-menu.min-vh-100(
+          style="width: 215px"
+        )
+          .p-3.d-flex.justify-content-between.border-bottom
+            div
+              a.navbar-brand.me-0(href="/")
+                img.header-image(src="/img/logo/lightning.svg")
+                span #{ config.siteInfo.title }
 
-		script.
-			$('#global-search').on('shown.bs.modal', function() {
-				$('#query').focus();
-			});
+            div
+              +modal("optionsMenuModal", "Options", "modal-md")
+                include ./includes/options-menu.pug
 
+              a(
+                href="javascript:void(0)",
+                data-bs-toggle="modal",
+                data-bs-target="#optionsMenuModal"
+              )
+                span(title="Options menu", data-bs-toggle="tooltip")
+                  i.fas.fa-gear.text-body
 
-		.container.bg-main.px-0.min-vh-100.position-relative
-			if (global.adminPassword)
-				.position-absolute.top-0.end-0.rounded-circle.mt-2(style="margin-right: -40px !important;")
-					a.btn.btn-primary.btn-sm(href="javascript:void(0)", data-bs-toggle="modal", data-bs-target="#global-search")
-						span(title="Global search", data-bs-toggle="tooltip")
-							i.fas.fa-search
+          if (global.adminPassword && global.adminCredentials && global.adminCredentials.lndNodes)
+            .border-bottom.p-3
+              include ./includes/menu-node-list.pug
 
-			.d-flex.flex-row
-				.d-flex.flex-column.border-end.me-2.bg-menu.min-vh-100(style="width: 215px;")
-					.p-3.d-flex.justify-content-between.border-bottom
-						div
-							a.navbar-brand.me-0(href="/")
-								img.header-image(src="/img/logo/lightning.svg")
-								span #{config.siteInfo.title}
+          .p-3
+            include ./includes/navbar.pug
 
-						div
-							+modal("optionsMenuModal", "Options", "modal-md")
-								include ./includes/options-menu.pug
+        .flex-grow-1
+          .container.p-0
+            main(role="main")
+              include ./includes/user-message.pug
 
-							a(href="javascript:void(0)", data-bs-toggle="modal", data-bs-target="#optionsMenuModal")
-								span(title="Options menu", data-bs-toggle="tooltip")
-									i.fas.fa-gear.text-body
+              if (false)
+                .px-3.py-3.mb-4.ms-n2
+                  nav(aria-label="breadcrumb")
+                    ol.breadcrumb.mb-0
+                      li.me-2 &raquo;
+                      block breadcrumb
 
-					if (global.adminPassword && global.adminCredentials && global.adminCredentials.lndNodes)
-						.border-bottom.p-3
-							include ./includes/menu-node-list.pug
+              .p-3
+                block content
 
-					.p-3
-						include ./includes/navbar.pug
+        if (global.adminPassword)
+          .rounded-circle.mt-2(style="margin-right: 0.45rem !important")
+            a.btn.btn-primary.btn-sm(
+              href="javascript:void(0)",
+              data-bs-toggle="modal",
+              data-bs-target="#global-search"
+            )
+              span(title="Global search", data-bs-toggle="tooltip")
+                i.fas.fa-search
 
-				.flex-grow-1
-					.container.p-0
-						main(role="main")
-							include ./includes/user-message.pug
+    script.
+      $(document).ready(function () {
+        $('[data-bs-toggle="tooltip"]').tooltip();
+        $('[data-bs-toggle="popover"]').popover({ html: true });
 
+        for (var i = 0; i < documentReadyFunctions.length; i++) {
+          documentReadyFunctions[i]();
+        }
+        hljs.highlightAll();
+      });
 
-							if (false)
-								.px-3.py-3.mb-4.ms-n2
-									nav(aria-label="breadcrumb")
-										ol.breadcrumb.mb-0
-											li.me-2 &raquo;
-											block breadcrumb
-							
-							.p-3
-								block content
-			
-		
-		
-		
-		
-		script(type="text/javascript", src="https://cdn.jsdelivr.net/npm/jdenticon@3.2.0")
+    if (userMessage || userMessageMarkdown)
+      script.
+        var toastElementList = [].slice.call(document.querySelectorAll(".toast"));
+        var toastList = toastElementList.map(function (toastElement) {
+          return new bootstrap.Toast(toastElement, {});
+        });
 
-		script(src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js")
-		
-		script.
-			$(document).ready(function() {
-				$('[data-bs-toggle="tooltip"]').tooltip();
-				$('[data-bs-toggle="popover"]').popover({html:true});
+        var userMessageToastElement = document.getElementById("userMessageToast");
+        var userMessageToast = bootstrap.Toast.getOrCreateInstance(userMessageToastElement);
+        userMessageToast.show();
 
-				for (var i = 0; i < documentReadyFunctions.length; i++) {
-					documentReadyFunctions[i]();
-				}
-			});
-
-			hljs.initHighlightingOnLoad();
-
-		if (userMessage || userMessageMarkdown)
-			script.
-				var toastElementList = [].slice.call(document.querySelectorAll('.toast'))
-				var toastList = toastElementList.map(function (toastElement) {
-					return new bootstrap.Toast(toastElement, {});
-				});
-
-				var userMessageToastElement = document.getElementById('userMessageToast');
-				var userMessageToast = bootstrap.Toast.getOrCreateInstance(userMessageToastElement);
-				userMessageToast.show();
-		
-		block endOfBody
+    block endOfBody

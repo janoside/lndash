@@ -1,225 +1,213 @@
 extends layout
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item Tools
-	li.breadcrumb-item Pay Invoice
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item Tools
+  li.breadcrumb-item Pay Invoice
 
 block headContent
-	title Pay Invoice
+  title Pay Invoice
 
-	if (decodedInvoice)
-		script.
-			var countDownDate = new Date(#{parseInt(decodedInvoice.timestamp)} * 1000 + #{decodedInvoice.expiry} * 1000).getTime();
+  if (decodedInvoice)
+    script.
+      var countDownDate = new Date(#{parseInt(decodedInvoice.timestamp)} * 1000 + #{decodedInvoice.expiry} * 1000).getTime();
 
-			// Update the count down every 1 second
-			var x = setInterval(function() {
-				// Get todays date and time
-				var now = new Date().getTime();
+      // Update the count down every 1 second
+      var x = setInterval(function() {
+      	// Get todays date and time
+      	var now = new Date().getTime();
 
-				// Find the distance between now and the count down date
-				var distance = countDownDate - now;
+      	// Find the distance between now and the count down date
+      	var distance = countDownDate - now;
 
-				// Time calculations for days, hours, minutes and seconds
-				var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-				var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-				var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-				var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      	// Time calculations for days, hours, minutes and seconds
+      	var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      	var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      	var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      	var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-				// Display the result in the element with id="demo"
-				var str = "";
-				if (days > 0) {
-					str += (days + "d ");
-				}
-				if (hours > 0) {
-					str += (hours + "h ");
-				}
+      	// Display the result in the element with id="demo"
+      	var str = "";
+      	if (days > 0) {
+      		str += (days + "d ");
+      	}
+      	if (hours > 0) {
+      		str += (hours + "h ");
+      	}
 
-				str += minutes + "m ";
-				str += seconds + "s";
+      	str += minutes + "m ";
+      	str += seconds + "s";
 
-				document.getElementById("expiry-text").innerHTML = str;
+      	document.getElementById("expiry-text").innerHTML = str;
 
-				// If the count down is finished, write some text
-				if (distance < 0) {
-					clearInterval(x);
-					document.getElementById("expiry-text").innerHTML = "Expired";
-					document.getElementById("expiry-text").className += "text-danger";
-				}
-			}, 1000);
-	
+      	// If the count down is finished, write some text
+      	if (distance < 0) {
+      		clearInterval(x);
+      		document.getElementById("expiry-text").innerHTML = "Expired";
+      		document.getElementById("expiry-text").className += "text-danger";
+      	}
+      }, 1000);
+
 block content
-	+pageTitle("Pay Invoice")
+  +pageTitle("Pay Invoice")
 
+  if (!session.admin)
+    - var loginRequiredNote = "allow you to pay an invoice from your LND node.";
+    include includes/login-required-alert.pug
 
-	if (!session.admin)
-		- var loginRequiredNote = "allow you to pay an invoice from your LND node.";
-		include includes/login-required-alert.pug
+  else
+    if (payInvoiceResponse)
+      if (payInvoiceResponse.payment_error != "")
+        .alert.alert-danger
+          h3.h5 Failed to Pay Invoice
 
-	else
+          .mb-3 Error: #{ payInvoiceResponse.payment_error }
 
-		if (payInvoiceResponse)
-			if (payInvoiceResponse.payment_error != "")
-				.alert.alert-danger
-					h3.h5 Failed to Pay Invoice
+          span Details
+          pre
+            code.json #{ JSON.stringify(payInvoiceResponse, null, 4) }
+      else
+        .alert.alert-success
+          h3.h6 Payment Sent
 
-					.mb-3 Error: #{payInvoiceResponse.payment_error}
+          .mb-3
+            - var dest_pubkey = payInvoiceResponse.payment_route.hops[payInvoiceResponse.payment_route.hops.length - 1].pub_key;
+            span Your payment of
+            span
+              +btcValue(payInvoiceResponse.payment_route.total_amt)
 
-					span Details
-					pre
-						code.json #{JSON.stringify(payInvoiceResponse, null, 4)}
-			else
-				.alert.alert-success
-					h3.h6 Payment Sent
+            span was sent to
+            span #{ dest_pubkey.substring(0, config.site.pubkeyMaxDisplayLength) }
+            span in
+            span #{ parseInt(payInvoiceResponse.payment_route.hops.length).toLocaleString() } hop
+              if (payInvoiceResponse.payment_route.hops.length != 1)
+                span s
+            span . You paid
+            span
+              +btcValue(payInvoiceResponse.payment_route.total_fees_msat, "msat", "msat")
 
-					.mb-3
-						- var dest_pubkey = payInvoiceResponse.payment_route.hops[payInvoiceResponse.payment_route.hops.length - 1].pub_key;
-						span Your payment of 
-						span
-							+btcValue(payInvoiceResponse.payment_route.total_amt)
+            span in fees.
 
-						span  was sent to 
-						span #{dest_pubkey.substring(0, config.site.pubkeyMaxDisplayLength)}
-						span  in 
-						span #{parseInt(payInvoiceResponse.payment_route.hops.length).toLocaleString()} hop
-							if (payInvoiceResponse.payment_route.hops.length != 1)
-								span s
-						span . You paid 
-						span
-							+btcValue(payInvoiceResponse.payment_route.total_fees_msat, "msat", "msat")
+          .d-flex
+            .card.text-body.shadow-sm.me-3
+              .card-header
+                h3.h6.mb-0.fw-light
+                  i.fas.fa-play-circle.me-2.fa-lg
+                  span Origin
 
-						span  in fees.
+              .card-body
+                .fw-bold.mb-2 Node
 
-					.d-flex
-						.card.text-body.shadow-sm.me-3
-							.card-header
-								h3.h6.mb-0.fw-light
-									i.fas.fa-play-circle.me-2.fa-lg
-									span Origin
+                +nodeCard(lndRpc.internal_pubkey)
 
-							.card-body
-								.fw-bold.mb-2 Node
-								
-								+nodeCard(lndRpc.internal_pubkey)
+            each hop, hopIndex in payInvoiceResponse.payment_route.hops
+              .card.text-body.shadow-sm.me-3
+                .card-header
+                  h3.h6.fw-light.mb-0
+                    if (hopIndex == (payInvoiceResponse.payment_route.hops.length - 1))
+                      i.fas.fa-check-circle.me-2.fa-lg
+                    else
+                      i.fas.fa-arrow-circle-right.me-2.fa-lg
 
-						each hop, hopIndex in payInvoiceResponse.payment_route.hops
-							
-							.card.text-body.shadow-sm.me-3
-								.card-header
-									h3.h6.fw-light.mb-0
-										if (hopIndex == (payInvoiceResponse.payment_route.hops.length - 1))
-											i.fas.fa-check-circle.me-2.fa-lg
-										else
-											i.fas.fa-arrow-circle-right.me-2.fa-lg
+                    span Hop ##{ (hopIndex + 1).toLocaleString() }
 
-										span Hop ##{(hopIndex + 1).toLocaleString()}
+                    if (hopIndex == (payInvoiceResponse.payment_route.hops.length - 1))
+                      span (Destination)
 
-										if (hopIndex == (payInvoiceResponse.payment_route.hops.length - 1))
-											span  (Destination)
-									
-								.card-body
-									.mb-3.border-bottom.pb-3
-										.fw-bold.mb-2 Node
+                .card-body
+                  .mb-3.border-bottom.pb-3
+                    .fw-bold.mb-2 Node
 
-										+nodeCard(hop.pub_key)
+                    +nodeCard(hop.pub_key)
 
+                  .mb-2
+                    .fw-bold Channel
 
-									.mb-2
-										.fw-bold Channel
+                    +channelId(hop.chan_id, true)
 
-										+channelId(hop.chan_id, true)
+                  div
+                    .fw-bold Fees
 
-									div
-										.fw-bold Fees
-										
-										if (parseInt(hop.fee_msat) > 0)
-											span.text-danger +
-												+btcValue(hop.fee_msat, "msat", "msat")
+                    if (parseInt(hop.fee_msat) > 0)
+                      span.text-danger +
+                        +btcValue(hop.fee_msat, "msat", "msat")
 
-										else
-											span.text-success 0
+                    else
+                      span.text-success 0
 
-					if (false)
-						pre
-							code.json #{JSON.stringify(payInvoiceResponse, null, 4)}
+          if (false)
+            pre
+              code.json #{ JSON.stringify(payInvoiceResponse, null, 4) }
 
-		if (decodedInvoice)
-			+pageTabs(["Summary", "JSON"])
-			
-			.tab-content
-				+pageTab("Summary", true)
-					+contentSection("Invoice Details")
-						+summaryRow(2)
-							+summaryItem("Destination")
-								.d-flex.justify-content-center
-									.text-start
-										+card
-											+nodeCard(decodedInvoice.destination)
+    if (decodedInvoice)
+      +pageTabs(["Summary", "JSON"])
 
-							+summaryItem("Description")
-								if (decodedInvoice.description)
-									span #{decodedInvoice.description}
-								else
-									span -
-								
+      .tab-content
+        +pageTab("Summary", true)
+          +contentSection("Invoice Details")
+            +summaryRow(2)
+              +summaryItem("Destination")
+                .d-flex.justify-content-center
+                  .text-start
+                    +card
+                      +nodeCard(decodedInvoice.destination)
 
-						hr.my-4
+              +summaryItem("Description")
+                if (decodedInvoice.description)
+                  span #{ decodedInvoice.description }
+                else
+                  span -
 
-						+summaryRow(3 + (decodedInvoice.payment_addr ? 1 : 0))
-							+summaryItem("Amount")
-								+btcValue(decodedInvoice.num_satoshis)
+            hr.my-4
 
+            +summaryRow(3 + (decodedInvoice.payment_addr ? 1 : 0))
+              +summaryItem("Amount")
+                +btcValue(decodedInvoice.num_satoshis)
 
-							+summaryItem("Date")
-								+date(decodedInvoice.timestamp, "detail", true)
-								
-								
-							+summaryItem("Payment Hash")
-								| #{utils.ellipsizeMiddle(decodedInvoice.payment_hash, 14)}
-								+copyTextButton(decodedInvoice.payment_hash)
+              +summaryItem("Date")
+                +date(decodedInvoice.timestamp, "detail", true)
 
+              +summaryItem("Payment Hash")
+                | #{ utils.ellipsizeMiddle(decodedInvoice.payment_hash, 14) }
+                +copyTextButton(decodedInvoice.payment_hash)
 
-							if (decodedInvoice.payment_addr)
-								+summaryItem("Payment Address", null, "hex")
-									- let payment_addr_hex = utils.formatBuffer(decodedInvoice.payment_addr, "hex");
+              if (decodedInvoice.payment_addr)
+                +summaryItem("Payment Address", null, "hex")
+                  - let payment_addr_hex = utils.formatBuffer(decodedInvoice.payment_addr, "hex");
 
-									| #{utils.ellipsizeMiddle(payment_addr_hex, 14)}
-									+copyTextButton(payment_addr_hex)
+                  | #{ utils.ellipsizeMiddle(payment_addr_hex, 14) }
+                  +copyTextButton(payment_addr_hex)
 
+            hr.my-4
 
-						hr.my-4
+            form(method="post")
+              input(type="hidden", name="invoice", value=invoice)
 
+              button.btn.btn-primary(type="submit")
+                i.fas.fa-receipt.me-2
+                span Pay Invoice
 
-						form(method="post")
-							input(type="hidden", name="invoice", value=invoice)
+        +pageTab("JSON")
+          - let obj = decodedInvoice;
+          if (obj.payment_addr)
+            - obj.payment_addr_hex = utils.formatBuffer(obj.payment_addr, "hex");
+            - obj.payment_addr_base64 = utils.formatBuffer(obj.payment_addr, "base64");
+            - delete obj.payment_addr;
 
-							button.btn.btn-primary(type="submit")
-								i.fas.fa-receipt.me-2
-								span Pay Invoice
+          +contentSection("decodedInvoice")
+            pre
+              code.json #{ JSON.stringify(decodedInvoice, null, 4) }
 
+    else
+      form(method="get")
+        .mb-3
+          label.form-label(for="invoice") Encoded Payment Request / Invoice
+          textarea#invoice.form-control.form-control-lg(
+            rows="4",
+            name="invoice"
+          )
 
-						
-				+pageTab("JSON")
-					- let obj = decodedInvoice;
-					if (obj.payment_addr)
-						- obj.payment_addr_hex = utils.formatBuffer(obj.payment_addr, "hex");
-						- obj.payment_addr_base64 = utils.formatBuffer(obj.payment_addr, "base64");
-						- delete obj.payment_addr;
-
-					+contentSection("decodedInvoice")
-						pre
-							code.json #{JSON.stringify(decodedInvoice, null, 4)}
-
-					
-					
-
-		else
-			form(method="get")
-				.mb-3
-					label.form-label(for="invoice") Encoded Payment Request / Invoice
-					textarea.form-control.form-control-lg(rows="4" id="invoice" name="invoice")
-
-				button.btn.btn-primary(type="submit")
-					i.fas.fa-file-alt.me-2
-					span Decode
+        button.btn.btn-primary(type="submit")
+          i.fas.fa-file-alt.me-2
+          span Decode

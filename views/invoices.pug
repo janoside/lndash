@@ -1,184 +1,189 @@
 extends layout
 
 block headContent
-	title Invoices
+  title Invoices
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item Lightning Payments
-	li.breadcrumb-item Invoices
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item Lightning Payments
+  li.breadcrumb-item Invoices
 
 block content
+  if (!session.admin)
+    +pageTitle("Invoices")
 
-	if (!session.admin)
-		+pageTitle("Invoices")
+    - var loginRequiredNote = "display details about this node's invoices.";
+    include includes/login-required-alert.pug
 
+  else
+    +pageTitle(`${invoiceCount.toLocaleString()} Invoice${(invoiceCount == 1) ? "" : "s"}`)
 
-		- var loginRequiredNote = "display details about this node's invoices.";
-		include includes/login-required-alert.pug
+    .text-start.mb-2
+      a.btn.btn-sm.btn-primary(href="/create-invoice")
+        i.fas.fa-asterisk.me-2
+        span Create Invoice
 
-	else
+    +card
+      +filterList
+        +filterItem
+          - var sortOptions = [["Date", "created-desc"], ["Value", "value-desc"]];
 
-		+pageTitle(`${invoiceCount.toLocaleString()} Invoice${(invoiceCount == 1) ? "" : "s"}`)
-		
-		.text-start.mb-2
-			a.btn.btn-sm.btn-primary(href="/create-invoice")
-				i.fas.fa-asterisk.me-2
-				span Create Invoice
-			
+          +filterBtnGroup("Sort", null, sortOptions, `/invoices?settled=${settled}&created=${created}&limit=${limit}`, "sort", sort)
 
-				
+        +filterItem
+          - var statusFilterOptions = [["Settled", "settled"], ["Unsettled", "unsettled"], ["All", "all"]];
 
-		+card
-			+filterList
-				+filterItem
-					- var sortOptions = [["Date", "created-desc"], ["Value", "value-desc"]];
+          +filterBtnGroup("Status", null, statusFilterOptions, `/invoices?sort=${sort}&created=${created}&limit=${limit}`, "settled", settled)
 
-					+filterBtnGroup("Sort", null, sortOptions, `/invoices?settled=${settled}&created=${created}&limit=${limit}`, "sort", sort)
+        +filterItem
+          - var createdFilterOptions = [["1h", "60-min"], ["24h", "24-hr"], ["7d", "7-day"], ["30d", "30-day"], ["All", "all"]];
 
+          +filterBtnGroup("Time", null, createdFilterOptions, `/invoices?sort=${sort}&settled=${settled}&limit=${limit}`, "created", created)
 
-				+filterItem
-					- var statusFilterOptions = [["Settled", "settled"], ["Unsettled", "unsettled"], ["All", "all"]];
+        +filterItem(true)
+          - var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
 
-					+filterBtnGroup("Status", null, statusFilterOptions, `/invoices?sort=${sort}&created=${created}&limit=${limit}`, "settled", settled)
+          +filterBtnGroup("Page Size", null, pageSizeOptions, `/invoices?sort=${sort}&settled=${settled}&created=${created}`, "limit", limit)
 
-				+filterItem
-					- var createdFilterOptions = [["1h", "60-min"], ["24h", "24-hr"], ["7d", "7-day"], ["30d", "30-day"], ["All", "all"]];
+      hr.my-3
 
-					+filterBtnGroup("Time", null, createdFilterOptions, `/invoices?sort=${sort}&settled=${settled}&limit=${limit}`, "created", created)
+      div
+        if (allFilteredInvoices.length > limit)
+          span.
+            Showing
+            #[span.fw-bold ##{ (offset + 1).toLocaleString() } - #{ Math.min(offset + limit, allFilteredInvoices.length).toLocaleString() }]
+            of
+            #[span.fw-bold #{ allFilteredInvoices.length.toLocaleString() }]
 
-				+filterItem(true)
-					- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
+          if (allInvoices.length > allFilteredInvoices.length)
+            | filtered
 
-					+filterBtnGroup("Page Size", null, pageSizeOptions, `/invoices?sort=${sort}&settled=${settled}&created=${created}`, "limit", limit)
+          |
+          | invoice
+          if (allFilteredInvoices.length != 1)
+            | s
 
-			hr.my-3
+        else if (allFilteredInvoices.length > 0)
+          span.
+            Showing
+            #[span.fw-bold #{ allFilteredInvoices.length.toLocaleString() }]
 
-			div
-				if (allFilteredInvoices.length > limit)
-					span Showing 
-					span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredInvoices.length).toLocaleString()} 
-					span of 
-					span.fw-bold #{allFilteredInvoices.length.toLocaleString()} 
-					if (allInvoices.length > allFilteredInvoices.length)
-						span filtered 
-					span invoice
-					if (allFilteredInvoices.length != 1)
-						span s
+          if (allInvoices.length > allFilteredInvoices.length)
+            | filtered
 
-				else if (allFilteredInvoices.length > 0)
-					span Showing 
-					span.fw-bold #{allFilteredInvoices.length.toLocaleString()} 
-					if (allInvoices.length > allFilteredInvoices.length)
-						span filtered 
+          | invoice
+          if (allFilteredInvoices.length > 1)
+            | s
+        else
+          .alert.alert-warning.shadow-sm.mb-0 No matching invoices
 
-					span invoice
-					if (allFilteredInvoices.length > 1)
-						span s
-				else
-					.alert.alert-warning.shadow-sm.mb-0 No matching invoices
+      +pagination(allFilteredInvoices.length, limit, offset, paginationBaseUrl)
 
+    if (true)
+      if (allFilteredInvoices.length > 0)
+        each invoice, invoice_index in pagedFilteredInvoices
+          include includes/invoice-details-modal.pug
 
-			+pagination(allFilteredInvoices.length, limit, offset, paginationBaseUrl)
+        .table-responsive
+          table.table.table-striped
+            thead
+              tr
+                th.text-end.fw-light #
+                th.fit Status
 
+                th.text-end.fit Value
 
+                th Description
 
-		if (true)
-			if (allFilteredInvoices.length > 0)
-				each invoice, invoice_index in pagedFilteredInvoices
-					include includes/invoice-details-modal.pug
-					
-				.table-responsive
-					table.table.table-striped
-						thead
-							tr
-								th.text-end.fw-light #
-								th.fit Status
+                th Features
 
-								th.text-end.fit Value
+                th Date
 
-								th Description
+                if (false)
+                  th
+                    span.border-dotted(
+                      title="Whether a payment has been recieved for the invoice",
+                      data-bs-toggle="tooltip"
+                    ) Settled
 
-								th Features
-								
-								th Date
-								
-								if (false)
-									th
-										span.border-dotted(title="Whether a payment has been recieved for the invoice" data-bs-toggle="tooltip") Settled
+                th.text-end Raw
 
-								th.text-end Raw
-						
-						tbody
-							each invoice, invoice_index in pagedFilteredInvoices
-								tr.word-wrap
-									th.text-end.fw-light #{(sort == "desc" ? (invoiceCount - invoice_index) : (offset + invoice_index + 1)).toLocaleString()}
+            tbody
+              each invoice, invoice_index in pagedFilteredInvoices
+                tr.word-wrap
+                  th.text-end.fw-light #{ (sort == "desc" ? (invoiceCount - invoice_index) : (offset + invoice_index + 1)).toLocaleString() }
 
-									td.fit
-										if (invoice.state == "CANCELED")
-											+pillBadgeDanger("Cancelled")
+                  td.fit
+                    if (invoice.state == "CANCELED")
+                      +pillBadgeDanger("Cancelled")
 
-										else if (invoice.state == "SETTLED")
-											+pillBadgeSuccess("Settled")
+                    else if (invoice.state == "SETTLED")
+                      +pillBadgeSuccess("Settled")
 
-										else
-											span.text-capitalize
-												+pillBadgeWarning(invoice.state.toLowerCase())
+                    else
+                      span.text-capitalize
+                        +pillBadgeWarning(invoice.state.toLowerCase())
 
-									td.text-end.fit
-										- var valueColorClass = "text-muted";
-										- var settled = false;
-										if (invoice.state == "CANCELED")
-											// keep default muted
+                  td.text-end.fit
+                    - var valueColorClass = "text-muted";
+                    - var settled = false;
+                    if (invoice.state == "CANCELED")
+                      // keep default muted
 
-										else if (invoice.state == "SETTLED")
-											- valueColorClass = "text-success fw-bold";
-											- settled = true;
+                    else if (invoice.state == "SETTLED")
+                      - valueColorClass = "text-success fw-bold";
+                      - settled = true;
 
-										else
-											- valueColorClass = "text-warning";
+                    else
+                      - valueColorClass = "text-warning";
 
-										span(class=valueColorClass)
-											if (settled)
-												span +
+                    span(class=valueColorClass)
+                      if (settled)
+                        span +
 
-											if (settled)
-												+btcValue(invoice.amt_paid_sat)
+                      if (settled)
+                        +btcValue(invoice.amt_paid_sat)
 
-											else
-												+btcValue(invoice.value)
+                      else
+                        +btcValue(invoice.value)
 
-									td
-										
-										if (invoice.memo)
-											if (invoice.memo.length > 40)
-												span.border-dotted(title=`${invoice.memo}`, data-bs-toggle="tooltip") #{utils.ellipsizeMiddle(invoice.memo, 40)}
+                  td
+                    if (invoice.memo)
+                      if (invoice.memo.length > 40)
+                        span.border-dotted(
+                          title=`${invoice.memo}`,
+                          data-bs-toggle="tooltip"
+                        ) #{ utils.ellipsizeMiddle(invoice.memo, 40) }
 
-											else
-												span #{invoice.memo}
+                      else
+                        span #{ invoice.memo }
 
-										else
-											span.text-muted (no description)
+                    else
+                      span.text-muted (no description)
 
-									td
-										- let featureAbbrevMap = { "tlv-onion": "TLV_O", "payment-addr":"PA", "multi-path-payments":"MPP" };
-										if (invoice.features)
-											each feature in invoice.features
-												span.badge.text-bg-primary.me-1(title=`${JSON.stringify(feature)}`, data-bs-toggle="tooltip")
-													| #{featureAbbrevMap[feature.name]}
-													if (feature.is_required)
-														i.fas.fa-asterisk.mx-1
+                  td
+                    - let featureAbbrevMap = { "tlv-onion": "TLV_O", "payment-addr": "PA", "multi-path-payments": "MPP", "route-blinding": "RB" };
+                    if (invoice.features)
+                      each feature in invoice.features
+                        span.badge.text-bg-primary.me-1(
+                          title=`${JSON.stringify(feature)}`,
+                          data-bs-toggle="tooltip"
+                        )
+                          | #{ featureAbbrevMap[feature.name] }
+                          if (feature.is_required)
+                            i.fas.fa-asterisk.mx-1
 
-													if (feature.is_known)
-														i.fas.fa-check.ms-1
+                          if (feature.is_known)
+                            i.fas.fa-check.ms-1
 
-									td
-										+date(invoice.creation_date)
+                  td
+                    +date(invoice.creation_date)
 
-									
-									
-									td.text-end
-										a.btn.btn-primary.btn-sm(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#invoiceModal-" + invoice_index))
-											i.fas.fa-file-lines
-
+                  td.text-end
+                    a.btn.btn-primary.btn-sm(
+                      href="javascript:void(0)",
+                      data-bs-toggle="modal",
+                      data-bs-target="#invoiceModal-" + invoice_index
+                    )
+                      i.fas.fa-file-lines

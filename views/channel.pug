@@ -1,343 +1,373 @@
 extends layout
 
 block headContent
-	title Channel #{channelId}
+  title Channel #{ channelId }
 
 block breadcrumb
-	if (channel != null && localChannels.byId && localChannels.byId[channel.channel_id])
-		li.breadcrumb-item
-			a(href='/') Home
-		li.breadcrumb-item My Node
-		li.breadcrumb-item
-			a(href="/local-channels") My Channels
-		li.breadcrumb-item Channel #{channel.channel_id}
+  if (channel != null && localChannels.byId && localChannels.byId[channel.channel_id])
+    li.breadcrumb-item
+      a(href="/") Home
+    li.breadcrumb-item My Node
+    li.breadcrumb-item
+      a(href="/local-channels") My Channels
+    li.breadcrumb-item Channel #{ channel.channel_id }
 
-	else
-		li.breadcrumb-item
-			a(href='/') Home
-		li.breadcrumb-item Network
-		li.breadcrumb-item
-			a(href="/channels") All Channels
-		li.breadcrumb-item Channel #{channelId}
-	
+  else
+    li.breadcrumb-item
+      a(href="/") Home
+    li.breadcrumb-item Network
+    li.breadcrumb-item
+      a(href="/channels") All Channels
+    li.breadcrumb-item Channel #{ channelId }
+
 block content
-
-
-	if (channel)
-		- var localChannel = localChannels.byId && localChannels.byId[channel.channel_id];
-		- var localChannelStatus = "Active";
-
-		if (localChannels.byId[channel.channel_id] && !localChannels.byId[channel.channel_id].active)
-			- localChannelStatus = "Inactive";
-		
-		if (!localChannel)
-			- localChannel = localClosedChannels.byId && localClosedChannels.byId[channel.channel_id];
-
-		if (!localChannel && localPendingChannels.waitingCloseChannels)
-			each waitingCloseChannel in localPendingChannels.waitingCloseChannels
-				if (waitingCloseChannel.channel.channel_point == channel.chan_point)
-					- localChannel = true;
-					- localChannelStatus = "Waiting to Close";
-
-
-	mixin titlePillBadge(text, colorClass)
-		span.badge.rounded-pill.fs-75.ms-2.align-text-bottom(class=colorClass)
-			| #{text}
-			block
-
-	+pageTitle("Channel", channelId, true)
-		span.h3
-			if (localChannelStatus) 
-				if (localChannelStatus == "Active")
-					+titlePillBadge(localChannelStatus, "text-bg-success")
-				
-				if (localChannelStatus == "Waiting to Close" || localChannelStatus == "Inactive")
-					+titlePillBadge(localChannelStatus, "text-bg-warning")
-
-			if (localChannel && localChannel.private)
-				+titlePillBadge("Private", "text-bg-success")
-					i.fas.fa-lock.ms-2
-					
-
-			if (localChannel)
-				span(title="Your LND node is one of the participants in this channel", data-bs-toggle="tooltip")
-					i.fas.fa-certificate.fa-sm.text-primary.ms-2
-
-			if (utils.isObjectStarred(`channel:${channelId}`))
-				span(title="This is one of your favorite channels" data-bs-toggle="tooltip")
-					i.fas.fa-star.text-warning.fa-sm.ms-2
-
-	
-
-
-	if (false)
-		pre
-			code.json #{JSON.stringify(localPendingChannels, null, 4)}
-
-	if (channel == null)
-		.alert.alert-warning.shadow-sm
-			span Channel 
-			span.fw-bold #{channelId}
-			span : Not Found
-
-	else
-		- var channelPointParts = channel.chan_point.split(":");
-		- var channelPointTxid = channelPointParts[0];
-		- var channelPointIndex = channelPointParts[1];
-
-
-		if (localChannels.byId && localChannels.byId[channel.channel_id])
-			- var localChannel = localChannels.byId[channel.channel_id];
-
-			- var localBalance = new Decimal(localChannel.local_balance);
-			- var remoteBalance = new Decimal(localChannel.remote_balance);
-
-			- var valueReceived = new Decimal(localChannel.total_satoshis_received);
-			- var valueSent = new Decimal(localChannel.total_satoshis_sent);
-			- var netValue = valueReceived.minus(valueSent);
-
-
-		+pageTabs(["Details", "JSON"])
-
-		.tab-content
-			+pageTab("Details", true)
-				+contentSection("Summary")
-					if (localChannel)
-						.mb-3
-							+summaryRow(2)
-								+summaryItem("Local / Remote Balances")
-									.d-flex.justify-content-between.fs-90.mb-3
-										.text-start
-											.mb-2
-												i.fas.fa-circle.text-primary.me-2
-												span.border-dotted(title="Local, spendable balance on the local side of this channel.", data-bs-toggle="tooltip") Spendable
-
-											span.badge.text-bg-primary.fs-80
-												+btcValue(localBalance)
-
-										.text-end
-											.mb-2
-												i.fas.fa-circle.text-info.me-2
-												span.border-dotted(title="Total receivable balance on the remote side of this channel.", data-bs-toggle="tooltip") Receivable
-
-											span.badge.text-bg-info.fs-80
-												+btcValue(remoteBalance)
-											
-
-
-									+progressBar([localBalance, remoteBalance], ["text-bg-primary", "text-bg-info"])
-									
-
-								
-								+summaryItem("Received / Sent Value")
-									if (valueReceived != null && (valueReceived > 0 || valueSent > 0))
-										.d-flex.justify-content-between.fs-90.mb-3
-											.text-start
-												.mb-2
-													i.fas.fa-circle.text-success.me-2
-													span.border-dotted(title="Value received via this channel.", data-bs-toggle="tooltip") Received
-
-												span.badge.text-bg-success.fs-80
-													+btcValue(valueReceived)
-
-
-											if (netValue != 0)
-												.text-center
-													.mb-2
-														span.border-dotted(title="Net value (received minus sent) received via this channel.", data-bs-toggle="tooltip") Net
-
-													if (netValue < 0)
-														span.badge.text-bg-danger
-															| -
-															+btcValue(netValue.times(-1))
-													else
-														span.badge.text-bg-success
-															| +
-															+btcValue(netValue)
-
-
-											.text-end
-												.mb-2
-													i.fas.fa-circle.text-danger.me-2
-													span.border-dotted(title="Value sent via this channel.", data-bs-toggle="tooltip") Sent
-
-												span.badge.text-bg-danger.fs-80
-													+btcValue(valueSent)
-
-
-
-										+progressBar([valueReceived, valueSent], ["text-bg-success", "text-bg-danger"])
-
-									else
-										span.text-muted (none)
-
-
-						
-
-						hr.my-4
-
-
-					+summaryRow(3 + (localChannel ? 1 : 0))
-						+summaryItem("Last Update")
-							+date(channel.last_update)
-
-
-						+summaryItem("Capacity")
-							+btcValue(channel.capacity)
-
-
-						+summaryItem("Channel Point", "On-chain transaction:output-index that opened this channel.")
-							+channelPoint(channelPointTxid, channelPointIndex, blockHeight)
-
-
-						if (localChannel)
-							+summaryItem("Uptime")
-								| #{new Decimal(localChannel.uptime).dividedBy(localChannel.lifetime).times(100).toDP(1)}%
-							
-
-
-					if (localChannel)
-
-						hr.my-4
-
-						+summaryRow(2)
-							+summaryItem("Creator")
-								if (localChannel.initiator)
-									| You
-								else
-									| Them
-
-							+summaryItem("Updates")
-								| #{parseInt(localChannel.num_updates).toLocaleString()}
-
-
-
-							
-
-					
-							
-							
-
-
-
-
-									
-
-				+contentSection("Tools")
-					if (localChannels.byId[channel.channel_id])
-						if (session.admin)
-							include includes/edit-channel-policies-modal.pug
-
-							a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`javascript:void(0)` data-bs-toggle="modal" data-bs-target="#updateChannelPoliciesModal")
-								i.fas.fa-pen.me-2
-								span Edit Policies...
-
-						else
-							a.btn.btn-secondary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-md-inline-block(href=`javascript:void(0)` data-bs-toggle="tooltip" title="You need to log in to modify your channels." disabled)
-								i.fas.fa-edit.me-2
-								span Edit Policies...
-
-					if (utils.isObjectStarred(`channel:${channelId}`))
-						a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/tag?action=remove&tagType=star&objectId=channel:${channelId}` title="Remove this channel from your list of favorites" data-bs-toggle="tooltip")
-							i.far.fa-star.me-2
-							span Unstar Channel
-
-					else
-						a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href=`/tag?action=add&tagType=star&objectId=channel:${channelId}` title="Add this channel to your list of favorites" data-bs-toggle="tooltip")
-							i.fas.fa-star.me-2
-							span Star Channel
-
-
-					if (localChannels.byId[channel.channel_id])
-						if (session.admin)
-							include includes/close-channel-modal.pug
-
-							a.btn.btn-danger.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#closeChannelModal")
-								i.fas.fa-times.me-2
-								span Close Channel...
-
-						else
-							a.btn.btn-danger.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-bs-toggle="tooltip" title="You need to log in to modify your channels." disabled)
-								i.fas.fa-times.me-2
-								span Close Channel...
-						
-
-				+contentSection("Policies")
-					.table-responsive-sm
-						table.table.table-striped.mb-0
-							thead
-								tr
-									th.text-end.fw-light #
-									th Node
-									th.text-end
-										span.border-dotted(title="The CLTV delta that will be applied to all forwarded HTLCs." data-bs-toggle="tooltip") Time Lock Delta
-									th.text-end Min HTLC
-									th.text-end
-										span.border-dotted(title="The base fee in milli-satoshis that will be charged for each forwarded HTLC, regardless of payment size." data-bs-toggle="tooltip") Base Fee
-									th.text-end
-										span.border-dotted(title="The fee rate that will be charged proportionally based on the value of each forwarded HTLC. The lowest possible rate is 1 milli-msat (0.000001)" data-bs-toggle="tooltip") Fee Rate (milli-msat)
-							tbody
-								tr
-									th.text-end.fw-light 1
-									td
-										+nodeCard(channel.node1_pub)
-
-									if (channel.node1_policy)
-										td.text-end #{parseInt(channel.node1_policy.time_lock_delta).toLocaleString()}
-										td.text-end #{parseInt(channel.node1_policy.min_htlc).toLocaleString()}
-										td.text-end
-											+btcValue(channel.node1_policy.fee_base_msat, "msat", "msat")
-
-										td.text-end #{parseInt(channel.node1_policy.fee_rate_milli_msat).toLocaleString()}
-									else
-										td.text-end ?
-										td.text-end ?
-										td.text-end ?
-										td.text-end ?
-								tr
-									th.text-end.fw-light 2
-									td
-										+nodeCard(channel.node2_pub)
-
-									if (channel.node2_policy)
-										td.text-end #{parseInt(channel.node2_policy.time_lock_delta).toLocaleString()}
-										td.text-end #{parseInt(channel.node2_policy.min_htlc).toLocaleString()}
-										td.text-end
-											+btcValue(channel.node2_policy.fee_base_msat, "msat", "msat")
-
-										td.text-end #{parseInt(channel.node2_policy.fee_rate_milli_msat).toLocaleString()}
-									else
-										td.text-end ?
-										td.text-end ?
-										td.text-end ?
-										td.text-end ?
-
-						
-				+contentSection("Node Details")
-					- var nodes = [ node1, node2 ];
-					- var nodePubkeys = [ channel.node1_pub, channel.node2_pub ];
-					- var showTableNumbers = true;
-					include includes/node-details-table.pug
-						
-
-			+pageTab("JSON")
-				+contentSection("parsedChannelId")
-					pre
-						code.json #{JSON.stringify(parsedChannelId, null, 4)}
-
-				+contentSection("channelInfo")
-					pre
-						code.json #{JSON.stringify(channel, null, 4)}
-
-				if (localChannels.byId[channel.channel_id])
-					+contentSection("localChannelInfo")
-						pre
-							code.json #{JSON.stringify(localChannel, null, 4)}
-
-				+contentSection("node1Info")
-					pre
-						code.json #{JSON.stringify(node1, null, 4)}
-
-				+contentSection("node2Info")
-					pre
-						code.json #{JSON.stringify(node2, null, 4)}
+  if (channel)
+    - var localChannel = localChannels.byId && localChannels.byId[channel.channel_id];
+    - var localChannelStatus = "Active";
+
+    if (localChannels.byId[channel.channel_id] && !localChannels.byId[channel.channel_id].active)
+      - localChannelStatus = "Inactive";
+
+    if (!localChannel)
+      - localChannel = localClosedChannels.byId && localClosedChannels.byId[channel.channel_id];
+
+    if (!localChannel && localPendingChannels.waitingCloseChannels)
+      each waitingCloseChannel in localPendingChannels.waitingCloseChannels
+        if (waitingCloseChannel.channel.channel_point == channel.chan_point)
+          - localChannel = true;
+          - localChannelStatus = "Waiting to Close";
+
+  mixin titlePillBadge(text, colorClass)
+    span.badge.rounded-pill.fs-75.ms-2.align-text-bottom(class=colorClass)
+      | #{ text }
+      block
+
+  +pageTitle("Channel", channelId, true)
+    span.h3
+      if (localChannelStatus)
+        if (localChannelStatus == "Active")
+          +titlePillBadge(localChannelStatus, "text-bg-success")
+
+        if (localChannelStatus == "Waiting to Close" || localChannelStatus == "Inactive")
+          +titlePillBadge(localChannelStatus, "text-bg-warning")
+
+      if (localChannel && localChannel.private)
+        +titlePillBadge("Private", "text-bg-success")
+          i.fas.fa-lock.ms-2
+
+      if (localChannel)
+        span(
+          title="Your LND node is one of the participants in this channel",
+          data-bs-toggle="tooltip"
+        )
+          i.fas.fa-certificate.fa-sm.text-primary.ms-2
+
+      if (utils.isObjectStarred(`channel:${channelId}`))
+        span(
+          title="This is one of your favorite channels",
+          data-bs-toggle="tooltip"
+        )
+          i.fas.fa-star.text-warning.fa-sm.ms-2
+
+  if (false)
+    pre
+      code.json #{ JSON.stringify(localPendingChannels, null, 4) }
+
+  if (channel == null)
+    .alert.alert-warning.shadow-sm
+      span Channel
+      span.fw-bold #{ channelId }
+      span : Not Found
+
+  else
+    - var channelPointParts = channel.chan_point.split(":");
+    - var channelPointTxid = channelPointParts[0];
+    - var channelPointIndex = channelPointParts[1];
+
+    if (localChannels.byId && localChannels.byId[channel.channel_id])
+      - var localChannel = localChannels.byId[channel.channel_id];
+
+      - var localBalance = new Decimal(localChannel.local_balance);
+      - var remoteBalance = new Decimal(localChannel.remote_balance);
+
+      - var valueReceived = new Decimal(localChannel.total_satoshis_received);
+      - var valueSent = new Decimal(localChannel.total_satoshis_sent);
+      - var netValue = valueReceived.minus(valueSent);
+
+    +pageTabs(["Details", "JSON"])
+
+    .tab-content
+      +pageTab("Details", true)
+        +contentSection("Summary")
+          if (localChannel)
+            .mb-3
+              +summaryRow(2)
+                +summaryItem("Local / Remote Balances")
+                  .d-flex.justify-content-between.fs-90.mb-3
+                    .text-start
+                      .mb-2
+                        i.fas.fa-circle.text-primary.me-2
+                        span.border-dotted(
+                          title="Local, spendable balance on the local side of this channel.",
+                          data-bs-toggle="tooltip"
+                        ) Spendable
+
+                      span.badge.text-bg-primary.fs-80
+                        +btcValue(localBalance)
+
+                    .text-end
+                      .mb-2
+                        i.fas.fa-circle.text-info.me-2
+                        span.border-dotted(
+                          title="Total receivable balance on the remote side of this channel.",
+                          data-bs-toggle="tooltip"
+                        ) Receivable
+
+                      span.badge.text-bg-info.fs-80
+                        +btcValue(remoteBalance)
+
+                  +progressBar([localBalance, remoteBalance], ["text-bg-primary", "text-bg-info"])
+
+                +summaryItem("Received / Sent Value")
+                  if (valueReceived != null && (valueReceived > 0 || valueSent > 0))
+                    .d-flex.justify-content-between.fs-90.mb-3
+                      .text-start
+                        .mb-2
+                          i.fas.fa-circle.text-success.me-2
+                          span.border-dotted(
+                            title="Value received via this channel.",
+                            data-bs-toggle="tooltip"
+                          ) Received
+
+                        span.badge.text-bg-success.fs-80
+                          +btcValue(valueReceived)
+
+                      if (netValue != 0)
+                        .text-center
+                          .mb-2
+                            span.border-dotted(
+                              title="Net value (received minus sent) received via this channel.",
+                              data-bs-toggle="tooltip"
+                            ) Net
+
+                          if (netValue < 0)
+                            span.badge.text-bg-danger
+                              | -
+                              +btcValue(netValue.times(-1))
+                          else
+                            span.badge.text-bg-success
+                              | +
+                              +btcValue(netValue)
+
+                      .text-end
+                        .mb-2
+                          i.fas.fa-circle.text-danger.me-2
+                          span.border-dotted(
+                            title="Value sent via this channel.",
+                            data-bs-toggle="tooltip"
+                          ) Sent
+
+                        span.badge.text-bg-danger.fs-80
+                          +btcValue(valueSent)
+
+                    +progressBar([valueReceived, valueSent], ["text-bg-success", "text-bg-danger"])
+
+                  else
+                    span.text-muted (none)
+
+            hr.my-4
+
+          +summaryRow(3 + (localChannel ? 1 : 0))
+            +summaryItem("Last Update")
+              +date(channel.last_update)
+
+            +summaryItem("Capacity")
+              +btcValue(channel.capacity)
+
+            +summaryItem("Channel Point", "On-chain transaction:output-index that opened this channel.")
+              +channelPoint(channelPointTxid, channelPointIndex, blockHeight)
+
+            if (localChannel)
+              +summaryItem("Uptime")
+                | #{ new Decimal(localChannel.uptime).dividedBy(localChannel.lifetime).times(100).toDP(1) }%
+
+          if (localChannel)
+            hr.my-4
+
+            +summaryRow(2)
+              +summaryItem("Creator")
+                if (localChannel.initiator)
+                  | You
+                else
+                  | Them
+
+              +summaryItem("Updates")
+                | #{ parseInt(localChannel.num_updates).toLocaleString() }
+
+        +contentSection("Tools")
+          if (localChannels.byId[channel.channel_id])
+            if (session.admin)
+              include includes/edit-channel-policies-modal.pug
+
+              a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(
+                href="javascript:void(0)",
+                data-bs-toggle="modal",
+                data-bs-target="#updateChannelPoliciesModal"
+              )
+                i.fas.fa-pen.me-2
+                span Edit Policies...
+
+            else
+              a.btn.btn-secondary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-md-inline-block(
+                href="javascript:void(0)",
+                data-bs-toggle="tooltip",
+                title="You need to log in to modify your channels.",
+                disabled
+              )
+                i.fas.fa-edit.me-2
+                span Edit Policies...
+
+          if (utils.isObjectStarred(`channel:${channelId}`))
+            a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(
+              href=`/tag?action=remove&tagType=star&objectId=channel:${channelId}`,
+              title="Remove this channel from your list of favorites",
+              data-bs-toggle="tooltip"
+            )
+              i.far.fa-star.me-2
+              span Unstar Channel
+
+          else
+            a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(
+              href=`/tag?action=add&tagType=star&objectId=channel:${channelId}`,
+              title="Add this channel to your list of favorites",
+              data-bs-toggle="tooltip"
+            )
+              i.fas.fa-star.me-2
+              span Star Channel
+
+          if (localChannels.byId[channel.channel_id])
+            if (session.admin)
+              include includes/close-channel-modal.pug
+
+              a.btn.btn-danger.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(
+                href="javascript:void(0)",
+                data-bs-toggle="modal",
+                data-bs-target="#closeChannelModal"
+              )
+                i.fas.fa-times.me-2
+                span Close Channel...
+
+            else
+              a.btn.btn-danger.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(
+                href="javascript:void(0)",
+                data-bs-toggle="tooltip",
+                title="You need to log in to modify your channels.",
+                disabled
+              )
+                i.fas.fa-times.me-2
+                span Close Channel...
+
+        +contentSection("Policies")
+          .table-responsive-sm
+            table.table.table-striped.mb-0
+              thead
+                tr
+                  th.text-end.fw-light #
+                  th Node
+                  th.text-end
+                    span.border-dotted(
+                      title="The CLTV delta that will be applied to all forwarded HTLCs.",
+                      data-bs-toggle="tooltip"
+                    ) Time Lock Delta
+                  th.text-end Min HTLC
+                  th.text-end
+                    span.border-dotted(
+                      title="The base fee in milli-satoshis that will be charged for each forwarded HTLC, regardless of payment size.",
+                      data-bs-toggle="tooltip"
+                    ) Base Fee
+                  th.text-end
+                    span.border-dotted(
+                      title="The fee rate, in milli-msat, that will be charged proportionally based on the value of each forwarded HTLC. The lowest possible rate is 0 milli-msat (0.000000)",
+                      data-bs-toggle="tooltip"
+                    ) Fee Rate<br>(milli-msat)
+                  th.text-end
+                    span.border-dotted(
+                      title="The base fee in milli-satoshis that will be either discounted or charged for each forwarded HTLC, regardless of payment size. The fee can be negative, providing a discount on the outbound channel.",
+                      data-bs-toggle="tooltip"
+                    ) Inbound Base Fee
+                  th.text-end
+                    span.border-dotted(
+                      title="The fee rate that will be either discounted or charged proportionally based on the value of each forwarded HTLC. The rate can be negative, providing a discount on the outbound channel.",
+                      data-bs-toggle="tooltip"
+                    ) Inbound Fee Rate<br>(milli-msat)
+
+              tbody
+                tr
+                  th.text-end.fw-light 1
+                  td
+                    +nodeCard(channel.node1_pub)
+                  if (channel.node1_policy)
+                    td.text-end #{ parseInt(channel.node1_policy.time_lock_delta).toLocaleString() }
+                    td.text-end #{ parseInt(channel.node1_policy.min_htlc).toLocaleString() }
+                    td.text-end
+                      +btcValue(channel.node1_policy.fee_base_msat, "msat", "msat")
+                    td.text-end #{ parseInt(channel.node1_policy.fee_rate_milli_msat).toLocaleString() }
+                    td.text-end
+                      +btcValue(channel.node1_policy.inbound_fee_base_msat, "msat", "msat")
+                    td.text-end #{ parseInt(channel.node1_policy.inbound_fee_rate_milli_msat).toLocaleString() }
+                  else
+                    td.text-end ?
+                    td.text-end ?
+                    td.text-end ?
+                    td.text-end ?
+                    td.text-end ?
+                    td.text-end ?
+                tr
+                  th.text-end.fw-light 2
+                  td
+                    +nodeCard(channel.node2_pub)
+
+                  if (channel.node2_policy)
+                    td.text-end #{ parseInt(channel.node2_policy.time_lock_delta).toLocaleString() }
+                    td.text-end #{ parseInt(channel.node2_policy.min_htlc).toLocaleString() }
+                    td.text-end
+                      +btcValue(channel.node2_policy.fee_base_msat, "msat", "msat")
+                    td.text-end #{ parseInt(channel.node2_policy.fee_rate_milli_msat).toLocaleString() }
+                    td.text-end
+                      +btcValue(channel.node2_policy.inbound_fee_base_msat, "msat", "msat")
+                    td.text-end #{ parseInt(channel.node2_policy.inbound_fee_rate_milli_msat).toLocaleString() }
+                  else
+                    td.text-end ?
+                    td.text-end ?
+                    td.text-end ?
+                    td.text-end ?
+                    td.text-end ?
+                    td.text-end ?
+
+        +contentSection("Node Details")
+          - var nodes = [node1, node2];
+          - var nodePubkeys = [channel.node1_pub, channel.node2_pub];
+          - var showTableNumbers = true;
+          include includes/node-details-table.pug
+
+      +pageTab("JSON")
+        +contentSection("parsedChannelId")
+          pre
+            code.json #{ JSON.stringify(parsedChannelId, null, 4) }
+
+        +contentSection("channelInfo")
+          pre
+            code.json #{ JSON.stringify(channel, null, 4) }
+
+        if (localChannels.byId[channel.channel_id])
+          +contentSection("localChannelInfo")
+            pre
+              code.json #{ JSON.stringify(localChannel, null, 4) }
+
+        +contentSection("node1Info")
+          pre
+            code.json #{ JSON.stringify(node1, null, 4) }
+
+        +contentSection("node2Info")
+          pre
+            code.json #{ JSON.stringify(node2, null, 4) }

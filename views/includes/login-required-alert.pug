@@ -1,20 +1,20 @@
 .alert.alert-primary.mb-0
-	h3.h5.mb-3 Login Required
+  h3.h5.mb-3 Login Required
 
-	if (loginRequiredFullNote)
-		.mb-3 #{loginRequiredFullNote}
+  if (loginRequiredFullNote)
+    .mb-3 #{ loginRequiredFullNote }
 
-	else if (loginRequiredNote)
-		.mb-3 If logged in as an admin this page will #{loginRequiredNote}
+  else if (loginRequiredNote)
+    .mb-3 If logged in as an admin this page will #{ loginRequiredNote }
 
-	else
-		.mb-3 You must be logged in as an admin to view this page.
+  else
+    .mb-3 You must be logged in as an admin to view this page.
 
-	form(method="post", action="/login")
-		.mb-3
-			label.form-label(for="password") Password
-			input(type="password", class="form-control", id="password", name="password")
+  form(method="post", action="/login")
+    .mb-3
+      label.form-label(for="password") Password
+      input#password.form-control(type="password", name="password")
 
-		button.btn.btn-primary(type="submit")
-			i.fas.fa-sign-in-alt.me-2
-			span Login
+    button.btn.btn-primary(type="submit")
+      i.fas.fa-sign-in-alt.me-2
+      span Login

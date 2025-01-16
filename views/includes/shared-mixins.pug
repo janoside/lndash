@@ -1,743 +1,864 @@
 mixin themeCss
-	link(id="light-theme-link-tag", rel=(session.uiTheme != "dark" ? "stylesheet" : false), href=assetUrl(`./style/light.css`), integrity=assetIntegrity("light.css"), crossorigin="anonymous")
-	link(id="dark-theme-link-tag", rel=(session.uiTheme == "dark" ? "stylesheet" : false), href=assetUrl(`./style/dark.css`), integrity=assetIntegrity("dark.css"), crossorigin="anonymous")
-
-
+  link#light-theme-link-tag(
+    rel=session.uiTheme != "dark" ? "stylesheet" : false,
+    href=assetUrl(`./style/light.css`),
+    integrity=assetIntegrity("light.css"),
+    crossorigin="anonymous"
+  )
+  link#dark-theme-link-tag(
+    rel=session.uiTheme == "dark" ? "stylesheet" : false,
+    href=assetUrl(`./style/dark.css`),
+    integrity=assetIntegrity("dark.css"),
+    crossorigin="anonymous"
+  )
 
 mixin sharedScriptTags
-	script(src=assetUrl(`/js/jquery.min.js`), integrity=assetIntegrity("jquery.min.js"), crossorigin="anonymous")
-	script(src=assetUrl(`/js/bootstrap.bundle.min.js`), integrity=assetIntegrity("bootstrap.bundle.min.js"), crossorigin="anonymous")
-	
-	script(src=assetUrl(`/js/fontawesome.min.js`), integrity=assetIntegrity("fontawesome.min.js"), crossorigin="anonymous")
-	script(src=assetUrl(`/js/site.js`), integrity=assetIntegrity("site.js"), crossorigin="anonymous")
+  script(type="text/javascript", src="/js/highlight.min.js")
+  script(
+    src=assetUrl(`/js/jquery.min.js`),
+    integrity=assetIntegrity("jquery.min.js"),
+    crossorigin="anonymous"
+  )
+  script(
+    src=assetUrl(`/js/bootstrap.bundle.min.js`),
+    integrity=assetIntegrity("bootstrap.bundle.min.js"),
+    crossorigin="anonymous"
+  )
 
-
+  script(type="text/javascript", src="/js/jdenticon.min.js")
+  script(
+    src=assetUrl(`/js/fontawesome.min.js`),
+    integrity=assetIntegrity("fontawesome.min.js"),
+    crossorigin="anonymous"
+  )
+  script(
+    src=assetUrl(`/js/site.js`),
+    integrity=assetIntegrity("site.js"),
+    crossorigin="anonymous"
+  )
 
 mixin pageTitle(text, subtext, copyableSubtext=false, subtextEllipsizeLength=-1)
-	.mb-4
-		.d-flex.justify-content-between
-			h1.fw-light.word-wrap.mb-1
-				if (typeof text === "string")
-					| #{text}
-					
-				else
-					span.me-2 #{text[0]}
-					span.fst-italic #{text[1]}
-					
-			
-				if (block)
-					block
+  .mb-4
+    .d-flex.justify-content-between
+      h1.fw-light.word-wrap.mb-1
+        if (typeof text === "string")
+          | #{ text }
 
-		if (subtext)
-			h4.fw-light.word-wrap
-				if (subtextEllipsizeLength > 0)
-					| #{utils.ellipsizeMiddle(subtext, subtextEllipsizeLength)}
-				else
-					| #{subtext}
+        else
+          span.me-2 #{ text[0] }
+          span.fst-italic #{ text[1] }
 
-				if (copyableSubtext)
-					small
-						+copyTextButton(subtext)
-	
-	//hr.mb-3
+        if (block)
+          block
 
+    if (subtext)
+      h4.fw-light.word-wrap
+        if (subtextEllipsizeLength > 0)
+          | #{ utils.ellipsizeMiddle(subtext, subtextEllipsizeLength) }
+        else
+          | #{ subtext }
+
+        if (copyableSubtext)
+          small
+            +copyTextButton(subtext)
+
+  //hr.mb-3
 
 mixin sectionTitleBlock
-	h3.h5.mb-1.fw-light
-		block
+  h3.h5.mb-1.fw-light
+    block
 
-			
 mixin sectionTitle(text, toggle=false, toggleUniqueClass, toggleUserSettingName, toggleOpen, tooltipText)
-	if (false)
-		pre
-			code.json #{JSON.stringify(session.userSettings)}
+  if (false)
+    pre
+      code.json #{ JSON.stringify(session.userSettings) }
 
-	h3.h5.mb-1.fw-light(class=(toggle && !toggleOpen ? "mb-section" : false), class=(!toggle || toggleOpen ? "d-block" : "d-none"))
-		if (tooltipText)
-			span.border-dotted(title=tooltipText, data-bs-toggle="tooltip")
-				| #{text}
+  h3.h5.mb-1.fw-light(
+    class=toggle && !toggleOpen ? "mb-section" : false,
+    class=!toggle || toggleOpen ? "d-block" : "d-none"
+  )
+    if (tooltipText)
+      span.border-dotted(title=tooltipText, data-bs-toggle="tooltip")
+        | #{ text }
 
-		else
-			| #{text}
+    else
+      | #{ text }
 
-		if (toggle)
-			small(title=`Toggle ${text}`, data-bs-toggle="tooltip")
-				a.text-card-highlight.fs-6(href=`./changeSetting?name=${toggleUserSettingName}&value=false`)
-					i.toggle-plus-minus.ms-2(class=(toggleOpen ? "bi-dash-square" : "bi-plus-square"))
-
+    if (toggle)
+      small(title=`Toggle ${text}`, data-bs-toggle="tooltip")
+        a.text-card-highlight.fs-6(
+          href=`./changeSetting?name=${toggleUserSettingName}&value=false`
+        )
+          i.toggle-plus-minus.ms-2(
+            class=toggleOpen ? "bi-dash-square" : "bi-plus-square"
+          )
 
 mixin contentSection(title, toggleable=false, toggleUserSettingName, defaultOpen=true, cardUi=true)
-	if (toggleable)
-		- var toggleUniqueClass = `section-${utils.getRandomString(10, "aA#")}`;
-		- var toggleOpen = userSettings[toggleUserSettingName] == null ? defaultOpen : (userSettings[toggleUserSettingName] == "true" || userSettings[toggleUserSettingName] == true);
+  if (toggleable)
+    - var toggleUniqueClass = `section-${utils.getRandomString(10, "aA#")}`;
+    - var toggleOpen = userSettings[toggleUserSettingName] == null ? defaultOpen : userSettings[toggleUserSettingName] == "true" || userSettings[toggleUserSettingName] == true;
 
-	if (title)
-		+sectionTitle(title, toggleable, toggleUniqueClass, toggleUserSettingName, toggleOpen)
+  if (title)
+    +sectionTitle(title, toggleable, toggleUniqueClass, toggleUserSettingName, toggleOpen)
 
-	.mb-section(class=toggleUniqueClass, style=(toggleable && !toggleOpen ? "display: none;" : false))
-		if (cardUi)
-			.card.mb-section.shadow-sm
-				.card-body
-					block
+  .mb-section(
+    class=toggleUniqueClass,
+    style=toggleable && !toggleOpen ? "display: none;" : false
+  )
+    if (cardUi)
+      .card.mb-section.shadow-sm
+        .card-body
+          block
 
-		else
-			block
-
+    else
+      block
 
 mixin summaryRow(itemCount)
-	- locals.summaryItemCount = itemCount;
-	- locals.summaryItemIndex = 0;
-	
-	- locals.colCounts = {"sm": 1, "md": Math.min(itemCount, 3), "lg": Math.min(itemCount, 4), "xl": Math.min(itemCount, 5)};
-	- locals.rowCountsArray = utils.objectProperties(locals.colCounts).map(x => [x, locals.colCounts[x]]).map(x => [x[0], (Math.floor(itemCount / x[1]) + ((itemCount % x[1] > 0) ? 1 : 0))]);
-	- locals.rowCounts = {};
-	- locals.rowCountsArray.forEach(x => locals.rowCounts[x[0]] = x[1]);
+  - locals.summaryItemCount = itemCount;
+  - locals.summaryItemIndex = 0;
 
-	//h1 #{itemCount} #{JSON.stringify(locals.rowCounts)}
+  - locals.colCounts = { sm: 1, md: Math.min(itemCount, 3), lg: Math.min(itemCount, 4), xl: Math.min(itemCount, 5) };
+  - locals.rowCountsArray = utils.objectProperties(locals.colCounts).map(x => [x, locals.colCounts[x]]).map(x => [x[0], (Math.floor(itemCount / x[1]) + ((itemCount % x[1] > 0) ? 1 : 0))]);
+  - locals.rowCounts = {};
+  - locals.rowCountsArray.forEach((x) => (locals.rowCounts[x[0]] = x[1]));
 
-	.row.row-cols-1.summary-row(class=utils.objectProperties(locals.colCounts).map(x => `row-cols-${x}-${locals.colCounts[x]}`).join(" "))
-		block
+  //h1 #{itemCount} #{JSON.stringify(locals.rowCounts)}
 
+  .row.row-cols-1.summary-row(
+    class=utils
+      .objectProperties(locals.colCounts)
+      .map((x) => `row-cols-${x}-${locals.colCounts[x]}`)
+      .join(" ")
+  )
+    block
 
 mixin summaryTitle(title, titleDesc, subtitle, subtitleDesc, linkText, linkUrl, linkDesc)
-	span.fs-6.text-uppercase.fw-light.text-card-highlight(class=(titleDesc ? "border-dotted" : false), class=(subtitle ? "me-2" : false), title=titleDesc, data-bs-toggle="tooltip", data-bs-html="true") #{title}
-	if (subtitle)
-		small.text-card-highlight.fw-light
-			| (
-			span(class=(subtitleDesc ? "border-dotted" : false), title=subtitleDesc, data-bs-toggle="tooltip", data-bs-html="true") #{subtitle}
-			| )
+  span.fs-6.text-uppercase.fw-light.text-card-highlight(
+    class=titleDesc ? "border-dotted" : false,
+    class=subtitle ? "me-2" : false,
+    title=titleDesc,
+    data-bs-toggle="tooltip",
+    data-bs-html="true"
+  ) #{ title }
+  if (subtitle)
+    small.text-card-highlight.fw-light
+      | (
+      span(
+        class=subtitleDesc ? "border-dotted" : false,
+        title=subtitleDesc,
+        data-bs-toggle="tooltip",
+        data-bs-html="true"
+      ) #{ subtitle }
+      | )
 
-	if (linkText && linkUrl)
-		if (linkText.startsWith("text:"))
-			a.ms-2.fs-75(href=linkUrl, data-bs-toggle="tooltip", title=linkDesc) #{linkText.substring("text:".length)}
+  if (linkText && linkUrl)
+    if (linkText.startsWith("text:"))
+      a.ms-2.fs-75(href=linkUrl, data-bs-toggle="tooltip", title=linkDesc) #{ linkText.substring("text:".length) }
 
-		else if (linkText.startsWith("icon:"))
-			small
-				a.ms-2(href=linkUrl, data-bs-toggle="tooltip", title=linkDesc)
-					i(class=linkText.substring("icon:".length))
-
+    else if (linkText.startsWith("icon:"))
+      small
+        a.ms-2(href=linkUrl, data-bs-toggle="tooltip", title=linkDesc)
+          i(class=linkText.substring("icon:".length))
 
 mixin summaryItem(title, titleDesc, subtitle, subtitleDesc, linkText, linkUrl, linkDesc)
-	- var rowIndexes = utils.objectProperties(locals.colCounts).map(x => [x, locals.colCounts[x]]).map(x => [x[0], Math.floor(locals.summaryItemIndex / x[1])]);
+  - var rowIndexes = utils.objectProperties(locals.colCounts).map(x => [x, locals.colCounts[x]]).map(x => [x[0], Math.floor(locals.summaryItemIndex / x[1])]);
 
-	.col(class=(locals.summaryItemIndex == (locals.summaryItemCount - 1) ? "mb-0" : "mb-3"), class=rowIndexes.map(x => `mb-${x[0]}-${(x[1] < (locals.rowCounts[x[0]] - 1) ? "4" : "0")}`))
-		//span.text-danger (#{JSON.stringify(locals.rowCounts)})
-		.text-start.text-md-center
-			+summaryTitle(title, titleDesc, subtitle, subtitleDesc, linkText, linkUrl, linkDesc)
-			
+  .col(
+    class=locals.summaryItemIndex == locals.summaryItemCount - 1 ? "mb-0" : "mb-3",
+    class=rowIndexes.map((x) => `mb-${x[0]}-${x[1] < locals.rowCounts[x[0]] - 1 ? "4" : "0"}`)
+  )
+    //span.text-danger (#{JSON.stringify(locals.rowCounts)})
+    .text-start.text-md-center
+      +summaryTitle(title, titleDesc, subtitle, subtitleDesc, linkText, linkUrl, linkDesc)
 
-		.lead.text-start.text-md-center
-			block
+    .lead.text-start.text-md-center
+      block
 
-	- locals.summaryItemIndex++;
-
+  - locals.summaryItemIndex++;
 
 mixin copyTextButton(text)
-	small.ms-2
-		if (false)
-			a(href="javascript:void(0)", title="Copy", data-clipboard-text=text, data-bs-toggle="tooltip", onclick=`copyTextToClipboard("${text}"); $(".icon-copy").toggle(); $(this).find(".icon-copied").toggle(); setTimeout(() => { $(this).find(".icon-copy").toggle(); $(this).find(".icon-copied").toggle(); }, 2000); return false;`)
-				i.bi-clipboard2.text-info.icon-copy
-				i.bi-clipboard2-check.text-success.icon-copied(style="display: none;")
+  small.ms-2
+    if (false)
+      a(
+        href="javascript:void(0)",
+        title="Copy",
+        data-clipboard-text=text,
+        data-bs-toggle="tooltip",
+        onclick=`copyTextToClipboard("${text}"); $(".icon-copy").toggle(); $(this).find(".icon-copied").toggle(); setTimeout(() => { $(this).find(".icon-copy").toggle(); $(this).find(".icon-copied").toggle(); }, 2000); return false;`
+      )
+        i.bi-clipboard2.text-info.icon-copy
+        i.bi-clipboard2-check.text-success.icon-copied(style="display: none")
 
-		a(href="javascript:void(0)", title="Copy", data-clipboard-text=text, data-bs-toggle="tooltip", onclick=`copyTextToClipboard("${text}"); $(this).attr("title", "Copied!").tooltip("_fixTitle").tooltip("show"); $(this).mouseleave(function() { $(this).tooltip("hide"); $(this).attr("data-bs-original-title", "Copy"); });`)
-			i.fas.fa-clipboard.text-info
-
+    a(
+      href="javascript:void(0)",
+      title="Copy",
+      data-clipboard-text=text,
+      data-bs-toggle="tooltip",
+      onclick=`copyTextToClipboard("${text}"); $(this).attr("title", "Copied!").tooltip("_fixTitle").tooltip("show"); $(this).mouseleave(function() { $(this).tooltip("hide"); $(this).attr("data-bs-original-title", "Copy"); });`
+    )
+      i.fas.fa-clipboard.text-info
 
 mixin card
-	.card.mb-3.shadow-sm
-		.card-body
-			block
-
+  .card.mb-3.shadow-sm
+    .card-body
+      block
 
 mixin modal(modalId, title, modalSizeClass="modal-xl")
-	.modal.fade.mt-6(id=modalId role="dialog" aria-hidden="true")
-		.modal-dialog(role="document", class=modalSizeClass)
-			.modal-content
-				.modal-header
-					h5.modal-title.fw-light #{title}
+  .modal.fade.mt-6(id=modalId, role="dialog", aria-hidden="true")
+    .modal-dialog(role="document", class=modalSizeClass)
+      .modal-content
+        .modal-header
+          h5.modal-title.fw-light #{ title }
 
-					button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+          button.btn-close(
+            type="button",
+            data-bs-dismiss="modal",
+            aria-label="Close"
+          )
 
-				.modal-body
-					block
+        .modal-body
+          block
 
-				.modal-footer
-					button.btn.btn-dark(type="button" data-bs-dismiss="modal") Close
-
-
+        .modal-footer
+          button.btn.btn-dark(type="button", data-bs-dismiss="modal") Close
 
 mixin filterList
-	.d-flex.flex-wrap.mb-n3
-		block
-
+  .d-flex.flex-wrap.mb-n3
+    block
 
 mixin filterItem(lastInList=false)
-	if (lastInList)
-		.mb-3
-			block
-	else
-		.mb-3.me-3
-			block
-
+  if (lastInList)
+    .mb-3
+      block
+  else
+    .mb-3.me-3
+      block
 
 mixin filterBtnGroup(label, labelSubtext, options, baseUrl, varName, varVal)
-	div
-		if (labelSubtext)
-			label.form-label.border-dotted(title=labelSubtext, data-bs-toggle="tooltip") #{label}
-		else
-			label.form-label #{label}
+  div
+    if (labelSubtext)
+      label.form-label.border-dotted(
+        title=labelSubtext,
+        data-bs-toggle="tooltip"
+      ) #{ label }
+    else
+      label.form-label #{ label }
 
-	.btn-group.me-2(role="group")
-		each opt in options
-			if (varVal != null && varVal == opt[1])
-				span.btn.btn-sm.btn-primary #{opt[0]}
-			else
-				a.btn.btn-sm.btn-light.border(href=`${baseUrl}&${varName}=${opt[1]}`) #{opt[0]}
-
+  .btn-group.me-2(role="group")
+    each opt in options
+      if (varVal != null && varVal == opt[1])
+        span.btn.btn-sm.btn-primary #{ opt[0] }
+      else
+        a.btn.btn-sm.btn-light.border(href=`${baseUrl}&${varName}=${opt[1]}`) #{ opt[0] }
 
 mixin menuHeading(text, hoverText)
-	if (hoverText)
-		h6.text-uppercase.text-primary.fs-90
-			span.border-dotted(title=hoverText, data-bs-toggle="tooltip") #{text}
-	else
-		h6.text-uppercase.text-primary.fs-90 #{text}
+  if (hoverText)
+    h6.text-uppercase.text-primary.fs-90
+      span.border-dotted(title=hoverText, data-bs-toggle="tooltip") #{ text }
+  else
+    h6.text-uppercase.text-primary.fs-90 #{ text }
 
 mixin pillBadge(text, colorClass, hoverText)
-	span.badge.rounded-pill.me-2(class=colorClass)
-		if (hoverText)
-			span.border-dotted(title=hoverText, data-bs-toggle="tooltip") #{text}
-		else
-			| #{text}
+  span.badge.rounded-pill.me-2(class=colorClass)
+    if (hoverText)
+      span.border-dotted(title=hoverText, data-bs-toggle="tooltip") #{ text }
+    else
+      | #{ text }
 
-		block
+    block
 
 mixin pillBadgeSuccess(text, hoverText)
-	+pillBadge(text, "text-bg-success", hoverText)
-		block
+  +pillBadge(text, "text-bg-success", hoverText)
+    block
 
 mixin pillBadgeInfo(text, hoverText)
-	+pillBadge(text, "text-bg-info", hoverText)
-		block
+  +pillBadge(text, "text-bg-info", hoverText)
+    block
 
 mixin pillBadgeWarning(text, hoverText)
-	+pillBadge(text, "text-bg-warning", hoverText)
-		block
+  +pillBadge(text, "text-bg-warning", hoverText)
+    block
 
 mixin pillBadgeDanger(text, hoverText)
-	+pillBadge(text, "text-bg-danger", hoverText)
-		block
+  +pillBadge(text, "text-bg-danger", hoverText)
+    block
 
 mixin pillBadgeLight(text, hoverText)
-	+pillBadge(text, "text-bg-light", hoverText)
-		block
-
+  +pillBadge(text, "text-bg-light", hoverText)
+    block
 
 mixin btcAddress(btc_address)
-	if (config.blockExplorerUrl)
-		a(href=`${config.blockExplorerUrl}/address/${btc_address}`, title=btc_address, data-bs-toggle="tooltip")
-			+btcAddressInternal(btc_address)
-	else
-		span(title=btc_address, data-bs-toggle="tooltip")
-			+btcAddressInternal(btc_address)
+  if (config.blockExplorerUrl)
+    a(
+      href=`${config.blockExplorerUrl}/address/${btc_address}`,
+      title=btc_address,
+      data-bs-toggle="tooltip"
+    )
+      +btcAddressInternal(btc_address)
+  else
+    span(title=btc_address, data-bs-toggle="tooltip")
+      +btcAddressInternal(btc_address)
 
 mixin btcAddressInternal(btc_address)
-	span.d-inline.d-xl-none #{utils.ellipsizeMiddle(btc_address, 12)}
-	span.d-none.d-xl-inline #{utils.ellipsizeMiddle(btc_address, config.site.addressMaxDisplayLength)}
-
+  span.d-inline.d-xl-none #{ utils.ellipsizeMiddle(btc_address, 12) }
+  span.d-none.d-xl-inline #{ utils.ellipsizeMiddle(btc_address, config.site.addressMaxDisplayLength) }
 
 mixin btcTxid(btc_txid, length=-1)
-	if (config.blockExplorerUrl)
-		a(href=`${config.blockExplorerUrl}/tx/${btc_txid}`, title=btc_txid, data-bs-toggle="tooltip")
-			+btcTxidInternal(btc_txid, length)
+  if (config.blockExplorerUrl)
+    a(
+      href=`${config.blockExplorerUrl}/tx/${btc_txid}`,
+      title=btc_txid,
+      data-bs-toggle="tooltip"
+    )
+      +btcTxidInternal(btc_txid, length)
 
-	else
-		span(title=btc_txid, data-bs-toggle="tooltip")
-			+btcTxidInternal(btc_txid, length)
+  else
+    span(title=btc_txid, data-bs-toggle="tooltip")
+      +btcTxidInternal(btc_txid, length)
 
 mixin btcTxidInternal(btc_txid, length=-1)
-	span.d-inline.d-xl-none #{utils.ellipsizeMiddle(btc_txid, length == -1 ? 12 : length)}
-	span.d-none.d-xl-inline #{utils.ellipsizeMiddle(btc_txid, length == -1 ? config.site.txidMaxDisplayLength : length)}
-
+  span.d-inline.d-xl-none #{ utils.ellipsizeMiddle(btc_txid, length == -1 ? 12 : length) }
+  span.d-none.d-xl-inline #{ utils.ellipsizeMiddle(btc_txid, length == -1 ? config.site.txidMaxDisplayLength : length) }
 
 mixin channelId(channel_id, isOpen=false)
-	if (isOpen)
-		a(href=`/channel/${channel_id}`)
-			+channelIdInternal(channel_id)
+  if (isOpen)
+    a(href=`/channel/${channel_id}`)
+      +channelIdInternal(channel_id)
+    +copyTextButton(channel_id)
 
-	else
-		span.border-dotted(title=channel_id, data-bs-toggle="tooltip")
-			+channelIdInternal(channel_id)
-		+copyTextButton(channel_id)
+  else
+    span.border-dotted(title=channel_id, data-bs-toggle="tooltip")
+      +channelIdInternal(channel_id)
+    +copyTextButton(channel_id)
 
-		span(title="Closed", data-bs-toggle="tooltip")
-			i.fas.fa-xmark.text-danger.ms-2
-
-
-	if (utils.isObjectStarred(`channel:${channel_id}`))
-		i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite channels" data-bs-toggle="tooltip")
+  if (utils.isObjectStarred(`channel:${channel_id}`))
+    i.fas.fa-star.text-warning.ms-1(
+      title="This is one of your favorite channels",
+      data-bs-toggle="tooltip"
+    )
 
 mixin channelIdInternal(channel_id)
-	span.d-inline.d-lg-none #{utils.ellipsizeMiddle(channel_id, 10)}
-	span.d-none.d-lg-inline #{utils.ellipsizeMiddle(channel_id, 12)}
-
+  span.d-inline.d-lg-none #{ utils.ellipsizeMiddle(channel_id, 10) }
+  span.d-none.d-lg-inline #{ utils.ellipsizeMiddle(channel_id, 12) }
 
 mixin channelPoint(txid, outputIndex, blockHeight)
-	+btcTxid(channelPointTxid, 8)
-	span.ms-1 [#{channelPointIndex}]
-	
-	
-	span.fs-80.text-muted.ms-2(title="Block height of this transaction", data-bs-toggle="tooltip") (
-		+blockHeight(blockHeight)
-		| )
+  +btcTxid(txid, 8)
+  span.ms-1 [#{ outputIndex }]
 
-
+  span.fs-80.text-muted.ms-2(
+    title="Block height of this transaction",
+    data-bs-toggle="tooltip"
+  ) (
+    +blockHeight(blockHeight)
+    | )
 
 mixin blockHeight(blockHeight)
-	if (config.blockExplorerUrl)
-		a(href=`${config.blockExplorerUrl}/block-height/${blockHeight}` target="_blank") #{blockHeight.toLocaleString()}
-	else
-		span #{blockHeight.toLocaleString()}
-
+  if (config.blockExplorerUrl)
+    a(
+      href=`${config.blockExplorerUrl}/block-height/${blockHeight}`,
+      target="_blank"
+    ) #{ blockHeight.toLocaleString() }
+  else
+    span #{ blockHeight.toLocaleString() }
 
 mixin netAddress(address, network, copyButton=false)
-	- let addr = address;
-	- let port = "";
+  - let addr = address;
+  - let port = "";
 
-	if (addr.includes(":"))
-		- port = addr.substring(addr.lastIndexOf(":") + 1);
-		- addr = addr.substring(0, addr.lastIndexOf(":"));
-		
-	if (addr.includes(".onion"))
-		span.border-dotted(title=`${network != null ? (network + " ") : ""}${address}`, data-bs-toggle="tooltip") #{utils.ellipsizeMiddle(addr.substring(0, addr.indexOf(".onion")), 10)}#{addr.substring(addr.indexOf(".onion"))}
+  if (addr.includes(":"))
+    - port = addr.substring(addr.lastIndexOf(":") + 1);
+    - addr = addr.substring(0, addr.lastIndexOf(":"));
 
-	else if (address.length > config.site.addressMaxDisplayLength)
-		span.border-dotted(title=`${network != null ? (network + " ") : ""}${address}`, data-bs-toggle="tooltip") #{utils.ellipsizeMiddle(addr, config.site.addressMaxDisplayLength)}
+  if (addr.includes(".onion"))
+    span.border-dotted(
+      title=`${network != null ? (network + " ") : ""}${address}`,
+      data-bs-toggle="tooltip"
+    ) #{ utils.ellipsizeMiddle(addr.substring(0, addr.indexOf(".onion")), 10) }#{ addr.substring(addr.indexOf(".onion")) }
 
-	else
-		if (network)
-			span.border-dotted(title=`${network} ${address}`, data-bs-toggle="tooltip") #{addr}
+  else if (address.length > config.site.addressMaxDisplayLength)
+    span.border-dotted(
+      title=`${network != null ? (network + " ") : ""}${address}`,
+      data-bs-toggle="tooltip"
+    ) #{ utils.ellipsizeMiddle(addr, config.site.addressMaxDisplayLength) }
 
-		else
-			| #{addr}
+  else
+    if (network)
+      span.border-dotted(
+        title=`${network} ${address}`,
+        data-bs-toggle="tooltip"
+      ) #{ addr }
 
-	if (port && port.length > 0)
-		span.text-tiny :#{port}
+    else
+      | #{ addr }
 
-	if (copyButton)
-		+copyTextButton(address)
+  if (port && port.length > 0)
+    span.text-tiny :#{ port }
 
+  if (copyButton)
+    +copyTextButton(address)
 
 mixin date(timestamp, formatType="human", includeAgo=false)
-	- var d1 = new Date();
-	- var d2 = new Date(parseInt(timestamp) * 1000);
-	- var timeAgo = moment.duration(moment.utc(d1).diff(moment.utc(d2)));
-	- var dateTimeUtc = moment.utc(new Date(parseInt(timestamp) * 1000)).format("Y-MM-DD HH:mm:ss");
+  - var d1 = new Date();
+  - var d2 = new Date(parseInt(timestamp) * 1000);
+  - var timeAgo = moment.duration(moment.utc(d1).diff(moment.utc(d2)));
+  - var dateTimeUtc = moment.utc(new Date(parseInt(timestamp) * 1000)).format("Y-MM-DD HH:mm:ss");
 
-	span.border-dotted(title=`${dateTimeUtc} utc`, data-bs-toggle="tooltip")
-		if (d1.getTime() < d2.getTime())
-			| +
+  span.border-dotted(title=`${dateTimeUtc} utc`, data-bs-toggle="tooltip")
+    if (d1.getTime() < d2.getTime())
+      | +
 
-		if (formatType == "human")
-			| #{timeAgo.humanize()}
+    if (formatType == "human")
+      | #{ timeAgo.humanize() }
 
-		else if (formatType == "detail")
-			| #{timeAgo.format()}
+    else if (formatType == "detail")
+      | #{ timeAgo.format() }
 
-		if (includeAgo)
-			span.ms-1 ago
-
+    if (includeAgo)
+      span.ms-1 ago
 
 mixin btcValue(value, currencyUnit="sat", formatType=null)
-	- let currencyValue = 0;
-	if (currencyUnit == "sat")
-		- currencyValue = new Decimal(value).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
-	else if (currencyUnit == "btc")
-		- currencyValue = new Decimal(value);
-	else if (currencyUnit == "msat")
-		- currencyValue = new Decimal(value).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
+  - let currencyValue = 0;
+  if (currencyUnit == "sat")
+    - currencyValue = new Decimal(value).dividedBy(coinConfig.baseCurrencyUnit.multiplier);
+  else if (currencyUnit == "btc")
+    - currencyValue = new Decimal(value);
+  else if (currencyUnit == "msat")
+    - currencyValue = new Decimal(value).dividedBy(coinConfig.currencyUnitsByName.msat.multiplier);
 
-
-	+valueDisplay(currencyValue, {displayCurrency:(formatType || displayCurrency), localCurrency:localCurrency})
-
-
+  +valueDisplay(currencyValue, {displayCurrency:(formatType || displayCurrency), localCurrency:localCurrency})
 
 mixin valueDisplay(val, options={})
-	- let displayCurrency = (options.displayCurrency || "btc").toLowerCase();
+  - let displayCurrency = (options.displayCurrency || "btc").toLowerCase();
 
-	if (val > 0)
-		if (displayCurrency == "btc")
-			+_valueDisplayBtc(val, options)
+  if (displayCurrency == "btc")
+    +_valueDisplayBtc(val, options)
 
-		else if (displayCurrency == "sat")
-			- let o2 = options;
-			- o2.summarizeMin = 1000000;
+  else if (displayCurrency == "sat")
+    - let o2 = options;
+    - o2.summarizeMin = 1000000;
 
-			+_valueDisplaySat(val, o2)
+    +_valueDisplaySat(val, o2)
 
-		else if (displayCurrency == "local")
-			- let o2 = options;
-			- o2.summarizeMin = 1000000;
+  else if (displayCurrency == "local")
+    - let o2 = options;
+    - o2.summarizeMin = 1000000;
 
-			+_valueDisplayLocal(val, o2)
+    +_valueDisplayLocal(val, o2)
 
-		else
-			if (val > 0)
-				- let parts = utils.formatCurrencyAmount(val, displayCurrency);
-				
-				span #{parts.val}
-					if (parts.lessSignificantDigits && !options.hideLessSignificantDigits)
-						span.text-small.text-darken.ms-1 #{parts.lessSignificantDigits}
+  else
+    - let parts = utils.formatCurrencyAmount(val, displayCurrency);
 
-				if (exchangeRates)
-					- let localCurFormatData = utils.getExchangedCurrencyFormatData(val, localCurrency);
+    span #{ parts.val }
+      if (parts.lessSignificantDigits && !options.hideLessSignificantDigits)
+        span.text-small.text-darken.ms-1 #{ parts.lessSignificantDigits }
 
-					span.xs-hidden.d-none.d-sm-inline.text-tiny.text-tight-spacing.border-dotted.fw-light.ms-1(data-bs-toggle="tooltip", title=`<span class="me-tiny">${localCurFormatData.symbol}</span><span>${localCurFormatData.value}</span>`, data-bs-html="true") #{parts.currencyUnit}
-						
-				else
-					span.xs-hidden.d-none.d-sm-inline.fs-80.text-tight-spacing.fw-light.ms-1 #{parts.currencyUnit}
-								
-					
-	else
-		span 0
+    if (exchangeRates)
+      - let localCurFormatData = utils.getExchangedCurrencyFormatData(val, localCurrency);
 
+      span.xs-hidden.d-none.d-sm-inline.text-tiny.text-tight-spacing.border-dotted.fw-light.ms-1(
+        data-bs-toggle="tooltip",
+        title=`<span class="me-tiny">${localCurFormatData.symbol}</span><span>${localCurFormatData.value}</span>`,
+        data-bs-html="true"
+      ) #{ parts.currencyUnit }
+
+    else
+      span.xs-hidden.d-none.d-sm-inline.fs-80.text-tight-spacing.fw-light.ms-1 #{ parts.currencyUnit }
 
 mixin _valueDisplayBtc(val, options={})
-	- let displayCurrency = (options.displayCurrency || "btc").toLowerCase();
-	- let localCurrency = (options.localCurrency || "usd").toLowerCase();
+  - let displayCurrency = (options.displayCurrency || "btc").toLowerCase();
+  - let localCurrency = (options.localCurrency || "usd").toLowerCase();
 
-	- let parts = utils.formatCurrencyAmount(val, displayCurrency);
+  - let parts = utils.formatCurrencyAmount(val, displayCurrency);
 
-	//span #{JSON.stringify(parts)}
+  //span #{JSON.stringify(parts)}
 
-	//span.d-inline.d-sm-none.fw-light.me-tiny ₿
-	
-	span #{parts.val}
-		if (parts.lessSignificantDigits && !options.hideLessSignificantDigits)
-			span.text-small.text-darken.ms-1 #{parts.lessSignificantDigits}
+  //span.d-inline.d-sm-none.fw-light.me-tiny ₿
 
-	if (exchangeRates)
-		- let localCurFormatData = utils.getExchangedCurrencyFormatData(val, localCurrency);
+  span #{ parts.val }
+    if (parts.lessSignificantDigits && !options.hideLessSignificantDigits)
+      span.text-small.text-darken.ms-1 #{ parts.lessSignificantDigits }
 
-		span.xs-hidden.d-none.d-sm-inline.text-tiny.text-tight-spacing.border-dotted.fw-light.ms-1(data-bs-toggle="tooltip", title=`<span class="me-tiny">${localCurFormatData.symbol}</span><span>${localCurFormatData.value}</span>`, data-bs-html="true") #{parts.currencyUnit}
-			
-	else
-		span.xs-hidden.d-none.d-sm-inline.fs-80.text-tight-spacing.fw-light.ms-1 #{parts.currencyUnit}
+  if (exchangeRates)
+    - let localCurFormatData = utils.getExchangedCurrencyFormatData(val, localCurrency);
 
+    span.xs-hidden.d-none.d-sm-inline.text-tiny.text-tight-spacing.border-dotted.fw-light.ms-1(
+      data-bs-toggle="tooltip",
+      title=`<span class="me-tiny">${localCurFormatData.symbol}</span><span>${localCurFormatData.value}</span>`,
+      data-bs-html="true"
+    ) #{ parts.currencyUnit }
+
+  else
+    span.xs-hidden.d-none.d-sm-inline.fs-80.text-tight-spacing.fw-light.ms-1 #{ parts.currencyUnit }
 
 mixin _valueDisplaySat(val, options={})
-	- let summarizeMin = (options.summarizeMin || Infinity);
-	- let summarizeDecimals = (options.summarizeDecimals || 3);
-	- let displayCurrency = (options.displayCurrency || "btc").toLowerCase();
-	- let localCurrency = (options.localCurrency || "usd").toLowerCase();
+  - let summarizeMin = options.summarizeMin || Infinity;
+  - let summarizeDecimals = options.summarizeDecimals || 3;
+  - let displayCurrency = (options.displayCurrency || "btc").toLowerCase();
+  - let localCurrency = (options.localCurrency || "usd").toLowerCase();
 
-	- let parts = utils.formatCurrencyAmount(val, localCurrencyDisplay ? localCurrency : displayCurrency);
+  - let parts = utils.formatCurrencyAmount(val, localCurrencyDisplay ? localCurrency : displayCurrency);
 
-	//span #{JSON.stringify(parts)}
-	
-	if (parts.intVal >= summarizeMin)
-		//span #{JSON.stringify(parts)}
-		- let largeNumberData = utils.formatLargeNumberSignificant(parts.intVal, summarizeDecimals >= 0 ? summarizeDecimals : 3);
-		//span #{JSON.stringify(largeNumberData)} #{parts.intVal}
-		span(title=parts.intVal.toLocaleString(), data-bs-toggle="tooltip") #{largeNumberData[0]}
-		span.ms-1 #{largeNumberData[1].textDesc}
-		
-	else
-		span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{parts.intVal.toLocaleString()}
+  //span #{JSON.stringify(parts)}
 
+  if (parts.intVal >= summarizeMin)
+    //span #{JSON.stringify(parts)}
+    - let largeNumberData = utils.formatLargeNumberSignificant(parts.intVal, summarizeDecimals >= 0 ? summarizeDecimals : 3);
+    //span #{JSON.stringify(largeNumberData)} #{parts.intVal}
+    span(title=parts.intVal.toLocaleString(), data-bs-toggle="tooltip") #{ largeNumberData[0] }
+    span.ms-1 #{ largeNumberData[1].textDesc }
 
-	if (exchangeRates)
-		- let localCurFormatData = utils.getExchangedCurrencyFormatData(val, localCurrency);
+  else
+    span(
+      class=localCurrencyDisplay ? "border-dotted" : false,
+      title=localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false,
+      data-bs-toggle=localCurrencyDisplay ? "tooltip" : false
+    ) #{ parts.val.toLocaleString() }
 
-		span.xs-hidden.d-none.d-sm-inline.text-tiny.text-tight-spacing.border-dotted.fw-light.ms-1(data-bs-toggle="tooltip", title=`<span class="me-tiny">${localCurFormatData.symbol}</span><span>${localCurFormatData.value}</span>`, data-bs-html="true") #{parts.currencyUnit}
-			
-	else
-		span.xs-hidden.d-none.d-sm-inline.text-tiny.text-tight-spacing.fw-light.ms-1 #{parts.currencyUnit}
+  if (exchangeRates)
+    - let localCurFormatData = utils.getExchangedCurrencyFormatData(val, localCurrency);
 
+    span.xs-hidden.d-none.d-sm-inline.text-tiny.text-tight-spacing.border-dotted.fw-light.ms-1(
+      data-bs-toggle="tooltip",
+      title=`<span class="me-tiny">${localCurFormatData.symbol}</span><span>${localCurFormatData.value}</span>`,
+      data-bs-html="true"
+    ) #{ parts.currencyUnit }
+
+  else
+    span.xs-hidden.d-none.d-sm-inline.text-tiny.text-tight-spacing.fw-light.ms-1 #{ parts.currencyUnit }
 
 mixin _valueDisplayLocal(val, options={})
-	- let summarizeMin = (options.summarizeMin || Infinity);
-	- let summarizeDecimals = (options.summarizeDecimals || 3);
-	- let displayCurrency = (options.displayCurrency || "BTC").toLowerCase();
-	- let localCurrency = (options.localCurrency || "USD").toLowerCase();
+  - let summarizeMin = options.summarizeMin || Infinity;
+  - let summarizeDecimals = options.summarizeDecimals || 3;
+  - let displayCurrency = (options.displayCurrency || "BTC").toLowerCase();
+  - let localCurrency = (options.localCurrency || "USD").toLowerCase();
 
-	- let localCurrencyDisplay = (displayCurrency == "local");
+  - let localCurrencyDisplay = displayCurrency == "local";
 
-	- let parts = utils.formatCurrencyAmount(val, localCurrency);
+  - let parts = utils.formatCurrencyAmount(val, localCurrency);
 
-	//span #{JSON.stringify(parts)}
-	span.fw-light.me-tiny #{global.currencySymbols[localCurrency]}
+  //span #{JSON.stringify(parts)}
+  span.fw-light.me-tiny #{ global.currencySymbols[localCurrency] }
 
-	if (parts.intVal >= summarizeMin)
-		- let largeNumberData = utils.formatLargeNumberSignificant(parts.intVal, summarizeDecimals >= 0 ? summarizeDecimals : 3);
-		//span #{JSON.stringify(largeNumberData)} #{parts.intVal}
-		span.border-dotted(title=`${global.currencySymbols[localCurrency]}${parts.intVal.toLocaleString()}<br/>${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC`, data-bs-toggle="tooltip", data-bs-html="true")
-			span #{largeNumberData[0]}
-			span.ms-1 #{largeNumberData[1].textDesc}
+  if (parts.intVal >= summarizeMin)
+    - let largeNumberData = utils.formatLargeNumberSignificant(parts.intVal, summarizeDecimals >= 0 ? summarizeDecimals : 3);
+    //span #{JSON.stringify(largeNumberData)} #{parts.intVal}
+    span.border-dotted(
+      title=`${global.currencySymbols[localCurrency]}${parts.intVal.toLocaleString()}<br/>${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC`,
+      data-bs-toggle="tooltip",
+      data-bs-html="true"
+    )
+      span #{ largeNumberData[0] }
+      span.ms-1 #{ largeNumberData[1].textDesc }
 
-	else
-		span.border-dotted(title=`${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC`, data-bs-toggle="tooltip") #{parts.val}
-	
+  else
+    span.border-dotted(
+      title=`${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC`,
+      data-bs-toggle="tooltip"
+    ) #{ parts.val.toLocaleString() }
 
 mixin valueDisplaySpecial(val, maxDecimals=-1, summarizeAlways=false, summarizeMin=Infinity, summarizeDecimals=-1)
-	if (maxDecimals == -1 && summarizeAlways == false && summarizeMin == undefined)
-		+valueDisplay(val)
+  if (maxDecimals == -1 && summarizeAlways == false && summarizeMin == undefined)
+    +valueDisplay(val)
 
-	else
-		if (val > 0)
-			- var localCurrencyDisplay = userSettings.displayCurrency == "local";
+  else
+    if (val > 0)
+      - var localCurrencyDisplay = userSettings.displayCurrency == "local";
 
-			if (maxDecimals > 0)
-				- var parts = utils.formatCurrencyAmountWithForcedDecimalPlaces(val, localCurrencyDisplay ? userSettings.localCurrency : userSettings.displayCurrency, maxDecimals);
+      if (maxDecimals > 0)
+        - var parts = utils.formatCurrencyAmountWithForcedDecimalPlaces(val, localCurrencyDisplay ? userSettings.localCurrency : userSettings.displayCurrency, maxDecimals);
 
-			else
-				- var parts = utils.formatCurrencyAmount(val, localCurrencyDisplay ? userSettings.localCurrency : userSettings.displayCurrency);
+      else
+        - var parts = utils.formatCurrencyAmount(val, localCurrencyDisplay ? userSettings.localCurrency : userSettings.displayCurrency);
 
-			//span #{JSON.stringify(parts)}
-			if (localCurrencyDisplay)
-				span.me-1 #{global.currencySymbols[userSettings.localCurrency]}
-				//| #{JSON.stringify(parts)}
+      //span #{JSON.stringify(parts)}
+      if (localCurrencyDisplay)
+        span.me-1 #{ global.currencySymbols[userSettings.localCurrency] }
+        //| #{JSON.stringify(parts)}
 
-			if (summarizeAlways || parts.intVal >= summarizeMin)
-				//span #{JSON.stringify(parts)}
-				- var largeNumberData = utils.formatLargeNumberSignificant(parts.intVal, summarizeDecimals >= 0 ? summarizeDecimals : 2);
-				//span #{JSON.stringify(largeNumberData)} #{parts.intVal}
-				span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{largeNumberData[0]} #{largeNumberData[1].textDesc}
-			
-			else if (maxDecimals == 0)
-				span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{parts.intVal.toLocaleString()}
+      if (summarizeAlways || parts.intVal >= summarizeMin)
+        //span #{JSON.stringify(parts)}
+        - var largeNumberData = utils.formatLargeNumberSignificant(parts.intVal, summarizeDecimals >= 0 ? summarizeDecimals : 2);
+        //span #{JSON.stringify(largeNumberData)} #{parts.intVal}
+        span(
+          class=localCurrencyDisplay ? "border-dotted" : false,
+          title=localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false,
+          data-bs-toggle=localCurrencyDisplay ? "tooltip" : false
+        ) #{ largeNumberData[0] } #{ largeNumberData[1].textDesc }
 
-			else if (maxDecimals > 0)
-				span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{parts.val}
-			
-			else
-				span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{parts.val}
-					if (parts.lessSignificantDigits)
-						span.text-small.text-muted.ms-1 #{parts.lessSignificantDigits}
+      else if (maxDecimals == 0)
+        span(
+          class=localCurrencyDisplay ? "border-dotted" : false,
+          title=localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false,
+          data-bs-toggle=localCurrencyDisplay ? "tooltip" : false
+        ) #{ parts.intVal.toLocaleString() }
 
-			if (userSettings.displayCurrency != "local")
-				if (exchangeRates)
-					- var localCurFormatData = utils.getExchangedCurrencyFormatData(val, userSettings.localCurrency);
+      else if (maxDecimals > 0)
+        span(
+          class=localCurrencyDisplay ? "border-dotted" : false,
+          title=localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false,
+          data-bs-toggle=localCurrencyDisplay ? "tooltip" : false
+        ) #{ parts.val }
 
-					span.text-tiny.text-tight-spacing.border-dotted.fw-light.ms-1(data-bs-toggle="tooltip", title=`<span class="me-tiny">${localCurFormatData.symbol}</span><span>${localCurFormatData.value}</span>`, data-bs-html="true") #{parts.currencyUnit}
-						
-				else
-					span.text-tiny.text-tight-spacing.fw-light.ms-1 #{parts.currencyUnit}
-						
-			else if (userSettings.displayCurrency == "local")
-					
-		else
-			span 0
+      else
+        span(
+          class=localCurrencyDisplay ? "border-dotted" : false,
+          title=localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false,
+          data-bs-toggle=localCurrencyDisplay ? "tooltip" : false
+        ) #{ parts.val }
+          if (parts.lessSignificantDigits)
+            span.text-small.text-muted.ms-1 #{ parts.lessSignificantDigits }
 
+      if (userSettings.displayCurrency != "local")
+        if (exchangeRates)
+          - var localCurFormatData = utils.getExchangedCurrencyFormatData(val, userSettings.localCurrency);
 
+          span.text-tiny.text-tight-spacing.border-dotted.fw-light.ms-1(
+            data-bs-toggle="tooltip",
+            title=`<span class="me-tiny">${localCurFormatData.symbol}</span><span>${localCurFormatData.value}</span>`,
+            data-bs-html="true"
+          ) #{ parts.currencyUnit }
+
+        else
+          span.text-tiny.text-tight-spacing.fw-light.ms-1 #{ parts.currencyUnit }
+
+      else if (userSettings.displayCurrency == "local")
+
+    else
+      span 0
 
 mixin progressBar(rawValues, colorClasses, height="15px", textInBar=true)
-	- let ratioValues = [];
+  - let ratioValues = [];
 
-	- let total = new Decimal(0);
-	each rawValue in rawValues
-		- total = total.plus(rawValue);
+  - let total = new Decimal(0);
+  each rawValue in rawValues
+    - total = total.plus(rawValue);
 
-	each rawValue in rawValues
-		- ratioValues.push(rawValue.dividedBy(total));
+  each rawValue in rawValues
+    if (rawValue == 0)
+      - ratioValues.push(rawValue);
+    else
+      - ratioValues.push(rawValue.dividedBy(total));
 
-	.progress.mb-2(style=`height: ${height};`)
-		each ratioValue, valueIndex in ratioValues
-			.progress-bar.fs-90(class=colorClasses[valueIndex], role="progressbar", style=`width: ${ratioValue.times(100).toDP(0)}%;`, aria-valuenow=`${ratioValue.times(100).toDP(0)}`, aria-valuemin="0", aria-valuemax="100")
-				if (textInBar)
-					| #{ratioValue.times(100).toDP(1)}%
-
-
+  .progress.mb-2(style=`height: ${height};`)
+    each ratioValue, valueIndex in ratioValues
+      .progress-bar.fs-90(
+        class=colorClasses[valueIndex],
+        role="progressbar",
+        style=`width: ${ratioValue.times(100).toDP(0)}%;`,
+        aria-valuenow=`${ratioValue.times(100).toDP(0)}`,
+        aria-valuemin="0",
+        aria-valuemax="100"
+      )
+        if (textInBar)
+          | #{ ratioValue.times(100).toDP(1) }%
 
 mixin pageTabs(names, bottomGradient=true)
-	ul.nav.nav-tabs#page-tabs
-		each name, nameIndex in names
-			- let normalizedName = name.replaceAll(" ", "-").replaceAll(/[^a-zA-Z\d\s]/g, "");
+  ul#page-tabs.nav.nav-tabs
+    each name, nameIndex in names
+      - let normalizedName = name.replaceAll(" ", "-").replaceAll(/[^a-zA-Z\d\s]/g, "");
 
-			li.nav-item.page-tab(class=(nameIndex == 0 ? "ms-3" : false))
-				a.nav-link(class=(nameIndex == 0 ? "active" : false), data-bs-toggle="tab", data-default-tab=(nameIndex == 0 ? "true" : false) href=`#${normalizedName}`, role="tab") #{name}
+      li.nav-item.page-tab(class=nameIndex == 0 ? "ms-3" : false)
+        a.nav-link(
+          class=nameIndex == 0 ? "active" : false,
+          data-bs-toggle="tab",
+          data-default-tab=nameIndex == 0 ? "true" : false,
+          href=`#${normalizedName}`,
+          role="tab"
+        ) #{ name }
 
-	if (bottomGradient)
-		.bg-gradient-body-to-main.pb-4.mb-2
+  if (bottomGradient)
+    .bg-gradient-body-to-main.pb-4.mb-2
 
-	else
-		.pb-4.mb-2
+  else
+    .pb-4.mb-2
 
 mixin pillTabs(names)
-	ul.nav.nav-pills.mb-3
-		each name, nameIndex in names
-			li.nav-item
-				a.nav-link(class=(nameIndex == 0 ? "active" : false), data-bs-toggle="tab", href=`#${name.replaceAll(" ", "-")}`, role="tab") #{name}
-
+  ul.nav.nav-pills.mb-3
+    each name, nameIndex in names
+      li.nav-item
+        a.nav-link(
+          class=nameIndex == 0 ? "active" : false,
+          data-bs-toggle="tab",
+          href=`#${name.replaceAll(" ", "-")}`,
+          role="tab"
+        ) #{ name }
 
 mixin pageTab(name, defaultActive=false)
-	- let normalizedName = name.replaceAll(" ", "-").replaceAll(/[^a-zA-Z\d\s]/g, "");
+  - let normalizedName = name.replaceAll(" ", "-").replaceAll(/[^a-zA-Z\d\s]/g, "");
 
-	.tab-pane(id=`${normalizedName}`, class=(defaultActive ? "active" : false), role="tabpanel")
-		block
-
-
+  .tab-pane(id=`${normalizedName}`, class=defaultActive ? "active" : false, role="tabpanel")
+    block
 
 mixin nodePubkey(node_pubkey, style="normal")
-	- let cutoffs = (style == "compact") ? [8, 10, 16] : [10, 12, config.site.pubkeyMaxDisplayLength];
+  - let cutoffs = style == "compact" ? [8, 10, 16] : [10, 12, config.site.pubkeyMaxDisplayLength];
 
-	span.d-inline.d-md-none #{utils.ellipsizeMiddle(node_pubkey, cutoffs[0])}
-	span.d-none.d-lg-inline.d-xxl-none #{utils.ellipsizeMiddle(node_pubkey, cutoffs[1])}
-	span.d-none.d-xxl-inline #{utils.ellipsizeMiddle(node_pubkey, cutoffs[2])}
-
-
+  span.d-inline.d-md-none #{ utils.ellipsizeMiddle(node_pubkey, cutoffs[0]) }
+  span.d-none.d-lg-inline.d-xxl-none #{ utils.ellipsizeMiddle(node_pubkey, cutoffs[1]) }
+  span.d-none.d-xxl-inline #{ utils.ellipsizeMiddle(node_pubkey, cutoffs[2]) }
 
 mixin nodeIcon(node_pubkey, node_icon_size)
-	- let icon_size = "2.75rem";
+  - let icon_size = "2.75rem";
 
-	if (node_icon_size == "normal")
-		- icon_size = "2.75rem";
-	
-	else if (node_icon_size == "compact")
-		- icon_size = "2rem";
+  if (node_icon_size == "normal")
+    - icon_size = "2.75rem";
 
-	else
-		- icon_size = node_icon_size;
+  else if (node_icon_size == "compact")
+    - icon_size = "2rem";
 
-	//- var hsl = utils.colorHexToHsl(fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.color);
+  else
+    - icon_size = node_icon_size;
 
-	- var node_icon_color = "#000000";
-	if (fullNetworkDescription && fullNetworkDescription.nodeInfoByPubkey[node_pubkey])
-		- var node_icon_color = fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.color;
+  //- var hsl = utils.colorHexToHsl(fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.color);
 
-	.node-color-circle-wrapper
-		.node-color-circle-outer(style=("background-color: " +  node_icon_color + "; width: " + icon_size + "; height: " + icon_size + ";"))
-			.node-color-circle-inner(style="background-color: white;")
-				svg.node-icon(data-jdenticon-value=node_pubkey)
+  - var node_icon_color = "#000000";
+  if (fullNetworkDescription && fullNetworkDescription.nodeInfoByPubkey[node_pubkey])
+    - var node_icon_color = fullNetworkDescription.nodeInfoByPubkey[node_pubkey].node.color;
 
-
+  .node-color-circle-wrapper
+    .node-color-circle-outer(
+      style="background-color: " + node_icon_color + "; width: " + icon_size + "; height: " + icon_size + ";"
+    )
+      .node-color-circle-inner(style="background-color: white")
+        svg.node-icon(data-jdenticon-value=node_pubkey)
 
 mixin nodeColorSwatch(node_color)
-	- var hsl = utils.colorHexToHsl(node_color);
+  - var hsl = utils.colorHexToHsl(node_color);
+  - const style = `display: inline-block; width: min-content; height: min-content; margin-right: 5px !important; padding: 0; padding-inline: 0.1em; margin: 0; border-radius: 0.2em; background: ${node_color};`;
 
-	if (hsl.s < 0.1)
-		div(style=("display: inline-block; width: 2em; height: 1.25em; margin-bottom: -4px !important; margin-right: 5px !important; padding: 0; margin: 0; border-radius: 0.2em; border: solid 1px #aaa; background: " + node_color), title=node_color, data-bs-toggle="tooltip")
-
-	else
-		div(style=("display: inline-block; width: 2em; height: 1.25em; margin-bottom: -4px !important; margin-right: 5px !important; padding: 0; margin: 0; border-radius: 0.2em; background: " + node_color), title=node_color, data-bs-toggle="tooltip")
-
-
+  if (hsl.l <= 0.1)
+    div(
+      style=style + "border: solid 1px #aaa;",
+      title=node_color,
+      data-bs-toggle="tooltip"
+    ) #{ node_color }
+  else if (hsl.l >= 0.5)
+    div(style=style + "color: #000;") #{ node_color }
+  else
+    div(style=style, title=node_color, data-bs-toggle="tooltip") #{ node_color }
 
 mixin nodeAlias(node_alias, style="normal")
-	- var cutoffs = (style == "normal") ? [12, 16] : [10, 14];
-	- var aliasChars = runes(node_alias);
+  - var cutoffs = style == "normal" ? [12, 16] : [10, 14];
+  - var aliasChars = runes(node_alias);
 
-	span.fst-italic
-		if (aliasChars.length > 0)
-			if (aliasChars.length > cutoffs[0])
-				if (aliasChars.length > cutoffs[1])
-					if (aliasChars.length > config.site.aliasMaxDisplayLength)
-						span.border-dotted(title=node_alias, data-bs-toggle="tooltip")
-							span #{aliasChars.slice(0, cutoffs[0]).join("")}
-							span.d-none.d-lg-inline #{aliasChars.slice(cutoffs[0], cutoffs[1]).join("")}
-							span.d-none.d-xl-inline #{aliasChars.slice(cutoffs[1], config.site.aliasMaxDisplayLength).join("")}
-							span …
+  span.fst-italic
+    if (aliasChars.length > 0)
+      if (aliasChars.length > cutoffs[0])
+        if (aliasChars.length > cutoffs[1])
+          if (aliasChars.length > config.site.aliasMaxDisplayLength)
+            span.border-dotted(title=node_alias, data-bs-toggle="tooltip")
+              span #{ aliasChars.slice(0, cutoffs[0]).join("") }
+              span.d-none.d-lg-inline #{ aliasChars.slice(cutoffs[0], cutoffs[1]).join("") }
+              span.d-none.d-xl-inline #{ aliasChars.slice(cutoffs[1], config.site.aliasMaxDisplayLength).join("") }
+              span …
 
-					else
-						span #{aliasChars.slice(0, cutoffs[0]).join("")}
-						span.d-none.d-lg-inline #{aliasChars.slice(cutoffs[0], cutoffs[1]).join("")}
-						span.d-none.d-xl-inline #{aliasChars.slice(cutoffs[1]).join("")}
-				else
-					span #{aliasChars.slice(0, cutoffs[0]).join("")}
-					span.d-none.d-lg-inline #{aliasChars.slice(cutoffs[0]).join("")}
-			else
-				span #{node_alias}
-			
-		else
-			span -
-	
+          else
+            span #{ aliasChars.slice(0, cutoffs[0]).join("") }
+            span.d-none.d-lg-inline #{ aliasChars.slice(cutoffs[0], cutoffs[1]).join("") }
+            span.d-none.d-xl-inline #{ aliasChars.slice(cutoffs[1]).join("") }
+        else
+          span #{ aliasChars.slice(0, cutoffs[0]).join("") }
+          span.d-none.d-lg-inline #{ aliasChars.slice(cutoffs[0]).join("") }
+      else
+        span #{ node_alias }
 
+    else
+      span -
 
 mixin nodeCard(card_node_pubkey, options={})
-	- let showIcons = options.icons || true;
-	- let style = options.style || "normal";
+  - let showIcons = options.icons || true;
+  - let style = options.style || "normal";
 
-	if (fullNetworkDescription && fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey])
-		- var card_node = {pubkey:card_node_pubkey, alias:fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey].node.alias, color:fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey].node.color};
+  if (fullNetworkDescription && fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey])
+    - var card_node = { pubkey: card_node_pubkey, alias: fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey].node.alias, color: fullNetworkDescription.nodeInfoByPubkey[card_node_pubkey].node.color };
 
+  .d-flex.flex-row
+    .me-2
+      +nodeIcon(card_node_pubkey, style)
 
-	.d-flex.flex-row
-		.me-2
-			+nodeIcon(card_node_pubkey, style)
+    div
+      if (card_node)
+        a(href=`/node/${card_node.pubkey}`)
+          +nodePubkey(card_node.pubkey, style)
 
-		div
-			if (card_node)
-				a(href=`/node/${card_node.pubkey}`)
-					+nodePubkey(card_node.pubkey, style)
+        if (showIcons && utils.isObjectStarred(`node:${card_node.pubkey}`))
+          i.fas.fa-star.text-warning.ms-1(
+            title="This is one of your favorite nodes",
+            data-bs-toggle="tooltip"
+          )
 
-				if (showIcons && utils.isObjectStarred(`node:${card_node.pubkey}`))
-					i.fas.fa-star.text-warning.ms-1(title="This is one of your favorite nodes" data-bs-toggle="tooltip")
-				
-				br
+        br
 
-				+nodeAlias(card_node.alias, style)
+        +nodeAlias(card_node.alias, style)
 
-				if (global.localChannelPeerPubkeys.includes(card_node_pubkey))
-					span(title="You have at least one channel with this node", data-bs-toggle="tooltip")
-						i.fas.fa-exchange-alt.text-success.ms-2
+        if (global.localChannelPeerPubkeys.includes(card_node_pubkey))
+          span(
+            title="You have at least one channel with this node",
+            data-bs-toggle="tooltip"
+          )
+            i.fas.fa-exchange-alt.text-success.ms-2
 
-				if (showIcons && card_node.pubkey == lndRpc.internal_pubkey)
-					span(title="This is your LND Node" data-bs-toggle="tooltip")
-						i.fa.fa-certificate.ms-2.text-primary
+        if (showIcons && card_node.pubkey == lndRpc.internal_pubkey)
+          span(title="This is your LND Node", data-bs-toggle="tooltip")
+            i.fas.fa-home.fa-sm.text-primary.ms-3
 
-			else
-				a(href=`/node/${card_node_pubkey}`, title=card_node_pubkey, data-bs-toggle="tooltip")
-					+nodePubkey(card_node_pubkey, style)
+      else
+        span(title=card_node_pubkey, data-bs-toggle="tooltip")
+          +nodePubkey(card_node_pubkey, style)
 
-				br
+        br
 
-				span.text-danger.border-dotted(title="Details for this node's public key seem to be unavailable." data-bs-toggle="tooltip") Unknown Node
+        span.text-danger.border-dotted(
+          title="Details for this node's public key seem to be unavailable.",
+          data-bs-toggle="tooltip"
+        ) Unknown Node
 
-	- card_node_pubkey = null;
-	- card_node = null;
-
-
+  - card_node_pubkey = null;
+  - card_node = null;
 
 mixin pagination(itemCount, limit, offset, baseUrl)
-	if (itemCount > limit)
-		- let pageNumber = offset / limit + 1;
-		- let pageCount = Math.floor(itemCount / limit);
-		
-		- if (pageCount * limit < itemCount) {
-			- pageCount++;
-		- }
+  if (itemCount > limit)
+    - let pageNumber = offset / limit + 1;
+    - let pageCount = Math.floor(itemCount / limit);
 
-		- let paginationUrlFunction = function(x) {
-			- return baseUrl + `&limit=${limit}&offset=${((x - 1) * limit)}`;
-		- }
-		
-		.mt-2.mb-0
-			- var pageNumbers = [];
-			- for (var x = 1; x <= pageCount; x++) {
-				- pageNumbers.push(x);
-			- }
+    - if (pageCount * limit < itemCount) {
+      - pageCount++;
+    - }
 
-			nav(aria-label="Page navigation")
-				ul.pagination.mb-0
-					li.page-item(class=(pageNumber == 1 ? "disabled" : false))
-						a.page-link(href=(pageNumber == 1 ? "javascript:void(0)" : paginationUrlFunction(pageNumber - 1)), aria-label="Previous")
-							span(aria-hidden="true") &laquo;
+    - let paginationUrlFunction = function(x) {
+      - return baseUrl + `&limit=${limit}&offset=${(x - 1) * limit}`;
+    - }
 
-					each x, xIndex in pageNumbers
-						if (x >= (pageNumber - 4) && x <= (pageNumber + 4) || xIndex == 0 || xIndex == (pageNumbers.length - 1))
-							li.page-item(class=(x == pageNumber ? "active" : false))
-								a.page-link(href=(paginationUrlFunction(x))) #{x}
+    .mt-2.mb-0
+      - var pageNumbers = [];
+      - for (var x = 1; x <= pageCount; x++) {
+        - pageNumbers.push(x);
+      - }
 
-							if (x == 1 && pageNumber > 6)
-								li.page-item.disabled
-									a.page-link(href="javascript:void(0)") ...
+      nav(aria-label="Page navigation")
+        ul.pagination.mb-0
+          li.page-item(class=pageNumber == 1 ? "disabled" : false)
+            a.page-link(
+              href=pageNumber == 1 ? "javascript:void(0)" : paginationUrlFunction(pageNumber - 1),
+              aria-label="Previous"
+            )
+              span(aria-hidden="true") &laquo;
 
-						else if (x == (pageCount - 1) && pageNumber < (pageCount - 5))
-							li.page-item.disabled
-								a.page-link(href="javascript:void(0)") ...
-						
-					li.page-item(class=(pageNumber == pageCount ? "disabled" : false))
-						a.page-link(href=(pageNumber == pageCount ? "javascript:void(0)" : paginationUrlFunction(pageNumber + 1)), aria-label="Next")
-							span(aria-hidden="true") &raquo;
+          each x, xIndex in pageNumbers
+            if (x >= (pageNumber - 4) && x <= (pageNumber + 4) || xIndex == 0 || xIndex == (pageNumbers.length - 1))
+              li.page-item(class=x == pageNumber ? "active" : false)
+                a.page-link(href=paginationUrlFunction(x)) #{ x }
 
+              if (x == 1 && pageNumber > 6)
+                li.page-item.disabled
+                  a.page-link(href="javascript:void(0)") ...
 
+            else if (x == (pageCount - 1) && pageNumber < (pageCount - 5))
+              li.page-item.disabled
+                a.page-link(href="javascript:void(0)") ...
 
+          li.page-item(class=pageNumber == pageCount ? "disabled" : false)
+            a.page-link(
+              href=pageNumber == pageCount ? "javascript:void(0)" : paginationUrlFunction(pageNumber + 1),
+              aria-label="Next"
+            )
+              span(aria-hidden="true") &raquo;

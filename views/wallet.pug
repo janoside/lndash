@@ -1,254 +1,261 @@
 extends layout
 
 block headContent
-	title My Wallet
+  title My Wallet
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item My Node
-	li.breadcrumb-item My Wallet
-	
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item My Node
+  li.breadcrumb-item My Wallet
+
 block content
-	if (!session.admin)
-		+pageTitle("My Wallet")
-		
+  if (!session.admin)
+    +pageTitle("My Wallet")
 
-		- var loginRequiredNote = "display details about this node's wallet.";
-		include includes/login-required-alert.pug
+    - var loginRequiredNote = "display details about this node's wallet.";
+    include includes/login-required-alert.pug
 
-	else
+  else
+    +pageTitle("My Wallet")
 
-		+pageTitle("My Wallet")
+    - var unconfirmedTxCount = 0;
+    each tx, index in onChainTransactions.transactions
+      if (tx.num_confirmations == 0)
+        - unconfirmedTxCount++;
 
+    - var confirmedTxCount = onChainTransactions.transactions.length - unconfirmedTxCount;
 
-		- var unconfirmedTxCount = 0;
-		each tx, index in onChainTransactions.transactions
-			if (tx.num_confirmations == 0)
-				- unconfirmedTxCount++;
+    +contentSection("Summary")
+      +summaryRow(3 + ((walletBalance && walletBalance.unconfirmed_balance > 0) ? 1 : 0))
+        +summaryItem("Balance", "The value in your wallet that's not currently committed to any payment channels.")
+          if (walletBalance)
+            +btcValue(walletBalance.confirmed_balance)
 
-		- var confirmedTxCount = (onChainTransactions.transactions.length - unconfirmedTxCount);
+          else
+            span.border-dotted.text-warning(
+              title="Failed to get wallet balance. See the Error Log for possible details.",
+              data-bs-toggle="tooltip"
+            ) Unknown
 
-		+contentSection("Summary")
-			+summaryRow(3 + ((walletBalance && walletBalance.unconfirmed_balance > 0) ? 1 : 0))
+        if (walletBalance && walletBalance.unconfirmed_balance > 0)
+          +summaryItem("Unconfirmed Balance", "The value in your wallet that's unconfirmed on the blockchain.")
+            +btcValue(walletBalance.unconfirmed_balance)
 
-				+summaryItem("Balance", "The value in your wallet that's not currently committed to any payment channels.")
-					if (walletBalance)
-						+btcValue(walletBalance.confirmed_balance)
+        +summaryItem("UTXOs", "Number of unspent transaction outputs.")
+          if (walletUtxosResponse)
+            span #{ walletUtxosResponse.utxos.length.toLocaleString() }
 
-					else
-						span.border-dotted.text-warning(title="Failed to get wallet balance. See the Error Log for possible details." data-bs-toggle="tooltip") Unknown
+          else
+            span.border-dotted.text-warning(
+              title="Failed to get wallet UTXOs. See the Error Log for possible details.",
+              data-bs-toggle="tooltip"
+            ) Unknown
 
+        +summaryItem("Transactions")
+          | #{ confirmedTxCount.toLocaleString() }
 
-				if (walletBalance && walletBalance.unconfirmed_balance > 0)
-					+summaryItem("Unconfirmed Balance", "The value in your wallet that's unconfirmed on the blockchain.")
-						+btcValue(walletBalance.unconfirmed_balance)
+    +contentSection("Tools")
+      a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(
+        href="javascript:void(0)",
+        data-bs-toggle="modal",
+        data-bs-target="#newDepositAddressModal"
+      )
+        i.fas.fa-qrcode.me-2
+        span New Deposit Address...
+      a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(
+        href="javascript:void(0)",
+        data-bs-toggle="modal",
+        data-bs-target="#withdrawFundsModal"
+      )
+        i.fas.fa-external-link-alt.me-2
+        span Withdraw Funds...
 
+    if (false)
+      pre
+        code.json.bg-light #{ JSON.stringify(walletUtxosResponse, null, 4) }
 
-				+summaryItem("UTXOs", "Number of unspent transaction outputs.")
-					if (walletUtxosResponse)
-						span #{walletUtxosResponse.utxos.length.toLocaleString()}
+    if (walletUtxosResponse && walletUtxosResponse.utxos && walletUtxosResponse.utxos.length > 0)
+      +contentSection(`${walletUtxosResponse.utxos.length.toLocaleString()} UTXO${walletUtxosResponse.utxos.length == 1 ? "" : "s"}`)
+        each utxo, utxoIndex in walletUtxosResponse.utxos
+          - delete utxo.outpoint.txid_bytes;
 
-					else
-						span.border-dotted.text-warning(title="Failed to get wallet UTXOs. See the Error Log for possible details." data-bs-toggle="tooltip") Unknown
+          +modal("utxoModal-" + utxoIndex, `UTXO #${(utxoIndex + 1).toLocaleString()}`)
+            pre
+              code.json #{ JSON.stringify(utxo, null, 4) }
 
+        .table-responsive
+          table.table.table-striped
+            thead
+              tr
+                th.text-end.fw-light #
 
-				+summaryItem("Transactions")
-					| #{confirmedTxCount.toLocaleString()}
+                if (false)
+                  th Type
 
-							
+                th
+                  span.border-dotted(
+                    title="The transaction ID [output index] for this UTXO.",
+                    data-bs-toggle="tooltip"
+                  ) Outpoint
 
-		+contentSection("Tools")
-			a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#newDepositAddressModal")
-				i.fas.fa-qrcode.me-2
-				span New Deposit Address...
-			a.btn.btn-primary.me-0.me-lg-2.mb-2.mb-lg-0.d-block.d-lg-inline-block(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#withdrawFundsModal")
-				i.fas.fa-external-link-alt.me-2
-				span Withdraw Funds...
-				
+                th Address
 
-		if (false)
-			pre
-				code.json.bg-light #{JSON.stringify(walletUtxosResponse, null, 4)}
-		
-		if (walletUtxosResponse && walletUtxosResponse.utxos && walletUtxosResponse.utxos.length > 0)
-			+contentSection(`${walletUtxosResponse.utxos.length.toLocaleString()} UTXO${walletUtxosResponse.utxos.length == 1 ? "" : "s"}`)
-				each utxo, utxoIndex in walletUtxosResponse.utxos
-					- delete utxo.outpoint.txid_bytes;
+                if (false)
+                  th Pubkey Script
 
-					+modal("utxoModal-" + utxoIndex, `UTXO #${(utxoIndex + 1).toLocaleString()}`)
-						pre
-							code.json #{JSON.stringify(utxo, null, 4)}
+                th.text-end Amount
 
-				.table-responsive
-					table.table.table-striped
-						thead
-							tr
-								th.text-end.fw-light #
-								
-								if (false)
-									th Type
+                th.text-end Confirmations
 
-								th
-									span.border-dotted(title="The transaction ID [output index] for this UTXO." data-bs-toggle="tooltip") Outpoint
-								
-								th Address
-								
-								if (false)
-									th Pubkey Script
+                th.text-end Raw
 
-								th.text-end Amount
+            tbody
+              each utxo, utxoIndex in walletUtxosResponse.utxos
+                tr
+                  th.text-end.fw-light #{ (utxoIndex + 1).toLocaleString() }
 
-								th.text-end Confirmations
-								
-								th.text-end Raw
+                  if (false)
+                    td #{ utxo.type }
 
-						tbody
-							each utxo, utxoIndex in walletUtxosResponse.utxos
-								tr
-									th.text-end.fw-light #{(utxoIndex + 1).toLocaleString()}
+                  td
+                    +btcTxid(utxo.outpoint.txid_str, 12)
 
-									if (false)
-										td #{utxo.type}
+                    span [#{ utxo.outpoint.output_index }]
 
-									td
+                  td
+                    +btcAddress(utxo.address)
 
-										+btcTxid(utxo.outpoint.txid_str, 12)
-										
-										span  [#{utxo.outpoint.output_index}]
+                  if (false)
+                    td
+                      +btcAddress(utxo.pk_script)
 
-									td
-										+btcAddress(utxo.address)
+                  td.text-end
+                    +btcValue(utxo.amount_sat)
 
-									if (false)
-										td
-											+btcAddress(utxo.pk_script)
+                  td.text-end #{ parseInt(utxo.confirmations).toLocaleString() }
 
-									td.text-end
-										+btcValue(utxo.amount_sat)
+                  td.text-end
+                    a.btn.btn-sm.btn-primary(
+                      href="javascript:void(0)",
+                      data-bs-toggle="modal",
+                      data-bs-target="#utxoModal-" + utxoIndex
+                    )
+                      i.fas.fa-file-lines
 
-									td.text-end #{parseInt(utxo.confirmations).toLocaleString()}
-										
-									
-									td.text-end
-										a.btn.btn-sm.btn-primary(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#utxoModal-" + utxoIndex))
-											i.fas.fa-file-lines
+    each tx, txIndex in onChainTransactions.transactions
+      +modal("txModal-" + tx.tx_hash, `Transaction ${tx.tx_hash}`)
+        pre
+          code.json #{ JSON.stringify(tx, null, 4) }
 
+    - var totalTxCount = confirmedTxCount + unconfirmedTxCount;
+    if (totalTxCount > 0)
+      +contentSection(`${totalTxCount.toLocaleString()} Transaction${totalTxCount == 1 ? "" : "s"}`)
+        .table-responsive
+          table.table.table-striped
+            thead
+              tr
+                th.text-end.fw-light #
+                th Txid
 
+                th
+                  span.border-dotted(
+                    title="If applicable, show the channel actions associated with the transaction.",
+                    data-bs-toggle="tooltip"
+                  ) Channel Actions
 
-		each tx, txIndex in onChainTransactions.transactions
-			+modal("txModal-" + tx.tx_hash, `Transaction ${tx.tx_hash}`)
-				pre
-					code.json #{JSON.stringify(tx, null, 4)}
+                th.text-end
+                  if (false)
+                    span Block /
+                    br
+                  span Confirmations
 
-		
-		- var totalTxCount = confirmedTxCount + unconfirmedTxCount;
-		if (totalTxCount > 0)
-			+contentSection(`${totalTxCount.toLocaleString()} Transaction${totalTxCount == 1 ? "" : "s"}`)
-				.table-responsive
-					table.table.table-striped
-						thead
-							tr
-								th.text-end.fw-light #
-								th Txid
-								
-								th
-									span.border-dotted(title="If applicable, show the channel actions associated with the transaction.", data-bs-toggle="tooltip") Channel Actions
-								
+                th Date
 
-								th.text-end
-									if (false)
-										span Block /
-										br
-									span Confirmations
-								
-								th Date
+                th.text-end Amount
 
-								th.text-end Amount
+                th Addresses
 
-								th Addresses
-								
-								th.text-end Raw
+                th.text-end Raw
 
-						
-						tbody
-							//- onChainTransactions.transactions.reverse();
-							each tx, txIndex in onChainTransactions.transactions
-								tr
-									th.text-end.fw-light #{(txIndex + 1).toLocaleString()}
+            tbody
+              //- onChainTransactions.transactions.reverse();
+              each tx, txIndex in onChainTransactions.transactions
+                tr
+                  th.text-end.fw-light #{ (txIndex + 1).toLocaleString() }
 
-									td
-										+btcTxid(tx.tx_hash, 12)
+                  td
+                    +btcTxid(tx.tx_hash, 12)
 
-									td
-										if (localChannels.byTxid[tx.tx_hash] != null)
-											.mb-1
-												+pillBadgeSuccess("Opened Channel")
-											
-											+channelId(localChannels.byTxid[tx.tx_hash].chan_id, true)
+                  td
+                    if (localChannels.byTxid[tx.tx_hash] != null)
+                      .mb-1
+                        +pillBadgeSuccess("Opened Channel")
 
-										else if (closedChannels.byTxid[tx.tx_hash] != null)
-											.mb-1
-												+pillBadgeSuccess("Opened Channel")
+                      +channelId(localChannels.byTxid[tx.tx_hash].chan_id, true)
 
-											+channelId(closedChannels.byTxid[tx.tx_hash].chan_id, false)
+                    else if (closedChannels.byTxid[tx.tx_hash] != null)
+                      .mb-1
+                        +pillBadgeSuccess("Opened Channel")
 
-										else
-											- var channelClosedByTx = false;
-											each chan in closedChannels.channels
-												if (chan.closing_tx_hash == tx.tx_hash)
-													- channelClosedByTx = true;
-													.mb-1
-														+pillBadgeDanger("Closed Channel")
-													
-													+channelId(chan.chan_id, false)
+                      +channelId(closedChannels.byTxid[tx.tx_hash].chan_id, false)
 
-											if (!channelClosedByTx)
-												span -
+                    else
+                      - var channelClosedByTx = false;
+                      each chan in closedChannels.channels
+                        if (chan.closing_tx_hash == tx.tx_hash)
+                          - channelClosedByTx = true;
+                          .mb-1
+                            +pillBadgeDanger("Closed Channel")
 
-									td.text-end
-										if (tx.num_confirmations > 0)
-											span #{tx.num_confirmations.toLocaleString()}
+                          +channelId(chan.chan_id, false)
 
-										else
-											span.text-warning Unconfirmed
+                      if (!channelClosedByTx)
+                        span -
 
-									td
-										+date(tx.time_stamp)
+                  td.text-end
+                    if (tx.num_confirmations > 0)
+                      span #{ tx.num_confirmations.toLocaleString() }
 
+                    else
+                      span.text-warning Unconfirmed
 
-									td.text-end
-										if (parseInt(tx.amount) > 0)
-											.text-success
-												span +
-												+btcValue(Math.abs(parseInt(tx.amount)))
+                  td
+                    +date(tx.time_stamp)
 
-										else if (parseInt(tx.amount) < 0)
-											.text-danger
-												span -
-												+btcValue(Math.abs(parseInt(tx.amount)))
-										else
-											span -
+                  td.text-end
+                    if (parseInt(tx.amount) > 0)
+                      .text-success
+                        span +
+                        +btcValue(Math.abs(parseInt(tx.amount)))
 
-									td
-										each addr, addrIndex in tx.dest_addresses
-											div
-												+btcAddress(addr)
+                    else if (parseInt(tx.amount) < 0)
+                      .text-danger
+                        span -
+                        +btcValue(Math.abs(parseInt(tx.amount)))
+                    else
+                      span -
 
+                  td
+                    each addr, addrIndex in tx.dest_addresses
+                      div
+                        +btcAddress(addr)
 
-									td.text-end
-										a.btn.btn-sm.btn-primary(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#txModal-" + tx.tx_hash))
-											i.fas.fa-file-lines
+                  td.text-end
+                    a.btn.btn-sm.btn-primary(
+                      href="javascript:void(0)",
+                      data-bs-toggle="modal",
+                      data-bs-target="#txModal-" + tx.tx_hash
+                    )
+                      i.fas.fa-file-lines
 
+    include includes/new-deposit-address-modal.pug
 
+    include includes/withdraw-funds-modal.pug
 
-		include includes/new-deposit-address-modal.pug
+    if (false)
+      pre
+        code.json.bg-light #{ JSON.stringify(walletBalance, null, 4) }
 
-		include includes/withdraw-funds-modal.pug
-
-		if (false)
-			pre
-				code.json.bg-light #{JSON.stringify(walletBalance, null, 4)}
-
-			pre
-				code.json.bg-light #{JSON.stringify(channelBalance, null, 4)}
+      pre
+        code.json.bg-light #{ JSON.stringify(channelBalance, null, 4) }

@@ -1,18 +1,18 @@
 .table-responsive
-	table.table.table-striped.mb-0
-		thead
-			tr
-				th.text-end.fw-light #
-				th Node
-				th Address
-				
-				th.text-end Channels
-				th.text-end Capacity
+  table.table.table-striped.mb-0
+    thead
+      tr
+        th.text-end.fw-light #
+        th Node
+        th Address
 
-				th.text-end Last Update
-		
-		tbody
-			each nodeInfo, index in nodeInfos
-				if (nodeInfo)
-					- var nodeTableIndex = (nodeTableIndexOffset + index + 1);
-					include ./node-table-row.pug
+        th.text-end Channels
+        th.text-end Capacity
+
+        th.text-end Last Update
+
+    tbody
+      each nodeInfo, index in nodeInfos
+        if (nodeInfo)
+          - var nodeTableIndex = nodeTableIndexOffset + index + 1;
+          include ./node-table-row.pug

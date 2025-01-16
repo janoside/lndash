@@ -1,63 +1,68 @@
 extends layout4
 
 block headContent
-	title Send Payment
+  title Send Payment
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item Tools
-	li.breadcrumb-item Send Payment
-	
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item Tools
+  li.breadcrumb-item Send Payment
+
 block content
-	h1.h3 Send Payment
-	hr
+  h1.h3 Send Payment
+  hr
 
-	if (!session.admin)
-		- var loginRequiredNote = "allow you to create a new invoice.";
-		include includes/login-required-alert.pug
+  if (!session.admin)
+    - var loginRequiredNote = "allow you to create a new invoice.";
+    include includes/login-required-alert.pug
 
-	else
+  else
+    if (sendPaymentResponse != null)
+      .alert.alert-success
+        h3.h5 Success
 
-		if (sendPaymentResponse != null)
-			.alert.alert-success
-				h3.h5 Success
+        .mb-3 Payment sent successfully
 
-				.mb-3 Payment sent successfully
-				
-				if (true)
-					pre
-						code.json #{JSON.stringify(sendPaymentResponse, null, 4)}
+        if (true)
+          pre
+            code.json #{ JSON.stringify(sendPaymentResponse, null, 4) }
 
-		if (sendPaymentError != null)
-			.alert.alert-danger
-				h3.h5 Error
+    if (sendPaymentError != null)
+      .alert.alert-danger
+        h3.h5 Error
 
-				.mb-3 Error sending payment
-				
-				if (true)
-					pre
-						code.json #{JSON.stringify(sendPaymentError, null, 4)}
+        .mb-3 Error sending payment
 
-		form(method="post")
-			.mb-3
-				label.form-label(for="memo") Target Node Public Key
-				input.form-control.form-control-lg(type="text" id="destPubkey" name="destPubkey" value=destPubkey)
+        if (true)
+          pre
+            code.json #{ JSON.stringify(sendPaymentError, null, 4) }
 
-			if (destPubkey)
-				.card.mb-3.bg-light
-					.card-body
-						+nodeCard(destPubkey)
-						
-			.row
-				.col-md-2
-					.mb-3
-						label.form-label(for="amount") Amount
-						.input-group
-							input.form-control.form-control-lg(type="number" id="amount" name="amountSat" value=amountSat)
-							
-							.input-group-text sat
+    form(method="post")
+      .mb-3
+        label.form-label(for="memo") Target Node Public Key
+        input#destPubkey.form-control.form-control-lg(
+          type="text",
+          name="destPubkey",
+          value=destPubkey
+        )
 
-			button(type="submit", class="btn btn-primary") Send Payment
+      if (destPubkey)
+        .card.mb-3.bg-light
+          .card-body
+            +nodeCard(destPubkey)
 
-			
+      .row
+        .col-md-2
+          .mb-3
+            label.form-label(for="amount") Amount
+            .input-group
+              input#amount.form-control.form-control-lg(
+                type="number",
+                name="amountSat",
+                value=amountSat
+              )
+
+              .input-group-text sat
+
+      button.btn.btn-primary(type="submit") Send Payment

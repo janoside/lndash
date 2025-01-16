@@ -1,81 +1,85 @@
 extends layout
 
 block headContent
-	title Create Invoice
+  title Create Invoice
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item Tools
-	li.breadcrumb-item Create Invoice
-	
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item Tools
+  li.breadcrumb-item Create Invoice
+
 block content
-	+pageTitle("Create Invoice")
+  +pageTitle("Create Invoice")
 
+  if (createInvoiceResponse != null)
+    .alert.alert-success
+      h3.h5 Success
 
-	if (createInvoiceResponse != null)
-		.alert.alert-success
-			h3.h5 Success
+      .mb-3 Your invoice was created successfully
 
-			.mb-3 Your invoice was created successfully
+      .mb-3
+        div Payment Request
+        span.h4.fw-light
+          | #{ utils.ellipsizeMiddle(createInvoiceResponse.payment_request, 40) }
+          +copyTextButton(createInvoiceResponse.payment_request)
 
+      .mb-3
+        label.form-label QR Code
+        .input-group
+          img(
+            src=`/qrcode?data=${createInvoiceResponse.payment_request}`,
+            style="width: 300px; height: 300px"
+          )
 
-			.mb-3
-				div Payment Request
-				span.h4.fw-light
-					| #{utils.ellipsizeMiddle(createInvoiceResponse.payment_request, 40)}
-					+copyTextButton(createInvoiceResponse.payment_request)
+      .mb-3
+        span.fw-bold Hash (hex)
+        br
+        span #{ createInvoiceResponse.r_hash_hex }
 
-			
-			.mb-3
-				label.form-label QR Code
-				.input-group
-					img(src=`/qrcode?data=${createInvoiceResponse.payment_request}` style="width: 300px; height: 300px;")
+      .mb-3
+        span.fw-bold Hash (base64)
+        br
+        span #{ createInvoiceResponse.r_hash_base64 }
 
-			.mb-3
-				span.fw-bold Hash (hex)
-				br
-				span #{createInvoiceResponse.r_hash_hex}
+      if (false)
+        pre
+          code.json #{ JSON.stringify(createInvoiceResponse, null, 4) }
 
-			.mb-3
-				span.fw-bold Hash (base64)
-				br
-				span #{createInvoiceResponse.r_hash_base64}
-			
-			if (false)
-				pre
-					code.json #{JSON.stringify(createInvoiceResponse, null, 4)}
+  if (!session.admin)
+    - var loginRequiredNote = "allow you to create a new invoice.";
+    include includes/login-required-alert.pug
 
-	if (!session.admin)
-		- var loginRequiredNote = "allow you to create a new invoice.";
-		include includes/login-required-alert.pug
+  else
+    form(method="post", action="/create-invoice")
+      .mb-3
+        label.form-label(for="memo") Memo
+        input#memo.form-control.form-control-lg(type="text", name="memo")
 
-	else
+      .d-flex
+        .mb-3
+          label.form-label(for="amount") Amount
 
-		form(method="post", action="/create-invoice")
-			.mb-3
-				label.form-label(for="memo") Memo
-				input.form-control.form-control-lg(type="text" id="memo" name="memo")
+          .input-group
+            input#amount.form-control.form-control-lg(
+              type="number",
+              name="amount"
+            )
 
-			.d-flex
-				.mb-3
-					label.form-label(for="amount") Amount
+            .input-group-text sat
 
-					.input-group
-						input.form-control.form-control-lg(type="number" id="amount" name="amount")
-						
-						.input-group-text sat
+        .mb-3.ms-3
+          label.form-label(for="expiration") Expiration
 
-				.mb-3.ms-3
-					label.form-label(for="expiration") Expiration
-					
-					.input-group
-						input.form-control.form-control-lg(type="number" id="expiration" name="expiration" value="24")
-						
-						.input-group-text hrs
+          .input-group
+            input#expiration.form-control.form-control-lg(
+              type="number",
+              name="expiration",
+              value="24"
+            )
 
-			button.btn.btn-primary(type="submit")
-				i.fas.fa-asterisk.me-2
-				span Create Invoice
+            .input-group-text hrs
 
-			
+      button.btn.btn-primary(type="submit")
+        i.fas.fa-asterisk.me-2
+        span Create Invoice

@@ -1,0 +1,7 @@
+plugins:
+  - "@prettier/plugin-pug"
+printWidth: 120
+semi: true
+tabWidth: 4
+trailingComma: "none"
+useTabs: true

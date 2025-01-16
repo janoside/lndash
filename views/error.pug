@@ -1,20 +1,19 @@
 extends layout
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item Error
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item Error
 
 block content
-	+pageTitle("Error")
-	
+  +pageTitle("Error")
 
-	if (message)
-		p !{message}
-	else
-		p Unknown error
+  if (message)
+    p !{ message }
+  else
+    p Unknown error
 
-	if (error)
-		h2 #{error.status}
-		pre
-			code(class="json") #{error.stack}
+  if (error)
+    h2 #{ error.status }
+    pre
+      code.json #{ error.stack }

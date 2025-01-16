@@ -1,83 +1,86 @@
 extends layout
 
 block headContent
-	title All Channels
+  title All Channels
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item Network
-	li.breadcrumb-item All Channels
-	
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item Network
+  li.breadcrumb-item All Channels
+
 block content
-	+pageTitle(`${fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()} Channel${(fullNetworkDescription.channels.sortedByLastUpdate.length == 1) ? "" : "s"}`)
+  +pageTitle(`${fullNetworkDescription.channels.sortedByLastUpdate.length.toLocaleString()} Channel${(fullNetworkDescription.channels.sortedByLastUpdate.length == 1) ? "" : "s"}`)
 
+  if (!session.hideChannelsNetworkNote)
+    .alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
+      .mb-2.
+        This shows all public channels on the network, 
+        #[span.fw-bold from the perspective of your node.]
+        If your node has been recently started/configured, it may take time before it has a good view of the rest of the public network.
 
-	if (!session.hideChannelsNetworkNote)
-		.alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
-			.mb-2
-				span This shows all public channels on that network, 
-				span.fw-bold from the perspective of your node
-				span . If your node has been recently started/configured, it may take time before it has a good view of the rest of the public network.
+      div
+        a(href="/changeSetting?name=hideChannelsNetworkNote&value=true") Don't show this note again
 
-			div
-				a(href="/changeSetting?name=hideChannelsNetworkNote&value=true") Don't show this note again
-				
+      a.btn-close(
+        href="/changeSetting?name=hideChannelsNetworkNote&value=true",
+        aria-label="Close",
+        style="text-decoration: none"
+      )
 
-			a.btn-close(href="/changeSetting?name=hideChannelsNetworkNote&value=true", aria-label="Close", style="text-decoration: none;")
+  +card
+    +filterList
+      +filterItem
+        - var sortOptions = [["Open Block", "openblockheight-desc"], ["Last Update", "last_update-desc"], ["Capacity", "capacity-desc"]];
 
+        +filterBtnGroup("Sort", null, sortOptions, `/channels?starred=${starred}&limit=${limit}`, "sort", sort)
 
-	+card
-		+filterList
-			+filterItem
-				- var sortOptions = [["Open Block", "openblockheight-desc"], ["Last Update", "last_update-desc"], ["Capacity", "capacity-desc"]];
+      +filterItem
+        - var starredFilterOptions = [["Yes", "yes"], ["All", "all"]];
 
-				+filterBtnGroup("Sort", null, sortOptions, `/channels?starred=${starred}&limit=${limit}`, "sort", sort)
+        +filterBtnGroup("Starred", "Option to only show channels that you have 'starred' (favorited) in the app", starredFilterOptions, `/channels?sort=${sort}&limit=${limit}`, "starred", starred)
 
+      +filterItem
+        - var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
 
-			+filterItem
-				- var starredFilterOptions = [["Yes", "yes"], ["All", "all"]];
+        +filterBtnGroup("Page Size", null, pageSizeOptions, `/channels?sort=${sort}&starred=${starred}`, "limit", limit)
 
-				+filterBtnGroup("Starred", "Option to only show channels that you have 'starred' (favorited) in the app", starredFilterOptions, `/channels?sort=${sort}&limit=${limit}`, "starred", starred)
+    hr.my-3
 
+    div
+      if (allFilteredChannels.length > limit)
+        span.
+          Showing
+          #[span.fw-bold ##{ (offset + 1).toLocaleString() } - #{ Math.min(offset + limit, allFilteredChannels.length).toLocaleString() }]
+          of
+          #[span.fw-bold #{ allFilteredChannels.length.toLocaleString() }]
 
-			+filterItem
-				- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
+        if (allChannels.length > allFilteredChannels.length)
+          | filtered
 
-				+filterBtnGroup("Page Size", null, pageSizeOptions, `/channels?sort=${sort}&starred=${starred}`, "limit", limit)
+        |
+        | channel
+        if (allFilteredChannels.length != 1)
+          | s
 
-		hr.my-3
+      else if (allFilteredChannels.length > 0)
+        span.
+          Showing
+          #[span.fw-bold #{ allFilteredChannels.length.toLocaleString() }]
 
-		div
-			if (allFilteredChannels.length > limit)
-				span Showing 
-				span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredChannels.length).toLocaleString()} 
-				span of 
-				span.fw-bold #{allFilteredChannels.length.toLocaleString()} 
-				if (allChannels.length > allFilteredChannels.length)
-					span filtered 
-				span channel
-				if (allFilteredChannels.length != 1)
-					span s
+        if (allChannels.length > allFilteredChannels.length)
+          | filtered
 
-			else if (allFilteredChannels.length > 0)
-				span Showing 
-				span.fw-bold #{allFilteredChannels.length.toLocaleString()} 
-				if (allChannels.length > allFilteredChannels.length)
-					span filtered 
+        |
+        | channel
+        if (allFilteredChannels.length > 1)
+          | s
+      else
+        .alert.alert-warning.shadow-sm.mb-0 No matching channels
 
-				span channel
-				if (allFilteredChannels.length > 1)
-					span s
-			else
-				.alert.alert-warning.shadow-sm.mb-0 No matching channels
+    +pagination(allFilteredChannels.length, limit, offset, paginationBaseUrl)
 
-
-		+pagination(allFilteredChannels.length, limit, offset, paginationBaseUrl)
-
-
-	if (pagedFilteredChannels.length > 0)
-		- var channelTableIndexOffset = offset;
-		- var channels = pagedFilteredChannels;
-		include includes/channel-table.pug
-
+  if (pagedFilteredChannels.length > 0)
+    - var channelTableIndexOffset = offset;
+    - var channels = pagedFilteredChannels;
+    include includes/channel-table.pug

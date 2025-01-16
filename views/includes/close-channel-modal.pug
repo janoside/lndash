@@ -1,112 +1,128 @@
 +modal("closeChannelModal", "Close Channel")
-	script.
-		function closeChannel() {
-			$("#responseAlertCloseChannel").hide();
+  script.
+    function closeChannel() {
+      $("#responseAlertCloseChannel").hide();
 
-			var data = {};
-			data.txid = "#{channelPointTxid}";
-			data.txOutput = #{channelPointIndex};
-			data.forceClose = $("#forceCloseChannelCheckbox").is(':checked');
-			data.speedType = $("#speedTypeValue").val();
-			data.speedValue = $("#speedValue").val();
+      var data = {};
+      data.txid = "#{channelPointTxid}";
+      data.txOutput = #{ channelPointIndex };
+      data.forceClose = $("#forceCloseChannelCheckbox").is(":checked");
+      data.speedType = $("#speedTypeValue").val();
+      data.speedValue = $("#speedValue").val();
 
-			console.log("data: " + JSON.stringify(data));
+      console.log("data: " + JSON.stringify(data));
 
-			toggleCloseChannelStatus();
+      toggleCloseChannelStatus();
 
-			$.ajax({
-				type: "POST",
-				url: `/close-channel`,
-				data: data,
-				success: function(response) {
-					toggleCloseChannelStatus();
-					
-					if (response.code && response.details) {
-						$("#alertCloseChannelError").show();
+      $.ajax({
+        type: "POST",
+        url: `/close-channel`,
+        data: data,
+        success: function (response) {
+          toggleCloseChannelStatus();
 
-						$("#closeChannelErrorDetails").text(response.details);
+          if (response.code && response.details) {
+            $("#alertCloseChannelError").show();
 
-					} else {
-						$("#closeChannelForm").hide();
+            $("#closeChannelErrorDetails").text(response.details);
+          } else {
+            $("#closeChannelForm").hide();
 
-						$("#alertCloseChannelSuccess").show();
-					}
+            $("#alertCloseChannelSuccess").show();
+          }
 
-					console.log("response: " + JSON.stringify(response));
-				}
-			});
+          console.log("response: " + JSON.stringify(response));
+        },
+      });
 
-			return false;
-		}
+      return false;
+    }
 
-		function toggleCloseChannelStatus() {
-			var disabled = $("#closeChannelButton").prop("disabled");
-			
-			$("#closeChannelButton").prop("disabled", !disabled).toggleClass("btn-primary").toggleClass("btn-secondary");
-			$("#closeChannelStatus").toggle();
-		}
+    function toggleCloseChannelStatus() {
+      var disabled = $("#closeChannelButton").prop("disabled");
 
-		documentReadyFunctions.push(function() {
-			$(document).on('change', 'input:radio[name="speedTypeRadio"]', function(event) {
-				$("#speedTypeValue").val($(event.target).val());
+      $("#closeChannelButton").prop("disabled", !disabled).toggleClass("btn-primary").toggleClass("btn-secondary");
+      $("#closeChannelStatus").toggle();
+    }
 
-				if ($(event.target).val() == "target_conf") {
-					$("#closeChannelSpeedNote").text("Number of blocks to try to confirm within");
+    documentReadyFunctions.push(function () {
+      $(document).on("change", 'input:radio[name="speedTypeRadio"]', function (event) {
+        $("#speedTypeValue").val($(event.target).val());
 
-				} else if ($(event.target).val() == "sat_per_byte") {
-					$("#closeChannelSpeedNote").text("Fee rate, sat / byte");
-				}
-			});
-		});
+        if ($(event.target).val() == "target_conf") {
+          $("#closeChannelSpeedNote").text("Number of blocks to try to confirm within");
+        } else if ($(event.target).val() == "sat_per_byte") {
+          $("#closeChannelSpeedNote").text("Fee rate, sat / byte");
+        }
+      });
+    });
 
+  #alertCloseChannelError.alert.alert-danger(style="display: none")
+    h4.h6 Error
+    div There was an error when trying to close this channel:
+    #closeChannelErrorDetails.mt-2
 
+  #alertCloseChannelSuccess.alert.alert-success(style="display: none")
+    h4.h6 Success
+    span Your close channel request has been submitted and your channel should begin closing. See your
+    a(href="/local-channels?status=Pending") pending channels
+    span for more details.
 
-	div#alertCloseChannelError.alert.alert-danger(style="display: none;")
-		h4.h6 Error
-		div There was an error when trying to close this channel:
-		div#closeChannelErrorDetails.mt-2
+  form#closeChannelForm(onsubmit="return closeChannel();")
+    .mb-3
+      label.form-label(for="speedValue") Speed
 
-	div#alertCloseChannelSuccess.alert.alert-success(style="display: none;")
-		h4.h6 Success
-		span Your close channel request has been submitted and your channel should begin closing. See your 
-		a(href="/local-channels?status=Pending") pending channels
-		span  for more details.
+      input#speedTypeValue(
+        type="hidden",
+        name="speedType",
+        value="target_conf"
+      )
 
-	form#closeChannelForm(onsubmit="return closeChannel();")
-		.mb-3
-			label.form-label(for="speedValue") Speed
+      .mb-3
+        .form-check
+          input#customRadioInline1.form-check-input(
+            type="radio",
+            name="speedTypeRadio",
+            value="target_conf",
+            checked="checked"
+          )
+          label.form-check-label(for="customRadioInline1") Try to confirm in 
+            span.border-dotted(
+              for="customRadioInline1",
+              title="LND will compute a fee rate for your on-chain transaction based on the current state of the network. Note that there is no guarantee that your transaction will be confirmed by the network based on what you set here.",
+              data-bs-toggle="tooltip"
+            ) N or fewer blocks
 
-			input(id="speedTypeValue" type="hidden" name="speedType" value="target_conf")
+        .form-check
+          input#customRadioInline2.form-check-input(
+            type="radio",
+            name="speedTypeRadio",
+            value="sat_per_byte"
+          )
+          label.custom-control-label(for="customRadioInline2") Manual fee (sat/byte)
 
-			.mb-3
-				.form-check
-					input#customRadioInline1.form-check-input(type='radio' name='speedTypeRadio' value="target_conf" checked="checked")
-					label.form-check-label(for='customRadioInline1') Try to confirm in 
-						span.border-dotted(for='customRadioInline1' title="LND will compute a fee rate for your on-chain transaction based on the current state of the network. Note that there is no guarantee that your transaction will be confirmed by the network based on what you set here." data-bs-toggle="tooltip") N or fewer blocks
+      input#speedValue.form-control(name="speedValue")
+      small#closeChannelSpeedNote.text-muted Number of blocks to try to confirm within
 
-				.form-check
-					input#customRadioInline2.form-check-input(type='radio' name='speedTypeRadio' value="sat_per_byte")
-					label.custom-control-label(for='customRadioInline2') Manual fee (sat/byte)
+    .mb-3
+      .form-check
+        input#forceCloseChannelCheckbox.form-check-input(type="checkbox")
+        label.form-check-label(for="forceCloseChannelCheckbox")
+          span.border-dotted(
+            title="If set, then the channel will be closed forcibly. This means the current commitment transaction will be signed and broadcast.",
+            data-bs-toggle="tooltip"
+          ) Force close
 
-			input.form-control(id="speedValue" name="speedValue")
-			small#closeChannelSpeedNote.text-muted Number of blocks to try to confirm within
+    .alert.alert-danger Please use caution when closing channels! Both LNDash and LND itself are beta software.
 
-		.mb-3
-			.form-check
-				input.form-check-input(type="checkbox" id="forceCloseChannelCheckbox")
-				label.form-check-label(for="forceCloseChannelCheckbox")
-					span.border-dotted(title="If set, then the channel will be closed forcibly. This means the current commitment transaction will be signed and broadcast." data-bs-toggle="tooltip") Force close
-		
-		.alert.alert-danger Please use caution when closing channels! Both LNDash and LND itself are beta software.
+    .mt-4
+      button#closeChannelButton.btn.btn-danger(type="submit")
+        i.fas.fa-times.me-2
+        span Close Channel
 
-		.mt-4
-			button#closeChannelButton.btn.btn-danger(type="submit")
-				i.fas.fa-times.me-2
-				span Close Channel
-
-		div#closeChannelStatus.mt-3(style="display: none;")
-			span.spinner-border.spinner-border-sm.me-2.text-primary(role="status" aria-hidden="true")
-			span Channel close request submitted...
-
-
-		
+    #closeChannelStatus.mt-3(style="display: none")
+      span.spinner-border.spinner-border-sm.me-2.text-primary(
+        role="status",
+        aria-hidden="true"
+      )
+      span Channel close request submitted...

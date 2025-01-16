@@ -1,85 +1,87 @@
 extends layout
 
 block headContent
-	title Browse Nodes
+  title Browse Nodes
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item Network
-	li.breadcrumb-item All Nodes
-	
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item Network
+  li.breadcrumb-item All Nodes
+
 block content
-	
-	+pageTitle(`${fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()} Node${(fullNetworkDescription.nodes.sortedByLastUpdate.length == 1) ? "" : "s"}`)
-	
+  +pageTitle(`${fullNetworkDescription.nodes.sortedByLastUpdate.length.toLocaleString()} Node${(fullNetworkDescription.nodes.sortedByLastUpdate.length == 1) ? "" : "s"}`)
 
-	if (!session.hideNodesNetworkNote)
-		.alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
-			.mb-2
-				span This shows all public nodes on that network, 
-				span.fw-bold from the perspective of your node
-				span . If your node has been recently started/configured, it may take time before it has a good view of the rest of the public network.
+  if (!session.hideNodesNetworkNote)
+    .alert.alert-primary.alert-dismissible.shadow-sm(role="alert")
+      .mb-2
+        span.
+          This shows all public nodes on the network,
+          #[span.fw-bold from the perspective of your node.]
+          If your node has been recently started/configured, it may take time before it has a good view of the rest of the public network.
 
-			div
-				a(href="/changeSetting?name=hideNodesNetworkNote&value=true") Don't show this note again
-				
+      div
+        a(href="/changeSetting?name=hideNodesNetworkNote&value=true") Don't show this note again
 
-			a.btn-close(href="/changeSetting?name=hideNodesNetworkNote&value=true", aria-label="Close", style="text-decoration: none;")
+      a.btn-close(
+        href="/changeSetting?name=hideNodesNetworkNote&value=true",
+        aria-label="Close",
+        style="text-decoration: none"
+      )
 
+  +card
+    +filterList
+      +filterItem
+        - var sortOptions = [["Last Update", "last_update-desc"], ["Channels", "num_channels-desc"], ["Capacity", "channel_capacity-desc"]];
 
-	+card
-		+filterList
-			+filterItem
-				- var sortOptions = [["Last Update", "last_update-desc"], ["Channels", "num_channels-desc"], ["Capacity", "channel_capacity-desc"]];
-				
-				+filterBtnGroup("Sort", null, sortOptions, `/nodes?starred=${starred}&limit=${limit}`, "sort", sort)
+        +filterBtnGroup("Sort", null, sortOptions, `/nodes?starred=${starred}&limit=${limit}`, "sort", sort)
 
+      +filterItem
+        - var starredFilterOptions = [["Yes", "yes"], ["All", "all"]];
 
-			+filterItem
-				- var starredFilterOptions = [["Yes", "yes"], ["All", "all"]];
+        +filterBtnGroup("Starred", "Option to only show nodes that you have 'starred' (favorited) in the app", starredFilterOptions, `/nodes?sort=${sort}&limit=${limit}`, "starred", starred)
 
-				+filterBtnGroup("Starred", "Option to only show nodes that you have 'starred' (favorited) in the app", starredFilterOptions, `/nodes?sort=${sort}&limit=${limit}`, "starred", starred)
+      +filterItem(true)
+        - var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
 
+        +filterBtnGroup("Page Size", null, pageSizeOptions, `/nodes?sort=${sort}&starred=${starred}`, "limit", limit)
 
-			+filterItem(true)
-				- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
+    hr.my-3
 
-				+filterBtnGroup("Page Size", null, pageSizeOptions, `/nodes?sort=${sort}&starred=${starred}`, "limit", limit)
+    div
+      if (allFilteredNodes.length > limit)
+        span.
+          Showing
+          #[span.fw-bold ##{ (offset + 1).toLocaleString() } - #{ Math.min(offset + limit, allFilteredNodes.length).toLocaleString() }]
+          of
+          #[span.fw-bold #{ allFilteredNodes.length.toLocaleString() }]
+  
+        if (allNodes.length > allFilteredNodes.length)
+          | filtered
 
-		hr.my-3
+        |
+        | node
+        if (allFilteredNodes.length != 1)
+          | s
 
-		div
-			if (allFilteredNodes.length > limit)
-				span Showing 
-				span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredNodes.length).toLocaleString()} 
-				span of 
-				span.fw-bold #{allFilteredNodes.length.toLocaleString()} 
-				if (allNodes.length > allFilteredNodes.length)
-					span filtered 
-				span node
-				if (allFilteredNodes.length != 1)
-					span s
+      else if (allFilteredNodes.length > 0)
+        span.
+          Showing
+          #[span.fw-bold #{ allFilteredNodes.length.toLocaleString() }]
 
-			else if (allFilteredNodes.length > 0)
-				span Showing 
-				span.fw-bold #{allFilteredNodes.length.toLocaleString()} 
-				if (allNodes.length > allFilteredNodes.length)
-					span filtered 
+        if (allNodes.length > allFilteredNodes.length)
+          | filtered
 
-				span node
-				if (allFilteredNodes.length > 1)
-					span s
-			else
-				.alert.alert-warning.shadow-sm.mb-0 No matching nodes
+        |
+        | node
+        if (allFilteredNodes.length > 1)
+          | s
+      else
+        .alert.alert-warning.shadow-sm.mb-0 No matching nodes
 
+    +pagination(allFilteredNodes.length, limit, offset, paginationBaseUrl)
 
-		+pagination(allFilteredNodes.length, limit, offset, paginationBaseUrl)
-
-
-
-
-	if (pagedFilteredNodes.length > 0)
-		- var nodeTableIndexOffset = offset;
-		- var nodeInfos = pagedFilteredNodes;
-		include includes/node-table.pug
+  if (pagedFilteredNodes.length > 0)
+    - var nodeTableIndexOffset = offset;
+    - var nodeInfos = pagedFilteredNodes;
+    include includes/node-table.pug

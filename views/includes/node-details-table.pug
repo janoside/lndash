@@ -1,17 +1,16 @@
 .table-responsive
-	table.table.table-striped.mb-0
-		thead
-			tr
-				if (showTableNumbers)
-					th.text-end.fw-light #
-					
-				th Node
-				th Address
-				th Last Update
-				th.text-end Channels
-				th.text-end Total Capacity
-				
-		
-		tbody
-			each node, index in nodes
-				include ./node-details-table-row.pug
+  table.table.table-striped.mb-0
+    thead
+      tr
+        if (showTableNumbers)
+          th.text-end.fw-light #
+
+        th Node
+        th Address
+        th Last Update
+        th.text-end Channels
+        th.text-end Total Capacity
+
+    tbody
+      each node, index in nodes
+        include ./node-details-table-row.pug

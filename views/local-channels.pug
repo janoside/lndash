@@ -1,156 +1,163 @@
 extends layout
 
 block headContent
-	title Local Channels
+  title Local Channels
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item My Node
-	li.breadcrumb-item My Channels
-	
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item My Node
+  li.breadcrumb-item My Channels
+
 block content
-	if (!session.admin)
-		+pageTitle("My Channels")
+  if (!session.admin)
+    +pageTitle("My Channels")
 
+    - var loginRequiredNote = "display details about this node's channels.";
+    include includes/login-required-alert.pug
 
-		- var loginRequiredNote = "display details about this node's channels.";
-		include includes/login-required-alert.pug
+  else
+    +pageTitle(`${allFilteredChannels.length.toLocaleString()} Channel${(allFilteredChannels.length == 1) ? "" : "s"} `)
+      if (allFilteredChannels.length < allChannels.length)
+        small.text-muted.fs-75 (+#{ (allChannels.length - allFilteredChannels.length).toLocaleString() } hidden)
 
-	else
+    +card
+      +filterList
+        +filterItem
+          - var sortOptions = [["Capacity", "capacity-desc"], ["Local Balance", "localbalance-desc"], ["Remote Balance", "remotebalance-desc"], ["Σ Transferred", "valuetransfer-desc"], ["Last Update", "updated-desc"], ["Open Block", "openblockheight-desc"]];
 
-		+pageTitle(`${allFilteredChannels.length.toLocaleString()} Channel${(allFilteredChannels.length == 1) ? "" : "s"}`)
-			if (allFilteredChannels.length < allChannels.length)
-				small.text-muted.fs-75  (+#{(allChannels.length - allFilteredChannels.length).toLocaleString()} hidden)
+          +filterBtnGroup("Sort", null, sortOptions, `/local-channels?open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`, "sort", sort)
 
-		+card
-			+filterList
-				+filterItem
-					- var sortOptions = [["Capacity", "capacity-desc"], ["Local Balance", "localbalance-desc"], ["Remote Balance", "remotebalance-desc"], ["Σ Transferred", "valuetransfer-desc"], ["Last Update", "updated-desc"], ["Open Block", "openblockheight-desc"]];
+        +filterItem
+          - var openFilterOptions = [["Open", "open"], ["Closed", "closed"], ["All", "all"]];
 
-					+filterBtnGroup("Sort", null, sortOptions, `/local-channels?open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`, "sort", sort)
-					
+          +filterBtnGroup("Open?", "Includes both open and pending channels", openFilterOptions, `/local-channels?sort=${sort}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`, "open", open)
 
+        if (open != "closed")
+          +filterItem
+            - var statusOptions = [["Active", "active"], ["Inactive", "inactive"], ["Pending", "pending"], ["All", "all"]];
 
-				+filterItem
-					- var openFilterOptions = [["Open", "open"], ["Closed", "closed"], ["All", "all"]];
+            +filterBtnGroup("Status", null, statusOptions, `/local-channels?sort=${sort}&open=${open}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`, "status", status)
 
-					+filterBtnGroup("Open?", "Includes both open and pending channels", openFilterOptions, `/local-channels?sort=${sort}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`, "open", open)
+          +filterItem
+            - var localbalanceOptions = [["Yes", "yes"], ["No", "no"], ["All", "all"]];
 
+            +filterBtnGroup("Has Local Balance", null, localbalanceOptions, `/local-channels?sort=${sort}&open=${open}&status=${status}&remotebalance=${remotebalance}&limit=${limit}`, "localbalance", localbalance)
 
-					
+          +filterItem
+            - var remotebalanceOptions = [["Yes", "yes"], ["No", "no"], ["All", "all"]];
 
-				if (open != "closed")
-					+filterItem
-						- var statusOptions = [["Active", "active"], ["Inactive", "inactive"], ["Pending", "pending"], ["All", "all"]];
+            +filterBtnGroup("Has Remote Balance", null, remotebalanceOptions, `/local-channels?sort=${sort}&open=${open}&status=${status}&localbalance=${localbalance}&limit=${limit}`, "remotebalance", remotebalance)
 
-						+filterBtnGroup("Status", null, statusOptions, `/local-channels?sort=${sort}&open=${open}&localbalance=${localbalance}&remotebalance=${remotebalance}&limit=${limit}`, "status", status)
+        +filterItem
+          - var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
 
+          +filterBtnGroup("Page Size", null, pageSizeOptions, `/local-channels?sort=${sort}&open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}`, "limit", limit)
 
-					+filterItem
-						- var localbalanceOptions = [["Yes", "yes"], ["No", "no"], ["All", "all"]];
+      hr.my-3
 
-						+filterBtnGroup("Has Local Balance", null, localbalanceOptions, `/local-channels?sort=${sort}&open=${open}&status=${status}&remotebalance=${remotebalance}&limit=${limit}`, "localbalance", localbalance)
+      div
+        if (allFilteredChannels.length > limit)
+          span.
+            Showing
+            #[span.fw-bold ##{ (offset + 1).toLocaleString() } - #{ Math.min(offset + limit, allFilteredChannels.length).toLocaleString() }]
+            of
+            #[span.fw-bold #{ allFilteredChannels.length.toLocaleString() }]
 
+          if (allChannels.length > allFilteredChannels.length)
+            | filtered
 
-					+filterItem
-						- var remotebalanceOptions = [["Yes", "yes"], ["No", "no"], ["All", "all"]];
+          |
+          | channel
+          if (allFilteredChannels.length != 1)
+            | s
 
-						+filterBtnGroup("Has Remote Balance", null, remotebalanceOptions, `/local-channels?sort=${sort}&open=${open}&status=${status}&localbalance=${localbalance}&limit=${limit}`, "remotebalance", remotebalance)
+        else if (allFilteredChannels.length > 0)
+          span.
+            Showing
+            #[span.fw-bold #{ allFilteredChannels.length.toLocaleString() }]
 
+          if (allChannels.length > allFilteredChannels.length)
+            | filtered
 
-				+filterItem
-					- var pageSizeOptions = [["20", "20"], ["50", "50"], ["100", "100"]];
+          |
+          | channel
+          if (allFilteredChannels.length > 1)
+            | s
+        else
+          .alert.alert-warning.shadow-sm.mb-0 No matching channels
 
-					+filterBtnGroup("Page Size", null, pageSizeOptions, `/local-channels?sort=${sort}&open=${open}&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}`, "limit", limit)
+      +pagination(allFilteredChannels.length, limit, offset, paginationBaseUrl)
 
+    if (false)
+      pre
+        code.json #{ JSON.stringify(allChannels, null, 4) }
 
-			hr.my-3
+    if (pagedFilteredChannels.length > 0)
+      .table-responsive
+        table.table.table-striped
+          thead
+            tr
+              th.text-end.fw-light #
+              th Channel
+              th Flags
+              //th.text-center
+              //	span.border-dotted(title="Whether channel was created by the local node", data-bs-toggle="tooltip") Initiator
+              th Partner Node
 
-			div
-				if (allFilteredChannels.length > limit)
-					span Showing 
-					span.fw-bold ##{(offset + 1).toLocaleString()} - #{Math.min(offset + limit, allFilteredChannels.length).toLocaleString()} 
-					span of 
-					span.fw-bold #{allFilteredChannels.length.toLocaleString()} 
-					if (allChannels.length > allFilteredChannels.length)
-						span filtered 
-					span channel
-					if (allFilteredChannels.length != 1)
-						span s
+              if (false)
+                th.text-end
+                  if (sort == "openblockheight-desc")
+                    span.border-dotted.me-2(
+                      title="The height of the block that confirmed each channel's opening transaction",
+                      data-bs-toggle="tooltip"
+                    ) Open Block Height
+                    i.fas.fa-arrow-down
+                  else
+                    a.border-dotted(
+                      href=`/local-channels?sort=openblockheight-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}`,
+                      title="Sort by the height of the block that confirmed each channel's opening transaction",
+                      data-bs-toggle="tooltip"
+                    )
+                      span Open Block Height
 
-				else if (allFilteredChannels.length > 0)
-					span Showing 
-					span.fw-bold #{allFilteredChannels.length.toLocaleString()} 
-					if (allChannels.length > allFilteredChannels.length)
-						span filtered 
+              th.text-end
+                span.border-dotted(
+                  title="Local and Remote Balances",
+                  data-bs-toggle="tooltip"
+                ) Balances
+                span.text-muted.ms-1
+                  | (
+                  span.fw-bold
+                    span.text-primary L
+                    span.mx-1 /
+                    span.text-info R
+                  | )
 
-					span channel
-					if (allFilteredChannels.length > 1)
-						span s
-				else
-					.alert.alert-warning.shadow-sm.mb-0 No matching channels
+              th.text-end
+                span.border-dotted(
+                  title="Total Inbound and Outbound Value Transfers",
+                  data-bs-toggle="tooltip"
+                ) Transfer
 
+              th.text-end
+                span.border-dotted(
+                  title="The block height at which this channel was opened",
+                  data-bs-toggle="tooltip"
+                )
+                  | Opened
+                span.ms-1 / Updated
 
-			+pagination(allFilteredChannels.length, limit, offset, paginationBaseUrl)
+              th.text-end Raw
 
+          tbody
+            each channel, channel_index in pagedFilteredChannels
+              - var localChannel_index = channel_index;
+              - var localChannel = channel;
+              - var channelTableIndex = offset + channel_index + 1;
 
-		
-		if (false)
-			pre
-				code.json #{JSON.stringify(allChannels, null, 4)}
+              +modal(`localChannelModal-${localChannel_index}`, `Channel ${localChannel.chan_id ? localChannel.chan_id : '- Pending Open'}`)
+                pre
+                  code.json #{ JSON.stringify(localChannel, null, 4) }
 
-		if (pagedFilteredChannels.length > 0)
-			.table-responsive
-				table.table.table-striped
-					thead
-						tr
-							th.text-end.fw-light #
-							th Channel
-							th Flags
-							//th.text-center
-							//	span.border-dotted(title="Whether channel was created by the local node", data-bs-toggle="tooltip") Initiator
-							th Partner Node
-
-							if (false)
-								th.text-end
-									if (sort == "openblockheight-desc")
-										span.border-dotted.me-2(title="The height of the block that confirmed each channel's opening transaction" data-bs-toggle="tooltip") Open Block Height
-										i.fas.fa-arrow-down
-									else
-										a.border-dotted(href=`/local-channels?sort=openblockheight-desc&status=${status}&localbalance=${localbalance}&remotebalance=${remotebalance}` title="Sort by the height of the block that confirmed each channel's opening transaction" data-bs-toggle="tooltip")
-											span Open Block Height
-
-							
-								
-							th.text-end
-								span.border-dotted(title="Local and Remote Balances", data-bs-toggle="tooltip") Balances
-								span.text-muted.ms-1
-									| (
-									span.fw-bold
-										span.text-primary L
-										span.mx-1 /
-										span.text-info R
-									| )
-
-							th.text-end
-								span.border-dotted(title="Total Inbound and Outbound Value Transfers", data-bs-toggle="tooltip") Transfer
-
-							th.text-end
-								span.border-dotted(title="The block height at which this channel was opened", data-bs-toggle="tooltip")
-									| Opened
-								span.ms-1 / Updated
-
-							th.text-end Raw
-					
-					tbody
-						each channel, channel_index in pagedFilteredChannels
-							- var localChannel_index = channel_index;
-							- var localChannel = channel;
-
-							+modal(`localChannelModal-${localChannel_index}`, `Channel ${localChannel.chan_id ? localChannel.chan_id : '- Pending Open'}`)
-								pre
-									code.json #{JSON.stringify(localChannel, null, 4)}
-
-							include ./includes/local-channel-table-row.pug
-
+              include ./includes/channel-table-row.pug

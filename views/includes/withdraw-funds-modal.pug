@@ -1,118 +1,129 @@
 +modal("withdrawFundsModal", "Withdraw Funds")
-	script.
-		function withdrawToSingleAddress() {
-			$("#responseAlertSingle").hide();
+  script.
+    function withdrawToSingleAddress() {
+      $("#responseAlertSingle").hide();
 
-			var data = {};
-			data.withdrawType = "single";
-			data.address = $("#withdrawAddress").val();
-			data.sendAll = $("#sendAllCheckbox").is(':checked');
-			data.amountSat = $("#amountSat").val();
-			data.speedType = $("#speedTypeValue").val();
-			data.speedValue = $("#speedValue").val();
+      var data = {};
+      data.withdrawType = "single";
+      data.address = $("#withdrawAddress").val();
+      data.sendAll = $("#sendAllCheckbox").is(":checked");
+      data.amountSat = $("#amountSat").val();
+      data.speedType = $("#speedTypeValue").val();
+      data.speedValue = $("#speedValue").val();
 
-			console.log("data: " + JSON.stringify(data));
+      console.log("data: " + JSON.stringify(data));
 
-			$.ajax({
-				type: "POST",
-				url: `/withdraw-funds`,
-				data: data,
-				success: function(response) {
-					if (response.code && response.details) {
-						$("#responseAlertSingle").removeClass("alert-success").addClass("alert-danger");
-						$("#responseAlertSingle").text(response.details);
-						$("#responseAlertSingle").show();
+      $.ajax({
+        type: "POST",
+        url: `/withdraw-funds`,
+        data: data,
+        success: function (response) {
+          if (response.code && response.details) {
+            $("#responseAlertSingle").removeClass("alert-success").addClass("alert-danger");
+            $("#responseAlertSingle").text(response.details);
+            $("#responseAlertSingle").show();
+          } else {
+            $("#responseAlertSingle").removeClass("alert-danger").addClass("alert-success");
+            $("#responseAlertSingle").text("Success");
+            $("#responseAlertSingle").show();
+          }
 
-					} else {
-						$("#responseAlertSingle").removeClass("alert-danger").addClass("alert-success");
-						$("#responseAlertSingle").text("Success");
-						$("#responseAlertSingle").show();
-					}
+          console.log("response: " + JSON.stringify(response));
+        },
+      });
 
-					console.log("response: " + JSON.stringify(response));
-				}
-			});
+      return false;
+    }
 
-			return false;
-		}
+  +pageTabs(["Single Address", "Multiple Addresses"], false)
 
+  .tab-content
+    +pageTab("Single Address", true)
+      #responseAlertSingle.alert(style="display: none")
 
-	+pageTabs(["Single Address", "Multiple Addresses"], false)
-	
-	.tab-content
-		+pageTab("Single Address", true)
+      form(onsubmit="return withdrawToSingleAddress();")
+        .mb-3
+          label.form-label(for="withdrawAddress") Withdraw Address
+          input#withdrawAddress.form-control(name="withdrawAddress")
 
-			.alert(id="responseAlertSingle" style="display: none;")
+        .input-group.mb-3
+          label.form-label(for="amountSat") Amount
+          .input-group
+            input#amountSat.form-control(name="amountSat")
 
-			form(onsubmit="return withdrawToSingleAddress();")
-				.mb-3
-					label.form-label(for="withdrawAddress") Withdraw Address
-					input.form-control(id="withdrawAddress" name="withdrawAddress")
+            .input-group-text sat
 
-				.input-group.mb-3
-					label.form-label(for="amountSat") Amount
-					.input-group
-						input.form-control(id="amountSat" name="amountSat")
-						
-						.input-group-text sat
+        .mb-3
+          .form-check
+            input#sendAllCheckbox.form-check-input(type="checkbox")
+            label.form-check-label(for="sendAllCheckbox") Send all available funds
 
-				.mb-3
-					.form-check
-						input.form-check-input(type="checkbox", id="sendAllCheckbox")
-						label.form-check-label(for="sendAllCheckbox") Send all available funds
+        .mb-3
+          label.form-label(for="speedValue") Speed
 
-				.mb-3
-					label.form-label(for="speedValue") Speed
+          input#speedTypeValue(
+            type="hidden",
+            name="speedType",
+            value="target_conf"
+          )
 
-					input(id="speedTypeValue" type="hidden" name="speedType" value="target_conf")
+          .mb-3
+            .form-check
+              input#customRadioInline1.form-check-input(
+                type="radio",
+                name="speedTypeRadio",
+                value="target_conf",
+                checked="checked"
+              )
+              label.form-check-label(for="customRadioInline1") Try to confirm in
+                |
+                span.border-dotted(
+                  for="customRadioInline1",
+                  title="LND will compute a fee rate for your on-chain transaction based on the current state of the network. Note that there is no guarantee that your transaction will be confirmed by the network based on what you set here.",
+                  data-bs-toggle="tooltip"
+                ) N or fewer blocks
+            .form-check
+              input#customRadioInline2.form-check-input(
+                type="radio",
+                name="speedTypeRadio",
+                value="sat_per_byte"
+              )
+              label.form-check-label(for="customRadioInline2") Manual fee (sat/byte)
 
-					.mb-3
-						.form-check
-							input#customRadioInline1.form-check-input(type='radio' name='speedTypeRadio' value="target_conf" checked="checked")
-							label.form-check-label(for='customRadioInline1') Try to confirm in 
-								span.border-dotted(for='customRadioInline1' title="LND will compute a fee rate for your on-chain transaction based on the current state of the network. Note that there is no guarantee that your transaction will be confirmed by the network based on what you set here." data-bs-toggle="tooltip") N or fewer blocks
-						.form-check
-							input#customRadioInline2.form-check-input(type='radio' name='speedTypeRadio' value="sat_per_byte")
-							label.form-check-label(for='customRadioInline2') Manual fee (sat/byte)
+          input#speedValue.form-control(name="speedValue")
+          small#singleAddressSpeedNote.text-muted Number of blocks to try to confirm within
 
-					input.form-control(id="speedValue" name="speedValue")
-					small#singleAddressSpeedNote.text-muted Number of blocks to try to confirm within
-			
-				
+        .alert.alert-danger.my-3
+          span Please use caution when withdrawing! Both LNDash and LND itself are beta software.
 
-				.alert.alert-danger.my-3
-					span Please use caution when withdrawing! Both LNDash and LND itself are beta software.
+        button.btn.btn-primary(type="submit")
+          i.fas.fa-external-link-alt.me-2
+          span Withdraw Funds
 
-				button.btn.btn-primary(type="submit")
-					i.fas.fa-external-link-alt.me-2
-					span Withdraw Funds
-
-		+pageTab("Multiple Addresses")
-			.alert.alert-primary.shadow-sm
-				span TODO 
-				a(href="https://github.com/janoside/lndash/issues/13" target="_blank") #13
+    +pageTab("Multiple Addresses")
+      .alert.alert-primary.shadow-sm
+        span TODO
+        a(href="https://github.com/janoside/lndash/issues/13", target="_blank") #13
 
 block endOfBody
-	script.
-		$(document).ready(function() {
-			$('#sendAllCheckbox').on('change', event => {
-				if ($(event.target).is(':checked')) {
-					$("#amountSat").prop("disabled", true);
-					$("#amountSat").val("");
+  script.
+    $(document).ready(function () {
+      $("#sendAllCheckbox").on("change", (event) => {
+        if ($(event.target).is(":checked")) {
+          $("#amountSat").prop("disabled", true);
+          $("#amountSat").val("");
+        } else {
+          $("#amountSat").prop("disabled", false);
+        }
+      });
 
-				} else {
-					$("#amountSat").prop("disabled", false);
-				}
-			});
+      $(document).on("change", 'input:radio[name="speedTypeRadio"]', function (event) {
+        $("#speedTypeValue").val($(event.target).val());
 
-			$(document).on('change', 'input:radio[name="speedTypeRadio"]', function(event) {
-				$("#speedTypeValue").val($(event.target).val());
-
-				if ($(event.target).val() == "target_conf") {
-					$("#singleAddressSpeedNote").text("Number of blocks to try to confirm within");
-
-				} else if ($(event.target).val() == "sat_per_byte") {
-					$("#singleAddressSpeedNote").text("Fee rate, sat / byte");
-				}
-			});
-		});
+        if ($(event.target).val() == "target_conf") {
+          $("#singleAddressSpeedNote").text("Number of blocks to try to confirm within");
+        } else if ($(event.target).val() == "sat_per_byte") {
+          $("#singleAddressSpeedNote").text("Fee rate, sat / byte");
+        }
+      });
+    });

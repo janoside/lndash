@@ -660,9 +660,9 @@ async function getWalletUtxos(minConfirmations=1, maxConfirmations=100000000) {
 }
 
 async function getNewDepositAddress(addressType) {
-	let valuesByTypeString = {"p2wkh":0, "np2wkh":1};
+	const valuesByTypeString = {"p2wkh":0, "np2wkh":1, "p2tr": 4};
 
-	let NewAddress = util.promisify(lndRpc.NewAddress.bind(lndRpc));
+	const NewAddress = util.promisify(lndRpc.NewAddress.bind(lndRpc));
 	return await NewAddress({type:valuesByTypeString[addressType]});
 }
 

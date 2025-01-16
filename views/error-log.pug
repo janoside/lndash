@@ -1,84 +1,83 @@
 extends layout
 
 block headContent
-	title Error Log
+  title Error Log
 
 block breadcrumb
-	li.breadcrumb-item
-		a(href='/') Home
-	li.breadcrumb-item Technical
-	li.breadcrumb-item Error Log
+  li.breadcrumb-item
+    a(href="/") Home
+  li.breadcrumb-item Technical
+  li.breadcrumb-item Error Log
 
 block content
-	+pageTitle("Error Log")
+  +pageTitle("Error Log")
 
+  if (!session.admin)
+    - var loginRequiredNote = "display recent application errors.";
+    include includes/login-required-alert.pug
 
-	if (!session.admin)
-		- var loginRequiredNote = "display recent application errors.";
-		include includes/login-required-alert.pug
+  else
+    if (false)
+      pre
+        code.json #{ JSON.stringify(errorSummary) }
 
-	else
+    if (errorLog.length == 0)
+      .alert.alert-success.shadow-sm
+        | No recent errors
+        i.fas.fa-check.ms-2
 
-		if (false)
-			pre
-				code.json #{JSON.stringify(errorSummary)}
+    else
+      each error, errorIndex in errorLog
+        +modal("errorModal-" + errorIndex, `Error #${(errorIndex + 1).toLocaleString()}`)
+          h3.h6 Error
 
-		if (errorLog.length == 0)
-			.alert.alert-success.shadow-sm
-				| No recent errors
-				i.fas.fa-check.ms-2
+          pre
+            code.json #{ JSON.stringify(error.error, null, 4) }
 
-		else
+          if (error.error.stack)
+            hr
 
+            h4.h6 Stacktrace
+            pre
+              code.json #{ error.error.stack }
 
+          if (error.userData)
+            hr
 
-			each error, errorIndex in errorLog
-				+modal("errorModal-" + errorIndex, `Error #${(errorIndex + 1).toLocaleString()}`)
-					h3.h6 Error
-					
-					pre
-						code.json #{JSON.stringify(error.error, null, 4)}
+            h4.h6 User Data
+            pre
+              code.json #{ JSON.stringify(error.userData, null, 4) }
 
-					if (error.error.stack)
-						hr
+      .table-responsive
+        table.table.table-striped
+          thead
+            tr
+              th.text-end.fw-light #
+              th Date
+              th
+                span.border-dotted(
+                  title="This identifies the error in the source code for LNDash.",
+                  data-bs-toggle="tooltip"
+                ) ID
 
-						h4.h6 Stacktrace
-						pre
-							code.json #{error.error.stack}
+              th Error
+              th.text-end Details
 
-					if (error.userData)
-						hr
+          tbody
+            each error, errorIndex in errorLog
+              tr
+                th.text-end.fw-light #{ (errorIndex + 1).toLocaleString() }
 
-						h4.h6 User Data
-						pre
-							code.json #{JSON.stringify(error.userData, null, 4)}
+                td
+                  +date(error.date.getTime()/1000)
 
+                td #{ error.errorId }
+                td #{ error.error }
 
-
-			.table-responsive
-				table.table.table-striped
-					thead
-						tr
-							th.text-end.fw-light #
-							th Date
-							th
-								span.border-dotted(title="This identifies the error in the source code for LNDash." data-bs-toggle="tooltip") ID
-
-							th Error
-							th.text-end Details
-					
-					tbody
-						each error, errorIndex in errorLog
-							tr
-								th.text-end.fw-light #{(errorIndex + 1).toLocaleString()}
-
-								td
-									+date(error.date.getTime()/1000)
-
-								td #{error.errorId}
-								td #{error.error}
-								
-								td.text-end
-									a.btn.btn-primary.btn-sm(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#errorModal-" + errorIndex))
-										i.fas.fa-file-lines
-
+                td.text-end
+                  a.btn.btn-primary.btn-sm(
+                    href="javascript:void(0)",
+                    data-bs-toggle="modal",
+                    data-bs-target="#errorModal-" + errorIndex
+                  )
+                    i.fas.fa-file-lines

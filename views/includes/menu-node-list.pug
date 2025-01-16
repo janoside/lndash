@@ -1,59 +1,67 @@
+if (global.adminCredentials && global.adminCredentials.lndNodes)
+  +modal("nodeSelectModal", "Nodes", "modal-md")
+    ul.nav.nav-pills.flex-column
+      each lndNodeInfo, lndNodeIndex in global.adminCredentials.lndNodes
+        li.nav-item.rounded
+          if (lndConnections.byIndex[lndNodeIndex] != null)
+            - let lndConn = lndConnections.byIndex[lndNodeIndex];
+            - let node_pubkey = lndConn.internal_pubkey;
+
+            if (fullNetworkDescription)
+              a.dropdown-item.rounded-0.px-2.py-2.fs-75(
+                href=`/connect-lnd?index=${lndNodeIndex}`,
+                onclick="$('#switchNodeModal').show()"
+              )
+                .d-flex.justify-content-between
+                  .d-flex.justify-content-start
+                    .me-1
+                      +nodeIcon(node_pubkey, "2rem")
+
+                    div
+                      +nodePubkey(node_pubkey)
+
+                      div
+                        +nodeAlias(lndConn.internal_alias)
+
+                  .mt-1.fs-120
+                    if (node_pubkey == lndRpc.internal_pubkey)
+                      +pillBadgeSuccess("Active")
+
+    hr.my-4
+
+    a(href="/manage-nodes") Manage Nodes
 
 if (global.adminCredentials && global.adminCredentials.lndNodes)
-	+modal("nodeSelectModal", "Nodes", "modal-md")
-		ul.nav.nav-pills.flex-column
-			each lndNodeInfo, lndNodeIndex in global.adminCredentials.lndNodes
-				li.nav-item.rounded
-					if (lndConnections.byIndex[lndNodeIndex] != null)
-						- let lndConn = lndConnections.byIndex[lndNodeIndex];
-						- let node_pubkey = lndConn.internal_pubkey;
+  .d-flex.justify-content-start
+    +menuHeading("Current Node", `The node that LNDash is currently connected to. Click it to select another node.`)
+    .ms-3
+      a(
+        href="/manage-nodes",
+        title="Manage connected nodes",
+        data-bs-toggle="tooltip"
+      )
+        i.fas.fa-pen-to-square.text-body.align-top
 
+  ul.nav.nav-pills.flex-column
+    each lndNodeInfo, lndNodeIndex in global.adminCredentials.lndNodes
+      li.nav-item.rounded
+        if (lndConnections.byIndex[lndNodeIndex] != null)
+          - let lndConn = lndConnections.byIndex[lndNodeIndex];
+          - let node_pubkey = lndConn.internal_pubkey;
 
-						if (fullNetworkDescription)
-							a.dropdown-item.rounded-0.px-2.py-2.fs-75(href=`/connect-lnd?index=${lndNodeIndex}`, onclick=`$('#switchNodeModal').show()`)
-								.d-flex.justify-content-between
-									.d-flex.justify-content-start
-										.me-1
-											+nodeIcon(node_pubkey, "2rem")
+          if (fullNetworkDescription)
+            if (node_pubkey == lndRpc.internal_pubkey)
+              a.dropdown-item.rounded-0.px-2.py-2.fs-75(
+                href="javascript:void(0)",
+                data-bs-toggle="modal",
+                data-bs-target="#nodeSelectModal"
+              )
+                .d-flex
+                  .me-1
+                    +nodeIcon(node_pubkey, "2rem")
 
-										div
-											+nodePubkey(node_pubkey)
-											
-											div
-												+nodeAlias(lndConn.internal_alias)
+                  div
+                    +nodePubkey(node_pubkey)
 
-									.mt-1.fs-120
-										if (node_pubkey == lndRpc.internal_pubkey)
-											+pillBadgeSuccess("Active")
-
-		hr.my-4
-
-		a(href=`/manage-nodes`) Manage Nodes
-
-if (global.adminCredentials && global.adminCredentials.lndNodes)
-	.d-flex.justify-content-start
-		+menuHeading("Current Node", `The node that LNDash is currently connected to. Click it to select another node.`)
-		.ms-3
-			a(href="/manage-nodes", title="Manage connected nodes", data-bs-toggle="tooltip")
-				i.fas.fa-pen-to-square.text-body.align-top
-
-	ul.nav.nav-pills.flex-column
-		each lndNodeInfo, lndNodeIndex in global.adminCredentials.lndNodes
-			li.nav-item.rounded
-				if (lndConnections.byIndex[lndNodeIndex] != null)
-					- let lndConn = lndConnections.byIndex[lndNodeIndex];
-					- let node_pubkey = lndConn.internal_pubkey;
-
-
-					if (fullNetworkDescription)
-						if (node_pubkey == lndRpc.internal_pubkey)
-							a.dropdown-item.rounded-0.px-2.py-2.fs-75(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#nodeSelectModal")
-								.d-flex
-									.me-1
-										+nodeIcon(node_pubkey, "2rem")
-
-									div
-										+nodePubkey(node_pubkey)
-										
-										div
-											+nodeAlias(lndConn.internal_alias)
+                    div
+                      +nodeAlias(lndConn.internal_alias)

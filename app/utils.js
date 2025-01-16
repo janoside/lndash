@@ -7,7 +7,6 @@ const qrcode = require("qrcode");
 const CryptoJS = require("crypto-js");
 const fs = require("fs");
 const url = require("url");
-const base64url = require('base64url');
 const path = require('path');
 const axios = require("axios");
 
@@ -112,7 +111,10 @@ function formatCurrencyAmountWithForcedDecimalPlaces(amount, formatType, forcedD
 
 	var dec = new Decimal(amount);
 
-	var decimalPlaces = currencyType.decimalPlaces;
+	// the regex used to strip trailing zeros only works
+	// if theres a non-zero in the string
+	// force currencies with no decimals to have one so 0 values dont get deleted
+	var decimalPlaces = currencyType.decimalPlaces || 1;
 	//if (decimalPlaces == 0 && dec < 1) {
 	//	decimalPlaces = 5;
 	//}
@@ -159,7 +161,7 @@ function formatCurrencyAmountWithForcedDecimalPlaces(amount, formatType, forcedD
 
 			return returnVal;
 		}
-	} else if (currencyType.type == "exchanged") {
+	} else if (currencyType.type == "fiat") {
 		//console.log(JSON.stringify(global.exchangeRates) + " - " + currencyType.name);
 		if (global.exchangeRates != null && global.exchangeRates[currencyType.id] != null) {
 			dec = dec.times(global.exchangeRates[currencyType.id]);
@@ -626,11 +628,10 @@ function parseLndconnectString(lndconnectString) {
 	let parsedUrl = url.parse(lndconnectString, true);
 
 	let tlsCertAscii = "-----BEGIN CERTIFICATE-----\r\n";
-	tlsCertAscii += chunkString(base64url.toBase64(parsedUrl.query.cert), 64).join("\r\n");
+	tlsCertAscii += chunkString(Buffer.from(parsedUrl.query.cert, 'base64url').toString('base64'), 64).join("\r\n");
 	tlsCertAscii += "\r\n-----END CERTIFICATE-----";
 
-	let adminMacaroonHex = base64url.toBase64(parsedUrl.query.macaroon);
-	adminMacaroonHex = Buffer.from(adminMacaroonHex, 'base64').toString('hex');
+	let adminMacaroonHex = Buffer.from(parsedUrl.query.macaroon, 'base64url').toString('hex');
 
 	let parsedData = {
 		host:parsedUrl.hostname,
@@ -654,8 +655,8 @@ function formatLndconnectString(lndconnectData) {
 	// remove ---END--- line
 	certLines.shift();
 
-	let cert = base64url.fromBase64(certLines.join(''));
-	let macaroon = base64url(Buffer.from(lndconnectData.adminMacaroonHex, 'hex'));
+	let cert = Buffer.from(certLines.join(''), 'base64').toString('base64url');
+	let macaroon = Buffer.from(lndconnectData.adminMacaroonHex, 'hex').toString('base64url');
 
 	return `lndconnect://${lndconnectData.host}:${lndconnectData.port}?cert=${cert}&macaroon=${macaroon}`;
 }
@@ -767,9 +768,10 @@ const formatBuffer = (buffer, format="base64", fullDetail=false) => {
 };
 
 function getExchangedCurrencyFormatData(amount, exchangeType, includeUnit=true) {
-	if (global.exchangeRates != null && global.exchangeRates[exchangeType.toLowerCase()] != null) {
+	exchangeType = exchangeType.toLowerCase()
+	if (global.exchangeRates != null && global.exchangeRates[exchangeType] != null) {
 		var dec = new Decimal(amount);
-		dec = dec.times(global.exchangeRates[exchangeType.toLowerCase()]);
+		dec = dec.times(global.exchangeRates[exchangeType]);
 		var exchangedAmt = parseFloat(Math.round(dec * 100) / 100).toFixed(2);
 
 		return {

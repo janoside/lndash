@@ -1,15 +1,15 @@
 .mb-4.alert.alert-primary
-	p LNDash setup - 2 easy steps:
+  p LNDash setup - 2 easy steps:
 
-	ol.mb-0
-		li
-			span(class=(setupStep == 1 ? "text-success" : null)) Set admin password
-			if (setupStep == 2)
-				i.fas.fa-check.text-success.ms-2
-			br
-			small This will be used to authenticate your browser sessions, as well as encrypt LND credentials.
+  ol.mb-0
+    li
+      span(class=setupStep == 1 ? "text-success" : null) Set admin password
+      if (setupStep == 2)
+        i.fas.fa-check.text-success.ms-2
+      br
+      small This will be used to authenticate your browser sessions, as well as encrypt LND credentials.
 
-		li
-			span(class=(setupStep == 2 ? "text-success" : null)) Connect to LND
-			br
-			small Connect to your first LND node. You can add more later and switch among them easily.
+    li
+      span(class=setupStep == 2 ? "text-success" : null) Connect to LND
+      br
+      small Connect to your first LND node. You can add more later and switch among them easily.

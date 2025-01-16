@@ -1,88 +1,72 @@
-
 - let menuSections = [];
 - let menuItems = [];
 
 if (!lndRpc)
-	if (setupNeeded)
-		- menuSections.push({title:null, items: [{url:"/", text:"Setup", icon:"fa-cog", otherUrls:["/setup", "/manage-nodes"]}]});
+  if (setupNeeded)
+    - menuSections.push({ title: null, items: [{ url: "/", text: "Setup", icon: "fa-cog", otherUrls: ["/setup", "/manage-nodes"] }] });
 
-	else
-		- menuSections.push({title:null, items: [{url:"/login", text:"Login", icon:"fa-sign-in-alt"}]});
+  else
+    - menuSections.push({ title: null, items: [{ url: "/login", text: "Login", icon: "fa-sign-in-alt" }] });
 
 else if (fullNetworkDescription == null)
-	- menuSections.push({title:null, items: [{url:"javascript:void(0)", text:"Loading...", spinner:true}]});
+  - menuSections.push({ title: null, items: [{ url: "javascript:void(0)", text: "Loading...", spinner: true }] });
 
 else
-	
+  - menuItems.push({ url: "/", text: "Home", icon: "fas fa-home" });
+  - menuItems.push({ url: "/local-channels", text: "My Channels", icon: "fas fa-exchange-alt" });
+  - menuItems.push({ url: "/wallet", text: "My Wallet", icon: "fas fa-wallet" });
+  - menuItems.push({ url: "/peers", text: "My Peers", icon: "fas fa-users" });
 
+  - menuSections.push({ title: "Dashboard", items: menuItems });
+  - menuItems = [];
 
-	- menuItems.push({url:"/", text:"Home", icon:"fas fa-home"});
-	- menuItems.push({url:"/local-channels", text:"My Channels", icon:"fas fa-exchange-alt"});
-	- menuItems.push({url:"/wallet", text:"My Wallet", icon:"fas fa-wallet"});
-	- menuItems.push({url:"/peers", text:"My Peers", icon:"fas fa-users"});
-	
-	- menuSections.push({title:"Dashboard", items: menuItems});
-	- menuItems = [];
+  - menuItems.push({ url: "/invoices", text: "Invoices", icon: "fas fa-sign-in-alt" });
+  - menuItems.push({ url: "/payment-history", text: "Payments Sent", icon: "fas fa-sign-out-alt" });
+  - menuItems.push({ url: "/forwarding-history", text: "Forwarding History", icon: "fas fa-angle-double-right" });
 
+  - menuSections.push({ title: "Lightning Payments", items: menuItems });
+  - menuItems = [];
 
+  - menuItems.push({ url: "/nodes", text: "All Nodes", icon: "fas fa-network-wired" });
+  - menuItems.push({ url: "/channels", text: "All Channels", icon: "fas fa-circle-nodes" });
 
+  if (false)
+    - menuItems.push({ url: "/search", text: "Search", icon: "fas fa-search" });
 
-	- menuItems.push({url:"/invoices", text:"Invoices", icon:"fas fa-sign-in-alt"});
-	- menuItems.push({url:"/payment-history", text:"Payments Sent", icon:"fas fa-sign-out-alt"});
-	- menuItems.push({url:"/forwarding-history", text:"Forwarding History", icon:"fas fa-angle-double-right"});
-	
-	- menuSections.push({title:"Lightning Payments", items: menuItems});
-	- menuItems = [];
+  - menuSections.push({ title: "Public Network", items: menuItems });
+  - menuItems = [];
 
+  - menuItems.push({ url: "/create-invoice", text: "Create Invoice", icon: "fas fa-asterisk" });
+  - menuItems.push({ url: "/pay-invoice", text: "Pay Invoice", icon: "fas fa-receipt" });
+  if (false)
+    - menuItems.push({ url: "/send-payment", text: "Send Payment", icon: "fas fa-money-bill-wave" });
+  - menuItems.push({ url: "/openchannel", text: "Open Channel", icon: "fas fa-plus-square" });
+  - menuItems.push({ url: "/edit-multi-channel-policies", text: "Bulk Edit Channels", icon: "fas fa-pen" });
+  - menuItems.push({ url: "/sign-verify", text: "Sign or Verify", icon: "fas fa-pen-nib" });
+  - menuItems.push({ url: "/query-route", text: "Query Route", icon: "fas fa-route" });
+  - menuItems.push({ url: "/lndconnect", text: "LND Connect", icon: "fas fa-mobile-alt" });
 
+  - menuSections.push({ title: "Tools", items: menuItems });
+  - menuItems = [];
 
+  - menuItems.push({ url: "/error-log", text: "Error Log", icon: "fas fa-triangle-exclamation" });
 
-	- menuItems.push({url:"/nodes", text:"All Nodes", icon:"fas fa-network-wired"});
-	- menuItems.push({url:"/channels", text:"All Channels", icon:"fas fa-circle-nodes"});
-	
-	if (false)
-		- menuItems.push({url:"/search", text:"Search", icon:"fas fa-search"});
-	
-	- menuSections.push({title:"Public Network", items: menuItems});
-	- menuItems = [];
-	
-
-
-	- menuItems.push({url:"/create-invoice", text:"Create Invoice", icon:"fas fa-asterisk"})
-	- menuItems.push({url:"/pay-invoice", text:"Pay Invoice", icon:"fas fa-receipt"})
-	if (false)
-		- menuItems.push({url:"/send-payment", text:"Send Payment", icon:"fas fa-money-bill-wave"})
-	- menuItems.push({url:"/openchannel", text:"Open Channel", icon:"fas fa-plus-square"})
-	- menuItems.push({url:"/edit-multi-channel-policies", text:"Bulk Edit Channels", icon:"fas fa-pen"})
-	- menuItems.push({url:"/sign-verify", text:"Sign or Verify", icon:"fas fa-pen-nib"})
-	- menuItems.push({url:"/query-route", text:"Query Route", icon:"fas fa-route"})
-	- menuItems.push({url:"/lndconnect", text:"LND Connect", icon:"fas fa-mobile-alt"})
-	
-	- menuSections.push({title:"Tools", items: menuItems});
-	- menuItems = [];
-
-
-
-
-	- menuItems.push({url:"/error-log", text:"Error Log", icon:"fas fa-triangle-exclamation"})
-
-	- menuSections.push({title:"Technical", items: menuItems});
-	- menuItems = [];
-
+  - menuSections.push({ title: "Technical", items: menuItems });
+  - menuItems = [];
 
 each menuSection in menuSections
-	if (menuSection.title)
-		+menuHeading(menuSection.title)
-		
+  if (menuSection.title)
+    +menuHeading(menuSection.title)
 
-	ul.nav.nav-pills.flex-column.mb-3
-		each menuItem in menuSection.items
-			if (menuItem.url && menuItem.text)
-				li.nav-item.rounded
-					a.nav-link.p-2.ps-3.py-2(href=menuItem.url, class=((req.path == menuItem.url || (menuItem.otherUrls && menuItem.otherUrls.includes(req.path))) ? "active text-white" : "text-body"))
-						if (menuItem.icon)
-							i.me-2(class=menuItem.icon)
+  ul.nav.nav-pills.flex-column.mb-3
+    each menuItem in menuSection.items
+      if (menuItem.url && menuItem.text)
+        li.nav-item.rounded
+          a.nav-link.p-2.ps-3.py-2(
+            href=menuItem.url,
+            class=req.path == menuItem.url || (menuItem.otherUrls && menuItem.otherUrls.includes(req.path)) ? "active text-white" : "text-body"
+          )
+            if (menuItem.icon)
+              i.me-2(class=menuItem.icon)
 
-						| #{menuItem.text}
-
-
+            | #{ menuItem.text }

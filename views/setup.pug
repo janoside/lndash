@@ -1,30 +1,30 @@
 extends layout
 
 block headContent
-	title Setup
+  title Setup
 
 block breadcrumb
-	li.breadcrumb-item Setup
-	li.breadcrumb-item Set Admin Password
-	
+  li.breadcrumb-item Setup
+  li.breadcrumb-item Set Admin Password
+
 block content
+  +pageTitle("Setup » Set Admin Password")
 
-	+pageTitle("Setup » Set Admin Password")
-	
-	
-	- var setupStep = 1;
-	include includes/setup-directions-alert.pug
+  - var setupStep = 1;
+  include includes/setup-directions-alert.pug
 
+  form(method="post", action="/setup", autocomplete="off")
+    .mb-3
+      label.form-label(for="password") Admin Password
+      input#password.form-control(name="password", type="password")
 
-	form(method="post" action="/setup")
-		.mb-3
-			label.form-label(for="password") Admin Password
-			input.form-control(id="password" name="password" type="password")
+    .mb-3
+      label.form-label(for="passwordConfirmation") Repeat Password
+      input#passwordConfirmation.form-control(
+        name="passwordConfirmation",
+        type="password"
+      )
 
-		.mb-3
-			label.form-label(for="passwordConfirmation") Repeat Password
-			input.form-control(id="passwordConfirmation" name="passwordConfirmation" type="password")
-
-		button.btn.btn-primary(type="submit")
-			i.fas.fa-key.me-2
-			span Set Password
+    button.btn.btn-primary(type="submit")
+      i.fas.fa-key.me-2
+      span Set Password

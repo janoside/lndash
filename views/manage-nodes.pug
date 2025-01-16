@@ -1,196 +1,256 @@
 extends layout
 
 block headContent
-	title Manage Nodes
+  title Manage Nodes
 
 block breadcrumb
-	li.breadcrumb-item Setup
-	if (setupActive)
-		li.breadcrumb-item Connect to Node
-	else
-		li.breadcrumb-item Manage Nodes
-	
+  li.breadcrumb-item Setup
+  if (setupActive)
+    li.breadcrumb-item Connect to Node
+  else
+    li.breadcrumb-item Manage Nodes
+
 block content
+  if (setupActive)
+    +pageTitle("Setup » Connect to Node")
 
-	if (setupActive)
-		+pageTitle("Setup » Connect to Node")
+  else
+    +pageTitle("Manage Nodes")
 
-	else
-		+pageTitle("Manage Nodes")
+  if (!setupActive && !session.admin)
+    - var loginRequiredNote = "allow you to add and remove nodes.";
+    include includes/login-required-alert.pug
 
+  else
+    if (lndConnectError)
+      .alert.alert-danger.shadow-sm.mb-3
+        h5.h6 Error
+        p Error while connecting to LND. Check your RPC connection credentials and see below for details about the error.
+        pre.mb-2
+          code.json #{ JSON.stringify(lndConnectError, null, 4) }
 
-	if (!setupActive && !session.admin)
-		- var loginRequiredNote = "allow you to add and remove nodes.";
-		include includes/login-required-alert.pug
+        if (lndConnectError.stack)
+          pre
+            code.json #{ lndConnectError.stack }
 
-	else
+    if (setupActive)
+      - var setupStep = 2;
+      include includes/setup-directions-alert.pug
 
-		if (lndConnectError)
-			.alert.alert-danger.shadow-sm.mb-3
-				h5.h6 Error
-				p Error while connecting to LND. Check your RPC connection credentials and see below for details about the error.
-				pre.mb-2
-					code.json #{JSON.stringify(lndConnectError, null, 4)}
+    if (global.adminCredentials.lndNodes && global.adminCredentials.lndNodes.length > 0)
+      if (true)
+        +contentSection(`${global.adminCredentials.lndNodes.length} Node${global.adminCredentials.lndNodes.length == 1 ? "" : "s"}`)
+          each lndNodeConfig, lndNodeIndex in global.adminCredentials.lndNodes
+            - var lndNodeDetails = lndNodeConfig;
 
-				if (lndConnectError.stack)
-					pre
-						code.json #{lndConnectError.stack}
+            include includes/node-connection-details-modal.pug
 
-		if (setupActive)
-			- var setupStep = 2;
-			include includes/setup-directions-alert.pug
+          .table-responsive
+            table.table.table-striped
+              thead
+                tr
+                  th.text-end.fw-light #
+                  th Node
+                  th Status
+                  th Configuration
+                  th.text-end Actions
 
-		if (global.adminCredentials.lndNodes && global.adminCredentials.lndNodes.length > 0)
-			if (true)
-				+contentSection(`${global.adminCredentials.lndNodes.length} Node${global.adminCredentials.lndNodes.length == 1 ? "" : "s"}`)
-					each lndNodeConfig, lndNodeIndex in global.adminCredentials.lndNodes
-						- var lndNodeDetails = lndNodeConfig;
-						
-						include includes/node-connection-details-modal.pug
+              tbody
+                each lndNodeConfig, lndNodeIndex in global.adminCredentials.lndNodes
+                  - var lndNode = lndConnections.byIndex[lndNodeIndex];
+                  tr
+                    th.text-end.fw-light #{ (lndNodeIndex + 1).toLocaleString() }
+                    td
+                      if (lndNode)
+                        - var card_node_pubkey = lndNode.internal_pubkey;
 
+                      else
+                        - var card_node_pubkey = "Unknown";
 
-					.table-responsive
-						table.table.table-striped
-							thead
-								tr
-									th.text-end.fw-light #
-									th Node
-									th Status
-									th Configuration
-									th.text-end Actions
-							
-							tbody
-								each lndNodeConfig, lndNodeIndex in global.adminCredentials.lndNodes
-									- var lndNode = lndConnections.byIndex[lndNodeIndex];
-									tr
-										th.text-end.fw-light #{(lndNodeIndex + 1).toLocaleString()}
-										td
-											if (lndNode)
-												- var card_node_pubkey = lndNode.internal_pubkey;
-												
-											else
-												- var card_node_pubkey = "Unknown";
+                      +nodeCard(card_node_pubkey)
 
-											+nodeCard(card_node_pubkey)
+                    td
+                      if (lndNode == lndRpc)
+                        +pillBadgeSuccess("Active")
+                      else
+                        +pillBadgeWarning("Inactive")
 
-										td
-											if (lndNode == lndRpc)
-												+pillBadgeSuccess("Active")
-											else
-												+pillBadgeWarning("Inactive")
-										
-										td
-											a.btn.btn-primary.btn-sm(href="javascript:void(0)" data-bs-toggle="modal" data-bs-target=("#lndNodeDetailsModal-" + lndNodeIndex))
-												i.fas.fa-file-lines
+                    td
+                      a.btn.btn-primary.btn-sm(
+                        href="javascript:void(0)",
+                        data-bs-toggle="modal",
+                        data-bs-target="#lndNodeDetailsModal-" + lndNodeIndex
+                      )
+                        i.fas.fa-file-lines
 
-										td.text-end
-											if (lndNode != lndRpc)
-												a.btn.btn-sm.btn-primary.me-2(href=`/connect-lnd?index=${lndNodeIndex}` onclick="$('#switchLndModal').modal()")
-													i.fas.fa-check.me-2
-													| Set Active
+                    td.text-end
+                      if (lndNode != lndRpc)
+                        a.btn.btn-sm.btn-primary.me-2(
+                          href=`/connect-lnd?index=${lndNodeIndex}`,
+                          onclick="$('#switchLndModal').modal()"
+                        )
+                          i.fas.fa-check.me-2
+                          | Set Active
 
-											a.btn.btn-danger.btn-sm(href=`/delete-lnd-node?index=${lndNodeIndex}` onclick="$('#refreshLndModal').modal()")
-												i.fas.fa-times.me-2
-												| Delete
-						
+                      a.btn.btn-danger.btn-sm(
+                        href=`/delete-lnd-node?index=${lndNodeIndex}`,
+                        onclick="$('#refreshLndModal').modal()"
+                      )
+                        i.fas.fa-times.me-2
+                        | Delete
 
-		+contentSection("Add New Node")
-			+pageTabs(["File Input", "Raw Text Input", "LND Connect"], false)
+    +contentSection("Add New Node")
+      +pageTabs(["File Input", "Raw Text Input", "LND Connect"], false)
 
-			.tab-content
-				+pageTab("File Input", true)
-				
-					form(method="post")
-						input(type="hidden" name="inputType" value="fileInput")
+      .tab-content
+        +pageTab("File Input", true)
+          form(method="post")
+            input(type="hidden", name="inputType", value="fileInput")
 
-						.mb-3
-							label.form-label(for="host") Host
-							input.form-control(id="host" name="host" value=host placeholder="127.0.0.1")
+            .mb-3
+              label.form-label(for="host") Host
+              input#host.form-control(
+                name="host",
+                value=host,
+                placeholder="127.0.0.1"
+              )
 
-						.mb-3
-							label.form-label(for="port") Port
-							input.form-control(id="port" name="port" value=port placeholder="10009")
+            .mb-3
+              label.form-label(for="port") Port
+              input#port.form-control(
+                name="port",
+                value=port,
+                placeholder="10009"
+              )
 
-						.mb-3
-							label.form-label(for="adminMacaroonFilepath")
-								span.me-2 Admin Macaroon Filepath
-								i.fas.fa-asterisk.text-danger(title="Required if using File Input" data-bs-toggle="tooltip")
+            .mb-3
+              label.form-label(for="adminMacaroonFilepath")
+                span.me-2 Admin Macaroon Filepath
+                i.fas.fa-asterisk.text-danger(
+                  title="Required if using File Input",
+                  data-bs-toggle="tooltip"
+                )
 
-							input.form-control(id="adminMacaroonFilepath" name="adminMacaroonFilepath" value=adminMacaroonFilepath)
+              input#adminMacaroonFilepath.form-control(
+                name="adminMacaroonFilepath",
+                value=adminMacaroonFilepath
+              )
 
-						.mb-3
-							label.form-label(for="tlsCertFilepath")
-								span.me-2 TLS Certificate Filepath
-								i.fas.fa-asterisk.text-danger(title="Required if using File Input" data-bs-toggle="tooltip")
+            .mb-3
+              label.form-label(for="tlsCertFilepath")
+                span.me-2 TLS Certificate Filepath
+                i.fas.fa-asterisk.text-danger(
+                  title="Required if using File Input",
+                  data-bs-toggle="tooltip"
+                )
 
-							input.form-control(id="tlsCertFilepath" name="tlsCertFilepath" value=tlsCertFilepath)
+              input#tlsCertFilepath.form-control(
+                name="tlsCertFilepath",
+                value=tlsCertFilepath
+              )
 
-						button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add Node
+            button.btn.btn-primary(
+              type="submit",
+              onclick="$('#connectLndModal').modal()"
+            ) Add Node
 
-				
-				+pageTab("Raw Text Input")
+        +pageTab("Raw Text Input")
+          form(method="post")
+            input(type="hidden", name="inputType", value="rawTextInput")
 
-					form(method="post")
-						input(type="hidden" name="inputType" value="rawTextInput")
+            .mb-3
+              label.form-label(for="hostRaw") Host
+              input#hostRaw.form-control(
+                name="host",
+                value=host,
+                placeholder="127.0.0.1"
+              )
 
-						.mb-3
-							label.form-label(for="hostRaw") Host
-							input.form-control(id="hostRaw" name="host" value=host placeholder="127.0.0.1")
+            .mb-3
+              label.form-label(for="portRaw") Port
+              input#portRaw.form-control(
+                name="port",
+                value=port,
+                placeholder="10009"
+              )
 
-						.mb-3
-							label.form-label(for="portRaw") Port
-							input.form-control(id="portRaw" name="port" value=port placeholder="10009")
+            .mb-3
+              label.form-label(for="adminMacaroonHex")
+                span.me-2 Admin Macaroon (hex)
+                i.fas.fa-asterisk.text-danger(
+                  title="Required if using Raw Text Input",
+                  data-bs-toggle="tooltip"
+                )
 
-						.mb-3
-							label.form-label(for="adminMacaroonHex")
-								span.me-2 Admin Macaroon (hex)
-								i.fas.fa-asterisk.text-danger(title="Required if using Raw Text Input" data-bs-toggle="tooltip")
+              textarea#adminMacaroonHex.form-control.fs-80.font-monospace(
+                name="adminMacaroonHex",
+                rows="4"
+              ) #{ adminMacaroonHex }
 
-							textarea.form-control.fs-80.font-monospace(id="adminMacaroonHex" name="adminMacaroonHex", rows="4") #{adminMacaroonHex}
+            .mb-3
+              label.form-label(for="tlsCertAscii")
+                span.me-2 TLS Certificate (ascii)
+                i.fas.fa-asterisk.text-danger(
+                  title="Required if using Raw Text Input",
+                  data-bs-toggle="tooltip"
+                )
 
-						.mb-3
-							label.form-label(for="tlsCertAscii")
-								span.me-2 TLS Certificate (ascii)
-								i.fas.fa-asterisk.text-danger(title="Required if using Raw Text Input" data-bs-toggle="tooltip")
+              textarea#tlsCertAscii.form-control.fs-80.font-monospace(
+                name="tlsCertAscii",
+                rows="12"
+              ) #{ tlsCertAscii }
 
-							textarea.form-control.fs-80.font-monospace(id="tlsCertAscii" name="tlsCertAscii", rows="12") #{tlsCertAscii}
+            button.btn.btn-primary(
+              type="submit",
+              onclick="$('#connectLndModal').modal()"
+            ) Add Node
 
-						button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add Node
+        +pageTab("LND Connect")
+          form(method="post")
+            input(type="hidden", name="inputType", value="lndconnectString")
 
-				+pageTab("LND Connect")
+            .mb-3
+              label.form-label(for="lndconnectString")
+                span.me-2 LND Connect String
+                i.fas.fa-asterisk.text-danger(
+                  title="Required if using LND Connect...obviously",
+                  data-bs-toggle="tooltip"
+                )
 
-					form(method="post")
-						input(type="hidden" name="inputType" value="lndconnectString")
+              textarea#lndconnectString.form-control(
+                name="lndconnectString",
+                rows="6"
+              ) #{ lndconnectString }
 
-						.mb-3
-							label.form-label(for="lndconnectString")
-								span.me-2 LND Connect String
-								i.fas.fa-asterisk.text-danger(title="Required if using LND Connect...obviously" data-bs-toggle="tooltip")
+            .mb-3
+              span More info about
+              a(href="https://github.com/LN-Zap/lndconnect", target="_blank") LND Connect
 
-							textarea.form-control(id="lndconnectString" name="lndconnectString" rows="6") #{lndconnectString}
+            button.btn.btn-primary(
+              type="submit",
+              onclick="$('#connectLndModal').modal()"
+            ) Add Node
 
-						.mb-3
-							span More info about 
-							a(href="https://github.com/LN-Zap/lndconnect" target="_blank") LND Connect
+    #connectLndModal.modal(tabindex="-1", role="dialog", aria-hidden="true")
+      .modal-dialog.modal-dialog-centered.modal-sm
+        .modal-content
+          .modal-body
+            h5 Connecting...
+            span Refreshing the full public network often takes ~5-15 seconds...
+            .text-center.mb-4.mt-5
+              .spinner-border.text-primary(
+                role="status",
+                style="width: 3rem; height: 3rem"
+              )
 
-						button.btn.btn-primary(type="submit" onclick="$('#connectLndModal').modal()") Add Node
-
-
-		.modal(id="connectLndModal" tabindex="-1" role="dialog" aria-hidden="true")
-			.modal-dialog.modal-dialog-centered.modal-sm
-				.modal-content
-					.modal-body
-						h5 Connecting...
-						span Refreshing the full public network often takes ~5-15 seconds...
-						.text-center.mb-4.mt-5
-							.spinner-border.text-primary(role="status" style="width: 3rem; height: 3rem;")
-
-
-		.modal(id="refreshLndModal" tabindex="-1" role="dialog" aria-hidden="true")
-			.modal-dialog.modal-dialog-centered.modal-sm
-				.modal-content
-					.modal-body
-						h5 Refreshing...
-						span Refreshing the full public network often takes ~5-15 seconds...
-						.text-center.mb-4.mt-5
-							.spinner-border.text-primary(role="status" style="width: 3rem; height: 3rem;")
+    #refreshLndModal.modal(tabindex="-1", role="dialog", aria-hidden="true")
+      .modal-dialog.modal-dialog-centered.modal-sm
+        .modal-content
+          .modal-body
+            h5 Refreshing...
+            span Refreshing the full public network often takes ~5-15 seconds...
+            .text-center.mb-4.mt-5
+              .spinner-border.text-primary(
+                role="status",
+                style="width: 3rem; height: 3rem"
+              )

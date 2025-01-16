@@ -1,16 +1,25 @@
 if (userMessage || userMessageMarkdown)
-	.position-fixed.top-0.start-50.translate-middle-x.p-3(style="z-index: 1200;")
-		.toast.align-items-center.text-white.border-0(id="userMessageToast", class=(userMessageType ? `bg-${userMessageType}` : "bg-primary") role="alert", aria-live="assertive", aria-atomic="true")
-			.d-flex
-				.toast-body
-					if (userMessage)
-						if (userMessage.length > 64)
-							span.border-dotted(title=userMessage, data-bs-toggle="tooltip") #{utils.ellipsizeMiddle(userMessage, 64)}
-						else
-							span #{userMessage}
+  .position-fixed.top-0.start-50.translate-middle-x.p-3(style="z-index: 1200")
+    #userMessageToast.toast.align-items-center.text-white.border-0(
+      class=userMessageType ? `bg-${userMessageType}` : "bg-primary",
+      role="alert",
+      aria-live="assertive",
+      aria-atomic="true"
+    )
+      .d-flex
+        .toast-body
+          if (userMessage)
+            if (userMessage.length > 64)
+              span.border-dotted(title=userMessage, data-bs-toggle="tooltip") #{ utils.ellipsizeMiddle(userMessage, 64) }
+            else
+              span #{ userMessage }
 
-					if (userMessageMarkdown)
-						.user-message-markdown
-							| !{marked.parse(userMessageMarkdown)}
+          if (userMessageMarkdown)
+            .user-message-markdown
+              | !{ marked.parse(userMessageMarkdown) }
 
-				button.btn-close.btn-close-white.me-2.m-auto(type="button", data-bs-dismiss="toast", aria-label="Close")
+        button.btn-close.btn-close-white.me-2.m-auto(
+          type="button",
+          data-bs-dismiss="toast",
+          aria-label="Close"
+        )
